@@ -2,22 +2,16 @@ package ca.rmen.android.scrumchatter;
 
 import java.util.Locale;
 
-import android.app.AlertDialog;
-import android.content.ContentValues;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.TextView;
-import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.ui.MembersListFragment;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -87,33 +81,12 @@ public class MainActivity extends SherlockFragmentActivity implements
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getSupportMenuInflater().inflate(R.menu.members_menu, menu);
+		getSupportMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == R.id.action_new_member) {
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			final EditText input = new EditText(this);
-			builder.setView(input);
-			builder.setPositiveButton(android.R.string.ok,
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog,
-								int whichButton) {
-							String value = input.getText().toString();
-							if (!TextUtils.isEmpty(value)) {
-								ContentValues values = new ContentValues();
-								values.put(MemberColumns.NAME, value);
-								getContentResolver().insert(
-										MemberColumns.CONTENT_URI, values);
-							}
-						}
-					});
-			builder.setNegativeButton(android.R.string.cancel, null);
-			builder.create().show();
-			return true;
-		}
 		return super.onOptionsItemSelected(item);
 	}
 
