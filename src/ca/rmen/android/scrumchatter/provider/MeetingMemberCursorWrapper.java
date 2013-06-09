@@ -33,10 +33,10 @@ public class MeetingMemberCursorWrapper extends CursorWrapper {
     }
 
     public Long getTeamMemberId() {
-        Integer index = mColumnIndexes.get(MeetingMemberColumns.TEAM_MEMBER_ID);
+        Integer index = mColumnIndexes.get(MeetingMemberColumns.MEMBER_ID);
         if (index == null) {
-        	index = getColumnIndexOrThrow(MeetingMemberColumns.TEAM_MEMBER_ID);
-        	mColumnIndexes.put(MeetingMemberColumns.TEAM_MEMBER_ID, index);
+        	index = getColumnIndexOrThrow(MeetingMemberColumns.MEMBER_ID);
+        	mColumnIndexes.put(MeetingMemberColumns.MEMBER_ID, index);
         }
         if (isNull(index)) return null;
         return getLong(index);

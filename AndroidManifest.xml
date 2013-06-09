@@ -22,6 +22,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <provider
+            android:name="ca.rmen.android.scrumchatter.provider.ScrumChatterProvider"
+            android:authorities="ca.rmen.android.scrumchatter.provider"
+            android:exported="false" >
+        </provider>
     </application>
 
 </manifest>
