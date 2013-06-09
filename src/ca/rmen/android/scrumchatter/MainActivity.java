@@ -13,6 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import ca.rmen.android.scrumchatter.ui.MembersListFragment;
+
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
@@ -116,10 +118,16 @@ public class MainActivity extends SherlockFragmentActivity implements
 			// getItem is called to instantiate the fragment for the given page.
 			// Return a DummySectionFragment (defined as a static inner class
 			// below) with the page number as its lone argument.
-			Fragment fragment = new DummySectionFragment();
-			Bundle args = new Bundle();
-			args.putInt(DummySectionFragment.ARG_SECTION_NUMBER, position + 1);
-			fragment.setArguments(args);
+			Fragment fragment = null;
+			if (position == 1) {
+				fragment = new MembersListFragment();
+			} else {
+				fragment = new DummySectionFragment();
+				Bundle args = new Bundle();
+				args.putInt(DummySectionFragment.ARG_SECTION_NUMBER,
+						position + 1);
+				fragment.setArguments(args);
+			}
 			return fragment;
 		}
 
@@ -134,7 +142,8 @@ public class MainActivity extends SherlockFragmentActivity implements
 			Locale l = Locale.getDefault();
 			switch (position) {
 			case 0:
-				return getString(R.string.title_section_meetings).toUpperCase(l);
+				return getString(R.string.title_section_meetings)
+						.toUpperCase(l);
 			case 1:
 				return getString(R.string.title_section_team).toUpperCase(l);
 			}
