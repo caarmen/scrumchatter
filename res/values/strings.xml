@@ -6,4 +6,5 @@
     <string name="title_section_meetings">Meetings</string>
     <string name="title_section_team">Team</string>
     <string name="action_new_member">Add team member</string>
+    <string name="action_new_meeting">New meeting</string>
 </resources>

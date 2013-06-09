@@ -74,7 +74,7 @@ public class MembersListFragment extends SherlockListFragment implements
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog,
 								int whichButton) {
-							String value = input.getText().toString();
+							String value = input.getText().toString().trim();
 							if (!TextUtils.isEmpty(value)) {
 								ContentValues values = new ContentValues();
 								values.put(MemberColumns.NAME, value);
