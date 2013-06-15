@@ -58,7 +58,7 @@ public class MembersListFragment extends SherlockListFragment implements
 	@Override
 	public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
 		CursorLoader loader = new CursorLoader(getActivity(),
-				MemberColumns.CONTENT_URI, null, null, null, null);
+				MemberColumns.CONTENT_URI, null, null, null, MemberColumns.NAME);
 		return loader;
 	}
 
