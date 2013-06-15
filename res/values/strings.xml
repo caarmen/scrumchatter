@@ -11,4 +11,7 @@
     <string name="error_member_exists">%s is already a team member.</string>
     <string name="action_delete_member">Delete member.</string>
     <string name="dialog_message_delete_member_confirm">Delete %s?</string>
+    <string name="member_list_header_name">Name</string>
+    <string name="member_list_header_avg_duration">Avg. chatter time</string>
+    <string name="member_list_header_sum_duration">Tot. chatter time</string>
 </resources>

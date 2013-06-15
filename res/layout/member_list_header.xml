@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" >
+
+    <TextView
+        android:id="@+id/tv_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/tv_avg_duration"
+        android:text="@string/member_list_header_name" />
+
+    <TextView
+        android:id="@id/tv_avg_duration"
+        android:layout_width="70dp"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/tv_sum_duration"
+        android:text="@string/member_list_header_avg_duration" />
+
+    <TextView
+        android:id="@id/tv_sum_duration"
+        android:layout_width="70dp"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/btn_delete"
+        android:text="@string/member_list_header_sum_duration" />
+
+    <ImageButton
+        android:id="@id/btn_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/tv_name"
+        android:contentDescription="@string/action_delete_member"
+        android:src="@drawable/ic_action_delete"
+        android:visibility="invisible" />
+
+</RelativeLayout>
