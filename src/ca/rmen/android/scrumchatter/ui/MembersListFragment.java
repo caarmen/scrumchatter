@@ -12,15 +12,18 @@ import android.support.v4.content.Loader;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.adapter.MembersCursorAdapter;
 import ca.rmen.android.scrumchatter.adapter.MembersCursorAdapter.MemberItemCache;
+import ca.rmen.android.scrumchatter.provider.MeetingMemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -30,6 +33,9 @@ import com.actionbarsherlock.view.MenuItem;
 
 public class MembersListFragment extends SherlockListFragment implements
 		LoaderCallbacks<Cursor> {
+
+	private static final String TAG = Constants.TAG + "/"
+			+ MembersListFragment.class.getSimpleName();
 
 	private static final int URL_LOADER = 0;
 
@@ -56,9 +62,22 @@ public class MembersListFragment extends SherlockListFragment implements
 	}
 
 	@Override
+	public void onPause() {
+		Log.v(TAG, "onPause");
+		super.onPause();
+	}
+
+	@Override
+	public void onResume() {
+		Log.v(TAG, "onResume");
+		super.onResume();
+	}
+
+	@Override
 	public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
 		CursorLoader loader = new CursorLoader(getActivity(),
-				MemberColumns.CONTENT_URI, null, null, null, MemberColumns.NAME);
+				MeetingMemberColumns.CONTENT_URI, null, null, null,
+				MemberColumns.NAME);
 		return loader;
 	}
 
@@ -182,7 +201,6 @@ public class MembersListFragment extends SherlockListFragment implements
 											MemberColumns._ID + "=?",
 											new String[] { String
 													.valueOf(cache.id) });
-									mAdapter.notifyDataSetChanged();
 								}
 							});
 					builder.setNegativeButton(android.R.string.cancel, null);

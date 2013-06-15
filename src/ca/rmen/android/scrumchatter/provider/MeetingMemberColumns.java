@@ -8,11 +8,10 @@ public class MeetingMemberColumns implements BaseColumns {
 	public static final Uri CONTENT_URI = Uri
 			.parse(ScrumChatterProvider.CONTENT_URI_BASE + "/" + TABLE_NAME);
 
-	public static final String _ID = BaseColumns._ID;
-
 	public static final String MEETING_ID = "meeting_id";
 	public static final String MEMBER_ID = "member_id";
 	public static final String DURATION = "duration";
 
-	public static final String DEFAULT_ORDER = _ID;
+	public static final String SUM_DURATION = "sum_duration";
+	public static final String AVG_DURATION = "avg_duration";
 }

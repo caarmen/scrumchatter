@@ -17,8 +17,6 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
 	private static final String SQL_CREATE_TABLE_MEETING_MEMBER = "CREATE TABLE IF NOT EXISTS "
 			+ MeetingMemberColumns.TABLE_NAME
 			+ " ( "
-			+ MeetingMemberColumns._ID
-			+ " INTEGER PRIMARY KEY AUTOINCREMENT, "
 			+ MeetingMemberColumns.MEETING_ID
 			+ " INTEGER, "
 			+ MeetingMemberColumns.MEMBER_ID

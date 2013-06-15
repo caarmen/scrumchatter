@@ -3,15 +3,19 @@ package ca.rmen.android.scrumchatter.adapter;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.widget.CursorAdapter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.provider.MemberCursorWrapper;
 
 public class MembersCursorAdapter extends CursorAdapter {
+	private static final String TAG = Constants.TAG + "/"
+			+ MembersCursorAdapter.class.getSimpleName();
 	private final OnClickListener mOnClickListener;
 
 	public MembersCursorAdapter(Context context, OnClickListener onClickListener) {
@@ -38,7 +42,7 @@ public class MembersCursorAdapter extends CursorAdapter {
 				cursor);
 		Long memberId = memberCursorWrapper.getId();
 		String memberName = memberCursorWrapper.getName();
-		MemberItemCache cache = new MemberItemCache(memberId, memberName);
+		MemberItemCache cache = new MemberItemCache(memberId, memberName, 0, 0);
 
 		TextView tvName = (TextView) view.findViewById(R.id.tv_name);
 		tvName.setText(memberName);
@@ -47,13 +51,24 @@ public class MembersCursorAdapter extends CursorAdapter {
 		btnDelete.setTag(cache);
 	}
 
-	public static class MemberItemCache {
-		public long id;
-		public String name;
+	@Override
+	protected void onContentChanged() {
+		super.onContentChanged();
+		Log.v(TAG, "onContentChanged");
+	}
 
-		public MemberItemCache(long id, String name) {
+	public static class MemberItemCache {
+		public final long id;
+		public final String name;
+		public final int avgChatterTimeSeconds;
+		public final int totChatterTimeSeconds;
+
+		public MemberItemCache(long id, String name, int avgChatterTimeSeconds,
+				int totChatterTimeSeconds) {
 			this.id = id;
 			this.name = name;
+			this.avgChatterTimeSeconds = avgChatterTimeSeconds;
+			this.totChatterTimeSeconds = totChatterTimeSeconds;
 		}
 	}
 }
