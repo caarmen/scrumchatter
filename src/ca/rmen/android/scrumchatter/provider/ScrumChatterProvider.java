@@ -1,5 +1,7 @@
 package ca.rmen.android.scrumchatter.provider;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 import android.content.ContentProvider;
@@ -152,16 +154,21 @@ public class ScrumChatterProvider extends ContentProvider {
 	public Cursor query(Uri uri, String[] projection, String selection,
 			String[] selectionArgs, String sortOrder) {
 		final String groupBy = uri.getQueryParameter(QUERY_GROUP_BY);
-		Log.d(TAG, "query uri=" + uri + " selection=" + selection
-				+ " sortOrder=" + sortOrder + " groupBy=" + groupBy);
+		Log.d(TAG,
+				"query uri=" + uri + "projection = "
+						+ Arrays.toString(projection) + " selection="
+						+ selection + " sortOrder=" + sortOrder + " groupBy="
+						+ groupBy);
 		final QueryParams queryParams = getQueryParams(uri, selection);
 		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 		qb.setTables(queryParams.table);
 		qb.setProjectionMap(queryParams.projectionMap);
 
 		final Cursor res = qb.query(
-				mScrumChatterDatabase.getReadableDatabase(), projection,
-				queryParams.selection, selectionArgs, groupBy, null,
+				mScrumChatterDatabase.getReadableDatabase(),
+				projection == null ? queryParams.projection : projection,
+				queryParams.selection, selectionArgs,
+				groupBy == null ? queryParams.groupBy : groupBy, null,
 				sortOrder == null ? queryParams.orderBy : sortOrder);
 		res.setNotificationUri(getContext().getContentResolver(), uri);
 		return res;
@@ -180,8 +187,10 @@ public class ScrumChatterProvider extends ContentProvider {
 
 	private static class QueryParams {
 		public String table;
+		public String[] projection;
 		public String selection;
 		public String orderBy;
+		public String groupBy;
 		public Map<String, String> projectionMap;
 	}
 
@@ -192,12 +201,28 @@ public class ScrumChatterProvider extends ContentProvider {
 		switch (matchedId) {
 		case URI_TYPE_MEETING_MEMBER:
 		case URI_TYPE_MEETING_MEMBER_ID:
+			String memberIdColumn = MemberColumns.TABLE_NAME + "."
+					+ MemberColumns._ID;
+			String meetingMemberIdColumn = MeetingMemberColumns.TABLE_NAME
+					+ "." + MeetingMemberColumns.MEMBER_ID;
 			res.table = MemberColumns.TABLE_NAME + " LEFT OUTER JOIN "
-					+ MeetingMemberColumns.TABLE_NAME + " ON "
-					+ MemberColumns.TABLE_NAME + "." + MemberColumns._ID
-					+ " = " + MeetingMemberColumns.TABLE_NAME + "."
-					+ MeetingMemberColumns.MEMBER_ID;
+					+ MeetingMemberColumns.TABLE_NAME + " ON " + memberIdColumn
+					+ " = " + meetingMemberIdColumn;
+			res.projection = new String[] { MemberColumns._ID };
 			res.orderBy = MemberColumns.DEFAULT_ORDER;
+			res.groupBy = MemberColumns.TABLE_NAME + "." + MemberColumns._ID;
+			res.projectionMap = new HashMap<String, String>();
+			res.projectionMap.put(MeetingMemberColumns.AVG_DURATION, "avg("
+					+ MeetingMemberColumns.TABLE_NAME + "."
+					+ MeetingMemberColumns.DURATION + ")");
+			res.projectionMap.put(MeetingMemberColumns.SUM_DURATION, "sum("
+					+ MeetingMemberColumns.TABLE_NAME + "."
+					+ MeetingMemberColumns.DURATION + ")");
+			res.projectionMap.put(MemberColumns._ID, memberIdColumn);
+			res.projectionMap.put(MeetingMemberColumns.MEMBER_ID,
+					memberIdColumn);
+			res.projectionMap.put(MemberColumns.NAME, MemberColumns.TABLE_NAME
+					+ "." + MemberColumns.NAME);
 			break;
 
 		case URI_TYPE_MEMBER:
