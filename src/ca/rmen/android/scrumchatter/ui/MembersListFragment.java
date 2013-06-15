@@ -12,10 +12,15 @@ import android.support.v4.content.Loader;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.adapter.MembersCursorAdapter;
+import ca.rmen.android.scrumchatter.adapter.MembersCursorAdapter.MemberItemCache;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -36,9 +41,16 @@ public class MembersListFragment extends SherlockListFragment implements
 	}
 
 	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		View view = inflater.inflate(R.layout.member_list, null);
+		return view;
+	}
+
+	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-		mAdapter = new MembersCursorAdapter(activity, null, true);
+		mAdapter = new MembersCursorAdapter(activity, mOnClickListener);
 		setListAdapter(mAdapter);
 		getLoaderManager().initLoader(URL_LOADER, null, this);
 	}
@@ -74,7 +86,7 @@ public class MembersListFragment extends SherlockListFragment implements
 			final EditText input = new EditText(activity);
 			builder.setView(input);
 			builder.setTitle(R.string.action_new_member);
-			builder.setMessage(R.string.dialog_title_new_member);
+			builder.setMessage(R.string.dialog_message_new_member);
 			builder.setPositiveButton(android.R.string.ok,
 					new DialogInterface.OnClickListener() {
 
@@ -144,4 +156,42 @@ public class MembersListFragment extends SherlockListFragment implements
 		return true;
 	}
 
+	private final OnClickListener mOnClickListener = new OnClickListener() {
+
+		@Override
+		public void onClick(View v) {
+			switch (v.getId()) {
+			case R.id.btn_delete:
+				if (v.getTag() instanceof MemberItemCache) {
+					final MemberItemCache cache = (MemberItemCache) v.getTag();
+					final Activity activity = getActivity();
+					AlertDialog.Builder builder = new AlertDialog.Builder(
+							activity);
+					builder.setTitle(R.string.action_delete_member);
+					builder.setMessage(activity.getString(
+							R.string.dialog_message_delete_member_confirm,
+							cache.name));
+					builder.setPositiveButton(android.R.string.ok,
+							new DialogInterface.OnClickListener() {
+
+								public void onClick(DialogInterface dialog,
+										int whichButton) {
+									// TODO do on a background thread.
+									activity.getContentResolver().delete(
+											MemberColumns.CONTENT_URI,
+											MemberColumns._ID + "=?",
+											new String[] { String
+													.valueOf(cache.id) });
+									mAdapter.notifyDataSetChanged();
+								}
+							});
+					builder.setNegativeButton(android.R.string.cancel, null);
+					builder.create().show();
+				}
+				break;
+			default:
+				break;
+			}
+		}
+	};
 }
