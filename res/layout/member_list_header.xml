@@ -5,6 +5,7 @@
 
     <TextView
         android:id="@+id/tv_name"
+        style="@style/listHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
@@ -14,6 +15,7 @@
 
     <TextView
         android:id="@id/tv_avg_duration"
+        style="@style/listHeader"
         android:layout_width="70dp"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
@@ -22,6 +24,7 @@
 
     <TextView
         android:id="@id/tv_sum_duration"
+        style="@style/listHeader"
         android:layout_width="70dp"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
@@ -37,5 +40,12 @@
         android:contentDescription="@string/action_delete_member"
         android:src="@drawable/ic_action_delete"
         android:visibility="invisible" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentBottom="true"
+        android:background="#808" >
+    </View>
 
 </RelativeLayout>
