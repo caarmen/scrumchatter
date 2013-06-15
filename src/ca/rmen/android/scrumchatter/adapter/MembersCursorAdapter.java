@@ -42,7 +42,10 @@ public class MembersCursorAdapter extends CursorAdapter {
 				cursor);
 		Long memberId = memberCursorWrapper.getId();
 		String memberName = memberCursorWrapper.getName();
-		MemberItemCache cache = new MemberItemCache(memberId, memberName, 0, 0);
+		Integer avgDuration = memberCursorWrapper.getAverageDuration();
+		Integer sumDuration = memberCursorWrapper.getSumDuration();
+		MemberItemCache cache = new MemberItemCache(memberId, memberName,
+				avgDuration, sumDuration);
 
 		TextView tvName = (TextView) view.findViewById(R.id.tv_name);
 		tvName.setText(memberName);

@@ -214,13 +214,13 @@ public class ScrumChatterProvider extends ContentProvider {
 			res.projectionMap = new HashMap<String, String>();
 			res.projectionMap.put(MeetingMemberColumns.AVG_DURATION, "avg("
 					+ MeetingMemberColumns.TABLE_NAME + "."
-					+ MeetingMemberColumns.DURATION + ")");
+					+ MeetingMemberColumns.DURATION + ") AS "
+					+ MeetingMemberColumns.AVG_DURATION);
 			res.projectionMap.put(MeetingMemberColumns.SUM_DURATION, "sum("
 					+ MeetingMemberColumns.TABLE_NAME + "."
-					+ MeetingMemberColumns.DURATION + ")");
+					+ MeetingMemberColumns.DURATION + ") AS "
+					+ MeetingMemberColumns.SUM_DURATION);
 			res.projectionMap.put(MemberColumns._ID, memberIdColumn);
-			res.projectionMap.put(MeetingMemberColumns.MEMBER_ID,
-					memberIdColumn);
 			res.projectionMap.put(MemberColumns.NAME, MemberColumns.TABLE_NAME
 					+ "." + MemberColumns.NAME);
 			break;
