@@ -9,7 +9,10 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.widget.Button;
 import android.widget.EditText;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.adapter.MembersCursorAdapter;
@@ -70,21 +73,72 @@ public class MembersListFragment extends SherlockListFragment implements
 			AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 			final EditText input = new EditText(activity);
 			builder.setView(input);
+			builder.setTitle(R.string.action_new_member);
+			builder.setMessage(R.string.dialog_title_new_member);
 			builder.setPositiveButton(android.R.string.ok,
 					new DialogInterface.OnClickListener() {
+
 						public void onClick(DialogInterface dialog,
 								int whichButton) {
-							String value = input.getText().toString().trim();
-							if (!TextUtils.isEmpty(value)) {
+							String memberName = input.getText().toString()
+									.trim();
+
+							if (!TextUtils.isEmpty(memberName)) {
 								ContentValues values = new ContentValues();
-								values.put(MemberColumns.NAME, value);
+								values.put(MemberColumns.NAME, memberName);
 								activity.getContentResolver().insert(
 										MemberColumns.CONTENT_URI, values);
 							}
 						}
 					});
 			builder.setNegativeButton(android.R.string.cancel, null);
-			builder.create().show();
+			final AlertDialog dialog = builder.create();
+			input.addTextChangedListener(new TextWatcher() {
+
+				@Override
+				public void afterTextChanged(Editable s) {
+					validateMemberName();
+				}
+
+				@Override
+				public void beforeTextChanged(CharSequence s, int start,
+						int count, int after) {
+					validateMemberName();
+				}
+
+				@Override
+				public void onTextChanged(CharSequence s, int start,
+						int before, int count) {
+					validateMemberName();
+				}
+
+				private void validateMemberName() {
+					String memberName = input.getText().toString().trim();
+					Cursor existingMemberCountCursor = activity
+							.getContentResolver().query(
+									MemberColumns.CONTENT_URI,
+									new String[] { "count(*)" },
+									MemberColumns.NAME + "=?",
+									new String[] { memberName }, null);
+					input.setError(null);
+					Button okButton = dialog
+							.getButton(AlertDialog.BUTTON_POSITIVE);
+					okButton.setEnabled(true);
+					if (existingMemberCountCursor != null) {
+						existingMemberCountCursor.moveToFirst();
+						int existingMemberCount = existingMemberCountCursor
+								.getInt(0);
+						existingMemberCountCursor.close();
+						if (existingMemberCount > 0) {
+							input.setError(activity.getString(
+									R.string.error_member_exists, memberName));
+							okButton.setEnabled(false);
+						}
+					}
+				}
+			});
+			dialog.show();
+
 			return true;
 		}
 		return true;

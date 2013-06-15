@@ -7,4 +7,6 @@
     <string name="title_section_team">Team</string>
     <string name="action_new_member">Add team member</string>
     <string name="action_new_meeting">New meeting</string>
+    <string name="dialog_title_new_member">Enter the team member\'s name</string>
+    <string name="error_member_exists">%s is already a team member.</string>
 </resources>
