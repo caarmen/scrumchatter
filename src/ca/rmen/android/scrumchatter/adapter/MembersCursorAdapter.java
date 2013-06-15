@@ -1,5 +1,7 @@
 package ca.rmen.android.scrumchatter.adapter;
 
+import java.util.Locale;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.widget.CursorAdapter;
@@ -49,6 +51,15 @@ public class MembersCursorAdapter extends CursorAdapter {
 
 		TextView tvName = (TextView) view.findViewById(R.id.tv_name);
 		tvName.setText(memberName);
+
+		TextView tvAvgDuration = (TextView) view
+				.findViewById(R.id.tv_avg_duration);
+		tvAvgDuration.setText(formatDuration(avgDuration));
+
+		TextView tvSumDuration = (TextView) view
+				.findViewById(R.id.tv_sum_duration);
+		tvSumDuration.setText(formatDuration(sumDuration));
+
 		View btnDelete = view.findViewById(R.id.btn_delete);
 		btnDelete.setOnClickListener(mOnClickListener);
 		btnDelete.setTag(cache);
@@ -58,6 +69,16 @@ public class MembersCursorAdapter extends CursorAdapter {
 	protected void onContentChanged() {
 		super.onContentChanged();
 		Log.v(TAG, "onContentChanged");
+	}
+
+	private static String formatDuration(Integer duration) {
+		if (duration == null)
+			duration = 0;
+		int hours = duration / 3600;
+		int minutes = (duration - hours * 3600) / 60;
+		int seconds = (duration - hours * 3600 - minutes * 60);
+		return String.format(Locale.US, "%02d:%02d:%02d", hours, minutes,
+				seconds);
 	}
 
 	public static class MemberItemCache {
