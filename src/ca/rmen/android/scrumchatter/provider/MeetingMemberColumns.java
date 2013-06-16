@@ -21,6 +21,14 @@ package ca.rmen.android.scrumchatter.provider;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
+/**
+ * Table, column names, and column types (enums) for the meeting_member table.
+ * 
+ * A row in this table contains information about one member's participation in
+ * one meeting. This is a join table between the meeting and member tables. This
+ * table will contain multiple entries for a given member, and multiple entries
+ * for a given meeting.
+ */
 public class MeetingMemberColumns implements BaseColumns {
 	public static final String TABLE_NAME = "meeting_member";
 	public static final Uri CONTENT_URI = Uri

@@ -33,6 +33,13 @@ import android.provider.BaseColumns;
 import android.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
 
+/**
+ * Provider for the Scrum Chatter app. This provider provides access to the
+ * member, meeting, and meeting_member tables.
+ * 
+ * Part of this class was generated using the Android Content Provider
+ * Generator: https://github.com/BoD/android-contentprovider-generator
+ */
 public class ScrumChatterProvider extends ContentProvider {
 	private static final String TAG = Constants.TAG
 			+ ScrumChatterProvider.class.getSimpleName();
@@ -114,7 +121,8 @@ public class ScrumChatterProvider extends ContentProvider {
 		final long rowId = mScrumChatterDatabase.getWritableDatabase().insert(
 				table, null, values);
 		// When we insert a row into the meeting table, we have to add
-		// all existing members to this meeting.
+		// all existing members to this meeting. To do this, we create
+		// one row for each member into the meeting_member table.
 		if (table.equals(MeetingColumns.TABLE_NAME)) {
 			Cursor members = mScrumChatterDatabase.getReadableDatabase().query(
 					MemberColumns.TABLE_NAME,
@@ -235,6 +243,9 @@ public class ScrumChatterProvider extends ContentProvider {
 		}
 	}
 
+	/**
+	 * To be used for updates and deletes
+	 */
 	private static class StatementParams {
 		public String table;
 		public String selection;
@@ -242,6 +253,9 @@ public class ScrumChatterProvider extends ContentProvider {
 
 	}
 
+	/**
+	 * To be used for queries
+	 */
 	private static class QueryParams extends StatementParams {
 		public String[] projection;
 		public String orderBy;
@@ -249,6 +263,20 @@ public class ScrumChatterProvider extends ContentProvider {
 		public Map<String, String> projectionMap;
 	}
 
+	/**
+	 * returns a StatentParams containing the table name and possibly a
+	 * selection and selection args, depending on whether a selection was
+	 * provided by the user, and if an id was provided in the Uri.
+	 * 
+	 * @param uri
+	 *            provided by the user of the ContentProvider. If the uri
+	 *            contains a path with an id, we will add the id to the
+	 *            selection.
+	 * @param selection
+	 *            provided by the user of the ContentProvider
+	 * @return the table, selection, and selectionArgs to use based on the uri
+	 *         and selection provided by the user of the ContentProvider.
+	 */
 	private StatementParams getStatementParams(Uri uri, String selection) {
 		StatementParams res = new StatementParams();
 		String id = null;
@@ -287,13 +315,28 @@ public class ScrumChatterProvider extends ContentProvider {
 		return res;
 	}
 
+	/**
+	 * 
+	 * @param uri
+	 * @param selection
+	 * @return the full QueryParams based on the Uri and selection provided by
+	 *         the user of the ContentProvider.
+	 */
 	private QueryParams getQueryParams(Uri uri, String selection) {
 		QueryParams res = new QueryParams();
 		String id = null;
 		int matchedId = URI_MATCHER.match(uri);
 		res.projectionMap = new HashMap<String, String>();
 		switch (matchedId) {
+		// The meeting_member table is a join table between the meeting and
+		// member tables.
+		// This table does not have an _id field. If the Uri contains an id,
+		// this will be used as the meeting id.
 		case URI_TYPE_MEETING_MEMBER:
+			// The special columns for average and sum of duration need to be
+			// mapped to their corresponding SQL formulas.
+			// These columns can be used with a Uri which specifies a
+			// meeting id or not.
 			res.projectionMap.put(MeetingMemberColumns.AVG_DURATION, "avg("
 					+ MeetingMemberColumns.TABLE_NAME + "."
 					+ MeetingMemberColumns.DURATION + ") AS "
@@ -303,6 +346,10 @@ public class ScrumChatterProvider extends ContentProvider {
 					+ MeetingMemberColumns.DURATION + ") AS "
 					+ MeetingMemberColumns.SUM_DURATION);
 		case URI_TYPE_MEETING_MEMBER_ID:
+			// This Uri translates into a query on the member table
+			// joined to the meeting_member table. The goal of this
+			// Uri is to provide stats for members for all or for one
+			// meeting.
 			String memberIdColumn = MemberColumns.TABLE_NAME + "."
 					+ MemberColumns._ID;
 			String meetingMemberIdColumn = MeetingMemberColumns.TABLE_NAME

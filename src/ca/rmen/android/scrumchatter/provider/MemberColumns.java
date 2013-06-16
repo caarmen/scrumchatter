@@ -21,6 +21,11 @@ package ca.rmen.android.scrumchatter.provider;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
+/**
+ * Table, column names, and column types (enums) for the member table.
+ * 
+ * A row in this table contains attributes of a single team member.
+ */
 public class MemberColumns implements BaseColumns {
 	public static final String TABLE_NAME = "member";
 	public static final Uri CONTENT_URI = Uri

@@ -22,19 +22,18 @@ import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.widget.CursorAdapter;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.provider.MemberCursorWrapper;
 
+/**
+ * Adapter for the list of team members.
+ */
 public class MembersCursorAdapter extends CursorAdapter {
-	private static final String TAG = Constants.TAG + "/"
-			+ MembersCursorAdapter.class.getSimpleName();
 	private final OnClickListener mOnClickListener;
 
 	public MembersCursorAdapter(Context context, OnClickListener onClickListener) {
@@ -56,7 +55,16 @@ public class MembersCursorAdapter extends CursorAdapter {
 		return view;
 	}
 
+	/**
+	 * Set up the view with the data from the given team member
+	 * 
+	 * @param view
+	 *            a newly created, or recycled view
+	 * @param cursor
+	 *            a row for a given team member.
+	 */
 	private void fillView(View view, Cursor cursor) {
+		// Get the data from the cursor
 		@SuppressWarnings("resource")
 		MemberCursorWrapper memberCursorWrapper = new MemberCursorWrapper(
 				cursor);
@@ -66,26 +74,23 @@ public class MembersCursorAdapter extends CursorAdapter {
 		Integer sumDuration = memberCursorWrapper.getSumDuration();
 		MemberItemCache cache = new MemberItemCache(memberId, memberName);
 
+		// Find the views we need to update
 		TextView tvName = (TextView) view.findViewById(R.id.tv_name);
-		tvName.setText(memberName);
-
 		TextView tvAvgDuration = (TextView) view
 				.findViewById(R.id.tv_avg_duration);
-		tvAvgDuration.setText(DateUtils.formatElapsedTime(avgDuration));
-
 		TextView tvSumDuration = (TextView) view
 				.findViewById(R.id.tv_sum_duration);
+		View btnDelete = view.findViewById(R.id.btn_delete);
+
+		// Setup our views with the member data
+		tvName.setText(memberName);
+		tvAvgDuration.setText(DateUtils.formatElapsedTime(avgDuration));
 		tvSumDuration.setText(DateUtils.formatElapsedTime(sumDuration));
 
-		View btnDelete = view.findViewById(R.id.btn_delete);
+		// Forward clicks to our OnClickListener, and use the tag
+		// to pass data about the member that the OnClickListener needs.
 		btnDelete.setOnClickListener(mOnClickListener);
 		btnDelete.setTag(cache);
-	}
-
-	@Override
-	protected void onContentChanged() {
-		super.onContentChanged();
-		Log.v(TAG, "onContentChanged");
 	}
 
 	// TODO for now this cache class is not really used to

@@ -24,6 +24,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
 
+/**
+ * Creates and upgrades database tables.
+ */
 public class ScrumChatterDatabase extends SQLiteOpenHelper {
 	private static final String TAG = Constants.TAG
 			+ ScrumChatterDatabase.class.getSimpleName();

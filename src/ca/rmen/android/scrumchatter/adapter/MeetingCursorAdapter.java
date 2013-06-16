@@ -23,7 +23,6 @@ import android.database.Cursor;
 import android.os.SystemClock;
 import android.support.v4.widget.CursorAdapter;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -31,16 +30,22 @@ import android.view.ViewGroup;
 import android.widget.Chronometer;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
 
+/**
+ * Adapter for the list of members in one meeting, and their speaking durations
+ * for that meeting.
+ */
 public class MeetingCursorAdapter extends CursorAdapter {
-	private static final String TAG = Constants.TAG + "/"
-			+ MeetingCursorAdapter.class.getSimpleName();
 	private final OnClickListener mOnClickListener;
 
+	/**
+	 * @param onClickListener
+	 *            clicks on widgets on each list item will be forwarded to this
+	 *            listener.
+	 */
 	public MeetingCursorAdapter(Context context, OnClickListener onClickListener) {
 		super(context, null, true);
 		mOnClickListener = onClickListener;
@@ -61,7 +66,17 @@ public class MeetingCursorAdapter extends CursorAdapter {
 		return view;
 	}
 
+	/**
+	 * Set the view elements (TextView text, etc) for the given member of a
+	 * meeting.
+	 * 
+	 * @param view
+	 *            a view we just created or recycled
+	 * @param cursor
+	 *            a row for one member in one meeting.
+	 */
 	private void fillView(View view, Cursor cursor) {
+		// Extract the fields we need from this cursor
 		@SuppressWarnings("resource")
 		MeetingMemberCursorWrapper cursorWrapper = new MeetingMemberCursorWrapper(
 				cursor);
@@ -69,30 +84,40 @@ public class MeetingCursorAdapter extends CursorAdapter {
 		String memberName = cursorWrapper.getMemberName();
 		long duration = cursorWrapper.getDuration();
 		State meetingState = cursorWrapper.getMeetingState();
+		Long talkStartTime = cursorWrapper.getTalkStartTime();
 
-		MemberItemCache cache = new MemberItemCache(memberId, memberName);
-
+		// Find the Views we need to set up
 		TextView tvName = (TextView) view.findViewById(R.id.tv_name);
-		tvName.setText(memberName);
-
 		Chronometer chronometer = (Chronometer) view
 				.findViewById(R.id.tv_duration);
-
 		ImageButton btnStartStop = (ImageButton) view
 				.findViewById(R.id.btn_start_stop_member);
-		Long talkStartTime = cursorWrapper.getTalkStartTime();
+
+		// Set up the member's name
+		tvName.setText(memberName);
+
+		// if the talkStartTime is non-zero, this means the
+		// member is talking (and started talking that long ago).
+		boolean memberIsTalking = talkStartTime != null && talkStartTime > 0;
+
+		// Set up the start/stop button for this member.
+		// If the meeting is finished, we hide the start/stop button.
 		if (meetingState == State.FINISHED) {
 			btnStartStop.setVisibility(View.INVISIBLE);
-		} else {
-			btnStartStop.setOnClickListener(mOnClickListener);
-			btnStartStop.setTag(cache);
-			if (talkStartTime != null && talkStartTime > 0) {
-				btnStartStop.setImageResource(R.drawable.ic_action_stop);
-			} else {
-				btnStartStop.setImageResource(R.drawable.ic_action_start);
-			}
 		}
-		if (talkStartTime != null && talkStartTime > 0) {
+		// If the meeting is in progress, set the button to stop
+		// or start, depending on whether the member is already talking
+		// or not.
+		else {
+			btnStartStop.setOnClickListener(mOnClickListener);
+			btnStartStop
+					.setImageResource(memberIsTalking ? R.drawable.ic_action_stop
+							: R.drawable.ic_action_start);
+		}
+
+		// If the member is currently talking, show the chronometer.
+		// Otherwise, show the duration that they talked (if any).
+		if (memberIsTalking) {
 			long hasBeenTalkingFor = duration * 1000
 					+ (System.currentTimeMillis() - talkStartTime);
 			chronometer.setBase(SystemClock.elapsedRealtime()
@@ -102,21 +127,9 @@ public class MeetingCursorAdapter extends CursorAdapter {
 			chronometer.stop();
 			chronometer.setText(DateUtils.formatElapsedTime(duration));
 		}
-	}
 
-	@Override
-	protected void onContentChanged() {
-		super.onContentChanged();
-		Log.v(TAG, "onContentChanged");
-	}
-
-	public static class MemberItemCache {
-		public final long id;
-		public final String name;
-
-		private MemberItemCache(long id, String name) {
-			this.id = id;
-			this.name = name;
-		}
+		// Set the member id as a tag, so when the OnClickListener receives the
+		// click action, it knows for which member the user clicked.
+		btnStartStop.setTag(memberId);
 	}
 }

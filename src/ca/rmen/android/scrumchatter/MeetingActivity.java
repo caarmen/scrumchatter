@@ -34,8 +34,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Chronometer;
 import android.widget.TextView;
-import android.widget.Toast;
-import ca.rmen.android.scrumchatter.adapter.MeetingCursorAdapter.MemberItemCache;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.provider.MeetingCursorWrapper;
@@ -295,11 +293,9 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		public void onClick(View v) {
 			switch (v.getId()) {
 			case R.id.btn_start_stop_member:
-				MemberItemCache cache = (MemberItemCache) v.getTag();
-				Toast.makeText(MeetingActivity.this,
-						"Clicked on " + cache.name, Toast.LENGTH_SHORT).show();
 				startMeeting();
-				toggleTalkingMember(cache.id);
+				long memberId = (Long) v.getTag();
+				toggleTalkingMember(memberId);
 				break;
 			case R.id.btn_stop_meeting:
 				stopMeeting();
