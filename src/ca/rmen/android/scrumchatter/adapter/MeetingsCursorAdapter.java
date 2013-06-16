@@ -56,6 +56,7 @@ public class MeetingsCursorAdapter extends CursorAdapter {
 	}
 
 	private void fillView(Context context, View view, Cursor cursor) {
+		@SuppressWarnings("resource")
 		MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(cursor);
 		long id = cursorWrapper.getId();
 		String date = DateUtils.formatDateTime(mContext,
@@ -69,8 +70,7 @@ public class MeetingsCursorAdapter extends CursorAdapter {
 		String[] meetingStates = context.getResources().getStringArray(
 				R.array.meeting_states);
 		String stateName = meetingStates[state.ordinal()];
-		MeetingItemCache cache = new MeetingItemCache(id, date, duration,
-				stateName);
+		MeetingItemCache cache = new MeetingItemCache(id, date);
 		TextView tvDate = (TextView) view.findViewById(R.id.tv_meeting_date);
 		TextView tvDuration = (TextView) view
 				.findViewById(R.id.tv_meeting_duration);
@@ -90,15 +90,10 @@ public class MeetingsCursorAdapter extends CursorAdapter {
 	public static class MeetingItemCache {
 		public final long id;
 		public final String date;
-		public final String duration;
-		public final String state;
 
-		public MeetingItemCache(long id, String date, String duration,
-				String state) {
+		private MeetingItemCache(long id, String date) {
 			this.id = id;
 			this.date = date;
-			this.duration = duration;
-			this.state = state;
 		}
 
 	}

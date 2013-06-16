@@ -57,14 +57,14 @@ public class MembersCursorAdapter extends CursorAdapter {
 	}
 
 	private void fillView(View view, Cursor cursor) {
+		@SuppressWarnings("resource")
 		MemberCursorWrapper memberCursorWrapper = new MemberCursorWrapper(
 				cursor);
 		Long memberId = memberCursorWrapper.getId();
 		String memberName = memberCursorWrapper.getName();
 		Integer avgDuration = memberCursorWrapper.getAverageDuration();
 		Integer sumDuration = memberCursorWrapper.getSumDuration();
-		MemberItemCache cache = new MemberItemCache(memberId, memberName,
-				avgDuration, sumDuration);
+		MemberItemCache cache = new MemberItemCache(memberId, memberName);
 
 		TextView tvName = (TextView) view.findViewById(R.id.tv_name);
 		tvName.setText(memberName);
@@ -97,15 +97,10 @@ public class MembersCursorAdapter extends CursorAdapter {
 	public static class MemberItemCache {
 		public final long id;
 		public final String name;
-		public final int avgChatterTimeSeconds;
-		public final int totChatterTimeSeconds;
 
-		public MemberItemCache(long id, String name, int avgChatterTimeSeconds,
-				int totChatterTimeSeconds) {
+		private MemberItemCache(long id, String name) {
 			this.id = id;
 			this.name = name;
-			this.avgChatterTimeSeconds = avgChatterTimeSeconds;
-			this.totChatterTimeSeconds = totChatterTimeSeconds;
 		}
 	}
 }

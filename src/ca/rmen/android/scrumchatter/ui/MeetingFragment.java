@@ -76,7 +76,7 @@ public class MeetingFragment extends SherlockListFragment {
 		getLoaderManager().initLoader(URL_LOADER, null, mLoaderCallbacks);
 	}
 
-	LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
+	private LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
 
 		@Override
 		public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
