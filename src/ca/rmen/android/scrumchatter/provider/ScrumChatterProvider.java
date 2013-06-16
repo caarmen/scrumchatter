@@ -164,12 +164,16 @@ public class ScrumChatterProvider extends ContentProvider {
 		qb.setTables(queryParams.table);
 		qb.setProjectionMap(queryParams.projectionMap);
 
+		// @formatter:off
 		final Cursor res = qb.query(
 				mScrumChatterDatabase.getReadableDatabase(),
 				projection == null ? queryParams.projection : projection,
-				queryParams.selection, selectionArgs,
-				groupBy == null ? queryParams.groupBy : groupBy, null,
+				selection == null ? queryParams.selection : selection,
+				selectionArgs == null ? queryParams.selectionArgs
+						: selectionArgs, groupBy == null ? queryParams.groupBy
+						: groupBy, null,
 				sortOrder == null ? queryParams.orderBy : sortOrder);
+		// @formatter:on
 		res.setNotificationUri(getContext().getContentResolver(), uri);
 		return res;
 	}
@@ -189,6 +193,7 @@ public class ScrumChatterProvider extends ContentProvider {
 		public String table;
 		public String[] projection;
 		public String selection;
+		public String[] selectionArgs;
 		public String orderBy;
 		public String groupBy;
 		public Map<String, String> projectionMap;
@@ -198,8 +203,17 @@ public class ScrumChatterProvider extends ContentProvider {
 		QueryParams res = new QueryParams();
 		String id = null;
 		int matchedId = URI_MATCHER.match(uri);
+		res.projectionMap = new HashMap<String, String>();
 		switch (matchedId) {
 		case URI_TYPE_MEETING_MEMBER:
+			res.projectionMap.put(MeetingMemberColumns.AVG_DURATION, "avg("
+					+ MeetingMemberColumns.TABLE_NAME + "."
+					+ MeetingMemberColumns.DURATION + ") AS "
+					+ MeetingMemberColumns.AVG_DURATION);
+			res.projectionMap.put(MeetingMemberColumns.SUM_DURATION, "sum("
+					+ MeetingMemberColumns.TABLE_NAME + "."
+					+ MeetingMemberColumns.DURATION + ") AS "
+					+ MeetingMemberColumns.SUM_DURATION);
 		case URI_TYPE_MEETING_MEMBER_ID:
 			String memberIdColumn = MemberColumns.TABLE_NAME + "."
 					+ MemberColumns._ID;
@@ -209,20 +223,18 @@ public class ScrumChatterProvider extends ContentProvider {
 					+ MeetingMemberColumns.TABLE_NAME + " ON " + memberIdColumn
 					+ " = " + meetingMemberIdColumn;
 			res.projection = new String[] { MemberColumns._ID };
+			if (matchedId == URI_TYPE_MEETING_MEMBER_ID) {
+				String meetingId = uri.getLastPathSegment();
+				res.selection = MeetingMemberColumns.MEETING_ID + "=?";
+				res.selectionArgs = new String[] { meetingId };
+			}
 			res.orderBy = MemberColumns.DEFAULT_ORDER;
 			res.groupBy = MemberColumns.TABLE_NAME + "." + MemberColumns._ID;
-			res.projectionMap = new HashMap<String, String>();
-			res.projectionMap.put(MeetingMemberColumns.AVG_DURATION, "avg("
-					+ MeetingMemberColumns.TABLE_NAME + "."
-					+ MeetingMemberColumns.DURATION + ") AS "
-					+ MeetingMemberColumns.AVG_DURATION);
-			res.projectionMap.put(MeetingMemberColumns.SUM_DURATION, "sum("
-					+ MeetingMemberColumns.TABLE_NAME + "."
-					+ MeetingMemberColumns.DURATION + ") AS "
-					+ MeetingMemberColumns.SUM_DURATION);
 			res.projectionMap.put(MemberColumns._ID, memberIdColumn);
 			res.projectionMap.put(MemberColumns.NAME, MemberColumns.TABLE_NAME
 					+ "." + MemberColumns.NAME);
+			res.projectionMap.put(MeetingMemberColumns.DURATION,
+					MeetingMemberColumns.DURATION);
 			break;
 
 		case URI_TYPE_MEMBER:
@@ -243,20 +255,20 @@ public class ScrumChatterProvider extends ContentProvider {
 		}
 
 		switch (matchedId) {
-		case URI_TYPE_MEETING_MEMBER_ID:
 		case URI_TYPE_MEMBER_ID:
 		case URI_TYPE_MEETING_ID:
 			id = uri.getLastPathSegment();
-		}
-		if (id != null) {
-			if (selection != null) {
-				res.selection = BaseColumns._ID + "=" + id + " and ("
-						+ selection + ")";
+
+			if (id != null) {
+				if (selection != null) {
+					res.selection = BaseColumns._ID + "=" + id + " and ("
+							+ selection + ")";
+				} else {
+					res.selection = BaseColumns._ID + "=" + id;
+				}
 			} else {
-				res.selection = BaseColumns._ID + "=" + id;
+				res.selection = selection;
 			}
-		} else {
-			res.selection = selection;
 		}
 		return res;
 	}

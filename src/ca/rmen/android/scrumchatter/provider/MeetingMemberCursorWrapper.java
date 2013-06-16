@@ -13,35 +13,39 @@ public class MeetingMemberCursorWrapper extends CursorWrapper {
 	}
 
 	public Long getMeetingId() {
-		Integer index = mColumnIndexes.get(MeetingMemberColumns.MEETING_ID);
-		if (index == null) {
-			index = getColumnIndexOrThrow(MeetingMemberColumns.MEETING_ID);
-			mColumnIndexes.put(MeetingMemberColumns.MEETING_ID, index);
-		}
+		Integer index = getIndex(MeetingMemberColumns.MEETING_ID);
 		if (isNull(index))
 			return null;
 		return getLong(index);
 	}
 
 	public Long getMemberId() {
-		Integer index = mColumnIndexes.get(MeetingMemberColumns.MEMBER_ID);
-		if (index == null) {
-			index = getColumnIndexOrThrow(MeetingMemberColumns.MEMBER_ID);
-			mColumnIndexes.put(MeetingMemberColumns.MEMBER_ID, index);
-		}
+		Integer index = getIndex(MeetingMemberColumns.MEMBER_ID);
 		if (isNull(index))
 			return null;
 		return getLong(index);
 	}
 
+	public String getMemberName() {
+		Integer index = getIndex(MemberColumns.NAME);
+		if (isNull(index))
+			return null;
+		return getString(index);
+	}
+
 	public Long getDuration() {
-		Integer index = mColumnIndexes.get(MeetingMemberColumns.DURATION);
-		if (index == null) {
-			index = getColumnIndexOrThrow(MeetingMemberColumns.DURATION);
-			mColumnIndexes.put(MeetingMemberColumns.DURATION, index);
-		}
+		Integer index = getIndex(MeetingMemberColumns.DURATION);
 		if (isNull(index))
 			return null;
 		return getLong(index);
+	}
+
+	private Integer getIndex(String columnName) {
+		Integer index = mColumnIndexes.get(columnName);
+		if (index == null) {
+			index = getColumnIndexOrThrow(columnName);
+			mColumnIndexes.put(columnName, index);
+		}
+		return index;
 	}
 }

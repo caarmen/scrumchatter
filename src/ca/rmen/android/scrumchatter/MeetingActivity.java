@@ -10,10 +10,11 @@ import android.util.Log;
 import android.widget.TextView;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
 import ca.rmen.android.scrumchatter.provider.MeetingCursorWrapper;
+import ca.rmen.android.scrumchatter.ui.MeetingFragment;
 
-import com.actionbarsherlock.app.SherlockListActivity;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 
-public class MeetingActivity extends SherlockListActivity {
+public class MeetingActivity extends SherlockFragmentActivity {
 
 	private static final String TAG = Constants.TAG + "/"
 			+ MeetingActivity.class.getSimpleName();
@@ -27,9 +28,10 @@ public class MeetingActivity extends SherlockListActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		Log.v(TAG, "onCreate: savedInstanceState = " + savedInstanceState);
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.meeting);
+		setContentView(R.layout.meeting_activity);
 		mTextViewDuration = (TextView) findViewById(R.id.tv_meeting_duration);
 		mTextViewDate = (TextView) findViewById(R.id.tv_meeting_date);
+
 		Intent intent = getIntent();
 		loadMeeting(intent);
 	}
@@ -52,20 +54,24 @@ public class MeetingActivity extends SherlockListActivity {
 					MeetingColumns.CONTENT_URI, values);
 			meetingId = Long.parseLong(newMeetingUri.getLastPathSegment());
 		}
-		Cursor meetingCursor = getContentResolver().query(
-				MeetingColumns.CONTENT_URI, null, MeetingColumns._ID + " = ?",
-				new String[] { String.valueOf(meetingId) }, null);
+		Uri uri = Uri.withAppendedPath(MeetingColumns.CONTENT_URI,
+				String.valueOf(meetingId));
+		Cursor meetingCursor = getContentResolver().query(uri, null, null,
+				null, null);
 		meetingCursor.moveToFirst();
 		MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(
 				meetingCursor);
 		long duration = cursorWrapper.getDuration();
 		long date = cursorWrapper.getMeetingDate();
-
+		Log.v(TAG, "duration=" + duration + ", date = " + date);
 		mTextViewDuration.setText(DateUtils.formatElapsedTime(duration));
 		mTextViewDate.setText(DateUtils.formatDateTime(this, date,
 				DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME));
 
 		cursorWrapper.close();
+		MeetingFragment fragment = (MeetingFragment) getSupportFragmentManager()
+				.findFragmentById(R.id.meeting_fragment);
+		fragment.loadMeeting(meetingId);
 	}
 
 }
