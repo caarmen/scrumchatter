@@ -1,14 +1,20 @@
 package ca.rmen.android.scrumchatter.ui;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.widget.Toast;
+import android.view.View;
+import android.view.View.OnClickListener;
+import ca.rmen.android.scrumchatter.MeetingActivity;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.adapter.MeetingsCursorAdapter;
+import ca.rmen.android.scrumchatter.adapter.MeetingsCursorAdapter.MeetingItemCache;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
 
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -31,7 +37,7 @@ public class MeetingsListFragment extends SherlockListFragment implements
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-		mAdapter = new MeetingsCursorAdapter(activity, null, true);
+		mAdapter = new MeetingsCursorAdapter(activity, mOnClickListener);
 		setListAdapter(mAdapter);
 		getLoaderManager().initLoader(URL_LOADER, null, this);
 	}
@@ -62,11 +68,50 @@ public class MeetingsListFragment extends SherlockListFragment implements
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == R.id.action_new_meeting) {
-			Toast.makeText(getActivity(), "Create meeting", Toast.LENGTH_LONG)
-					.show();
+			Intent intent = new Intent(getActivity(), MeetingActivity.class);
+			startActivity(intent);
 			return true;
 		}
 		return true;
 	}
+
+	private final OnClickListener mOnClickListener = new OnClickListener() {
+
+		@Override
+		public void onClick(View v) {
+			switch (v.getId()) {
+			case R.id.btn_delete:
+				if (v.getTag() instanceof MeetingItemCache) {
+					final MeetingItemCache cache = (MeetingItemCache) v
+							.getTag();
+					final Activity activity = getActivity();
+					AlertDialog.Builder builder = new AlertDialog.Builder(
+							activity);
+					builder.setTitle(R.string.action_delete_meeting);
+					builder.setMessage(activity.getString(
+							R.string.dialog_message_delete_meeting_confirm,
+							cache.date));
+					builder.setPositiveButton(android.R.string.ok,
+							new DialogInterface.OnClickListener() {
+
+								public void onClick(DialogInterface dialog,
+										int whichButton) {
+									// TODO do on a background thread.
+									activity.getContentResolver().delete(
+											MeetingColumns.CONTENT_URI,
+											MeetingColumns._ID + "=?",
+											new String[] { String
+													.valueOf(cache.id) });
+								}
+							});
+					builder.setNegativeButton(android.R.string.cancel, null);
+					builder.create().show();
+				}
+				break;
+			default:
+				break;
+			}
+		}
+	};
 
 }
