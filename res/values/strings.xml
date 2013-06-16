@@ -20,9 +20,9 @@
 <resources>
 
     <string name="app_name">Scrum Chatter</string>
-    <string name="action_settings">Settings</string>
     <string name="title_section_meetings">Meetings</string>
     <string name="title_section_team">Team</string>
+    <string name="action_share">Share</string>
     <string name="action_new_member">Add team member</string>
     <string name="action_new_meeting">New meeting</string>
     <string name="dialog_message_new_member">Enter the team member\'s name.</string>
