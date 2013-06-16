@@ -1,10 +1,9 @@
 package ca.rmen.android.scrumchatter.adapter;
 
-import java.util.Locale;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.widget.CursorAdapter;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -54,11 +53,11 @@ public class MembersCursorAdapter extends CursorAdapter {
 
 		TextView tvAvgDuration = (TextView) view
 				.findViewById(R.id.tv_avg_duration);
-		tvAvgDuration.setText(formatDuration(avgDuration));
+		tvAvgDuration.setText(DateUtils.formatElapsedTime(avgDuration));
 
 		TextView tvSumDuration = (TextView) view
 				.findViewById(R.id.tv_sum_duration);
-		tvSumDuration.setText(formatDuration(sumDuration));
+		tvSumDuration.setText(DateUtils.formatElapsedTime(sumDuration));
 
 		View btnDelete = view.findViewById(R.id.btn_delete);
 		btnDelete.setOnClickListener(mOnClickListener);
@@ -71,16 +70,12 @@ public class MembersCursorAdapter extends CursorAdapter {
 		Log.v(TAG, "onContentChanged");
 	}
 
-	private static String formatDuration(Integer duration) {
-		if (duration == null)
-			duration = 0;
-		int hours = duration / 3600;
-		int minutes = (duration - hours * 3600) / 60;
-		int seconds = (duration - hours * 3600 - minutes * 60);
-		return String.format(Locale.US, "%02d:%02d:%02d", hours, minutes,
-				seconds);
-	}
-
+	// TODO for now this cache class is not really used to
+	// cache data. The only fields that are used at all are
+	// the id and name, when we show a popup dialog warning
+	// before user deletion. We may not really need a cache as we
+	// won't be dealing with large lists. Really, how many team
+	// members attend meetings?
 	public static class MemberItemCache {
 		public final long id;
 		public final String name;
