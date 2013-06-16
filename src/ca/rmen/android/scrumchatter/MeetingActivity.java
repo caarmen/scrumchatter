@@ -10,8 +10,6 @@ import android.util.Log;
 import android.widget.TextView;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
 import ca.rmen.android.scrumchatter.provider.MeetingCursorWrapper;
-import ca.rmen.android.scrumchatter.provider.MeetingMemberColumns;
-import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.ui.MeetingFragment;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -78,26 +76,6 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		Uri newMeetingUri = getContentResolver().insert(
 				MeetingColumns.CONTENT_URI, values);
 		long meetingId = Long.parseLong(newMeetingUri.getLastPathSegment());
-		Cursor members = getContentResolver().query(MemberColumns.CONTENT_URI,
-				new String[] { MemberColumns._ID }, null, null, null);
-		if (members != null) {
-			ContentValues[] newMeetingMembers = new ContentValues[members
-					.getCount()];
-			if (members.moveToFirst()) {
-				int i = 0;
-				do {
-					long memberId = members.getLong(0);
-					values = new ContentValues();
-					values.put(MeetingMemberColumns.MEMBER_ID, memberId);
-					values.put(MeetingMemberColumns.MEETING_ID, meetingId);
-					values.put(MeetingMemberColumns.DURATION, 0L);
-					newMeetingMembers[i++] = values;
-				} while (members.moveToNext());
-			}
-			members.close();
-			getContentResolver().bulkInsert(MeetingMemberColumns.CONTENT_URI,
-					newMeetingMembers);
-		}
 		return meetingId;
 	}
 }

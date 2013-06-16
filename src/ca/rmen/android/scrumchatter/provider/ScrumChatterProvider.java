@@ -95,6 +95,31 @@ public class ScrumChatterProvider extends ContentProvider {
 		final String table = uri.getLastPathSegment();
 		final long rowId = mScrumChatterDatabase.getWritableDatabase().insert(
 				table, null, values);
+		// When we insert a row into the meeting table, we have to add
+		// all existing members to this meeting.
+		if (table.equals(MeetingColumns.TABLE_NAME)) {
+			Cursor members = mScrumChatterDatabase.getReadableDatabase().query(
+					MemberColumns.TABLE_NAME,
+					new String[] { MemberColumns._ID }, null, null, null, null,
+					null);
+			if (members != null) {
+				ContentValues[] newMeetingMembers = new ContentValues[members
+						.getCount()];
+				if (members.moveToFirst()) {
+					int i = 0;
+					do {
+						long memberId = members.getLong(0);
+						values = new ContentValues();
+						values.put(MeetingMemberColumns.MEMBER_ID, memberId);
+						values.put(MeetingMemberColumns.MEETING_ID, rowId);
+						values.put(MeetingMemberColumns.DURATION, 0L);
+						newMeetingMembers[i++] = values;
+					} while (members.moveToNext());
+				}
+				bulkInsert(MeetingMemberColumns.CONTENT_URI, newMeetingMembers);
+				members.close();
+			}
+		}
 		if (rowId != -1)
 			notifyChange(uri);
 
