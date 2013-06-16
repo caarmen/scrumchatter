@@ -19,7 +19,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.adapter.MembersCursorAdapter;
@@ -50,9 +49,7 @@ public class MembersListFragment extends SherlockListFragment implements
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		ListView view = (ListView) inflater.inflate(R.layout.member_list, null);
-		View headerView = inflater.inflate(R.layout.member_list_header, null);
-		view.addHeaderView(headerView);
+		View view = inflater.inflate(R.layout.member_list, null);
 		return view;
 	}
 
