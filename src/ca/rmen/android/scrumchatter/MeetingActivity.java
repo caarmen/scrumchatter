@@ -10,6 +10,8 @@ import android.util.Log;
 import android.widget.TextView;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
 import ca.rmen.android.scrumchatter.provider.MeetingCursorWrapper;
+import ca.rmen.android.scrumchatter.provider.MeetingMemberColumns;
+import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.ui.MeetingFragment;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -47,12 +49,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		long meetingId = intent.getLongExtra(EXTRA_MEETING_ID, -1);
 		// TODO do DB operations in an AsyncTask
 		if (meetingId == -1) {
-			Log.v(TAG, "create new meeting");
-			ContentValues values = new ContentValues();
-			values.put(MeetingColumns.MEETING_DATE, System.currentTimeMillis());
-			Uri newMeetingUri = getContentResolver().insert(
-					MeetingColumns.CONTENT_URI, values);
-			meetingId = Long.parseLong(newMeetingUri.getLastPathSegment());
+			meetingId = createMeeting();
 		}
 		Uri uri = Uri.withAppendedPath(MeetingColumns.CONTENT_URI,
 				String.valueOf(meetingId));
@@ -74,4 +71,33 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		fragment.loadMeeting(meetingId);
 	}
 
+	private long createMeeting() {
+		Log.v(TAG, "create new meeting");
+		ContentValues values = new ContentValues();
+		values.put(MeetingColumns.MEETING_DATE, System.currentTimeMillis());
+		Uri newMeetingUri = getContentResolver().insert(
+				MeetingColumns.CONTENT_URI, values);
+		long meetingId = Long.parseLong(newMeetingUri.getLastPathSegment());
+		Cursor members = getContentResolver().query(MemberColumns.CONTENT_URI,
+				new String[] { MemberColumns._ID }, null, null, null);
+		if (members != null) {
+			ContentValues[] newMeetingMembers = new ContentValues[members
+					.getCount()];
+			if (members.moveToFirst()) {
+				int i = 0;
+				do {
+					long memberId = members.getLong(0);
+					values = new ContentValues();
+					values.put(MeetingMemberColumns.MEMBER_ID, memberId);
+					values.put(MeetingMemberColumns.MEETING_ID, meetingId);
+					values.put(MeetingMemberColumns.DURATION, 0L);
+					newMeetingMembers[i++] = values;
+				} while (members.moveToNext());
+			}
+			members.close();
+			getContentResolver().bulkInsert(MeetingMemberColumns.CONTENT_URI,
+					newMeetingMembers);
+		}
+		return meetingId;
+	}
 }

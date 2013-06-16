@@ -20,7 +20,7 @@ public class MeetingMemberCursorWrapper extends CursorWrapper {
 	}
 
 	public Long getMemberId() {
-		Integer index = getIndex(MeetingMemberColumns.MEMBER_ID);
+		Integer index = getIndex(MemberColumns._ID);
 		if (isNull(index))
 			return null;
 		return getLong(index);

@@ -162,7 +162,9 @@ public class ScrumChatterProvider extends ContentProvider {
 		final QueryParams queryParams = getQueryParams(uri, selection);
 		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 		qb.setTables(queryParams.table);
-		qb.setProjectionMap(queryParams.projectionMap);
+		if (queryParams.projectionMap != null
+				&& !queryParams.projectionMap.isEmpty())
+			qb.setProjectionMap(queryParams.projectionMap);
 
 		// @formatter:off
 		final Cursor res = qb.query(
