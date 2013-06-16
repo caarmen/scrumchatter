@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.adapter.MeetingCursorAdapter;
+import ca.rmen.android.scrumchatter.provider.MeetingColumns;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 
@@ -62,7 +63,8 @@ public class MeetingFragment extends SherlockListFragment {
 		@Override
 		public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
 			String[] projection = new String[] { MemberColumns._ID,
-					MemberColumns.NAME, MeetingMemberColumns.DURATION };
+					MemberColumns.NAME, MeetingMemberColumns.DURATION,
+					MeetingColumns.STATE };
 
 			Uri uri = Uri.withAppendedPath(MeetingMemberColumns.CONTENT_URI,
 					String.valueOf(mMeetingId));

@@ -254,6 +254,13 @@ public class ScrumChatterProvider extends ContentProvider {
 				String meetingId = uri.getLastPathSegment();
 				res.selection = MeetingMemberColumns.MEETING_ID + "=?";
 				res.selectionArgs = new String[] { meetingId };
+				res.table += " LEFT OUTER JOIN " + MeetingColumns.TABLE_NAME
+						+ " ON " + MeetingColumns.TABLE_NAME + "."
+						+ MeetingColumns._ID + " = "
+						+ MeetingMemberColumns.TABLE_NAME + "."
+						+ MeetingMemberColumns.MEETING_ID;
+				res.projectionMap.put(MeetingColumns.STATE,
+						MeetingColumns.STATE);
 			}
 			res.orderBy = MemberColumns.DEFAULT_ORDER;
 			res.groupBy = MemberColumns.TABLE_NAME + "." + MemberColumns._ID;
@@ -261,7 +268,9 @@ public class ScrumChatterProvider extends ContentProvider {
 			res.projectionMap.put(MemberColumns.NAME, MemberColumns.TABLE_NAME
 					+ "." + MemberColumns.NAME);
 			res.projectionMap.put(MeetingMemberColumns.DURATION,
-					MeetingMemberColumns.DURATION);
+					MeetingMemberColumns.TABLE_NAME + "."
+							+ MeetingMemberColumns.DURATION + " AS "
+							+ MeetingMemberColumns.DURATION);
 			break;
 
 		case URI_TYPE_MEMBER:

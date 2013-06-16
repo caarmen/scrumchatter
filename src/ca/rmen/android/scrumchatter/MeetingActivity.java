@@ -156,12 +156,13 @@ public class MeetingActivity extends SherlockFragmentActivity {
 
 	private void startMeeting() {
 		State state = getMeetingState();
-		if (state != State.IN_PROGRESS)
+		if (state != State.IN_PROGRESS) {
 			setMeetingState(State.IN_PROGRESS);
-		mBtnStopMeeting.setVisibility(View.INVISIBLE);
-		resetMeetingDate();
-		mMeetingChronometer.setBase(SystemClock.elapsedRealtime());
-		mMeetingChronometer.start();
+			mBtnStopMeeting.setVisibility(View.INVISIBLE);
+			resetMeetingDate();
+			mMeetingChronometer.setBase(SystemClock.elapsedRealtime());
+			mMeetingChronometer.start();
+		}
 	}
 
 	private void stopMeeting() {

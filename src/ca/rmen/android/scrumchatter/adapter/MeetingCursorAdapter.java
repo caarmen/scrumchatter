@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
+import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
 
 public class MeetingCursorAdapter extends CursorAdapter {
@@ -45,6 +46,8 @@ public class MeetingCursorAdapter extends CursorAdapter {
 		Long memberId = cursorWrapper.getMemberId();
 		String memberName = cursorWrapper.getMemberName();
 		long duration = cursorWrapper.getDuration();
+		State meetingState = cursorWrapper.getMeetingState();
+
 		MemberItemCache cache = new MemberItemCache(memberId, memberName,
 				duration);
 
@@ -55,8 +58,12 @@ public class MeetingCursorAdapter extends CursorAdapter {
 		tvDuration.setText(DateUtils.formatElapsedTime(duration));
 
 		View btnStartStop = view.findViewById(R.id.btn_start_stop_member);
-		btnStartStop.setOnClickListener(mOnClickListener);
-		btnStartStop.setTag(cache);
+		if (meetingState == State.FINISHED) {
+			btnStartStop.setVisibility(View.INVISIBLE);
+		} else {
+			btnStartStop.setOnClickListener(mOnClickListener);
+			btnStartStop.setTag(cache);
+		}
 	}
 
 	@Override

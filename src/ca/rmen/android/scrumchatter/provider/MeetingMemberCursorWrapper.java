@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import android.database.Cursor;
 import android.database.CursorWrapper;
+import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 
 public class MeetingMemberCursorWrapper extends CursorWrapper {
 	private HashMap<String, Integer> mColumnIndexes = new HashMap<String, Integer>();
@@ -38,6 +39,15 @@ public class MeetingMemberCursorWrapper extends CursorWrapper {
 		if (isNull(index))
 			return null;
 		return getLong(index);
+	}
+
+	public State getMeetingState() {
+		Integer index = getIndex(MeetingColumns.STATE);
+		if (isNull(index))
+			return State.NOT_STARTED;
+		int stateInt = getInt(index);
+		return State.values()[stateInt];
+
 	}
 
 	private Integer getIndex(String columnName) {
