@@ -10,6 +10,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import ca.rmen.android.scrumchatter.R;
+import ca.rmen.android.scrumchatter.provider.MeetingColumns;
 import ca.rmen.android.scrumchatter.provider.MeetingCursorWrapper;
 
 public class MeetingsCursorAdapter extends CursorAdapter {
@@ -23,7 +24,7 @@ public class MeetingsCursorAdapter extends CursorAdapter {
 
 	@Override
 	public void bindView(View view, Context context, Cursor cursor) {
-		fillView(view, cursor);
+		fillView(context, view, cursor);
 	}
 
 	@Override
@@ -31,11 +32,11 @@ public class MeetingsCursorAdapter extends CursorAdapter {
 		LayoutInflater inflater = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View view = inflater.inflate(R.layout.meeting_list_item, null);
-		fillView(view, cursor);
+		fillView(context, view, cursor);
 		return view;
 	}
 
-	private void fillView(View view, Cursor cursor) {
+	private void fillView(Context context, View view, Cursor cursor) {
 		MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(cursor);
 		long id = cursorWrapper.getId();
 		String date = DateUtils.formatDateTime(mContext,
@@ -43,13 +44,22 @@ public class MeetingsCursorAdapter extends CursorAdapter {
 						| DateUtils.FORMAT_SHOW_TIME);
 		String duration = DateUtils.formatElapsedTime(cursorWrapper
 				.getDuration());
-		MeetingItemCache cache = new MeetingItemCache(id, date, duration);
+		MeetingColumns.State state = cursorWrapper.getState();
+
+		// TODO cache the meeting state names
+		String[] meetingStates = context.getResources().getStringArray(
+				R.array.meeting_states);
+		String stateName = meetingStates[state.ordinal()];
+		MeetingItemCache cache = new MeetingItemCache(id, date, duration,
+				stateName);
 		TextView tvDate = (TextView) view.findViewById(R.id.tv_meeting_date);
 		TextView tvDuration = (TextView) view
 				.findViewById(R.id.tv_meeting_duration);
+		TextView tvState = (TextView) view.findViewById(R.id.tv_meeting_status);
 		View btnDelete = view.findViewById(R.id.btn_delete);
 		tvDate.setText(date);
 		tvDuration.setText(duration);
+		tvState.setText(stateName);
 		btnDelete.setTag(cache);
 		btnDelete.setOnClickListener(mOnClickListener);
 		tvDate.setTag(cache);
@@ -61,11 +71,14 @@ public class MeetingsCursorAdapter extends CursorAdapter {
 		public final long id;
 		public final String date;
 		public final String duration;
+		public final String state;
 
-		public MeetingItemCache(long id, String date, String duration) {
+		public MeetingItemCache(long id, String date, String duration,
+				String state) {
 			this.id = id;
 			this.date = date;
 			this.duration = duration;
+			this.state = state;
 		}
 
 	}

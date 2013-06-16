@@ -18,4 +18,8 @@
     <string name="member_list_header_sum_duration">TOTAL CHATTER TIME</string>
     <string name="action_stop_meeting">Stop meeting</string>
     <string name="action_start">Start</string>
+    
+    <string name="meeting_state_not_started">Not started</string>
+    <string name="meeting_state_in_progress">In progress</string>
+    <string name="meeting_state_finished">Finished</string>
 </resources>
