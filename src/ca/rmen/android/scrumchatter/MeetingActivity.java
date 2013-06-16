@@ -45,6 +45,10 @@ import ca.rmen.android.scrumchatter.ui.MeetingFragment;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 
+/**
+ * Displays attributes of a meeting as well as the team members participating in
+ * this meeting.
+ */
 public class MeetingActivity extends SherlockFragmentActivity {
 
 	private static final String TAG = Constants.TAG + "/"
@@ -80,44 +84,58 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		loadMeeting(intent);
 	}
 
+	/**
+	 * Extract the meeting id from the intent and load the meeting data into the
+	 * activity.
+	 */
 	private void loadMeeting(Intent intent) {
 		long meetingId = intent.getLongExtra(EXTRA_MEETING_ID, -1);
 		// TODO do DB operations in an AsyncTask
 		if (meetingId == -1) {
 			meetingId = createMeeting();
 		}
+		// Read the meeting attributes from the DB (don't really like Cursor
+		// code in an Activity, but oh well...)
 		mMeetingUri = Uri.withAppendedPath(MeetingColumns.CONTENT_URI,
 				String.valueOf(meetingId));
 		Cursor meetingCursor = getContentResolver().query(mMeetingUri, null,
 				null, null, null);
-		meetingCursor.moveToFirst();
 		MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(
 				meetingCursor);
+		cursorWrapper.moveToFirst();
 		long duration = cursorWrapper.getDuration();
 		long date = cursorWrapper.getMeetingDate();
 		State state = cursorWrapper.getState();
+		cursorWrapper.close();
+
+		// Update our views based on the meeting attributes.
 		if (state == State.IN_PROGRESS) {
+			// Only show the "stop meeting" button if the meeting is in
+			// progress.
 			mBtnStopMeeting.setVisibility(View.VISIBLE);
+			// If the meeting is in progress, show the Chronometer.
 			long timeSinceMeetingStartedMillis = System.currentTimeMillis()
 					- date;
-			Log.v(TAG, "meeting started "
-					+ (timeSinceMeetingStartedMillis / 1000) + " seconds ago");
 			mMeetingChronometer.setBase(SystemClock.elapsedRealtime()
 					- timeSinceMeetingStartedMillis);
 			mMeetingChronometer.start();
 		} else if (state == State.FINISHED) {
+			// For finished meetings, show the duration we retrieved from the
+			// db.
 			mMeetingChronometer.setText(DateUtils.formatElapsedTime(duration));
 		}
-		mMeetingChronometer.setText(DateUtils.formatElapsedTime(duration));
 		mTextViewDate.setText(DateUtils.formatDateTime(this, date,
 				DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME));
 
-		cursorWrapper.close();
+		// Load the list of team members.
 		MeetingFragment fragment = (MeetingFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.meeting_fragment);
 		fragment.loadMeeting(meetingId, mOnClickListener);
 	}
 
+	/**
+	 * @return the id of the newly created meeting.
+	 */
 	private long createMeeting() {
 		Log.v(TAG, "create new meeting");
 		ContentValues values = new ContentValues();
@@ -128,6 +146,9 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		return meetingId;
 	}
 
+	/**
+	 * @return the state of this meeting.
+	 */
 	private State getMeetingState() {
 		Cursor cursor = getContentResolver().query(mMeetingUri,
 				new String[] { MeetingColumns.STATE }, null, null, null);
@@ -142,6 +163,12 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		return oldState;
 	}
 
+	/**
+	 * Change the state of the meeting.
+	 * 
+	 * @param newState
+	 *            the new state of the meeting
+	 */
 	private void setMeetingState(State newState) {
 		Log.v(TAG, "setMeetingState " + newState);
 		ContentValues values = new ContentValues(1);
@@ -149,6 +176,9 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		getContentResolver().update(mMeetingUri, values, null, null);
 	}
 
+	/**
+	 * @return the date the meeting was created or started.
+	 */
 	private long getMeetingDate() {
 		Cursor cursor = getContentResolver().query(mMeetingUri,
 				new String[] { MeetingColumns.MEETING_DATE }, null, null, null);
@@ -163,12 +193,23 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		return meetingDate;
 	}
 
+	/**
+	 * Change the duration of the meeting.
+	 * 
+	 * @param duration
+	 *            the new duration of the meeting.
+	 */
 	private void setMeetingDuration(long duration) {
 		ContentValues values = new ContentValues(1);
 		values.put(MeetingColumns.DURATION, duration);
 		getContentResolver().update(mMeetingUri, values, null, null);
 	}
 
+	/**
+	 * Change the date of the meeting to now. We do this when the meeting goes
+	 * from not-started to in-progress. This way it is easier to track the
+	 * duration of the meeting.
+	 */
 	private void resetMeetingDate() {
 		Log.v(TAG, "resetMeetingDate");
 		ContentValues values = new ContentValues(1);
@@ -176,6 +217,10 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		getContentResolver().update(mMeetingUri, values, null, null);
 	}
 
+	/**
+	 * Start the meeting. Set the state to in-progress, start the chronometer,
+	 * and show the "stop meeting" button.
+	 */
 	private void startMeeting() {
 		State state = getMeetingState();
 		if (state != State.IN_PROGRESS) {
@@ -187,6 +232,11 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		}
 	}
 
+	/**
+	 * Stop the meeting. Set the state to finished, stop the chronometer, hide
+	 * the "stop meeting" button, persist the meeting duration, and stop the
+	 * chronometers for all team members who are still talking.
+	 */
 	private void stopMeeting() {
 		setMeetingState(State.FINISHED);
 		mBtnStopMeeting.setVisibility(View.INVISIBLE);
@@ -197,7 +247,12 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		shutEverybodyUp();
 	}
 
+	/**
+	 * Stop the chronometers of all team members who are still talking. Update
+	 * the duration for these team members.
+	 */
 	private void shutEverybodyUp() {
+		// Query all team members who are still talking in this meeting.
 		String meetingId = mMeetingUri.getLastPathSegment();
 		Cursor cursor = getContentResolver().query(
 				MeetingMemberColumns.CONTENT_URI,
@@ -208,14 +263,19 @@ public class MeetingActivity extends SherlockFragmentActivity {
 						+ MeetingMemberColumns.TALK_START_TIME + ">0",
 				new String[] { meetingId }, null);
 		if (cursor != null) {
+			// Prepare some update statements to set the duration and reset the
+			// talk_start_time, for these members.
 			ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
 			MeetingMemberCursorWrapper cursorWrapper = new MeetingMemberCursorWrapper(
 					cursor);
 			if (cursorWrapper.moveToFirst()) {
 				do {
+					// Prepare an update operation for one of these members.
 					Builder builder = ContentProviderOperation
 							.newUpdate(MeetingMemberColumns.CONTENT_URI);
 					long memberId = cursorWrapper.getMemberId();
+					// Calculate the total duration the team member talked
+					// during this meeting.
 					long duration = cursorWrapper.getDuration();
 					long talkStartTime = cursorWrapper.getTalkStartTime();
 					long newDuration = duration
@@ -233,16 +293,26 @@ public class MeetingActivity extends SherlockFragmentActivity {
 			}
 			cursorWrapper.close();
 			try {
-
+				// Batch update these team members.
 				getContentResolver().applyBatch(ScrumChatterProvider.AUTHORITY,
 						operations);
 			} catch (Exception e) {
 				Log.v(TAG, "Couldn't close off meeting: " + e.getMessage(), e);
 			}
 		}
-
 	}
 
+	/**
+	 * Switch a member from the talking to non-talking state:
+	 * 
+	 * If they were talking, they will no longer be talking, and their button
+	 * will go back to a "start" button.
+	 * 
+	 * If they were not talking, they will start talking, and their button will
+	 * be a "stop" button.
+	 * 
+	 * @param memberId
+	 */
 	private void toggleTalkingMember(long memberId) {
 		Log.v(TAG, "toggleTalkingMember " + memberId);
 
@@ -269,6 +339,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		Log.v(TAG, "Talking member: duration = " + duration
 				+ ", talkStartTime = " + talkStartTime);
 		ContentValues values = new ContentValues(2);
+		// The member is currently talking if talkStartTime > 0.
 		if (talkStartTime > 0) {
 			long justTalkedFor = (System.currentTimeMillis() - talkStartTime) / 1000;
 			long newDuration = duration + justTalkedFor;
@@ -292,11 +363,13 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		@Override
 		public void onClick(View v) {
 			switch (v.getId()) {
+			// Start or stop the team member talking
 			case R.id.btn_start_stop_member:
 				startMeeting();
 				long memberId = (Long) v.getTag();
 				toggleTalkingMember(memberId);
 				break;
+			// Stop the whole meeting.
 			case R.id.btn_stop_meeting:
 				stopMeeting();
 				break;
