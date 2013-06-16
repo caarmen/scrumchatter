@@ -22,6 +22,8 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
 			+ MeetingMemberColumns.MEMBER_ID
 			+ " INTEGER, "
 			+ MeetingMemberColumns.DURATION
+			+ " INTEGER, "
+			+ MeetingMemberColumns.TALK_START_TIME
 			+ " INTEGER "
 			+ ", CONSTRAINT UNIQUE_MEETING_MEMBER UNIQUE ( MEETING_ID, MEMBER_ID ) ON CONFLICT REPLACE"
 			+ ", CONSTRAINT MEETING_ID_FK FOREIGN KEY (MEETING_ID) REFERENCES MEETING(_ID) ON DELETE CASCADE "
@@ -49,16 +51,6 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
 			+ " INTEGER NOT NULL DEFAULT "
 			+ MeetingColumns.State.NOT_STARTED.ordinal() + " );";
 
-	private static final String SQL_CREATE_TABLE_CURRENT_MEETING = "CREATE TABLE IF NOT EXISTS "
-			+ CurrentMeetingColumns.TABLE_NAME
-			+ " ( "
-			+ CurrentMeetingColumns._ID
-			+ " INTEGER PRIMARY KEY, "
-			+ CurrentMeetingColumns.TALK_START_TIME
-			+ " INTEGER, "
-			+ " CONSTRAINT CURRENT_MEETING_ID_FK FOREIGN KEY (_ID) REFERENCES MEMBER(_ID) ON DELETE CASCADE "
-			+ " );";
-
 	// @formatter:on
 
 	public ScrumChatterDatabase(Context context) {
@@ -71,7 +63,6 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
 		db.execSQL(SQL_CREATE_TABLE_MEETING_MEMBER);
 		db.execSQL(SQL_CREATE_TABLE_MEMBER);
 		db.execSQL(SQL_CREATE_TABLE_MEETING);
-		db.execSQL(SQL_CREATE_TABLE_CURRENT_MEETING);
 	}
 
 	@Override

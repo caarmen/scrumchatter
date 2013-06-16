@@ -34,10 +34,17 @@ public class MeetingMemberCursorWrapper extends CursorWrapper {
 		return getString(index);
 	}
 
-	public Long getDuration() {
+	public long getDuration() {
 		Integer index = getIndex(MeetingMemberColumns.DURATION);
 		if (isNull(index))
-			return null;
+			return 0;
+		return getLong(index);
+	}
+
+	public long getTalkStartTime() {
+		Integer index = getIndex(MeetingMemberColumns.TALK_START_TIME);
+		if (isNull(index))
+			return 0;
 		return getLong(index);
 	}
 
@@ -47,7 +54,6 @@ public class MeetingMemberCursorWrapper extends CursorWrapper {
 			return State.NOT_STARTED;
 		int stateInt = getInt(index);
 		return State.values()[stateInt];
-
 	}
 
 	private Integer getIndex(String columnName) {

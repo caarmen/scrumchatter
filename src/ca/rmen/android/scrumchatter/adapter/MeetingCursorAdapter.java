@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
@@ -57,12 +58,18 @@ public class MeetingCursorAdapter extends CursorAdapter {
 		TextView tvDuration = (TextView) view.findViewById(R.id.tv_duration);
 		tvDuration.setText(DateUtils.formatElapsedTime(duration));
 
-		View btnStartStop = view.findViewById(R.id.btn_start_stop_member);
+		ImageButton btnStartStop = (ImageButton) view
+				.findViewById(R.id.btn_start_stop_member);
 		if (meetingState == State.FINISHED) {
 			btnStartStop.setVisibility(View.INVISIBLE);
 		} else {
 			btnStartStop.setOnClickListener(mOnClickListener);
 			btnStartStop.setTag(cache);
+			Long talkStartTime = cursorWrapper.getTalkStartTime();
+			if (talkStartTime != null && talkStartTime > 0)
+				btnStartStop.setImageResource(R.drawable.ic_action_stop);
+			else
+				btnStartStop.setImageResource(R.drawable.ic_action_start);
 		}
 	}
 

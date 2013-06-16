@@ -153,12 +153,13 @@ public class ScrumChatterProvider extends ContentProvider {
 	@Override
 	public int update(Uri uri, ContentValues values, String selection,
 			String[] selectionArgs) {
-		Log.d(TAG, "update uri=" + uri + " values=" + values + " selection="
-				+ selection);
-		final QueryParams queryParams = getQueryParams(uri, selection);
-		final int res = mScrumChatterDatabase.getWritableDatabase()
-				.update(queryParams.table, values, queryParams.selection,
-						selectionArgs);
+		Log.d(TAG,
+				"update uri=" + uri + " values=" + values + " selection="
+						+ selection + ", selectionArgs = "
+						+ Arrays.toString(selectionArgs));
+		final String table = uri.getLastPathSegment();
+		final int res = mScrumChatterDatabase.getWritableDatabase().update(
+				table, values, selection, selectionArgs);
 		if (res != 0)
 			notifyChange(uri);
 		return res;
@@ -167,9 +168,9 @@ public class ScrumChatterProvider extends ContentProvider {
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
 		Log.d(TAG, "delete uri=" + uri + " selection=" + selection);
-		final QueryParams queryParams = getQueryParams(uri, selection);
+		final String table = uri.getLastPathSegment();
 		final int res = mScrumChatterDatabase.getWritableDatabase().delete(
-				queryParams.table, queryParams.selection, selectionArgs);
+				table, selection, selectionArgs);
 		if (res != 0)
 			notifyChange(uri);
 		return res;
@@ -180,13 +181,14 @@ public class ScrumChatterProvider extends ContentProvider {
 			String[] selectionArgs, String sortOrder) {
 		final String groupBy = uri.getQueryParameter(QUERY_GROUP_BY);
 		Log.d(TAG,
-				"query uri=" + uri + "projection = "
+				"query uri=" + uri + ", projection = "
 						+ Arrays.toString(projection) + " selection="
-						+ selection + " sortOrder=" + sortOrder + " groupBy="
-						+ groupBy);
+						+ selection + " selectionArgs = "
+						+ Arrays.toString(selectionArgs) + " sortOrder="
+						+ sortOrder + " groupBy=" + groupBy);
 		final QueryParams queryParams = getQueryParams(uri, selection);
 		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-		qb.setTables(queryParams.table);
+		qb.setTables(queryParams.readTable);
 		if (queryParams.projectionMap != null
 				&& !queryParams.projectionMap.isEmpty())
 			qb.setProjectionMap(queryParams.projectionMap);
@@ -217,7 +219,7 @@ public class ScrumChatterProvider extends ContentProvider {
 	}
 
 	private static class QueryParams {
-		public String table;
+		public String readTable; // for queries
 		public String[] projection;
 		public String selection;
 		public String[] selectionArgs;
@@ -246,7 +248,7 @@ public class ScrumChatterProvider extends ContentProvider {
 					+ MemberColumns._ID;
 			String meetingMemberIdColumn = MeetingMemberColumns.TABLE_NAME
 					+ "." + MeetingMemberColumns.MEMBER_ID;
-			res.table = MemberColumns.TABLE_NAME + " LEFT OUTER JOIN "
+			res.readTable = MemberColumns.TABLE_NAME + " LEFT OUTER JOIN "
 					+ MeetingMemberColumns.TABLE_NAME + " ON " + memberIdColumn
 					+ " = " + meetingMemberIdColumn;
 			res.projection = new String[] { MemberColumns._ID };
@@ -254,15 +256,15 @@ public class ScrumChatterProvider extends ContentProvider {
 				String meetingId = uri.getLastPathSegment();
 				res.selection = MeetingMemberColumns.MEETING_ID + "=?";
 				res.selectionArgs = new String[] { meetingId };
-				res.table += " LEFT OUTER JOIN " + MeetingColumns.TABLE_NAME
-						+ " ON " + MeetingColumns.TABLE_NAME + "."
-						+ MeetingColumns._ID + " = "
-						+ MeetingMemberColumns.TABLE_NAME + "."
+				res.readTable += " LEFT OUTER JOIN "
+						+ MeetingColumns.TABLE_NAME + " ON "
+						+ MeetingColumns.TABLE_NAME + "." + MeetingColumns._ID
+						+ " = " + MeetingMemberColumns.TABLE_NAME + "."
 						+ MeetingMemberColumns.MEETING_ID;
 				res.projectionMap.put(MeetingColumns.STATE,
 						MeetingColumns.STATE);
 			}
-			res.orderBy = MemberColumns.DEFAULT_ORDER;
+			res.orderBy = MemberColumns.NAME;
 			res.groupBy = MemberColumns.TABLE_NAME + "." + MemberColumns._ID;
 			res.projectionMap.put(MemberColumns._ID, memberIdColumn);
 			res.projectionMap.put(MemberColumns.NAME, MemberColumns.TABLE_NAME
@@ -271,17 +273,19 @@ public class ScrumChatterProvider extends ContentProvider {
 					MeetingMemberColumns.TABLE_NAME + "."
 							+ MeetingMemberColumns.DURATION + " AS "
 							+ MeetingMemberColumns.DURATION);
+			res.projectionMap.put(MeetingMemberColumns.TALK_START_TIME,
+					MeetingMemberColumns.TALK_START_TIME);
 			break;
 
 		case URI_TYPE_MEMBER:
 		case URI_TYPE_MEMBER_ID:
-			res.table = MemberColumns.TABLE_NAME;
+			res.readTable = MemberColumns.TABLE_NAME;
 			res.orderBy = MemberColumns.DEFAULT_ORDER;
 			break;
 
 		case URI_TYPE_MEETING:
 		case URI_TYPE_MEETING_ID:
-			res.table = MeetingColumns.TABLE_NAME;
+			res.readTable = MeetingColumns.TABLE_NAME;
 			res.orderBy = MeetingColumns.DEFAULT_ORDER;
 			break;
 

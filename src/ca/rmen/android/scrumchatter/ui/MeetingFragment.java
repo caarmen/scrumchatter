@@ -64,7 +64,7 @@ public class MeetingFragment extends SherlockListFragment {
 		public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
 			String[] projection = new String[] { MemberColumns._ID,
 					MemberColumns.NAME, MeetingMemberColumns.DURATION,
-					MeetingColumns.STATE };
+					MeetingColumns.STATE, MeetingMemberColumns.TALK_START_TIME };
 
 			Uri uri = Uri.withAppendedPath(MeetingMemberColumns.CONTENT_URI,
 					String.valueOf(mMeetingId));

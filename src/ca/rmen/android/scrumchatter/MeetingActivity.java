@@ -17,6 +17,8 @@ import ca.rmen.android.scrumchatter.adapter.MeetingCursorAdapter.MemberItemCache
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.provider.MeetingCursorWrapper;
+import ca.rmen.android.scrumchatter.provider.MeetingMemberColumns;
+import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
 import ca.rmen.android.scrumchatter.ui.MeetingFragment;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -158,7 +160,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		State state = getMeetingState();
 		if (state != State.IN_PROGRESS) {
 			setMeetingState(State.IN_PROGRESS);
-			mBtnStopMeeting.setVisibility(View.INVISIBLE);
+			mBtnStopMeeting.setVisibility(View.VISIBLE);
 			resetMeetingDate();
 			mMeetingChronometer.setBase(SystemClock.elapsedRealtime());
 			mMeetingChronometer.start();
@@ -174,6 +176,50 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		setMeetingDuration(meetingDuration / 1000);
 	}
 
+	private void toggleTalkingMember(long memberId) {
+		Log.v(TAG, "toggleTalkingMember " + memberId);
+
+		String meetingId = mMeetingUri.getLastPathSegment();
+		Uri meetingMemberUri = Uri.withAppendedPath(
+				MeetingMemberColumns.CONTENT_URI, meetingId);
+		Cursor cursor = getContentResolver().query(
+				meetingMemberUri,
+				new String[] { MeetingMemberColumns.TALK_START_TIME,
+						MeetingMemberColumns.DURATION },
+				MeetingMemberColumns.MEMBER_ID + "=?",
+				new String[] { String.valueOf(memberId) }, null);
+		long talkStartTime = 0;
+		long duration = 0;
+		if (cursor != null) {
+			MeetingMemberCursorWrapper cursorWrapper = new MeetingMemberCursorWrapper(
+					cursor);
+			if (cursorWrapper.moveToFirst()) {
+				talkStartTime = cursorWrapper.getTalkStartTime();
+				duration = cursorWrapper.getDuration();
+			}
+			cursorWrapper.close();
+		}
+		Log.v(TAG, "Talking member: duration = " + duration
+				+ ", talkStartTime = " + talkStartTime);
+		ContentValues values = new ContentValues(2);
+		if (talkStartTime > 0) {
+			long justTalkedFor = (System.currentTimeMillis() - talkStartTime) / 1000;
+			long newDuration = duration + justTalkedFor;
+			values.put(MeetingMemberColumns.DURATION, newDuration);
+			values.put(MeetingMemberColumns.TALK_START_TIME, 0);
+		} else {
+			values.put(MeetingMemberColumns.TALK_START_TIME,
+					System.currentTimeMillis());
+		}
+
+		getContentResolver().update(
+				MeetingMemberColumns.CONTENT_URI,
+				values,
+				MeetingMemberColumns.MEMBER_ID + "=? AND "
+						+ MeetingMemberColumns.MEETING_ID + "=?",
+				new String[] { String.valueOf(memberId), meetingId });
+	}
+
 	private final OnClickListener mOnClickListener = new OnClickListener() {
 
 		@Override
@@ -184,6 +230,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
 				Toast.makeText(MeetingActivity.this,
 						"Clicked on " + cache.name, Toast.LENGTH_SHORT).show();
 				startMeeting();
+				toggleTalkingMember(cache.id);
 				break;
 			case R.id.btn_stop_meeting:
 				stopMeeting();

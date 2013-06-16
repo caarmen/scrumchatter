@@ -11,6 +11,7 @@ public class MeetingMemberColumns implements BaseColumns {
 	public static final String MEETING_ID = "meeting_id";
 	public static final String MEMBER_ID = "member_id";
 	public static final String DURATION = "duration";
+	public static final String TALK_START_TIME = "talk_start_time";
 
 	public static final String SUM_DURATION = "sum_duration";
 	public static final String AVG_DURATION = "avg_duration";
