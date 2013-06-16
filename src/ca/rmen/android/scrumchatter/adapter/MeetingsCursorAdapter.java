@@ -52,6 +52,9 @@ public class MeetingsCursorAdapter extends CursorAdapter {
 		tvDuration.setText(duration);
 		btnDelete.setTag(cache);
 		btnDelete.setOnClickListener(mOnClickListener);
+		tvDate.setTag(cache);
+		tvDate.setOnClickListener(mOnClickListener);
+
 	}
 
 	public static class MeetingItemCache {

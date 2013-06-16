@@ -79,34 +79,35 @@ public class MeetingsListFragment extends SherlockListFragment implements
 
 		@Override
 		public void onClick(View v) {
+			final MeetingItemCache cache = (MeetingItemCache) v.getTag();
 			switch (v.getId()) {
 			case R.id.btn_delete:
-				if (v.getTag() instanceof MeetingItemCache) {
-					final MeetingItemCache cache = (MeetingItemCache) v
-							.getTag();
-					final Activity activity = getActivity();
-					AlertDialog.Builder builder = new AlertDialog.Builder(
-							activity);
-					builder.setTitle(R.string.action_delete_meeting);
-					builder.setMessage(activity.getString(
-							R.string.dialog_message_delete_meeting_confirm,
-							cache.date));
-					builder.setPositiveButton(android.R.string.ok,
-							new DialogInterface.OnClickListener() {
+				final Activity activity = getActivity();
+				AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+				builder.setTitle(R.string.action_delete_meeting);
+				builder.setMessage(activity.getString(
+						R.string.dialog_message_delete_meeting_confirm,
+						cache.date));
+				builder.setPositiveButton(android.R.string.ok,
+						new DialogInterface.OnClickListener() {
 
-								public void onClick(DialogInterface dialog,
-										int whichButton) {
-									// TODO do on a background thread.
-									activity.getContentResolver().delete(
-											MeetingColumns.CONTENT_URI,
-											MeetingColumns._ID + "=?",
-											new String[] { String
-													.valueOf(cache.id) });
-								}
-							});
-					builder.setNegativeButton(android.R.string.cancel, null);
-					builder.create().show();
-				}
+							public void onClick(DialogInterface dialog,
+									int whichButton) {
+								// TODO do on a background thread.
+								activity.getContentResolver()
+										.delete(MeetingColumns.CONTENT_URI,
+												MeetingColumns._ID + "=?",
+												new String[] { String
+														.valueOf(cache.id) });
+							}
+						});
+				builder.setNegativeButton(android.R.string.cancel, null);
+				builder.create().show();
+				break;
+			case R.id.tv_meeting_date:
+				Intent intent = new Intent(getActivity(), MeetingActivity.class);
+				intent.putExtra(MeetingActivity.EXTRA_MEETING_ID, cache.id);
+				startActivity(intent);
 				break;
 			default:
 				break;
