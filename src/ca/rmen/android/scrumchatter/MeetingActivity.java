@@ -42,6 +42,7 @@ import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.provider.ScrumChatterProvider;
 import ca.rmen.android.scrumchatter.ui.MeetingFragment;
+import ca.rmen.android.scrumchatter.util.TextUtils;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 
@@ -124,8 +125,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
 			// db.
 			mMeetingChronometer.setText(DateUtils.formatElapsedTime(duration));
 		}
-		mTextViewDate.setText(DateUtils.formatDateTime(this, date,
-				DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME));
+		mTextViewDate.setText(TextUtils.formatDateTime(this, date));
 
 		// Load the list of team members.
 		MeetingFragment fragment = (MeetingFragment) getSupportFragmentManager()

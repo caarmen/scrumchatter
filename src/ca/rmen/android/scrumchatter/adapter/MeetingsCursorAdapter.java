@@ -31,6 +31,7 @@ import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.provider.MeetingCursorWrapper;
+import ca.rmen.android.scrumchatter.util.TextUtils;
 
 /**
  * Adapter for the list of meetings.
@@ -71,9 +72,8 @@ public class MeetingsCursorAdapter extends CursorAdapter {
 		@SuppressWarnings("resource")
 		MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(cursor);
 		long id = cursorWrapper.getId();
-		String date = DateUtils.formatDateTime(mContext,
-				cursorWrapper.getMeetingDate(), DateUtils.FORMAT_SHOW_DATE
-						| DateUtils.FORMAT_SHOW_TIME);
+		String date = TextUtils.formatDateTime(mContext,
+				cursorWrapper.getMeetingDate());
 		String duration = DateUtils.formatElapsedTime(cursorWrapper
 				.getDuration());
 		MeetingColumns.State state = cursorWrapper.getState();
