@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
@@ -199,11 +200,11 @@ public class MembersListFragment extends SherlockListFragment implements
 								public void onClick(DialogInterface dialog,
 										int whichButton) {
 									// TODO do on a background thread.
-									activity.getContentResolver().delete(
+									Uri uri = Uri.withAppendedPath(
 											MemberColumns.CONTENT_URI,
-											MemberColumns._ID + "=?",
-											new String[] { String
-													.valueOf(cache.id) });
+											String.valueOf(cache.id));
+									activity.getContentResolver().delete(uri,
+											null, null);
 								}
 							});
 					builder.setNegativeButton(android.R.string.cancel, null);

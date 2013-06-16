@@ -121,7 +121,7 @@ public class ScrumChatterProvider extends ContentProvider {
 			}
 		}
 		if (rowId != -1)
-			notifyChange(uri);
+			notifyChange(uri, table);
 
 		return uri.buildUpon().appendEncodedPath(String.valueOf(rowId)).build();
 	}
@@ -145,7 +145,7 @@ public class ScrumChatterProvider extends ContentProvider {
 			db.endTransaction();
 		}
 		if (res != 0)
-			notifyChange(uri);
+			notifyChange(uri, table);
 
 		return res;
 	}
@@ -153,26 +153,26 @@ public class ScrumChatterProvider extends ContentProvider {
 	@Override
 	public int update(Uri uri, ContentValues values, String selection,
 			String[] selectionArgs) {
+		StatementParams params = getStatementParams(uri, selection);
 		Log.d(TAG,
 				"update uri=" + uri + " values=" + values + " selection="
 						+ selection + ", selectionArgs = "
 						+ Arrays.toString(selectionArgs));
-		final String table = uri.getLastPathSegment();
 		final int res = mScrumChatterDatabase.getWritableDatabase().update(
-				table, values, selection, selectionArgs);
+				params.table, values, params.selection, selectionArgs);
 		if (res != 0)
-			notifyChange(uri);
+			notifyChange(uri, params.table);
 		return res;
 	}
 
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
 		Log.d(TAG, "delete uri=" + uri + " selection=" + selection);
-		final String table = uri.getLastPathSegment();
+		StatementParams params = getStatementParams(uri, selection);
 		final int res = mScrumChatterDatabase.getWritableDatabase().delete(
-				table, selection, selectionArgs);
+				params.table, params.selection, selectionArgs);
 		if (res != 0)
-			notifyChange(uri);
+			notifyChange(uri, params.table);
 		return res;
 	}
 
@@ -188,7 +188,7 @@ public class ScrumChatterProvider extends ContentProvider {
 						+ sortOrder + " groupBy=" + groupBy);
 		final QueryParams queryParams = getQueryParams(uri, selection);
 		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-		qb.setTables(queryParams.readTable);
+		qb.setTables(queryParams.table);
 		if (queryParams.projectionMap != null
 				&& !queryParams.projectionMap.isEmpty())
 			qb.setProjectionMap(queryParams.projectionMap);
@@ -207,10 +207,9 @@ public class ScrumChatterProvider extends ContentProvider {
 		return res;
 	}
 
-	private void notifyChange(Uri uri) {
+	private void notifyChange(Uri uri, String table) {
 		String notify = uri.getQueryParameter(QUERY_NOTIFY);
 		if (notify == null || "true".equals(notify)) {
-			final String table = uri.getLastPathSegment();
 			getContext().getContentResolver().notifyChange(uri, null);
 			if (table.equals(MemberColumns.TABLE_NAME))
 				getContext().getContentResolver().notifyChange(
@@ -218,14 +217,56 @@ public class ScrumChatterProvider extends ContentProvider {
 		}
 	}
 
-	private static class QueryParams {
-		public String readTable; // for queries
-		public String[] projection;
+	private static class StatementParams {
+		public String table;
 		public String selection;
 		public String[] selectionArgs;
+
+	}
+
+	private static class QueryParams extends StatementParams {
+		public String[] projection;
 		public String orderBy;
 		public String groupBy;
 		public Map<String, String> projectionMap;
+	}
+
+	private StatementParams getStatementParams(Uri uri, String selection) {
+		StatementParams res = new StatementParams();
+		String id = null;
+		int matchedId = URI_MATCHER.match(uri);
+		switch (matchedId) {
+		case URI_TYPE_MEETING_MEMBER_ID:
+		case URI_TYPE_MEETING_MEMBER:
+			res.table = MeetingMemberColumns.TABLE_NAME;
+			break;
+		case URI_TYPE_MEMBER_ID:
+			id = uri.getLastPathSegment();
+		case URI_TYPE_MEMBER:
+			res.table = MemberColumns.TABLE_NAME;
+			break;
+		case URI_TYPE_MEETING_ID:
+			id = uri.getLastPathSegment();
+		case URI_TYPE_MEETING:
+			res.table = MeetingColumns.TABLE_NAME;
+			break;
+
+		default:
+			throw new IllegalArgumentException("The uri '" + uri
+					+ "' is not supported by this ContentProvider");
+		}
+
+		if (id != null) {
+			if (selection != null)
+				res.selection = BaseColumns._ID + "=" + id + " and ("
+						+ selection + ")";
+			else
+				res.selection = BaseColumns._ID + "=" + id;
+		} else {
+			res.selection = selection;
+		}
+
+		return res;
 	}
 
 	private QueryParams getQueryParams(Uri uri, String selection) {
@@ -248,7 +289,7 @@ public class ScrumChatterProvider extends ContentProvider {
 					+ MemberColumns._ID;
 			String meetingMemberIdColumn = MeetingMemberColumns.TABLE_NAME
 					+ "." + MeetingMemberColumns.MEMBER_ID;
-			res.readTable = MemberColumns.TABLE_NAME + " LEFT OUTER JOIN "
+			res.table = MemberColumns.TABLE_NAME + " LEFT OUTER JOIN "
 					+ MeetingMemberColumns.TABLE_NAME + " ON " + memberIdColumn
 					+ " = " + meetingMemberIdColumn;
 			res.projection = new String[] { MemberColumns._ID };
@@ -256,10 +297,10 @@ public class ScrumChatterProvider extends ContentProvider {
 				String meetingId = uri.getLastPathSegment();
 				res.selection = MeetingMemberColumns.MEETING_ID + "=?";
 				res.selectionArgs = new String[] { meetingId };
-				res.readTable += " LEFT OUTER JOIN "
-						+ MeetingColumns.TABLE_NAME + " ON "
-						+ MeetingColumns.TABLE_NAME + "." + MeetingColumns._ID
-						+ " = " + MeetingMemberColumns.TABLE_NAME + "."
+				res.table += " LEFT OUTER JOIN " + MeetingColumns.TABLE_NAME
+						+ " ON " + MeetingColumns.TABLE_NAME + "."
+						+ MeetingColumns._ID + " = "
+						+ MeetingMemberColumns.TABLE_NAME + "."
 						+ MeetingMemberColumns.MEETING_ID;
 				res.projectionMap.put(MeetingColumns.STATE,
 						MeetingColumns.STATE);
@@ -277,15 +318,17 @@ public class ScrumChatterProvider extends ContentProvider {
 					MeetingMemberColumns.TALK_START_TIME);
 			break;
 
-		case URI_TYPE_MEMBER:
 		case URI_TYPE_MEMBER_ID:
-			res.readTable = MemberColumns.TABLE_NAME;
+			id = uri.getLastPathSegment();
+		case URI_TYPE_MEMBER:
+			res.table = MemberColumns.TABLE_NAME;
 			res.orderBy = MemberColumns.DEFAULT_ORDER;
 			break;
 
-		case URI_TYPE_MEETING:
 		case URI_TYPE_MEETING_ID:
-			res.readTable = MeetingColumns.TABLE_NAME;
+			id = uri.getLastPathSegment();
+		case URI_TYPE_MEETING:
+			res.table = MeetingColumns.TABLE_NAME;
 			res.orderBy = MeetingColumns.DEFAULT_ORDER;
 			break;
 
@@ -294,22 +337,14 @@ public class ScrumChatterProvider extends ContentProvider {
 					+ "' is not supported by this ContentProvider");
 		}
 
-		switch (matchedId) {
-		case URI_TYPE_MEMBER_ID:
-		case URI_TYPE_MEETING_ID:
-			id = uri.getLastPathSegment();
-
-			if (id != null) {
-				if (selection != null) {
-					res.selection = BaseColumns._ID + "=" + id + " and ("
-							+ selection + ")";
-				} else {
-					res.selection = BaseColumns._ID + "=" + id;
-				}
-			} else {
-				res.selection = selection;
-			}
+		if (id != null) {
+			if (selection != null)
+				res.selection = BaseColumns._ID + "=" + id + " and ("
+						+ selection + ")";
+			else
+				res.selection = BaseColumns._ID + "=" + id;
 		}
+
 		return res;
 	}
 
