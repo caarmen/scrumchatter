@@ -39,6 +39,9 @@ import ca.rmen.android.scrumchatter.provider.MemberColumns;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 
+/**
+ * Displays the list of members participating in a particular meeting.
+ */
 public class MeetingFragment extends SherlockListFragment {
 
 	private static final String TAG = Constants.TAG + "/"
@@ -68,6 +71,14 @@ public class MeetingFragment extends SherlockListFragment {
 		Log.v(TAG, "onAttach");
 	}
 
+	/**
+	 * Set up this fragment to load the data for a particular meeting.
+	 * 
+	 * @param meetingId
+	 * @param onClickListener
+	 *            This will be forwarded to the adapter, so clicks on views in
+	 *            the list will be managed by this listener.
+	 */
 	public void loadMeeting(long meetingId, OnClickListener onClickListener) {
 		Log.v(TAG, "loadMeeting");
 		mMeetingId = meetingId;
@@ -100,7 +111,5 @@ public class MeetingFragment extends SherlockListFragment {
 		public void onLoaderReset(Loader<Cursor> loader) {
 			mAdapter.changeCursor(null);
 		}
-
 	};
-
 }

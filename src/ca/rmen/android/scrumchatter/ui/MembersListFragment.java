@@ -18,6 +18,9 @@
  */
 package ca.rmen.android.scrumchatter.ui;
 
+/**
+ * Displays the list of team members.
+ */
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentValues;
@@ -31,7 +34,6 @@ import android.support.v4.content.Loader;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -50,8 +52,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 
-public class MembersListFragment extends SherlockListFragment implements
-		LoaderCallbacks<Cursor> {
+public class MembersListFragment extends SherlockListFragment {
 
 	private static final String TAG = Constants.TAG + "/"
 			+ MembersListFragment.class.getSimpleName();
@@ -77,40 +78,7 @@ public class MembersListFragment extends SherlockListFragment implements
 		super.onAttach(activity);
 		mAdapter = new MembersCursorAdapter(activity, mOnClickListener);
 		setListAdapter(mAdapter);
-		getLoaderManager().initLoader(URL_LOADER, null, this);
-	}
-
-	@Override
-	public void onPause() {
-		Log.v(TAG, "onPause");
-		super.onPause();
-	}
-
-	@Override
-	public void onResume() {
-		Log.v(TAG, "onResume");
-		super.onResume();
-	}
-
-	@Override
-	public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
-		String[] projection = new String[] { MemberColumns._ID,
-				MemberColumns.NAME, MeetingMemberColumns.SUM_DURATION,
-				MeetingMemberColumns.AVG_DURATION };
-		CursorLoader loader = new CursorLoader(getActivity(),
-				MeetingMemberColumns.CONTENT_URI, projection, null, null,
-				MemberColumns.NAME);
-		return loader;
-	}
-
-	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		mAdapter.changeCursor(cursor);
-	}
-
-	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
-		mAdapter.changeCursor(null);
+		getLoaderManager().initLoader(URL_LOADER, null, mLoaderCallbacks);
 	}
 
 	@Override
@@ -121,31 +89,42 @@ public class MembersListFragment extends SherlockListFragment implements
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		// Create a new team member
 		if (item.getItemId() == R.id.action_new_member) {
 			final Activity activity = getActivity();
+			// We'll just show a dialog with a simple EditText for the team
+			// member's name.
 			AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 			final EditText input = new EditText(activity);
-			builder.setView(input);
-			builder.setTitle(R.string.action_new_member);
-			builder.setMessage(R.string.dialog_message_new_member);
-			builder.setPositiveButton(android.R.string.ok,
-					new DialogInterface.OnClickListener() {
+			builder.setView(input)
+					.setTitle(R.string.action_new_member)
+					.setMessage(R.string.dialog_message_new_member)
+					.setNegativeButton(android.R.string.cancel, null)
+					.setPositiveButton(android.R.string.ok,
+							new DialogInterface.OnClickListener() {
 
-						public void onClick(DialogInterface dialog,
-								int whichButton) {
-							String memberName = input.getText().toString()
-									.trim();
+								public void onClick(DialogInterface dialog,
+										int whichButton) {
+									String memberName = input.getText()
+											.toString().trim();
 
-							if (!TextUtils.isEmpty(memberName)) {
-								ContentValues values = new ContentValues();
-								values.put(MemberColumns.NAME, memberName);
-								activity.getContentResolver().insert(
-										MemberColumns.CONTENT_URI, values);
-							}
-						}
-					});
-			builder.setNegativeButton(android.R.string.cancel, null);
+									// Ignore an empty name.
+									if (!TextUtils.isEmpty(memberName)) {
+										// Create the new member. TODO put this
+										// in an AsyncTask (we don't have enough
+										// inner classes here yet...)
+										ContentValues values = new ContentValues();
+										values.put(MemberColumns.NAME,
+												memberName);
+										activity.getContentResolver().insert(
+												MemberColumns.CONTENT_URI,
+												values);
+									}
+								}
+							});
 			final AlertDialog dialog = builder.create();
+			// Prevent the user from creating multiple team members with the
+			// same name.
 			input.addTextChangedListener(new TextWatcher() {
 
 				@Override
@@ -166,6 +145,13 @@ public class MembersListFragment extends SherlockListFragment implements
 				}
 
 				private void validateMemberName() {
+					// Start off with everything a-ok.
+					input.setError(null);
+					Button okButton = dialog
+							.getButton(AlertDialog.BUTTON_POSITIVE);
+					okButton.setEnabled(true);
+
+					// Check if this team member exists already.
 					String memberName = input.getText().toString().trim();
 					Cursor existingMemberCountCursor = activity
 							.getContentResolver().query(
@@ -173,15 +159,15 @@ public class MembersListFragment extends SherlockListFragment implements
 									new String[] { "count(*)" },
 									MemberColumns.NAME + "=?",
 									new String[] { memberName }, null);
-					input.setError(null);
-					Button okButton = dialog
-							.getButton(AlertDialog.BUTTON_POSITIVE);
-					okButton.setEnabled(true);
+
+					// Now Check if the team member exists.
 					if (existingMemberCountCursor != null) {
 						existingMemberCountCursor.moveToFirst();
 						int existingMemberCount = existingMemberCountCursor
 								.getInt(0);
 						existingMemberCountCursor.close();
+						// If the member exists, highlight the error
+						// and disable the OK button.
 						if (existingMemberCount > 0) {
 							input.setError(activity.getString(
 									R.string.error_member_exists, memberName));
@@ -197,35 +183,65 @@ public class MembersListFragment extends SherlockListFragment implements
 		return true;
 	}
 
+	private LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
+		@Override
+		public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
+			String[] projection = new String[] { MemberColumns._ID,
+					MemberColumns.NAME, MeetingMemberColumns.SUM_DURATION,
+					MeetingMemberColumns.AVG_DURATION };
+			CursorLoader loader = new CursorLoader(getActivity(),
+					MeetingMemberColumns.CONTENT_URI, projection, null, null,
+					MemberColumns.NAME);
+			return loader;
+		}
+
+		@Override
+		public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+			mAdapter.changeCursor(cursor);
+		}
+
+		@Override
+		public void onLoaderReset(Loader<Cursor> loader) {
+			mAdapter.changeCursor(null);
+		}
+
+	};
+
 	private final OnClickListener mOnClickListener = new OnClickListener() {
 
 		@Override
 		public void onClick(View v) {
 			switch (v.getId()) {
+			// The user wants to delete a team member.
 			case R.id.btn_delete:
 				if (v.getTag() instanceof MemberItemCache) {
 					final MemberItemCache cache = (MemberItemCache) v.getTag();
 					final Activity activity = getActivity();
+					// Let's ask him if he's sure.
 					AlertDialog.Builder builder = new AlertDialog.Builder(
 							activity);
-					builder.setTitle(R.string.action_delete_member);
-					builder.setMessage(activity.getString(
-							R.string.dialog_message_delete_member_confirm,
-							cache.name));
-					builder.setPositiveButton(android.R.string.ok,
-							new DialogInterface.OnClickListener() {
+					builder.setTitle(R.string.action_delete_member)
+							.setMessage(
+									activity.getString(
+											R.string.dialog_message_delete_member_confirm,
+											cache.name))
+							.setNegativeButton(android.R.string.cancel, null)
+							.setPositiveButton(android.R.string.ok,
+									new DialogInterface.OnClickListener() {
 
-								public void onClick(DialogInterface dialog,
-										int whichButton) {
-									// TODO do on a background thread.
-									Uri uri = Uri.withAppendedPath(
-											MemberColumns.CONTENT_URI,
-											String.valueOf(cache.id));
-									activity.getContentResolver().delete(uri,
-											null, null);
-								}
-							});
-					builder.setNegativeButton(android.R.string.cancel, null);
+										// The user has confirmed to delete the
+										// member.
+										public void onClick(
+												DialogInterface dialog,
+												int whichButton) {
+											// TODO do on a background thread.
+											Uri uri = Uri.withAppendedPath(
+													MemberColumns.CONTENT_URI,
+													String.valueOf(cache.id));
+											activity.getContentResolver()
+													.delete(uri, null, null);
+										}
+									});
 					builder.create().show();
 				}
 				break;

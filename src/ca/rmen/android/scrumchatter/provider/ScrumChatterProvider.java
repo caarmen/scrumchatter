@@ -221,8 +221,7 @@ public class ScrumChatterProvider extends ContentProvider {
 
 		// @formatter:off
 		final Cursor res = qb.query(
-				mScrumChatterDatabase.getReadableDatabase(),
-				projection == null ? queryParams.projection : projection,
+				mScrumChatterDatabase.getReadableDatabase(), projection,
 				selection == null ? queryParams.selection : selection,
 				selectionArgs == null ? queryParams.selectionArgs
 						: selectionArgs, groupBy == null ? queryParams.groupBy
@@ -257,7 +256,6 @@ public class ScrumChatterProvider extends ContentProvider {
 	 * To be used for queries
 	 */
 	private static class QueryParams extends StatementParams {
-		public String[] projection;
 		public String orderBy;
 		public String groupBy;
 		public Map<String, String> projectionMap;
@@ -346,6 +344,9 @@ public class ScrumChatterProvider extends ContentProvider {
 					+ MeetingMemberColumns.DURATION + ") AS "
 					+ MeetingMemberColumns.SUM_DURATION);
 		case URI_TYPE_MEETING_MEMBER_ID:
+			// TÖDO see if the QueryParams for the meeting_member table
+			// can be simplified at all.
+
 			// This Uri translates into a query on the member table
 			// joined to the meeting_member table. The goal of this
 			// Uri is to provide stats for members for all or for one
@@ -357,7 +358,9 @@ public class ScrumChatterProvider extends ContentProvider {
 			res.table = MemberColumns.TABLE_NAME + " LEFT OUTER JOIN "
 					+ MeetingMemberColumns.TABLE_NAME + " ON " + memberIdColumn
 					+ " = " + meetingMemberIdColumn;
-			res.projection = new String[] { MemberColumns._ID };
+			// If this Uri has an id, this is a meeting id.
+			// We need to join on the meeting table to get meeting
+			// attributes.
 			if (matchedId == URI_TYPE_MEETING_MEMBER_ID) {
 				String meetingId = uri.getLastPathSegment();
 				res.selection = MeetingMemberColumns.MEETING_ID + "=?";

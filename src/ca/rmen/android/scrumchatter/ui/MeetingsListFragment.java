@@ -43,8 +43,10 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 
-public class MeetingsListFragment extends SherlockListFragment implements
-		LoaderCallbacks<Cursor> {
+/**
+ * Displays the list of meetings that have taken place.
+ */
+public class MeetingsListFragment extends SherlockListFragment {
 
 	private static final int URL_LOADER = 0;
 
@@ -58,8 +60,7 @@ public class MeetingsListFragment extends SherlockListFragment implements
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.meeting_list, null);
-		return view;
+		return inflater.inflate(R.layout.meeting_list, null);
 	}
 
 	@Override
@@ -67,24 +68,7 @@ public class MeetingsListFragment extends SherlockListFragment implements
 		super.onAttach(activity);
 		mAdapter = new MeetingsCursorAdapter(activity, mOnClickListener);
 		setListAdapter(mAdapter);
-		getLoaderManager().initLoader(URL_LOADER, null, this);
-	}
-
-	@Override
-	public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
-		CursorLoader loader = new CursorLoader(getActivity(),
-				MeetingColumns.CONTENT_URI, null, null, null, null);
-		return loader;
-	}
-
-	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		mAdapter.changeCursor(cursor);
-	}
-
-	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
-		mAdapter.changeCursor(null);
+		getLoaderManager().initLoader(URL_LOADER, null, mLoaderCallbacks);
 	}
 
 	@Override
@@ -95,6 +79,7 @@ public class MeetingsListFragment extends SherlockListFragment implements
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		// Start a new meeting.
 		if (item.getItemId() == R.id.action_new_meeting) {
 			Intent intent = new Intent(getActivity(), MeetingActivity.class);
 			startActivity(intent);
@@ -103,36 +88,61 @@ public class MeetingsListFragment extends SherlockListFragment implements
 		return true;
 	}
 
+	private LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
+		@Override
+		public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
+			CursorLoader loader = new CursorLoader(getActivity(),
+					MeetingColumns.CONTENT_URI, null, null, null, null);
+			return loader;
+		}
+
+		@Override
+		public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+			mAdapter.changeCursor(cursor);
+		}
+
+		@Override
+		public void onLoaderReset(Loader<Cursor> loader) {
+			mAdapter.changeCursor(null);
+		}
+	};
+
 	private final OnClickListener mOnClickListener = new OnClickListener() {
 
 		@Override
 		public void onClick(View v) {
 			final MeetingItemCache cache = (MeetingItemCache) v.getTag();
 			switch (v.getId()) {
+			// The user wants to delete a meeting
 			case R.id.btn_delete:
 				final Activity activity = getActivity();
-				AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-				builder.setTitle(R.string.action_delete_meeting);
-				builder.setMessage(activity.getString(
-						R.string.dialog_message_delete_meeting_confirm,
-						cache.date));
-				builder.setPositiveButton(android.R.string.ok,
-						new DialogInterface.OnClickListener() {
-
-							public void onClick(DialogInterface dialog,
-									int whichButton) {
-								// TODO do on a background thread.
-								Uri uri = Uri.withAppendedPath(
-										MeetingColumns.CONTENT_URI,
-										String.valueOf(cache.id));
-								activity.getContentResolver().delete(uri, null,
-										null);
-							}
-						});
-				builder.setNegativeButton(android.R.string.cancel, null);
+				// Let's ask him if he's sure first.
+				AlertDialog.Builder builder = new AlertDialog.Builder(activity)
+						.setTitle(R.string.action_delete_meeting)
+						.setMessage(
+								activity.getString(
+										R.string.dialog_message_delete_meeting_confirm,
+										cache.date))
+						.setNegativeButton(android.R.string.cancel, null)
+						.setPositiveButton(android.R.string.ok,
+								new DialogInterface.OnClickListener() {
+									// The user clicked ok. Let's delete the
+									// meeting.
+									public void onClick(DialogInterface dialog,
+											int whichButton) {
+										// TODO do on an AsyncTask
+										Uri uri = Uri.withAppendedPath(
+												MeetingColumns.CONTENT_URI,
+												String.valueOf(cache.id));
+										activity.getContentResolver().delete(
+												uri, null, null);
+									}
+								});
 				builder.create().show();
 				break;
 			case R.id.tv_meeting_date:
+				// The user clicked on the date of the meeting. Let's go to the
+				// details of that meeting.
 				Intent intent = new Intent(getActivity(), MeetingActivity.class);
 				intent.putExtra(MeetingActivity.EXTRA_MEETING_ID, cache.id);
 				startActivity(intent);
@@ -142,5 +152,4 @@ public class MeetingsListFragment extends SherlockListFragment implements
 			}
 		}
 	};
-
 }
