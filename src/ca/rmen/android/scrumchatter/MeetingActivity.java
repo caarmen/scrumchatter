@@ -30,7 +30,6 @@ public class MeetingActivity extends SherlockFragmentActivity {
 
 	public static final String EXTRA_MEETING_ID = MeetingActivity.class
 			.getPackage().getName() + ".meeting_id";
-	private TextView mTextViewDuration;
 	private TextView mTextViewDate;
 	private View mBtnStopMeeting;
 	private Chronometer mMeetingChronometer;
@@ -42,7 +41,6 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.meeting_activity);
 
-		mTextViewDuration = (TextView) findViewById(R.id.tv_meeting_duration);
 		mTextViewDate = (TextView) findViewById(R.id.tv_meeting_date);
 		mBtnStopMeeting = findViewById(R.id.btn_stop_meeting);
 		mMeetingChronometer = (Chronometer) findViewById(R.id.tv_meeting_duration);
@@ -88,7 +86,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		} else if (state == State.FINISHED) {
 			mMeetingChronometer.setText(DateUtils.formatElapsedTime(duration));
 		}
-		mTextViewDuration.setText(DateUtils.formatElapsedTime(duration));
+		mMeetingChronometer.setText(DateUtils.formatElapsedTime(duration));
 		mTextViewDate.setText(DateUtils.formatDateTime(this, date,
 				DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME));
 

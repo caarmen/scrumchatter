@@ -9,8 +9,10 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import ca.rmen.android.scrumchatter.MeetingActivity;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.adapter.MeetingsCursorAdapter;
@@ -32,6 +34,13 @@ public class MeetingsListFragment extends SherlockListFragment implements
 	public MeetingsListFragment() {
 		super();
 		setHasOptionsMenu(true);
+	}
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		View view = inflater.inflate(R.layout.meeting_list, null);
+		return view;
 	}
 
 	@Override

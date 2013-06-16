@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
+import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.provider.MeetingCursorWrapper;
 
 public class MeetingsCursorAdapter extends CursorAdapter {
@@ -55,11 +56,12 @@ public class MeetingsCursorAdapter extends CursorAdapter {
 		TextView tvDate = (TextView) view.findViewById(R.id.tv_meeting_date);
 		TextView tvDuration = (TextView) view
 				.findViewById(R.id.tv_meeting_duration);
-		TextView tvState = (TextView) view.findViewById(R.id.tv_meeting_status);
 		View btnDelete = view.findViewById(R.id.btn_delete);
 		tvDate.setText(date);
-		tvDuration.setText(duration);
-		tvState.setText(stateName);
+		if (state == State.FINISHED)
+			tvDuration.setText(duration);
+		else
+			tvDuration.setText(stateName);
 		btnDelete.setTag(cache);
 		btnDelete.setOnClickListener(mOnClickListener);
 		tvDate.setTag(cache);
