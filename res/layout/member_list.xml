@@ -37,7 +37,9 @@
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:layout_toLeftOf="@+id/tv_avg_duration"
-            android:text="@string/member_list_header_name" />
+            android:clickable="true"
+            android:text="@string/member_list_header_name"
+            android:textColor="@color/selected_header" />
 
         <TextView
             android:id="@id/tv_avg_duration"
@@ -46,6 +48,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_toLeftOf="@+id/tv_sum_duration"
+            android:clickable="true"
             android:text="@string/member_list_header_avg_duration" />
 
         <TextView
@@ -55,6 +58,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_toLeftOf="@+id/btn_delete"
+            android:clickable="true"
             android:text="@string/member_list_header_sum_duration" />
 
         <ImageButton
@@ -71,7 +75,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#808" />
+        android:background="@color/selected_header" />
 
     <ListView
         android:id="@android:id/list"

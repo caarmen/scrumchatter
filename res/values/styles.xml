@@ -37,7 +37,7 @@
     </style>
 
     <style name="listHeader">
-        <item name="android:textColor">#333</item>
+        <item name="android:textColor">@color/unselected_header</item>
         <item name="android:textStyle">bold</item>
     </style>
 </resources>

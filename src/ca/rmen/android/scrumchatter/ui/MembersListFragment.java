@@ -34,12 +34,14 @@ import android.support.v4.content.Loader;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.adapter.MembersCursorAdapter;
@@ -58,6 +60,10 @@ public class MembersListFragment extends SherlockListFragment {
 			+ MembersListFragment.class.getSimpleName();
 
 	private static final int URL_LOADER = 0;
+	private String mOrderByField = MemberColumns.NAME;
+	private TextView mTextViewName;
+	private TextView mTextViewAvgDuration;
+	private TextView mTextViewSumDuration;
 
 	private MembersCursorAdapter mAdapter;
 
@@ -70,6 +76,14 @@ public class MembersListFragment extends SherlockListFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.member_list, null);
+		mTextViewName = (TextView) view.findViewById(R.id.tv_name);
+		mTextViewAvgDuration = (TextView) view
+				.findViewById(R.id.tv_avg_duration);
+		mTextViewSumDuration = (TextView) view
+				.findViewById(R.id.tv_sum_duration);
+		mTextViewName.setOnClickListener(mOnClickListener);
+		mTextViewAvgDuration.setOnClickListener(mOnClickListener);
+		mTextViewSumDuration.setOnClickListener(mOnClickListener);
 		return view;
 	}
 
@@ -186,12 +200,13 @@ public class MembersListFragment extends SherlockListFragment {
 	private LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
 		@Override
 		public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
+			Log.v(TAG, "onCreateLoader, order by " + mOrderByField);
 			String[] projection = new String[] { MemberColumns._ID,
 					MemberColumns.NAME, MeetingMemberColumns.SUM_DURATION,
 					MeetingMemberColumns.AVG_DURATION };
 			CursorLoader loader = new CursorLoader(getActivity(),
 					MeetingMemberColumns.CONTENT_URI, projection, null, null,
-					MemberColumns.NAME);
+					mOrderByField);
 			return loader;
 		}
 
@@ -211,6 +226,7 @@ public class MembersListFragment extends SherlockListFragment {
 
 		@Override
 		public void onClick(View v) {
+			Log.v(TAG, "onClick: " + v.getId());
 			switch (v.getId()) {
 			// The user wants to delete a team member.
 			case R.id.btn_delete:
@@ -245,9 +261,56 @@ public class MembersListFragment extends SherlockListFragment {
 					builder.create().show();
 				}
 				break;
+			case R.id.tv_name:
+			case R.id.tv_avg_duration:
+			case R.id.tv_sum_duration:
+				setSortField(v.getId());
+				break;
 			default:
 				break;
 			}
+		}
+
+		/**
+		 * Resort the list of members by the given column
+		 * 
+		 * @param viewId
+		 *            the header label on which the user clicked.
+		 */
+		private void setSortField(int viewId) {
+			String oldOrderByField = mOrderByField;
+			int selectedHeaderColor = getResources().getColor(
+					R.color.selected_header);
+			int unselectedHeaderColor = getResources().getColor(
+					R.color.unselected_header);
+			// Reset all the header text views to the default color
+			mTextViewName.setTextColor(unselectedHeaderColor);
+			mTextViewAvgDuration.setTextColor(unselectedHeaderColor);
+			mTextViewSumDuration.setTextColor(unselectedHeaderColor);
+
+			// Depending on the header column selected, change the sort order
+			// field and highlight that header column.
+			switch (viewId) {
+			case R.id.tv_name:
+				mOrderByField = MemberColumns.NAME;
+				mTextViewName.setTextColor(selectedHeaderColor);
+				break;
+			case R.id.tv_avg_duration:
+				mOrderByField = MeetingMemberColumns.AVG_DURATION + " DESC ";
+				mTextViewAvgDuration.setTextColor(selectedHeaderColor);
+				break;
+			case R.id.tv_sum_duration:
+				mOrderByField = MeetingMemberColumns.SUM_DURATION + " DESC ";
+				mTextViewSumDuration.setTextColor(selectedHeaderColor);
+				break;
+			default:
+				break;
+			}
+			// Requery if needed.
+			if (!oldOrderByField.equals(mOrderByField))
+				getLoaderManager().restartLoader(URL_LOADER, null,
+						mLoaderCallbacks);
+
 		}
 	};
 }
