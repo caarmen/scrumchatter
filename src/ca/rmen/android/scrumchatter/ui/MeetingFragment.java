@@ -12,11 +12,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.Toast;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.adapter.MeetingCursorAdapter;
-import ca.rmen.android.scrumchatter.adapter.MeetingCursorAdapter.MemberItemCache;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 
@@ -49,13 +47,13 @@ public class MeetingFragment extends SherlockListFragment {
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 		Log.v(TAG, "onAttach");
-		mAdapter = new MeetingCursorAdapter(activity, mOnClickListener);
-		setListAdapter(mAdapter);
 	}
 
-	public void loadMeeting(long meetingId) {
+	public void loadMeeting(long meetingId, OnClickListener onClickListener) {
 		Log.v(TAG, "loadMeeting");
 		mMeetingId = meetingId;
+		mAdapter = new MeetingCursorAdapter(getActivity(), onClickListener);
+		setListAdapter(mAdapter);
 		getLoaderManager().initLoader(URL_LOADER, null, mLoaderCallbacks);
 	}
 
@@ -83,22 +81,6 @@ public class MeetingFragment extends SherlockListFragment {
 			mAdapter.changeCursor(null);
 		}
 
-	};
-
-	private final OnClickListener mOnClickListener = new OnClickListener() {
-
-		@Override
-		public void onClick(View v) {
-			switch (v.getId()) {
-			case R.id.btn_start_stop:
-				MemberItemCache cache = (MemberItemCache) v.getTag();
-				Toast.makeText(getActivity(), "Clicked on " + cache.name,
-						Toast.LENGTH_SHORT).show();
-				break;
-			default:
-				break;
-			}
-		}
 	};
 
 }

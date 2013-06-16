@@ -17,7 +17,7 @@
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true" />
 
-        <TextView
+        <Chronometer
             android:id="@+id/tv_meeting_duration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -29,7 +29,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:contentDescription="@string/action_stop_meeting"
-            android:src="@drawable/ic_action_stop" />
+            android:src="@drawable/ic_action_stop"
+            android:visibility="gone" />
     </RelativeLayout>
 
     <fragment

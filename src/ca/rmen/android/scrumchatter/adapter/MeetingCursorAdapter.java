@@ -54,7 +54,7 @@ public class MeetingCursorAdapter extends CursorAdapter {
 		TextView tvDuration = (TextView) view.findViewById(R.id.tv_duration);
 		tvDuration.setText(DateUtils.formatElapsedTime(duration));
 
-		View btnStartStop = view.findViewById(R.id.btn_start_stop);
+		View btnStartStop = view.findViewById(R.id.btn_start_stop_member);
 		btnStartStop.setOnClickListener(mOnClickListener);
 		btnStartStop.setTag(cache);
 	}

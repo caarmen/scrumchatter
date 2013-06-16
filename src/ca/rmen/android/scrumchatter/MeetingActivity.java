@@ -5,10 +5,17 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.text.format.DateUtils;
 import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Chronometer;
 import android.widget.TextView;
+import android.widget.Toast;
+import ca.rmen.android.scrumchatter.adapter.MeetingCursorAdapter.MemberItemCache;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
+import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.provider.MeetingCursorWrapper;
 import ca.rmen.android.scrumchatter.ui.MeetingFragment;
 
@@ -23,14 +30,22 @@ public class MeetingActivity extends SherlockFragmentActivity {
 			.getPackage().getName() + ".meeting_id";
 	private TextView mTextViewDuration;
 	private TextView mTextViewDate;
+	private View mBtnStopMeeting;
+	private Chronometer mMeetingChronometer;
+	private Uri mMeetingUri;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		Log.v(TAG, "onCreate: savedInstanceState = " + savedInstanceState);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.meeting_activity);
+
 		mTextViewDuration = (TextView) findViewById(R.id.tv_meeting_duration);
 		mTextViewDate = (TextView) findViewById(R.id.tv_meeting_date);
+		mBtnStopMeeting = findViewById(R.id.btn_stop_meeting);
+		mMeetingChronometer = (Chronometer) findViewById(R.id.tv_meeting_duration);
+
+		mBtnStopMeeting.setOnClickListener(mOnClickListener);
 
 		Intent intent = getIntent();
 		loadMeeting(intent);
@@ -49,16 +64,28 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		if (meetingId == -1) {
 			meetingId = createMeeting();
 		}
-		Uri uri = Uri.withAppendedPath(MeetingColumns.CONTENT_URI,
+		mMeetingUri = Uri.withAppendedPath(MeetingColumns.CONTENT_URI,
 				String.valueOf(meetingId));
-		Cursor meetingCursor = getContentResolver().query(uri, null, null,
-				null, null);
+		Cursor meetingCursor = getContentResolver().query(mMeetingUri, null,
+				null, null, null);
 		meetingCursor.moveToFirst();
 		MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(
 				meetingCursor);
 		long duration = cursorWrapper.getDuration();
 		long date = cursorWrapper.getMeetingDate();
-		Log.v(TAG, "duration=" + duration + ", date = " + date);
+		State state = cursorWrapper.getState();
+		if (state == State.IN_PROGRESS) {
+			mBtnStopMeeting.setVisibility(View.VISIBLE);
+			long timeSinceMeetingStartedMillis = System.currentTimeMillis()
+					- date;
+			Log.v(TAG, "meeting started "
+					+ (timeSinceMeetingStartedMillis / 1000) + " seconds ago");
+			mMeetingChronometer.setBase(SystemClock.elapsedRealtime()
+					- timeSinceMeetingStartedMillis);
+			mMeetingChronometer.start();
+		} else if (state == State.FINISHED) {
+			mMeetingChronometer.setText(DateUtils.formatElapsedTime(duration));
+		}
 		mTextViewDuration.setText(DateUtils.formatElapsedTime(duration));
 		mTextViewDate.setText(DateUtils.formatDateTime(this, date,
 				DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME));
@@ -66,7 +93,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		cursorWrapper.close();
 		MeetingFragment fragment = (MeetingFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.meeting_fragment);
-		fragment.loadMeeting(meetingId);
+		fragment.loadMeeting(meetingId, mOnClickListener);
 	}
 
 	private long createMeeting() {
@@ -78,4 +105,92 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		long meetingId = Long.parseLong(newMeetingUri.getLastPathSegment());
 		return meetingId;
 	}
+
+	private State getMeetingState() {
+		Cursor cursor = getContentResolver().query(mMeetingUri,
+				new String[] { MeetingColumns.STATE }, null, null, null);
+		State oldState = null;
+		if (cursor != null) {
+			MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(
+					cursor);
+			if (cursorWrapper.moveToFirst())
+				oldState = cursorWrapper.getState();
+			cursorWrapper.close();
+		}
+		return oldState;
+	}
+
+	private void setMeetingState(State newState) {
+		Log.v(TAG, "setMeetingState " + newState);
+		ContentValues values = new ContentValues(1);
+		values.put(MeetingColumns.STATE, newState.ordinal());
+		getContentResolver().update(mMeetingUri, values, null, null);
+	}
+
+	private long getMeetingDate() {
+		Cursor cursor = getContentResolver().query(mMeetingUri,
+				new String[] { MeetingColumns.MEETING_DATE }, null, null, null);
+		long meetingDate = 0;
+		if (cursor != null) {
+			MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(
+					cursor);
+			if (cursorWrapper.moveToFirst())
+				meetingDate = cursorWrapper.getMeetingDate();
+			cursorWrapper.close();
+		}
+		return meetingDate;
+	}
+
+	private void setMeetingDuration(long duration) {
+		ContentValues values = new ContentValues(1);
+		values.put(MeetingColumns.DURATION, duration);
+		getContentResolver().update(mMeetingUri, values, null, null);
+	}
+
+	private void resetMeetingDate() {
+		Log.v(TAG, "resetMeetingDate");
+		ContentValues values = new ContentValues(1);
+		values.put(MeetingColumns.MEETING_DATE, System.currentTimeMillis());
+		getContentResolver().update(mMeetingUri, values, null, null);
+	}
+
+	private void startMeeting() {
+		State state = getMeetingState();
+		if (state != State.IN_PROGRESS)
+			setMeetingState(State.IN_PROGRESS);
+		mBtnStopMeeting.setVisibility(View.INVISIBLE);
+		resetMeetingDate();
+		mMeetingChronometer.setBase(SystemClock.elapsedRealtime());
+		mMeetingChronometer.start();
+	}
+
+	private void stopMeeting() {
+		setMeetingState(State.FINISHED);
+		mBtnStopMeeting.setVisibility(View.INVISIBLE);
+		mMeetingChronometer.stop();
+		long meetingStartDate = getMeetingDate();
+		long meetingDuration = System.currentTimeMillis() - meetingStartDate;
+		setMeetingDuration(meetingDuration / 1000);
+	}
+
+	private final OnClickListener mOnClickListener = new OnClickListener() {
+
+		@Override
+		public void onClick(View v) {
+			switch (v.getId()) {
+			case R.id.btn_start_stop_member:
+				MemberItemCache cache = (MemberItemCache) v.getTag();
+				Toast.makeText(MeetingActivity.this,
+						"Clicked on " + cache.name, Toast.LENGTH_SHORT).show();
+				startMeeting();
+				break;
+			case R.id.btn_stop_meeting:
+				stopMeeting();
+				break;
+			default:
+				break;
+			}
+		}
+
+	};
 }
