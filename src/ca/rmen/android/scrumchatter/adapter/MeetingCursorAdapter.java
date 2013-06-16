@@ -2,6 +2,7 @@ package ca.rmen.android.scrumchatter.adapter;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.os.SystemClock;
 import android.support.v4.widget.CursorAdapter;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -9,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Chronometer;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import ca.rmen.android.scrumchatter.Constants;
@@ -55,8 +57,8 @@ public class MeetingCursorAdapter extends CursorAdapter {
 		TextView tvName = (TextView) view.findViewById(R.id.tv_name);
 		tvName.setText(memberName);
 
-		TextView tvDuration = (TextView) view.findViewById(R.id.tv_duration);
-		tvDuration.setText(DateUtils.formatElapsedTime(duration));
+		Chronometer chronometer = (Chronometer) view
+				.findViewById(R.id.tv_duration);
 
 		ImageButton btnStartStop = (ImageButton) view
 				.findViewById(R.id.btn_start_stop_member);
@@ -66,10 +68,18 @@ public class MeetingCursorAdapter extends CursorAdapter {
 			btnStartStop.setOnClickListener(mOnClickListener);
 			btnStartStop.setTag(cache);
 			Long talkStartTime = cursorWrapper.getTalkStartTime();
-			if (talkStartTime != null && talkStartTime > 0)
+			if (talkStartTime != null && talkStartTime > 0) {
 				btnStartStop.setImageResource(R.drawable.ic_action_stop);
-			else
+				long hasBeenTalkingFor = duration * 1000
+						+ (System.currentTimeMillis() - talkStartTime);
+				chronometer.setBase(SystemClock.elapsedRealtime()
+						- hasBeenTalkingFor);
+				chronometer.start();
+			} else {
 				btnStartStop.setImageResource(R.drawable.ic_action_start);
+				chronometer.stop();
+				chronometer.setText(DateUtils.formatElapsedTime(duration));
+			}
 		}
 	}
 

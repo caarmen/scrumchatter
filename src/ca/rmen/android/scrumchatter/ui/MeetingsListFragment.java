@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
@@ -95,11 +94,11 @@ public class MeetingsListFragment extends SherlockListFragment implements
 							public void onClick(DialogInterface dialog,
 									int whichButton) {
 								// TODO do on a background thread.
-								Uri uri = Uri.withAppendedPath(
-										MeetingColumns.CONTENT_URI,
-										String.valueOf(cache.id));
-								activity.getContentResolver().delete(uri, null,
-										null);
+								activity.getContentResolver()
+										.delete(MeetingColumns.CONTENT_URI,
+												MeetingColumns._ID + "=?",
+												new String[] { String
+														.valueOf(cache.id) });
 							}
 						});
 				builder.setNegativeButton(android.R.string.cancel, null);

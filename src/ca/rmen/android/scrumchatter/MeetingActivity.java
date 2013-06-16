@@ -126,7 +126,9 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		Log.v(TAG, "setMeetingState " + newState);
 		ContentValues values = new ContentValues(1);
 		values.put(MeetingColumns.STATE, newState.ordinal());
-		getContentResolver().update(mMeetingUri, values, null, null);
+		String meetingId = mMeetingUri.getLastPathSegment();
+		getContentResolver().update(MeetingColumns.CONTENT_URI, values,
+				MeetingColumns._ID + "=?", new String[] { meetingId });
 	}
 
 	private long getMeetingDate() {
@@ -146,14 +148,18 @@ public class MeetingActivity extends SherlockFragmentActivity {
 	private void setMeetingDuration(long duration) {
 		ContentValues values = new ContentValues(1);
 		values.put(MeetingColumns.DURATION, duration);
-		getContentResolver().update(mMeetingUri, values, null, null);
+		String meetingId = mMeetingUri.getLastPathSegment();
+		getContentResolver().update(MeetingColumns.CONTENT_URI, values,
+				MeetingColumns._ID + "=?", new String[] { meetingId });
 	}
 
 	private void resetMeetingDate() {
 		Log.v(TAG, "resetMeetingDate");
 		ContentValues values = new ContentValues(1);
 		values.put(MeetingColumns.MEETING_DATE, System.currentTimeMillis());
-		getContentResolver().update(mMeetingUri, values, null, null);
+		String meetingId = mMeetingUri.getLastPathSegment();
+		getContentResolver().update(MeetingColumns.CONTENT_URI, values,
+				MeetingColumns._ID + "=?", new String[] { meetingId });
 	}
 
 	private void startMeeting() {
