@@ -296,11 +296,13 @@ public class MembersListFragment extends SherlockListFragment {
 				mTextViewName.setTextColor(selectedHeaderColor);
 				break;
 			case R.id.tv_avg_duration:
-				mOrderByField = MeetingMemberColumns.AVG_DURATION + " DESC ";
+				mOrderByField = MeetingMemberColumns.AVG_DURATION + " DESC, "
+						+ MemberColumns.NAME + " ASC ";
 				mTextViewAvgDuration.setTextColor(selectedHeaderColor);
 				break;
 			case R.id.tv_sum_duration:
-				mOrderByField = MeetingMemberColumns.SUM_DURATION + " DESC ";
+				mOrderByField = MeetingMemberColumns.SUM_DURATION + " DESC, "
+						+ MemberColumns.NAME + " ASC ";
 				mTextViewSumDuration.setTextColor(selectedHeaderColor);
 				break;
 			default:
