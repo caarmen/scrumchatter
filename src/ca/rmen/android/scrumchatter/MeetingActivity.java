@@ -1,5 +1,9 @@
 package ca.rmen.android.scrumchatter;
 
+import java.util.ArrayList;
+
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderOperation.Builder;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -19,6 +23,8 @@ import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.provider.MeetingCursorWrapper;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberColumns;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
+import ca.rmen.android.scrumchatter.provider.MemberColumns;
+import ca.rmen.android.scrumchatter.provider.ScrumChatterProvider;
 import ca.rmen.android.scrumchatter.ui.MeetingFragment;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -178,6 +184,53 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		long meetingStartDate = getMeetingDate();
 		long meetingDuration = System.currentTimeMillis() - meetingStartDate;
 		setMeetingDuration(meetingDuration / 1000);
+		shutEverybodyUp();
+	}
+
+	private void shutEverybodyUp() {
+		String meetingId = mMeetingUri.getLastPathSegment();
+		Cursor cursor = getContentResolver().query(
+				MeetingMemberColumns.CONTENT_URI,
+				new String[] { MemberColumns._ID,
+						MeetingMemberColumns.DURATION,
+						MeetingMemberColumns.TALK_START_TIME },
+				MeetingMemberColumns.MEETING_ID + "=? AND "
+						+ MeetingMemberColumns.TALK_START_TIME + ">0",
+				new String[] { meetingId }, null);
+		if (cursor != null) {
+			ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
+			MeetingMemberCursorWrapper cursorWrapper = new MeetingMemberCursorWrapper(
+					cursor);
+			if (cursorWrapper.moveToFirst()) {
+				do {
+					Builder builder = ContentProviderOperation
+							.newUpdate(MeetingMemberColumns.CONTENT_URI);
+					long memberId = cursorWrapper.getMemberId();
+					long duration = cursorWrapper.getDuration();
+					long talkStartTime = cursorWrapper.getTalkStartTime();
+					long newDuration = duration
+							+ (System.currentTimeMillis() - talkStartTime)
+							/ 1000;
+					builder.withValue(MeetingMemberColumns.DURATION,
+							newDuration);
+					builder.withValue(MeetingMemberColumns.TALK_START_TIME, 0);
+					builder.withSelection(MeetingMemberColumns.MEMBER_ID
+							+ "=? AND " + MeetingMemberColumns.MEETING_ID
+							+ "=?", new String[] { String.valueOf(memberId),
+							meetingId });
+					operations.add(builder.build());
+				} while (cursorWrapper.moveToNext());
+			}
+			cursorWrapper.close();
+			try {
+
+				getContentResolver().applyBatch(ScrumChatterProvider.AUTHORITY,
+						operations);
+			} catch (Exception e) {
+				Log.v(TAG, "Couldn't close off meeting: " + e.getMessage(), e);
+			}
+		}
+
 	}
 
 	private void toggleTalkingMember(long memberId) {

@@ -62,24 +62,27 @@ public class MeetingCursorAdapter extends CursorAdapter {
 
 		ImageButton btnStartStop = (ImageButton) view
 				.findViewById(R.id.btn_start_stop_member);
+		Long talkStartTime = cursorWrapper.getTalkStartTime();
 		if (meetingState == State.FINISHED) {
 			btnStartStop.setVisibility(View.INVISIBLE);
 		} else {
 			btnStartStop.setOnClickListener(mOnClickListener);
 			btnStartStop.setTag(cache);
-			Long talkStartTime = cursorWrapper.getTalkStartTime();
 			if (talkStartTime != null && talkStartTime > 0) {
 				btnStartStop.setImageResource(R.drawable.ic_action_stop);
-				long hasBeenTalkingFor = duration * 1000
-						+ (System.currentTimeMillis() - talkStartTime);
-				chronometer.setBase(SystemClock.elapsedRealtime()
-						- hasBeenTalkingFor);
-				chronometer.start();
 			} else {
 				btnStartStop.setImageResource(R.drawable.ic_action_start);
-				chronometer.stop();
-				chronometer.setText(DateUtils.formatElapsedTime(duration));
 			}
+		}
+		if (talkStartTime != null && talkStartTime > 0) {
+			long hasBeenTalkingFor = duration * 1000
+					+ (System.currentTimeMillis() - talkStartTime);
+			chronometer.setBase(SystemClock.elapsedRealtime()
+					- hasBeenTalkingFor);
+			chronometer.start();
+		} else {
+			chronometer.stop();
+			chronometer.setText(DateUtils.formatElapsedTime(duration));
 		}
 	}
 
