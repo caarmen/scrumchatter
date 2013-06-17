@@ -91,4 +91,14 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
 		Log.d(TAG, "Upgrading database from version " + oldVersion + " to "
 				+ newVersion);
 	}
+
+	@Override
+	public void onOpen(SQLiteDatabase db) {
+		Log.d(TAG, "onOpen");
+		if (!db.isReadOnly()) {
+			// Enable foreign key constraints
+			db.execSQL("PRAGMA foreign_keys=ON;");
+		}
+	}
+
 }

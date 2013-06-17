@@ -234,11 +234,13 @@ public class ScrumChatterProvider extends ContentProvider {
 
 	private void notifyChange(Uri uri, String table) {
 		String notify = uri.getQueryParameter(QUERY_NOTIFY);
+		Log.v(TAG, "notifyChange: uri = " + uri + ", table = " + table + ", notify = " + notify);
 		if (notify == null || "true".equals(notify)) {
 			getContext().getContentResolver().notifyChange(uri, null);
-			if (table.equals(MemberColumns.TABLE_NAME))
+			if (table.equals(MemberColumns.TABLE_NAME) || table.equals(MeetingColumns.TABLE_NAME))
 				getContext().getContentResolver().notifyChange(
 						MeetingMemberColumns.CONTENT_URI, null);
+			
 		}
 	}
 
