@@ -316,6 +316,8 @@ public class MeetingActivity extends SherlockFragmentActivity {
 	private void toggleTalkingMember(long memberId) {
 		Log.v(TAG, "toggleTalkingMember " + memberId);
 
+		// Find out if this member is currently talking:
+		// read its talk_start_time and duration fields.
 		String meetingId = mMeetingUri.getLastPathSegment();
 		Uri meetingMemberUri = Uri.withAppendedPath(
 				MeetingMemberColumns.CONTENT_URI, meetingId);
@@ -346,6 +348,8 @@ public class MeetingActivity extends SherlockFragmentActivity {
 			values.put(MeetingMemberColumns.DURATION, newDuration);
 			values.put(MeetingMemberColumns.TALK_START_TIME, 0);
 		} else {
+			// shut up any other talking member before this one starts.
+			shutEverybodyUp();
 			values.put(MeetingMemberColumns.TALK_START_TIME,
 					System.currentTimeMillis());
 		}

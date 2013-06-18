@@ -212,7 +212,7 @@ public class ScrumChatterProvider extends ContentProvider {
 						+ selection + " selectionArgs = "
 						+ Arrays.toString(selectionArgs) + " sortOrder="
 						+ sortOrder + " groupBy=" + groupBy);
-		final QueryParams queryParams = getQueryParams(uri, selection);
+		final QueryParams queryParams = getQueryParams(uri, selection, selectionArgs);
 		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 		qb.setTables(queryParams.table);
 		if (queryParams.projectionMap != null
@@ -322,11 +322,13 @@ public class ScrumChatterProvider extends ContentProvider {
 	 * @return the full QueryParams based on the Uri and selection provided by
 	 *         the user of the ContentProvider.
 	 */
-	private QueryParams getQueryParams(Uri uri, String selection) {
+	private QueryParams getQueryParams(Uri uri, String selection,String[] selectionArgs) {
 		QueryParams res = new QueryParams();
 		String id = null;
 		int matchedId = URI_MATCHER.match(uri);
 		res.projectionMap = new HashMap<String, String>();
+		res.selectionArgs = selectionArgs;
+		res.selection = selection;
 		switch (matchedId) {
 		// The meeting_member table is a join table between the meeting and
 		// member tables.
@@ -366,7 +368,13 @@ public class ScrumChatterProvider extends ContentProvider {
 			if (matchedId == URI_TYPE_MEETING_MEMBER_ID) {
 				String meetingId = uri.getLastPathSegment();
 				
+
 				res.selection = MeetingMemberColumns.MEETING_ID + "=?";
+				if(selectionArgs != null) {
+					res.selectionArgs = new String[selectionArgs.length+1];
+					System.arraycopy(selectionArgs, 0, res.selectionArgs, 0, selectionArgs.length);
+					res.selectionArgs[selectionArgs.length] = meetingId;
+				} else				
 				res.selectionArgs = new String[] { meetingId };
 				res.table += " LEFT OUTER JOIN " + MeetingColumns.TABLE_NAME
 						+ " ON " + MeetingColumns.TABLE_NAME + "."
@@ -375,10 +383,10 @@ public class ScrumChatterProvider extends ContentProvider {
 						+ MeetingMemberColumns.MEETING_ID;
 				res.projectionMap.put(MeetingColumns.STATE,
 						MeetingColumns.STATE);
-				if(selection != null) {
+				if(selection != null){
 					res.selection = selection + " AND (" + res.selection+ ") ";
-					// TODO copy selectionArgs too
 				}
+				
 			}
 			res.orderBy = MemberColumns.NAME;
 			res.groupBy = MemberColumns.TABLE_NAME + "." + MemberColumns._ID;
