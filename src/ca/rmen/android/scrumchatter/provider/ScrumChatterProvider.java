@@ -18,6 +18,7 @@
  */
 package ca.rmen.android.scrumchatter.provider;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +27,9 @@ import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteQuery;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.provider.BaseColumns;
@@ -212,7 +215,8 @@ public class ScrumChatterProvider extends ContentProvider {
 						+ selection + " selectionArgs = "
 						+ Arrays.toString(selectionArgs) + " sortOrder="
 						+ sortOrder + " groupBy=" + groupBy);
-		final QueryParams queryParams = getQueryParams(uri, selection, selectionArgs);
+		final QueryParams queryParams = getQueryParams(uri, selection,
+				selectionArgs);
 		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 		qb.setTables(queryParams.table);
 		if (queryParams.projectionMap != null
@@ -222,25 +226,46 @@ public class ScrumChatterProvider extends ContentProvider {
 		// @formatter:off
 		final Cursor res = qb.query(
 				mScrumChatterDatabase.getReadableDatabase(), projection,
-				queryParams.selection,
-				selectionArgs == null ? queryParams.selectionArgs
-						: selectionArgs, groupBy == null ? queryParams.groupBy
-						: groupBy, null,
+				queryParams.selection, queryParams.selectionArgs,
+				groupBy == null ? queryParams.groupBy : groupBy, null,
 				sortOrder == null ? queryParams.orderBy : sortOrder);
 		// @formatter:on
+		logCursor(res, queryParams.selectionArgs);
 		res.setNotificationUri(getContext().getContentResolver(), uri);
+
 		return res;
+	}
+
+	/**
+	 * Log the query of the given cursor.
+	 * @param cursor
+	 * @param selectionArgs
+	 */
+	private void logCursor(Cursor cursor, String[] selectionArgs) {
+		try {
+			Field queryField = SQLiteCursor.class.getDeclaredField("mQuery");
+			queryField.setAccessible(true);
+			SQLiteQuery sqliteQuery = (SQLiteQuery) queryField
+					.get((SQLiteCursor) cursor);
+			Log.v(TAG,
+					sqliteQuery.toString() + ": "
+							+ Arrays.toString(selectionArgs));
+		} catch (Exception e) {
+			Log.v(TAG, e.getMessage(), e);
+		}
 	}
 
 	private void notifyChange(Uri uri, String table) {
 		String notify = uri.getQueryParameter(QUERY_NOTIFY);
-		Log.v(TAG, "notifyChange: uri = " + uri + ", table = " + table + ", notify = " + notify);
+		Log.v(TAG, "notifyChange: uri = " + uri + ", table = " + table
+				+ ", notify = " + notify);
 		if (notify == null || "true".equals(notify)) {
 			getContext().getContentResolver().notifyChange(uri, null);
-			if (table.equals(MemberColumns.TABLE_NAME) || table.equals(MeetingColumns.TABLE_NAME))
+			if (table.equals(MemberColumns.TABLE_NAME)
+					|| table.equals(MeetingColumns.TABLE_NAME))
 				getContext().getContentResolver().notifyChange(
 						MeetingMemberColumns.CONTENT_URI, null);
-			
+
 		}
 	}
 
@@ -322,7 +347,8 @@ public class ScrumChatterProvider extends ContentProvider {
 	 * @return the full QueryParams based on the Uri and selection provided by
 	 *         the user of the ContentProvider.
 	 */
-	private QueryParams getQueryParams(Uri uri, String selection,String[] selectionArgs) {
+	private QueryParams getQueryParams(Uri uri, String selection,
+			String[] selectionArgs) {
 		QueryParams res = new QueryParams();
 		String id = null;
 		int matchedId = URI_MATCHER.match(uri);
@@ -367,15 +393,15 @@ public class ScrumChatterProvider extends ContentProvider {
 			// attributes.
 			if (matchedId == URI_TYPE_MEETING_MEMBER_ID) {
 				String meetingId = uri.getLastPathSegment();
-				
 
 				res.selection = MeetingMemberColumns.MEETING_ID + "=?";
-				if(selectionArgs != null) {
-					res.selectionArgs = new String[selectionArgs.length+1];
-					System.arraycopy(selectionArgs, 0, res.selectionArgs, 0, selectionArgs.length);
+				if (selectionArgs != null) {
+					res.selectionArgs = new String[selectionArgs.length + 1];
+					System.arraycopy(selectionArgs, 0, res.selectionArgs, 0,
+							selectionArgs.length);
 					res.selectionArgs[selectionArgs.length] = meetingId;
-				} else				
-				res.selectionArgs = new String[] { meetingId };
+				} else
+					res.selectionArgs = new String[] { meetingId };
 				res.table += " LEFT OUTER JOIN " + MeetingColumns.TABLE_NAME
 						+ " ON " + MeetingColumns.TABLE_NAME + "."
 						+ MeetingColumns._ID + " = "
@@ -383,10 +409,10 @@ public class ScrumChatterProvider extends ContentProvider {
 						+ MeetingMemberColumns.MEETING_ID;
 				res.projectionMap.put(MeetingColumns.STATE,
 						MeetingColumns.STATE);
-				if(selection != null){
-					res.selection = selection + " AND (" + res.selection+ ") ";
+				if (selection != null) {
+					res.selection = selection + " AND (" + res.selection + ") ";
 				}
-				
+
 			}
 			res.orderBy = MemberColumns.NAME;
 			res.groupBy = MemberColumns.TABLE_NAME + "." + MemberColumns._ID;
