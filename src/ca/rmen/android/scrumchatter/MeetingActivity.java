@@ -130,7 +130,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		// Load the list of team members.
 		MeetingFragment fragment = (MeetingFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.meeting_fragment);
-		fragment.loadMeeting(meetingId, mOnClickListener);
+		fragment.loadMeeting(meetingId, state, mOnClickListener);
 	}
 
 	/**

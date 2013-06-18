@@ -222,7 +222,7 @@ public class ScrumChatterProvider extends ContentProvider {
 		// @formatter:off
 		final Cursor res = qb.query(
 				mScrumChatterDatabase.getReadableDatabase(), projection,
-				selection == null ? queryParams.selection : selection,
+				queryParams.selection,
 				selectionArgs == null ? queryParams.selectionArgs
 						: selectionArgs, groupBy == null ? queryParams.groupBy
 						: groupBy, null,
@@ -365,6 +365,7 @@ public class ScrumChatterProvider extends ContentProvider {
 			// attributes.
 			if (matchedId == URI_TYPE_MEETING_MEMBER_ID) {
 				String meetingId = uri.getLastPathSegment();
+				
 				res.selection = MeetingMemberColumns.MEETING_ID + "=?";
 				res.selectionArgs = new String[] { meetingId };
 				res.table += " LEFT OUTER JOIN " + MeetingColumns.TABLE_NAME
@@ -374,6 +375,10 @@ public class ScrumChatterProvider extends ContentProvider {
 						+ MeetingMemberColumns.MEETING_ID;
 				res.projectionMap.put(MeetingColumns.STATE,
 						MeetingColumns.STATE);
+				if(selection != null) {
+					res.selection = selection + " AND (" + res.selection+ ") ";
+					// TODO copy selectionArgs too
+				}
 			}
 			res.orderBy = MemberColumns.NAME;
 			res.groupBy = MemberColumns.TABLE_NAME + "." + MemberColumns._ID;

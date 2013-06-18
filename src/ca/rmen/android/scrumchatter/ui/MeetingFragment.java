@@ -34,6 +34,7 @@ import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.adapter.MeetingCursorAdapter;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
+import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 
@@ -47,7 +48,6 @@ public class MeetingFragment extends SherlockListFragment {
 	private static final String TAG = Constants.TAG + "/"
 			+ MeetingFragment.class.getSimpleName();
 
-	private static final int URL_LOADER = 0;
 	private long mMeetingId;
 
 	private MeetingCursorAdapter mAdapter;
@@ -79,18 +79,24 @@ public class MeetingFragment extends SherlockListFragment {
 	 *            This will be forwarded to the adapter, so clicks on views in
 	 *            the list will be managed by this listener.
 	 */
-	public void loadMeeting(long meetingId, OnClickListener onClickListener) {
+	public void loadMeeting(long meetingId, State state,
+			OnClickListener onClickListener) {
 		Log.v(TAG, "loadMeeting");
 		mMeetingId = meetingId;
 		mAdapter = new MeetingCursorAdapter(getActivity(), onClickListener);
 		setListAdapter(mAdapter);
-		getLoaderManager().initLoader(URL_LOADER, null, mLoaderCallbacks);
+		getLoaderManager().initLoader(state.ordinal(), null, mLoaderCallbacks);
 	}
 
 	private LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
 
 		@Override
 		public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
+			String selection = null;
+			if (loaderId == State.FINISHED.ordinal()) {
+				selection = MeetingMemberColumns.TABLE_NAME + "."
+						+ MeetingMemberColumns.DURATION + ">0";
+			}
 			String[] projection = new String[] { MemberColumns._ID,
 					MemberColumns.NAME, MeetingMemberColumns.DURATION,
 					MeetingColumns.STATE, MeetingMemberColumns.TALK_START_TIME };
@@ -98,7 +104,7 @@ public class MeetingFragment extends SherlockListFragment {
 			Uri uri = Uri.withAppendedPath(MeetingMemberColumns.CONTENT_URI,
 					String.valueOf(mMeetingId));
 			CursorLoader loader = new CursorLoader(getActivity(), uri,
-					projection, null, null, MemberColumns.NAME);
+					projection, selection, null, MemberColumns.NAME);
 			return loader;
 		}
 
