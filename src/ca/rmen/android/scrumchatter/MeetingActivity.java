@@ -323,8 +323,10 @@ public class MeetingActivity extends SherlockFragmentActivity {
 				MeetingMemberColumns.CONTENT_URI, meetingId);
 		Cursor cursor = getContentResolver().query(
 				meetingMemberUri,
-				new String[] { MeetingMemberColumns.TALK_START_TIME,
-						MeetingMemberColumns.DURATION },
+				new String[] {
+						MeetingMemberColumns.TALK_START_TIME,
+						MeetingMemberColumns.TABLE_NAME + "."
+								+ MeetingMemberColumns.DURATION },
 				MeetingMemberColumns.MEMBER_ID + "=?",
 				new String[] { String.valueOf(memberId) }, null);
 		long talkStartTime = 0;

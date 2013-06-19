@@ -97,8 +97,11 @@ public class MeetingFragment extends SherlockListFragment {
 				selection = MeetingMemberColumns.TABLE_NAME + "."
 						+ MeetingMemberColumns.DURATION + ">0";
 			}
-			String[] projection = new String[] { MemberColumns._ID,
-					MemberColumns.NAME, MeetingMemberColumns.DURATION,
+			String[] projection = new String[] {
+					MemberColumns.TABLE_NAME + "." + MemberColumns._ID,
+					MemberColumns.NAME,
+					MeetingMemberColumns.TABLE_NAME + "."
+							+ MeetingMemberColumns.DURATION,
 					MeetingColumns.STATE, MeetingMemberColumns.TALK_START_TIME };
 
 			Uri uri = Uri.withAppendedPath(MeetingMemberColumns.CONTENT_URI,

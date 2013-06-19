@@ -20,8 +20,6 @@ package ca.rmen.android.scrumchatter.provider;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -227,16 +225,12 @@ public class ScrumChatterProvider extends ContentProvider {
 				selectionArgs);
 		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 		qb.setTables(queryParams.table);
-		if (queryParams.projectionMap != null
-				&& !queryParams.projectionMap.isEmpty())
-			qb.setProjectionMap(queryParams.projectionMap);
 
 		// @formatter:off
 		final Cursor res = qb.query(
 				mScrumChatterDatabase.getReadableDatabase(), projection,
-				queryParams.selection, queryParams.selectionArgs,
-				groupBy == null ? queryParams.groupBy : groupBy, null,
-				sortOrder == null ? queryParams.orderBy : sortOrder);
+				queryParams.selection, queryParams.selectionArgs, groupBy,
+				null, sortOrder == null ? queryParams.orderBy : sortOrder);
 		// @formatter:on
 		logCursor(res, queryParams.selectionArgs);
 		res.setNotificationUri(getContext().getContentResolver(), uri);
@@ -296,8 +290,6 @@ public class ScrumChatterProvider extends ContentProvider {
 	 */
 	private static class QueryParams extends StatementParams {
 		public String orderBy;
-		public String groupBy;
-		public Map<String, String> projectionMap;
 	}
 
 	/**
@@ -364,7 +356,6 @@ public class ScrumChatterProvider extends ContentProvider {
 		QueryParams res = new QueryParams();
 		String id = null;
 		int matchedId = URI_MATCHER.match(uri);
-		res.projectionMap = new HashMap<String, String>();
 		res.selectionArgs = selectionArgs;
 		res.selection = selection;
 		switch (matchedId) {
@@ -376,18 +367,12 @@ public class ScrumChatterProvider extends ContentProvider {
 		case URI_TYPE_MEETING_MEMBER_ID:
 			// TÖDO see if the QueryParams for the meeting_member table
 			// can be simplified at all.
-
-			// This Uri translates into a query on the member table
-			// joined to the meeting_member table. The goal of this
-			// Uri is to provide stats for members for all or for one
-			// meeting.
-			String memberIdColumn = MemberColumns.TABLE_NAME + "."
-					+ MemberColumns._ID;
-			String meetingMemberIdColumn = MeetingMemberColumns.TABLE_NAME
-					+ "." + MeetingMemberColumns.MEMBER_ID;
 			res.table = MemberColumns.TABLE_NAME + " LEFT OUTER JOIN "
-					+ MeetingMemberColumns.TABLE_NAME + " ON " + memberIdColumn
-					+ " = " + meetingMemberIdColumn;
+					+ MeetingMemberColumns.TABLE_NAME + " ON "
+					+ MemberColumns.TABLE_NAME + "." + MemberColumns._ID
+					+ " = " + MeetingMemberColumns.TABLE_NAME + "."
+					+ MeetingMemberColumns.MEMBER_ID;
+
 			// If this Uri has an id, this is a meeting id.
 			// We need to join on the meeting table to get meeting
 			// attributes.
@@ -407,24 +392,11 @@ public class ScrumChatterProvider extends ContentProvider {
 						+ MeetingColumns._ID + " = "
 						+ MeetingMemberColumns.TABLE_NAME + "."
 						+ MeetingMemberColumns.MEETING_ID;
-				res.projectionMap.put(MeetingColumns.STATE,
-						MeetingColumns.STATE);
 				if (selection != null) {
 					res.selection = selection + " AND (" + res.selection + ") ";
 				}
-
 			}
 			res.orderBy = MemberColumns.NAME;
-			res.groupBy = MemberColumns.TABLE_NAME + "." + MemberColumns._ID;
-			res.projectionMap.put(MemberColumns._ID, memberIdColumn);
-			res.projectionMap.put(MemberColumns.NAME, MemberColumns.TABLE_NAME
-					+ "." + MemberColumns.NAME);
-			res.projectionMap.put(MeetingMemberColumns.DURATION,
-					MeetingMemberColumns.TABLE_NAME + "."
-							+ MeetingMemberColumns.DURATION + " AS "
-							+ MeetingMemberColumns.DURATION);
-			res.projectionMap.put(MeetingMemberColumns.TALK_START_TIME,
-					MeetingMemberColumns.TALK_START_TIME);
 			break;
 
 		case URI_TYPE_MEMBER_ID:
