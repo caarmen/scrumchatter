@@ -72,6 +72,26 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
 			+ " INTEGER NOT NULL DEFAULT "
 			+ MeetingColumns.State.NOT_STARTED.ordinal() + " );";
 
+	private static final String SQL_CREATE_VIEW_MEMBER_STATS = "CREATE VIEW "
+			+ MemberColumns.VIEW_MEMBER_STATS + " AS " + " SELECT "
+			+ MemberColumns.TABLE_NAME + "." + MemberColumns._ID + " AS "
+			+ MemberColumns._ID + ", " + MemberColumns.TABLE_NAME + "."
+			+ MemberColumns.NAME + ", " + " SUM("
+			+ MeetingMemberColumns.TABLE_NAME + "."
+			+ MeetingMemberColumns.DURATION + ") AS "
+			+ MeetingMemberColumns.SUM_DURATION + "," + " AVG("
+			+ MeetingMemberColumns.TABLE_NAME + "."
+			+ MeetingMemberColumns.DURATION + ") AS "
+			+ MeetingMemberColumns.AVG_DURATION + " FROM "
+			+ MemberColumns.TABLE_NAME + " LEFT OUTER JOIN "
+			+ MeetingMemberColumns.TABLE_NAME + " ON "
+			+ MemberColumns.TABLE_NAME + "." + MemberColumns._ID + " = "
+			+ MeetingMemberColumns.TABLE_NAME + "."
+			+ MeetingMemberColumns.MEMBER_ID + " AND "
+			+ MeetingMemberColumns.TABLE_NAME + "."
+			+ MeetingMemberColumns.DURATION + "> 0" + " GROUP BY "
+			+ MemberColumns.TABLE_NAME + "." + MemberColumns.NAME;;
+
 	// @formatter:on
 
 	public ScrumChatterDatabase(Context context) {
@@ -84,6 +104,7 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
 		db.execSQL(SQL_CREATE_TABLE_MEETING_MEMBER);
 		db.execSQL(SQL_CREATE_TABLE_MEMBER);
 		db.execSQL(SQL_CREATE_TABLE_MEETING);
+		db.execSQL(SQL_CREATE_VIEW_MEMBER_STATS);
 	}
 
 	@Override

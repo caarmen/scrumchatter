@@ -65,6 +65,8 @@ public class ScrumChatterProvider extends ContentProvider {
 	private static final int URI_TYPE_MEETING = 4;
 	private static final int URI_TYPE_MEETING_ID = 5;
 
+	private static final int URI_TYPE_MEMBER_STATS = 6;
+
 	private static final UriMatcher URI_MATCHER = new UriMatcher(
 			UriMatcher.NO_MATCH);
 
@@ -83,6 +85,9 @@ public class ScrumChatterProvider extends ContentProvider {
 				URI_TYPE_MEETING);
 		URI_MATCHER.addURI(AUTHORITY, MeetingColumns.TABLE_NAME + "/#",
 				URI_TYPE_MEETING_ID);
+
+		URI_MATCHER.addURI(AUTHORITY, MemberColumns.VIEW_MEMBER_STATS,
+				URI_TYPE_MEMBER_STATS);
 
 	}
 
@@ -112,6 +117,9 @@ public class ScrumChatterProvider extends ContentProvider {
 			return TYPE_CURSOR_DIR + MeetingColumns.TABLE_NAME;
 		case URI_TYPE_MEETING_ID:
 			return TYPE_CURSOR_ITEM + MeetingColumns.TABLE_NAME;
+
+		case URI_TYPE_MEMBER_STATS:
+			return TYPE_CURSOR_ITEM + MemberColumns.VIEW_MEMBER_STATS;
 
 		}
 		return null;
@@ -238,6 +246,7 @@ public class ScrumChatterProvider extends ContentProvider {
 
 	/**
 	 * Log the query of the given cursor.
+	 * 
 	 * @param cursor
 	 * @param selectionArgs
 	 */
@@ -262,9 +271,12 @@ public class ScrumChatterProvider extends ContentProvider {
 		if (notify == null || "true".equals(notify)) {
 			getContext().getContentResolver().notifyChange(uri, null);
 			if (table.equals(MemberColumns.TABLE_NAME)
-					|| table.equals(MeetingColumns.TABLE_NAME))
+					|| table.equals(MeetingColumns.TABLE_NAME)) {
 				getContext().getContentResolver().notifyChange(
 						MeetingMemberColumns.CONTENT_URI, null);
+				getContext().getContentResolver().notifyChange(
+						MemberColumns.MEMBER_STATS_URI, null);
+			}
 
 		}
 	}
@@ -361,18 +373,6 @@ public class ScrumChatterProvider extends ContentProvider {
 		// This table does not have an _id field. If the Uri contains an id,
 		// this will be used as the meeting id.
 		case URI_TYPE_MEETING_MEMBER:
-			// The special columns for average and sum of duration need to be
-			// mapped to their corresponding SQL formulas.
-			// These columns can be used with a Uri which specifies a
-			// meeting id or not.
-			res.projectionMap.put(MeetingMemberColumns.AVG_DURATION, "avg("
-					+ MeetingMemberColumns.TABLE_NAME + "."
-					+ MeetingMemberColumns.DURATION + ") AS "
-					+ MeetingMemberColumns.AVG_DURATION);
-			res.projectionMap.put(MeetingMemberColumns.SUM_DURATION, "sum("
-					+ MeetingMemberColumns.TABLE_NAME + "."
-					+ MeetingMemberColumns.DURATION + ") AS "
-					+ MeetingMemberColumns.SUM_DURATION);
 		case URI_TYPE_MEETING_MEMBER_ID:
 			// TÖDO see if the QueryParams for the meeting_member table
 			// can be simplified at all.
@@ -439,6 +439,11 @@ public class ScrumChatterProvider extends ContentProvider {
 		case URI_TYPE_MEETING:
 			res.table = MeetingColumns.TABLE_NAME;
 			res.orderBy = MeetingColumns.DEFAULT_ORDER;
+			break;
+
+		case URI_TYPE_MEMBER_STATS:
+			res.table = MemberColumns.VIEW_MEMBER_STATS;
+			res.orderBy = MemberColumns.DEFAULT_ORDER;
 			break;
 
 		default:

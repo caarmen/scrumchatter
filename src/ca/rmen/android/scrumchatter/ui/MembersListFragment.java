@@ -205,7 +205,7 @@ public class MembersListFragment extends SherlockListFragment {
 					MemberColumns.NAME, MeetingMemberColumns.SUM_DURATION,
 					MeetingMemberColumns.AVG_DURATION };
 			CursorLoader loader = new CursorLoader(getActivity(),
-					MeetingMemberColumns.CONTENT_URI, projection, null, null,
+					MemberColumns.MEMBER_STATS_URI, projection, null, null,
 					mOrderByField);
 			return loader;
 		}
