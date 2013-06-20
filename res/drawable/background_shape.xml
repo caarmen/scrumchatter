@@ -17,8 +17,7 @@
   You should have received a copy of the GNU General Public License
   along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
 -->
-<resources>
-    <color name="selected_header">#808</color>
-    <color name="unselected_header">#333</color>
-    <color name="item_pressed">#8B0D</color>
-</resources>
+<shape xmlns:android="http://schemas.android.com/apk/res/android" >
+    <solid android:color="@color/item_pressed"/>
+
+</shape>
