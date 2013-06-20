@@ -33,7 +33,9 @@
 
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">
+
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+        <item name="android:listViewStyle">@style/listStyle</item>
     </style>
 
     <style name="listHeader">
@@ -46,6 +48,9 @@
         <item name="android:layout_height">48dp</item>
         <item name="android:background">@drawable/selector</item>
         <item name="android:scaleType">center</item>
+    </style>
+    <style name="listStyle">
+        <item name="android:listSelector">@drawable/selector</item>
     </style>
 
 </resources>

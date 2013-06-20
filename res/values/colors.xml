@@ -20,5 +20,5 @@
 <resources>
     <color name="selected_header">#808</color>
     <color name="unselected_header">#333</color>
-    <color name="item_pressed">#8B0D</color>
+    <color name="item_pressed">#360F</color>
 </resources>
