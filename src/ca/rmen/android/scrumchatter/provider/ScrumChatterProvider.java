@@ -20,6 +20,8 @@ package ca.rmen.android.scrumchatter.provider;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -263,13 +265,35 @@ public class ScrumChatterProvider extends ContentProvider {
 		Log.v(TAG, "notifyChange: uri = " + uri + ", table = " + table
 				+ ", notify = " + notify);
 		if (notify == null || "true".equals(notify)) {
-			getContext().getContentResolver().notifyChange(uri, null);
-			if (table.equals(MemberColumns.TABLE_NAME)
-					|| table.equals(MeetingColumns.TABLE_NAME)) {
-				getContext().getContentResolver().notifyChange(
-						MeetingMemberColumns.CONTENT_URI, null);
-				getContext().getContentResolver().notifyChange(
-						MemberColumns.MEMBER_STATS_URI, null);
+			// Notify the uri which changed.
+			Set<Uri> urisToNotify = new HashSet<Uri>();
+			urisToNotify.add(uri);
+
+			// Notify other uris if they depend on the given uri which just
+			// changed.
+			// If a member changed, notify the the meeting_member and
+			// member_stats uris.
+			if (table.equals(MemberColumns.TABLE_NAME)) {
+				urisToNotify.add(MeetingMemberColumns.CONTENT_URI);
+				urisToNotify.add(MemberColumns.MEMBER_STATS_URI);
+			}
+			// If a meeting changed, notify the meeting_member uri, including
+			// the meeting id in the uri to notify,
+			// if the given uri is for a specific meeting.
+			else if (table.equals(MeetingColumns.TABLE_NAME)) {
+				Uri meetingMemberUriToNotify = MeetingMemberColumns.CONTENT_URI;
+				final int uriMatch = URI_MATCHER.match(uri);
+				if (uriMatch == URI_TYPE_MEETING_ID) {
+					String meetingId = uri.getLastPathSegment();
+					meetingMemberUriToNotify = Uri.withAppendedPath(
+							MeetingMemberColumns.CONTENT_URI, meetingId);
+				}
+				urisToNotify.add(meetingMemberUriToNotify);
+			}
+			for (Uri uriToNotify : urisToNotify) {
+				Log.v(TAG, "notifyChange: notify uri " + uriToNotify);
+				getContext().getContentResolver().notifyChange(uriToNotify,
+						null);
 			}
 
 		}

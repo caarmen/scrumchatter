@@ -245,6 +245,11 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		long meetingDuration = System.currentTimeMillis() - meetingStartDate;
 		setMeetingDuration(meetingDuration / 1000);
 		shutEverybodyUp();
+		// Reload the list of team members.
+		long meetingId = Long.valueOf(mMeetingUri.getLastPathSegment());
+		MeetingFragment fragment = (MeetingFragment) getSupportFragmentManager()
+				.findFragmentById(R.id.meeting_fragment);
+		fragment.loadMeeting(meetingId, State.FINISHED, mOnClickListener);
 	}
 
 	/**
