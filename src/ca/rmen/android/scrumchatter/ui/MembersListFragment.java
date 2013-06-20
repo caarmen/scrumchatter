@@ -48,6 +48,7 @@ import ca.rmen.android.scrumchatter.adapter.MembersCursorAdapter;
 import ca.rmen.android.scrumchatter.adapter.MembersCursorAdapter.MemberItemCache;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
+import ca.rmen.android.scrumchatter.provider.MemberStatsColumns;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
@@ -202,10 +203,10 @@ public class MembersListFragment extends SherlockListFragment {
 		public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
 			Log.v(TAG, "onCreateLoader, order by " + mOrderByField);
 			String[] projection = new String[] { MemberColumns._ID,
-					MemberColumns.NAME, MeetingMemberColumns.SUM_DURATION,
-					MeetingMemberColumns.AVG_DURATION };
+					MemberColumns.NAME, MemberStatsColumns.SUM_DURATION,
+					MemberStatsColumns.AVG_DURATION };
 			CursorLoader loader = new CursorLoader(getActivity(),
-					MemberColumns.MEMBER_STATS_URI, projection, null, null,
+					MemberStatsColumns.CONTENT_URI, projection, null, null,
 					mOrderByField);
 			return loader;
 		}
@@ -296,12 +297,12 @@ public class MembersListFragment extends SherlockListFragment {
 				mTextViewName.setTextColor(selectedHeaderColor);
 				break;
 			case R.id.tv_avg_duration:
-				mOrderByField = MeetingMemberColumns.AVG_DURATION + " DESC, "
+				mOrderByField = MemberStatsColumns.AVG_DURATION + " DESC, "
 						+ MemberColumns.NAME + " ASC ";
 				mTextViewAvgDuration.setTextColor(selectedHeaderColor);
 				break;
 			case R.id.tv_sum_duration:
-				mOrderByField = MeetingMemberColumns.SUM_DURATION + " DESC, "
+				mOrderByField = MemberStatsColumns.SUM_DURATION + " DESC, "
 						+ MemberColumns.NAME + " ASC ";
 				mTextViewSumDuration.setTextColor(selectedHeaderColor);
 				break;

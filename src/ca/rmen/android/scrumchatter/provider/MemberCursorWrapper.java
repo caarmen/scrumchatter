@@ -43,12 +43,12 @@ public class MemberCursorWrapper extends CursorWrapper {
 	}
 
 	public Integer getAverageDuration() {
-		Integer index = getIndex(MeetingMemberColumns.AVG_DURATION);
+		Integer index = getIndex(MemberStatsColumns.AVG_DURATION);
 		return getInt(index);
 	}
 
 	public Integer getSumDuration() {
-		Integer index = getIndex(MeetingMemberColumns.SUM_DURATION);
+		Integer index = getIndex(MemberStatsColumns.SUM_DURATION);
 		return getInt(index);
 	}
 

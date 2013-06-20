@@ -22,21 +22,18 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 
 /**
- * Table, column names, and column types (enums) for the meeting_member table.
+ * Table, column names, and column types (enums) for the member table.
  * 
- * A row in this table contains information about one member's participation in
- * one meeting. This is a join table between the meeting and member tables. This
- * table will contain multiple entries for a given member, and multiple entries
- * for a given meeting.
+ * A row in this table contains attributes of a single team member.
  */
-public class MeetingMemberColumns implements BaseColumns {
-	public static final String TABLE_NAME = "meeting_member";
+public class MemberStatsColumns implements BaseColumns {
+	public static final String VIEW_NAME = "member_stats";
 	public static final Uri CONTENT_URI = Uri
-			.parse(ScrumChatterProvider.CONTENT_URI_BASE + "/" + TABLE_NAME);
+			.parse(ScrumChatterProvider.CONTENT_URI_BASE + "/" + VIEW_NAME);
 
-	public static final String MEETING_ID = "meeting_id";
-	public static final String MEMBER_ID = "member_id";
-	public static final String DURATION = "duration";
-	public static final String TALK_START_TIME = "talk_start_time";
+	public static final String _ID = BaseColumns._ID;
+	public static final String SUM_DURATION = "sum_duration";
+	public static final String AVG_DURATION = "avg_duration";
 
+	public static final String DEFAULT_ORDER = _ID;
 }

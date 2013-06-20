@@ -86,7 +86,7 @@ public class ScrumChatterProvider extends ContentProvider {
 		URI_MATCHER.addURI(AUTHORITY, MeetingColumns.TABLE_NAME + "/#",
 				URI_TYPE_MEETING_ID);
 
-		URI_MATCHER.addURI(AUTHORITY, MemberColumns.VIEW_MEMBER_STATS,
+		URI_MATCHER.addURI(AUTHORITY, MemberStatsColumns.VIEW_NAME,
 				URI_TYPE_MEMBER_STATS);
 
 	}
@@ -119,7 +119,7 @@ public class ScrumChatterProvider extends ContentProvider {
 			return TYPE_CURSOR_ITEM + MeetingColumns.TABLE_NAME;
 
 		case URI_TYPE_MEMBER_STATS:
-			return TYPE_CURSOR_ITEM + MemberColumns.VIEW_MEMBER_STATS;
+			return TYPE_CURSOR_ITEM + MemberStatsColumns.VIEW_NAME;
 
 		}
 		return null;
@@ -275,7 +275,7 @@ public class ScrumChatterProvider extends ContentProvider {
 			// member_stats uris.
 			if (table.equals(MemberColumns.TABLE_NAME)) {
 				urisToNotify.add(MeetingMemberColumns.CONTENT_URI);
-				urisToNotify.add(MemberColumns.MEMBER_STATS_URI);
+				urisToNotify.add(MemberStatsColumns.CONTENT_URI);
 			}
 			// If a meeting changed, notify the meeting_member uri, including
 			// the meeting id in the uri to notify,
@@ -438,7 +438,7 @@ public class ScrumChatterProvider extends ContentProvider {
 			break;
 
 		case URI_TYPE_MEMBER_STATS:
-			res.table = MemberColumns.VIEW_MEMBER_STATS;
+			res.table = MemberStatsColumns.VIEW_NAME;
 			res.orderBy = MemberColumns.DEFAULT_ORDER;
 			break;
 

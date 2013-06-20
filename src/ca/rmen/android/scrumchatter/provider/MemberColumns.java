@@ -28,12 +28,8 @@ import android.provider.BaseColumns;
  */
 public class MemberColumns implements BaseColumns {
 	public static final String TABLE_NAME = "member";
-	public static final String VIEW_MEMBER_STATS = "member_stats";
 	public static final Uri CONTENT_URI = Uri
 			.parse(ScrumChatterProvider.CONTENT_URI_BASE + "/" + TABLE_NAME);
-	public static final Uri MEMBER_STATS_URI = Uri
-			.parse(ScrumChatterProvider.CONTENT_URI_BASE + "/"
-					+ VIEW_MEMBER_STATS);
 
 	public static final String _ID = BaseColumns._ID;
 
