@@ -19,8 +19,8 @@
 -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" 
-    android:descendantFocusability="blocksDescendants">
+    android:layout_height="match_parent"
+    android:descendantFocusability="blocksDescendants" >
 
     <TextView
         android:id="@+id/tv_meeting_date"
@@ -37,16 +37,11 @@
         android:layout_centerVertical="true"
         android:layout_toLeftOf="@+id/btn_delete" />
 
-    <ImageView
-        
+    <ImageButton
         android:id="@id/btn_delete"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        style="@style/listItemButton"
         android:layout_alignParentRight="true"
         android:contentDescription="@string/action_delete_meeting"
-        android:scaleType="center"
-        
-        android:background="@drawable/selector"
         android:src="@drawable/ic_action_delete" />
 
 </RelativeLayout>

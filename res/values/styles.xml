@@ -33,11 +33,19 @@
 
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">
-        <!-- All customizations that are NOT specific to a particular API-level can go here. -->        
+        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
 
     <style name="listHeader">
         <item name="android:textColor">@color/unselected_header</item>
         <item name="android:textStyle">bold</item>
     </style>
+
+    <style name="listItemButton">
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:background">@drawable/selector</item>
+        <item name="android:scaleType">center</item>
+    </style>
+
 </resources>
