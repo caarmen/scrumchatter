@@ -32,6 +32,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.ListView;
 import ca.rmen.android.scrumchatter.MeetingActivity;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.adapter.MeetingsCursorAdapter;
@@ -88,6 +89,16 @@ public class MeetingsListFragment extends SherlockListFragment {
 		return true;
 	}
 
+	@Override
+	public void onListItemClick(ListView l, View v, int position, long id) {
+		super.onListItemClick(l, v, position, id);
+		// The user clicked on the meeting. Let's go to the
+		// details of that meeting.
+		Intent intent = new Intent(getActivity(), MeetingActivity.class);
+		intent.putExtra(MeetingActivity.EXTRA_MEETING_ID, id);
+		startActivity(intent);
+	}
+	
 	private LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
 		@Override
 		public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
@@ -139,13 +150,6 @@ public class MeetingsListFragment extends SherlockListFragment {
 									}
 								});
 				builder.create().show();
-				break;
-			case R.id.tv_meeting_date:
-				// The user clicked on the date of the meeting. Let's go to the
-				// details of that meeting.
-				Intent intent = new Intent(getActivity(), MeetingActivity.class);
-				intent.putExtra(MeetingActivity.EXTRA_MEETING_ID, cache.id);
-				startActivity(intent);
 				break;
 			default:
 				break;

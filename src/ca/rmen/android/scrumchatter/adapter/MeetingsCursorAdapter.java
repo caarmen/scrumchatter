@@ -107,8 +107,6 @@ public class MeetingsCursorAdapter extends CursorAdapter {
 		MeetingItemCache cache = new MeetingItemCache(id, date);
 		btnDelete.setTag(cache);
 		btnDelete.setOnClickListener(mOnClickListener);
-		tvDate.setTag(cache);
-		tvDate.setOnClickListener(mOnClickListener);
 	}
 
 	/**
