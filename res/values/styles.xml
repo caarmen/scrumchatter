@@ -49,7 +49,8 @@
         <item name="android:background">@drawable/selector</item>
         <item name="android:scaleType">center</item>
     </style>
-    <style name="listStyle">
+
+    <style name="listStyle" parent="Widget.Sherlock.Light.ListView.DropDown">
         <item name="android:listSelector">@drawable/selector</item>
     </style>
 
