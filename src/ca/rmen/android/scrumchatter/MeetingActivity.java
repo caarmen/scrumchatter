@@ -26,6 +26,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.text.format.DateUtils;
@@ -34,7 +35,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Chronometer;
 import android.widget.TextView;
-import android.widget.Toast;
+import ca.rmen.android.scrumchatter.export.MeetingExport;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.provider.MeetingCursorWrapper;
@@ -64,6 +65,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
 	private View mBtnStopMeeting;
 	private Chronometer mMeetingChronometer;
 	private Uri mMeetingUri;
+	private long mMeetingId;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +93,9 @@ public class MeetingActivity extends SherlockFragmentActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getSupportMenuInflater().inflate(R.menu.meeting_menu, menu);
+		MenuItem shareItem = menu.findItem(R.id.action_share);
+		State state = getMeetingState();
+		shareItem.setVisible(state == State.FINISHED);
 		return true;
 	}
 
@@ -98,7 +103,28 @@ public class MeetingActivity extends SherlockFragmentActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.action_share:
-			Toast.makeText(this, "Share not implemented yet", Toast.LENGTH_SHORT).show();
+	        AsyncTask<Void, Void, String> asyncTask = new AsyncTask<Void, Void, String>() {
+
+	            @Override
+	            protected String doInBackground(Void... params) {
+	            	MeetingExport export = new MeetingExport(MeetingActivity.this);
+	                String shareText = export.exportMeeting(mMeetingId);
+	                return shareText;
+	            }
+
+	            @Override
+	            protected void onPostExecute(String shareText) {
+	                super.onPostExecute(shareText);
+	                // Bring up the chooser to share the file.
+	                Intent sendIntent = new Intent();
+	                sendIntent.setAction(Intent.ACTION_SEND);
+	                    sendIntent.setType("text/plain");
+	                sendIntent.putExtra(Intent.EXTRA_TEXT, shareText);
+	                startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.action_share)));
+	            }
+
+	        };
+	        asyncTask.execute();			
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -110,15 +136,15 @@ public class MeetingActivity extends SherlockFragmentActivity {
 	 * activity.
 	 */
 	private void loadMeeting(Intent intent) {
-		long meetingId = intent.getLongExtra(EXTRA_MEETING_ID, -1);
+		mMeetingId = intent.getLongExtra(EXTRA_MEETING_ID, -1);
 		// TODO do DB operations in an AsyncTask
-		if (meetingId == -1) {
-			meetingId = createMeeting();
+		if (mMeetingId == -1) {
+			mMeetingId = createMeeting();
 		}
 		// Read the meeting attributes from the DB (don't really like Cursor
 		// code in an Activity, but oh well...)
 		mMeetingUri = Uri.withAppendedPath(MeetingColumns.CONTENT_URI,
-				String.valueOf(meetingId));
+				String.valueOf(mMeetingId));
 		Cursor meetingCursor = getContentResolver().query(mMeetingUri, null,
 				null, null, null);
 		MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(
@@ -150,7 +176,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		// Load the list of team members.
 		MeetingFragment fragment = (MeetingFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.meeting_fragment);
-		fragment.loadMeeting(meetingId, state, mOnClickListener);
+		fragment.loadMeeting(mMeetingId, state, mOnClickListener);
 	}
 
 	/**
@@ -266,10 +292,10 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		setMeetingDuration(meetingDuration / 1000);
 		shutEverybodyUp();
 		// Reload the list of team members.
-		long meetingId = Long.valueOf(mMeetingUri.getLastPathSegment());
 		MeetingFragment fragment = (MeetingFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.meeting_fragment);
-		fragment.loadMeeting(meetingId, State.FINISHED, mOnClickListener);
+		fragment.loadMeeting(mMeetingId, State.FINISHED, mOnClickListener);
+		invalidateOptionsMenu();
 	}
 
 	/**
@@ -278,7 +304,6 @@ public class MeetingActivity extends SherlockFragmentActivity {
 	 */
 	private void shutEverybodyUp() {
 		// Query all team members who are still talking in this meeting.
-		String meetingId = mMeetingUri.getLastPathSegment();
 		Cursor cursor = getContentResolver().query(
 				MeetingMemberColumns.CONTENT_URI,
 				new String[] { MemberColumns._ID,
@@ -286,7 +311,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
 						MeetingMemberColumns.TALK_START_TIME },
 				MeetingMemberColumns.MEETING_ID + "=? AND "
 						+ MeetingMemberColumns.TALK_START_TIME + ">0",
-				new String[] { meetingId }, null);
+				new String[] { String.valueOf(mMeetingId) }, null);
 		if (cursor != null) {
 			// Prepare some update statements to set the duration and reset the
 			// talk_start_time, for these members.
@@ -312,7 +337,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
 					builder.withSelection(MeetingMemberColumns.MEMBER_ID
 							+ "=? AND " + MeetingMemberColumns.MEETING_ID
 							+ "=?", new String[] { String.valueOf(memberId),
-							meetingId });
+							String.valueOf(mMeetingId) });
 					operations.add(builder.build());
 				} while (cursorWrapper.moveToNext());
 			}
@@ -343,9 +368,8 @@ public class MeetingActivity extends SherlockFragmentActivity {
 
 		// Find out if this member is currently talking:
 		// read its talk_start_time and duration fields.
-		String meetingId = mMeetingUri.getLastPathSegment();
 		Uri meetingMemberUri = Uri.withAppendedPath(
-				MeetingMemberColumns.CONTENT_URI, meetingId);
+				MeetingMemberColumns.CONTENT_URI, String.valueOf(mMeetingId));
 		Cursor cursor = getContentResolver().query(
 				meetingMemberUri,
 				new String[] {
@@ -386,7 +410,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
 				values,
 				MeetingMemberColumns.MEMBER_ID + "=? AND "
 						+ MeetingMemberColumns.MEETING_ID + "=?",
-				new String[] { String.valueOf(memberId), meetingId });
+				new String[] { String.valueOf(memberId), String.valueOf(mMeetingId) });
 	}
 
 	private final OnClickListener mOnClickListener = new OnClickListener() {
