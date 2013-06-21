@@ -34,6 +34,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Chronometer;
 import android.widget.TextView;
+import android.widget.Toast;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.provider.MeetingCursorWrapper;
@@ -45,6 +46,8 @@ import ca.rmen.android.scrumchatter.ui.MeetingFragment;
 import ca.rmen.android.scrumchatter.util.TextUtils;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 
 /**
  * Displays attributes of a meeting as well as the team members participating in
@@ -83,6 +86,23 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		Log.v(TAG, "onNewIntent: intent = " + intent);
 		super.onNewIntent(intent);
 		loadMeeting(intent);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getSupportMenuInflater().inflate(R.menu.meeting_menu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.action_share:
+			Toast.makeText(this, "Share not implemented yet", Toast.LENGTH_SHORT).show();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 	}
 
 	/**
