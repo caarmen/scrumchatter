@@ -151,7 +151,7 @@ public class MainActivity extends SherlockFragmentActivity implements
 							getString(R.string.export_message_body));
 					sendIntent.putExtra(Intent.EXTRA_STREAM,
 							Uri.parse("file://" + file.getAbsolutePath()));
-					sendIntent.setType("message/rfc822");
+					sendIntent.setType("application/vnd.ms-excel");
 					startActivity(Intent.createChooser(sendIntent,
 							getResources().getText(R.string.action_share)));
 				}
