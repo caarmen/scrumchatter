@@ -18,7 +18,8 @@
   along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources>
-    <color name="selected_header">#808</color>
+    <!-- http://colorschemedesigner.com/#4W11Tw0w0w0w0 -->
+    <color name="selected_header">#7c1f7c</color>
     <color name="unselected_header">#333</color>
-    <color name="item_pressed">#360F</color>
+    <color name="item_pressed">#33d25fd2</color>
 </resources>
