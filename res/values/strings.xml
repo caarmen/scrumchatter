@@ -46,4 +46,10 @@
     <string name="export_meeting_date">Scrum Chatter meeting on %s</string>
     <string name="export_meeting_duration">Total meeting duration: %s</string>
     
+    <string name="export_header_meeting_date">Date</string>
+    <string name="export_header_meeting_duration">Total duration</string>
+    <string name="export_message_subject">Scrum Chatter report</string>
+    <string name="export_message_body">The Scrum Chatter report is attached.</string>
+    <string name="export_error">Could not create Scrum Chatter report.  Make sure your phone\'s SD card is available.</string>
+    
 </resources>

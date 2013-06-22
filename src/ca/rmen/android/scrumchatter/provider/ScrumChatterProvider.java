@@ -231,10 +231,10 @@ public class ScrumChatterProvider extends ContentProvider {
 		// @formatter:off
 		final Cursor res = qb.query(
 				mScrumChatterDatabase.getReadableDatabase(), projection,
-				queryParams.selection, queryParams.selectionArgs, groupBy,
+				queryParams.selection, selectionArgs, groupBy,
 				null, sortOrder == null ? queryParams.orderBy : sortOrder);
 		// @formatter:on
-		logCursor(res, queryParams.selectionArgs);
+		logCursor(res, selectionArgs);
 		res.setNotificationUri(getContext().getContentResolver(), uri);
 
 		return res;
@@ -305,7 +305,6 @@ public class ScrumChatterProvider extends ContentProvider {
 	private static class StatementParams {
 		public String table;
 		public String selection;
-		public String[] selectionArgs;
 
 	}
 
@@ -380,7 +379,6 @@ public class ScrumChatterProvider extends ContentProvider {
 		QueryParams res = new QueryParams();
 		String id = null;
 		int matchedId = URI_MATCHER.match(uri);
-		res.selectionArgs = selectionArgs;
 		res.selection = selection;
 		switch (matchedId) {
 		// The meeting_member table is a join table between the meeting and
@@ -389,36 +387,24 @@ public class ScrumChatterProvider extends ContentProvider {
 		// this will be used as the meeting id.
 		case URI_TYPE_MEETING_MEMBER:
 		case URI_TYPE_MEETING_MEMBER_ID:
-			// TÖDO see if the QueryParams for the meeting_member table
-			// can be simplified at all.
 			res.table = MemberColumns.TABLE_NAME + " LEFT OUTER JOIN "
 					+ MeetingMemberColumns.TABLE_NAME + " ON "
 					+ MemberColumns.TABLE_NAME + "." + MemberColumns._ID
 					+ " = " + MeetingMemberColumns.TABLE_NAME + "."
-					+ MeetingMemberColumns.MEMBER_ID;
+					+ MeetingMemberColumns.MEMBER_ID + " LEFT OUTER JOIN "
+					+ MeetingColumns.TABLE_NAME + " ON "
+					+ MeetingColumns.TABLE_NAME + "." + MeetingColumns._ID
+					+ " = " + MeetingMemberColumns.TABLE_NAME + "."
+					+ MeetingMemberColumns.MEETING_ID;
 
-			// If this Uri has an id, this is a meeting id.
-			// We need to join on the meeting table to get meeting
-			// attributes.
+			// If a specific meeting is specified, append a selection
+			// on the meeting id to the end of the existing selection
 			if (matchedId == URI_TYPE_MEETING_MEMBER_ID) {
 				String meetingId = uri.getLastPathSegment();
-
-				res.selection = MeetingMemberColumns.MEETING_ID + "=?";
-				if (selectionArgs != null) {
-					res.selectionArgs = new String[selectionArgs.length + 1];
-					System.arraycopy(selectionArgs, 0, res.selectionArgs, 0,
-							selectionArgs.length);
-					res.selectionArgs[selectionArgs.length] = meetingId;
-				} else
-					res.selectionArgs = new String[] { meetingId };
-				res.table += " LEFT OUTER JOIN " + MeetingColumns.TABLE_NAME
-						+ " ON " + MeetingColumns.TABLE_NAME + "."
-						+ MeetingColumns._ID + " = "
-						+ MeetingMemberColumns.TABLE_NAME + "."
-						+ MeetingMemberColumns.MEETING_ID;
-				if (selection != null) {
+				res.selection = MeetingMemberColumns.MEETING_ID + "="
+						+ meetingId;
+				if (selection != null)
 					res.selection = selection + " AND (" + res.selection + ") ";
-				}
 			}
 			res.orderBy = MemberColumns.NAME;
 			break;

@@ -31,18 +31,12 @@ public class MeetingMemberCursorWrapper extends CursorWrapper {
 		super(cursor);
 	}
 
-	public Long getMeetingId() {
-		Integer index = getIndex(MeetingMemberColumns.MEETING_ID);
-		if (isNull(index))
-			return null;
-		return getLong(index);
+	public long getMeetingId() {
+		return getLongField(MeetingMemberColumns.MEETING_ID);
 	}
 
-	public Long getMemberId() {
-		Integer index = getIndex(MemberColumns._ID);
-		if (isNull(index))
-			return null;
-		return getLong(index);
+	public long getMemberId() {
+		return getLongField(MemberColumns.TABLE_NAME + "." + MemberColumns._ID);
 	}
 
 	public String getMemberName() {
@@ -53,17 +47,19 @@ public class MeetingMemberCursorWrapper extends CursorWrapper {
 	}
 
 	public long getDuration() {
-		Integer index = getIndex(MeetingMemberColumns.DURATION);
-		if (isNull(index))
-			return 0;
-		return getLong(index);
+		return getLongField(MeetingMemberColumns.DURATION);
+	}
+
+	public long getTotalDuration() {
+		return getLongField(MeetingColumns.TOTAL_DURATION);
 	}
 
 	public long getTalkStartTime() {
-		Integer index = getIndex(MeetingMemberColumns.TALK_START_TIME);
-		if (isNull(index))
-			return 0;
-		return getLong(index);
+		return getLongField(MeetingMemberColumns.TALK_START_TIME);
+	}
+
+	public long getMeetingDate() {
+		return getLongField(MeetingColumns.MEETING_DATE);
 	}
 
 	public State getMeetingState() {
@@ -72,6 +68,13 @@ public class MeetingMemberCursorWrapper extends CursorWrapper {
 			return State.NOT_STARTED;
 		int stateInt = getInt(index);
 		return State.values()[stateInt];
+	}
+
+	private long getLongField(String columnName) {
+		Integer index = getIndex(columnName);
+		if (isNull(index))
+			return 0;
+		return getLong(index);
 	}
 
 	private Integer getIndex(String columnName) {

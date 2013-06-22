@@ -18,15 +18,19 @@
  */
 package ca.rmen.android.scrumchatter;
 
+import java.io.FileNotFoundException;
 import java.util.Locale;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.widget.Toast;
+import ca.rmen.android.scrumchatter.export.MeetingsExport;
 import ca.rmen.android.scrumchatter.ui.MeetingsListFragment;
 import ca.rmen.android.scrumchatter.ui.MembersListFragment;
 
@@ -41,6 +45,9 @@ import com.actionbarsherlock.view.MenuItem;
  */
 public class MainActivity extends SherlockFragmentActivity implements
 		ActionBar.TabListener {
+
+	private static final String TAG = Constants.TAG + "/"
+			+ MainActivity.class.getSimpleName();
 
 	/**
 	 * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -108,8 +115,31 @@ public class MainActivity extends SherlockFragmentActivity implements
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == R.id.action_share) {
-			Toast.makeText(this, "Sharing not implemented yet",
-					Toast.LENGTH_LONG).show();
+			AsyncTask<Void, Void, Boolean> asyncTask = new AsyncTask<Void, Void, Boolean>() {
+
+				@Override
+				protected Boolean doInBackground(Void... params) {
+					MeetingsExport export;
+					try {
+						export = new MeetingsExport(MainActivity.this);
+					} catch (FileNotFoundException e) {
+						Log.e(TAG, e.getMessage(), e);
+						return false;
+					}
+					Boolean success = export.exportMeetings();
+					return success;
+				}
+
+				@Override
+				protected void onPostExecute(Boolean success) {
+					super.onPostExecute(success);
+					if (!success)
+						Toast.makeText(MainActivity.this,
+								R.string.export_error, Toast.LENGTH_LONG)
+								.show();
+				}
+			};
+			asyncTask.execute();
 			return true;
 		}
 		return super.onOptionsItemSelected(item);

@@ -75,7 +75,7 @@ public class MeetingsCursorAdapter extends CursorAdapter {
 		String date = TextUtils.formatDateTime(mContext,
 				cursorWrapper.getMeetingDate());
 		String duration = DateUtils.formatElapsedTime(cursorWrapper
-				.getDuration());
+				.getTotalDuration());
 		MeetingColumns.State state = cursorWrapper.getState();
 
 		// TODO cache the meeting state names

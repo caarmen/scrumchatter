@@ -44,8 +44,8 @@ public class MeetingCursorWrapper extends CursorWrapper {
 		return getLong(index);
 	}
 
-	public Long getDuration() {
-		Integer index = getIndex(MeetingColumns.DURATION);
+	public Long getTotalDuration() {
+		Integer index = getIndex(MeetingColumns.TOTAL_DURATION);
 		if (isNull(index))
 			return Long.valueOf(0);
 		return getLong(index);
