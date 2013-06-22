@@ -34,7 +34,9 @@ import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.text.format.DateUtils;
 import android.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
@@ -66,7 +68,7 @@ public class MeetingsExport {
 		Log.v(TAG, "Will export to " + mFile);
 	}
 
-	public File exportMeetings() {
+	public boolean exportMeetings() {
 		Log.v(TAG, "exportMeetings");
 
 		// Build a cache of all member names
@@ -90,7 +92,7 @@ public class MeetingsExport {
 			writeHeader(columnHeadings);
 		} catch (IOException e) {
 			Log.e(TAG, e.getMessage(), e);
-			return null;
+			return false;
 		}
 
 		// Read all the meeting/member data
@@ -136,11 +138,12 @@ public class MeetingsExport {
 							.formatElapsedTime(memberDuration);
 				} while (cursorWrapper.moveToNext());
 
+				// Write one row to the Excel file, for one meeting.
 				try {
 					writeRow(rowNumber++, rowValues);
 				} catch (IOException e) {
 					Log.e(TAG, e.getMessage(), e);
-					return null;
+					return false;
 				}
 			}
 		} finally {
@@ -149,18 +152,27 @@ public class MeetingsExport {
 
 		// Clean up
 		try {
-			writeFooter();
+			mWorkbook.write();
+			mWorkbook.close();
 		} catch (IOException e) {
 			Log.e(TAG, e.getMessage(), e);
-			return null;
+			return false;
+		} catch (WriteException e) {
+			Log.e(TAG, e.getMessage(), e);
+			return false;
 		}
-		return mFile;
+
+		// Prompt the user to choose an app to share the file.
+		showChooser();
+		return true;
 
 	}
 
-	void writeHeader(List<String> columnNames) throws IOException {
-		// Create the workbook, sheet, custom cell formats, and freeze
-		// row/column.
+	/**
+	 * Create the workbook, sheet, custom cell formats, and freeze row and
+	 * column. Also write the column headings.
+	 */
+	private void writeHeader(List<String> columnNames) throws IOException {
 		mWorkbook = Workbook.createWorkbook(mFile);
 		mSheet = mWorkbook
 				.createSheet(mContext.getString(R.string.app_name), 0);
@@ -174,7 +186,11 @@ public class MeetingsExport {
 		}
 	}
 
-	void writeRow(int rowNumber, String[] cellValues) throws IOException {
+	/**
+	 * Write a single row to the Excel file.
+	 */
+	private void writeRow(int rowNumber, String[] cellValues)
+			throws IOException {
 		mSheet.insertRow(rowNumber);
 		for (int i = 0; i < cellValues.length; i++) {
 			CellFormat cellFormat = null;
@@ -182,15 +198,14 @@ public class MeetingsExport {
 		}
 	}
 
-	void writeFooter() throws IOException {
-		try {
-			mWorkbook.write();
-			mWorkbook.close();
-		} catch (JXLException e) {
-			Log.e(TAG, "writeFooter Could not close file", e);
-		}
-	}
-
+	/**
+	 * Write a single cell to the Excel file
+	 * 
+	 * @param text
+	 *            will be written as text in the cell.
+	 * @param format
+	 *            may be null for the default cell format.
+	 */
 	private void insertCell(String text, int row, int column, CellFormat format) {
 		Label label = format == null ? new Label(column, row, text)
 				: new Label(column, row, text, format);
@@ -223,5 +238,22 @@ public class MeetingsExport {
 		} catch (WriteException e) {
 			Log.e(TAG, "createCellFormats Could not create cell formats", e);
 		}
+	}
+
+	/**
+	 * Bring up the chooser to send the file.
+	 */
+	private void showChooser() {
+		Intent sendIntent = new Intent();
+		sendIntent.setAction(Intent.ACTION_SEND);
+		sendIntent.putExtra(Intent.EXTRA_SUBJECT,
+				mContext.getString(R.string.export_message_subject));
+		sendIntent.putExtra(Intent.EXTRA_TEXT,
+				mContext.getString(R.string.export_message_body));
+		sendIntent.putExtra(Intent.EXTRA_STREAM,
+				Uri.parse("file://" + mFile.getAbsolutePath()));
+		sendIntent.setType("application/vnd.ms-excel");
+		mContext.startActivity(Intent.createChooser(sendIntent, mContext
+				.getResources().getText(R.string.action_share)));
 	}
 }

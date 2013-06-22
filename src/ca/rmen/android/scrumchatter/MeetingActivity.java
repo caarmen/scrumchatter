@@ -103,28 +103,15 @@ public class MeetingActivity extends SherlockFragmentActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.action_share:
-			AsyncTask<Void, Void, String> asyncTask = new AsyncTask<Void, Void, String>() {
+			AsyncTask<Void, Void, Void> asyncTask = new AsyncTask<Void, Void, Void>() {
 
 				@Override
-				protected String doInBackground(Void... params) {
+				protected Void doInBackground(Void... params) {
 					MeetingExport export = new MeetingExport(
 							MeetingActivity.this);
-					String shareText = export.exportMeeting(mMeetingId);
-					return shareText;
+					export.exportMeeting(mMeetingId);
+					return null;
 				}
-
-				@Override
-				protected void onPostExecute(String shareText) {
-					super.onPostExecute(shareText);
-					// Bring up the chooser to share the file.
-					Intent sendIntent = new Intent();
-					sendIntent.setAction(Intent.ACTION_SEND);
-					sendIntent.setType("text/plain");
-					sendIntent.putExtra(Intent.EXTRA_TEXT, shareText);
-					startActivity(Intent.createChooser(sendIntent,
-							getResources().getText(R.string.action_share)));
-				}
-
 			};
 			asyncTask.execute();
 			return true;

@@ -18,12 +18,9 @@
  */
 package ca.rmen.android.scrumchatter;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Locale;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -118,44 +115,29 @@ public class MainActivity extends SherlockFragmentActivity implements
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == R.id.action_share) {
-			AsyncTask<Void, Void, File> asyncTask = new AsyncTask<Void, Void, File>() {
+			AsyncTask<Void, Void, Boolean> asyncTask = new AsyncTask<Void, Void, Boolean>() {
 
 				@Override
-				protected File doInBackground(Void... params) {
+				protected Boolean doInBackground(Void... params) {
 					MeetingsExport export;
 					try {
 						export = new MeetingsExport(MainActivity.this);
 					} catch (FileNotFoundException e) {
 						Log.e(TAG, e.getMessage(), e);
-						return null;
+						return false;
 					}
-					File exportFile = export.exportMeetings();
-					return exportFile;
+					Boolean success = export.exportMeetings();
+					return success;
 				}
 
 				@Override
-				protected void onPostExecute(File file) {
-					super.onPostExecute(file);
-					if (file == null) {
+				protected void onPostExecute(Boolean success) {
+					super.onPostExecute(success);
+					if (!success)
 						Toast.makeText(MainActivity.this,
 								R.string.export_error, Toast.LENGTH_LONG)
 								.show();
-						return;
-					}
-					// Bring up the chooser to share the file.
-					Intent sendIntent = new Intent();
-					sendIntent.setAction(Intent.ACTION_SEND);
-					sendIntent.putExtra(Intent.EXTRA_SUBJECT,
-							getString(R.string.export_message_subject));
-					sendIntent.putExtra(Intent.EXTRA_TEXT,
-							getString(R.string.export_message_body));
-					sendIntent.putExtra(Intent.EXTRA_STREAM,
-							Uri.parse("file://" + file.getAbsolutePath()));
-					sendIntent.setType("application/vnd.ms-excel");
-					startActivity(Intent.createChooser(sendIntent,
-							getResources().getText(R.string.action_share)));
 				}
-
 			};
 			asyncTask.execute();
 			return true;

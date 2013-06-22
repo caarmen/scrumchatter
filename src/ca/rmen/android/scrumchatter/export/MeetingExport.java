@@ -19,6 +19,7 @@
 package ca.rmen.android.scrumchatter.export;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.text.format.DateUtils;
@@ -38,7 +39,15 @@ public class MeetingExport {
 		mContext = context;
 	}
 
-	public String exportMeeting(long meetingId) {
+	/**
+	 * Generate a text report for a single meeting and bring up a chooser to
+	 * send the report (by mail, etc).
+	 * 
+	 * @param meetingId
+	 * @return true if we were able to generate the report and bring up the
+	 *         chooser to send it.
+	 */
+	public void exportMeeting(long meetingId) {
 		StringBuilder sb = new StringBuilder();
 		// Export info about the meeting (date, total duration)
 		Cursor meetingCursor = mContext.getContentResolver().query(
@@ -49,14 +58,15 @@ public class MeetingExport {
 		MeetingCursorWrapper meetingCursorWrapper = new MeetingCursorWrapper(
 				meetingCursor);
 		meetingCursorWrapper.moveToFirst();
-		sb.append(mContext.getString(
+		String subject = mContext.getString(
 				R.string.export_meeting_date,
 				TextUtils.formatDateTime(mContext,
-						meetingCursorWrapper.getMeetingDate())));
+						meetingCursorWrapper.getMeetingDate()));
+		sb.append(subject);
 		sb.append("\n");
-		sb.append(mContext
-				.getString(R.string.export_meeting_duration, DateUtils
-						.formatElapsedTime(meetingCursorWrapper.getTotalDuration())));
+		sb.append(mContext.getString(R.string.export_meeting_duration,
+				DateUtils.formatElapsedTime(meetingCursorWrapper
+						.getTotalDuration())));
 		sb.append("\n");
 		meetingCursorWrapper.close();
 
@@ -84,6 +94,24 @@ public class MeetingExport {
 			} while (meetingMemberCursorWrapper.moveToNext());
 		}
 		meetingMemberCursorWrapper.close();
-		return sb.toString();
+
+		// Show the chooser
+		showChooser(subject, sb.toString());
+	}
+
+	/**
+	 * Bring up the chooser to share the meeting report.
+	 * 
+	 * @param subject
+	 * @param body
+	 */
+	private void showChooser(String subject, String body) {
+		Intent sendIntent = new Intent();
+		sendIntent.setAction(Intent.ACTION_SEND);
+		sendIntent.setType("text/plain");
+		sendIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
+		sendIntent.putExtra(Intent.EXTRA_TEXT, body);
+		mContext.startActivity(Intent.createChooser(sendIntent, mContext
+				.getResources().getText(R.string.action_share)));
 	}
 }
