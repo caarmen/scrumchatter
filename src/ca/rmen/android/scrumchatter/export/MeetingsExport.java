@@ -35,6 +35,7 @@ import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import android.content.Context;
 import android.database.Cursor;
+import android.text.format.DateUtils;
 import android.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
@@ -118,8 +119,8 @@ public class MeetingsExport {
 				String[] rowValues = new String[columnHeadings.size()];
 				rowValues[0] = TextUtils.formatDateTime(mContext,
 						cursorWrapper.getMeetingDate());
-				rowValues[rowValues.length - 1] = String.valueOf(cursorWrapper
-						.getTotalDuration());
+				rowValues[rowValues.length - 1] = DateUtils
+						.formatElapsedTime(cursorWrapper.getTotalDuration());
 				currentMeetingId = cursorWrapper.getMeetingId();
 
 				do {
@@ -131,8 +132,8 @@ public class MeetingsExport {
 					String memberName = cursorWrapper.getMemberName();
 					int memberColumnIndex = memberNames.indexOf(memberName);
 					long memberDuration = cursorWrapper.getDuration();
-					rowValues[memberColumnIndex + 1] = String
-							.valueOf(memberDuration);
+					rowValues[memberColumnIndex + 1] = DateUtils
+							.formatElapsedTime(memberDuration);
 				} while (cursorWrapper.moveToNext());
 
 				try {
