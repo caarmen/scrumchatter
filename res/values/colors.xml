@@ -22,4 +22,7 @@
     <color name="selected_header">#7c1f7c</color>
     <color name="unselected_header">#333</color>
     <color name="item_pressed">#33d25fd2</color>
+    <color name="chrono_active">#a600a6</color>
+    <color name="chrono_inactive">#000</color>
+    <color name="chrono_not_started">#aaa</color>
 </resources>

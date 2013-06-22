@@ -41,6 +41,10 @@ import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
 public class MeetingCursorAdapter extends CursorAdapter {
 	private final OnClickListener mOnClickListener;
 
+	private final int mColorChronoActive;
+	private final int mColorChronoInactive;
+	private final int mColorChronoNotStarted;
+
 	/**
 	 * @param onClickListener
 	 *            clicks on widgets on each list item will be forwarded to this
@@ -49,6 +53,12 @@ public class MeetingCursorAdapter extends CursorAdapter {
 	public MeetingCursorAdapter(Context context, OnClickListener onClickListener) {
 		super(context, null, true);
 		mOnClickListener = onClickListener;
+		mColorChronoActive = context.getResources().getColor(
+				R.color.chrono_active);
+		mColorChronoInactive = context.getResources().getColor(
+				R.color.chrono_inactive);
+		mColorChronoNotStarted = context.getResources().getColor(
+				R.color.chrono_not_started);
 	}
 
 	@Override
@@ -123,9 +133,12 @@ public class MeetingCursorAdapter extends CursorAdapter {
 			chronometer.setBase(SystemClock.elapsedRealtime()
 					- hasBeenTalkingFor);
 			chronometer.start();
+			chronometer.setTextColor(mColorChronoActive);
 		} else {
 			chronometer.stop();
 			chronometer.setText(DateUtils.formatElapsedTime(duration));
+			chronometer.setTextColor(duration > 0 ? mColorChronoInactive
+					: mColorChronoNotStarted);
 		}
 
 		// Set the member id as a tag, so when the OnClickListener receives the
