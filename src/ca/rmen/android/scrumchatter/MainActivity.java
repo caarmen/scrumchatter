@@ -18,15 +18,22 @@
  */
 package ca.rmen.android.scrumchatter;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Locale;
 
+import android.content.Intent;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.widget.Toast;
+import ca.rmen.android.scrumchatter.export.MeetingsExport;
 import ca.rmen.android.scrumchatter.ui.MeetingsListFragment;
 import ca.rmen.android.scrumchatter.ui.MembersListFragment;
 
@@ -41,6 +48,9 @@ import com.actionbarsherlock.view.MenuItem;
  */
 public class MainActivity extends SherlockFragmentActivity implements
 		ActionBar.TabListener {
+
+	private static final String TAG = Constants.TAG + "/"
+			+ MainActivity.class.getSimpleName();
 
 	/**
 	 * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -108,8 +118,46 @@ public class MainActivity extends SherlockFragmentActivity implements
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == R.id.action_share) {
-			Toast.makeText(this, "Sharing not implemented yet",
-					Toast.LENGTH_LONG).show();
+			AsyncTask<Void, Void, File> asyncTask = new AsyncTask<Void, Void, File>() {
+
+				@Override
+				protected File doInBackground(Void... params) {
+					MeetingsExport export;
+					try {
+						export = new MeetingsExport(MainActivity.this);
+					} catch (FileNotFoundException e) {
+						Log.e(TAG, e.getMessage(), e);
+						return null;
+					}
+					File exportFile = export.exportMeetings();
+					return exportFile;
+				}
+
+				@Override
+				protected void onPostExecute(File file) {
+					super.onPostExecute(file);
+					if (file == null) {
+						Toast.makeText(MainActivity.this,
+								R.string.export_error, Toast.LENGTH_LONG)
+								.show();
+						return;
+					}
+					// Bring up the chooser to share the file.
+					Intent sendIntent = new Intent();
+					sendIntent.setAction(Intent.ACTION_SEND);
+					sendIntent.putExtra(Intent.EXTRA_SUBJECT,
+							getString(R.string.export_message_subject));
+					sendIntent.putExtra(Intent.EXTRA_TEXT,
+							getString(R.string.export_message_body));
+					sendIntent.putExtra(Intent.EXTRA_STREAM,
+							Uri.parse("file://" + file.getAbsolutePath()));
+					sendIntent.setType("message/rfc822");
+					startActivity(Intent.createChooser(sendIntent,
+							getResources().getText(R.string.action_share)));
+				}
+
+			};
+			asyncTask.execute();
 			return true;
 		}
 		return super.onOptionsItemSelected(item);

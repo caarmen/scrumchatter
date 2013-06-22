@@ -46,7 +46,6 @@ import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.adapter.MembersCursorAdapter;
 import ca.rmen.android.scrumchatter.adapter.MembersCursorAdapter.MemberItemCache;
-import ca.rmen.android.scrumchatter.provider.MeetingMemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberStatsColumns;
 

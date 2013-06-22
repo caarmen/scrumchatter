@@ -34,7 +34,7 @@ public class MeetingColumns implements BaseColumns {
 	public static final String _ID = BaseColumns._ID;
 
 	public static final String MEETING_DATE = "meeting_date";
-	public static final String DURATION = "duration";
+	public static final String TOTAL_DURATION = "total_duration";
 	public static final String STATE = "state";
 
 	public static final String DEFAULT_ORDER = _ID;

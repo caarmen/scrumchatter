@@ -66,7 +66,7 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
 			+ " INTEGER PRIMARY KEY AUTOINCREMENT, "
 			+ MeetingColumns.MEETING_DATE
 			+ " INTEGER, "
-			+ MeetingColumns.DURATION
+			+ MeetingColumns.TOTAL_DURATION
 			+ " INTEGER, "
 			+ MeetingColumns.STATE
 			+ " INTEGER NOT NULL DEFAULT "
