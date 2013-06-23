@@ -25,4 +25,5 @@
     <color name="chrono_active">#a600a6</color>
     <color name="chrono_inactive">#000</color>
     <color name="chrono_not_started">#aaa</color>
+    <color name="header_background">#eee</color>
 </resources>
