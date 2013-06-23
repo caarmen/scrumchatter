@@ -34,7 +34,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Chronometer;
-import android.widget.TextView;
 import ca.rmen.android.scrumchatter.export.MeetingExport;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
@@ -61,7 +60,6 @@ public class MeetingActivity extends SherlockFragmentActivity {
 
 	public static final String EXTRA_MEETING_ID = MeetingActivity.class
 			.getPackage().getName() + ".meeting_id";
-	private TextView mTextViewDate;
 	private View mBtnStopMeeting;
 	private Chronometer mMeetingChronometer;
 	private Uri mMeetingUri;
@@ -73,7 +71,6 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.meeting_activity);
 
-		mTextViewDate = (TextView) findViewById(R.id.tv_meeting_date);
 		mBtnStopMeeting = findViewById(R.id.btn_stop_meeting);
 		mMeetingChronometer = (Chronometer) findViewById(R.id.tv_meeting_duration);
 
@@ -160,7 +157,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
 			// db.
 			mMeetingChronometer.setText(DateUtils.formatElapsedTime(duration));
 		}
-		mTextViewDate.setText(TextUtils.formatDateTime(this, date));
+		getSupportActionBar().setTitle(TextUtils.formatDateTime(this, date));
 
 		// Load the list of team members.
 		MeetingFragment fragment = (MeetingFragment) getSupportFragmentManager()
@@ -248,8 +245,10 @@ public class MeetingActivity extends SherlockFragmentActivity {
 	private void resetMeetingDate() {
 		Log.v(TAG, "resetMeetingDate");
 		ContentValues values = new ContentValues(1);
-		values.put(MeetingColumns.MEETING_DATE, System.currentTimeMillis());
+		long now = System.currentTimeMillis();
+		values.put(MeetingColumns.MEETING_DATE, now);
 		getContentResolver().update(mMeetingUri, values, null, null);
+		getSupportActionBar().setTitle(TextUtils.formatDateTime(this, now));
 	}
 
 	/**
@@ -284,7 +283,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		MeetingFragment fragment = (MeetingFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.meeting_fragment);
 		fragment.loadMeeting(mMeetingId, State.FINISHED, mOnClickListener);
-		invalidateOptionsMenu();
+		supportInvalidateOptionsMenu();
 	}
 
 	/**
