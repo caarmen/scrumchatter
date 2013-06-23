@@ -147,15 +147,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		State state = cursorWrapper.getState();
 		cursorWrapper.close();
 
-		// Update our views based on the meeting attributes.
-		if (state == State.NOT_STARTED) {
-			// Show the "stop meeting" button
-			mBtnStopMeeting.setVisibility(View.VISIBLE);
-			mBtnStopMeeting.setEnabled(false);
-		} else if (state == State.IN_PROGRESS) {
-			// Show the "stop meeting" button
-			mBtnStopMeeting.setVisibility(View.VISIBLE);
-			mBtnStopMeeting.setEnabled(true);
+		if (state == State.IN_PROGRESS) {
 			// If the meeting is in progress, show the Chronometer.
 			long timeSinceMeetingStartedMillis = System.currentTimeMillis()
 					- date;
@@ -168,11 +160,24 @@ public class MeetingActivity extends SherlockFragmentActivity {
 			mMeetingChronometer.setText(DateUtils.formatElapsedTime(duration));
 		}
 		getSupportActionBar().setTitle(TextUtils.formatDateTime(this, date));
+		updateStopButton(state);
 
 		// Load the list of team members.
 		MeetingFragment fragment = (MeetingFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.meeting_fragment);
 		fragment.loadMeeting(mMeetingId, state, mOnClickListener);
+	}
+
+	/**
+	 * Hide, show, enable or disable the stop meeting button, depending on the
+	 * given state of the meeting.
+	 */
+	private void updateStopButton(State state) {
+		// Show the "stop meeting" button if the meeting is not finished.
+		mBtnStopMeeting.setVisibility(state == State.NOT_STARTED
+				|| state == State.IN_PROGRESS ? View.VISIBLE : View.INVISIBLE);
+		// Only enable the "stop meeting" button if the meeting is in progress.
+		mBtnStopMeeting.setEnabled(state == State.IN_PROGRESS);
 	}
 
 	/**
@@ -216,6 +221,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		ContentValues values = new ContentValues(1);
 		values.put(MeetingColumns.STATE, newState.ordinal());
 		getContentResolver().update(mMeetingUri, values, null, null);
+		updateStopButton(newState);
 	}
 
 	/**
