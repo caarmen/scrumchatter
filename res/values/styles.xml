@@ -38,6 +38,8 @@
         <item name="android:listViewStyle">@style/listStyle</item>
         <item name="android:actionBarTabTextStyle">@style/tabTextStyle</item>
         <item name="actionBarTabTextStyle">@style/tabTextStyle</item>
+        <item name="actionBarDivider">@drawable/tab_divider</item>
+        <item name="android:actionBarTabBarStyle">@style/tabBarStyle</item>
     </style>
 
     <style name="listHeader">
@@ -58,5 +60,8 @@
 
     <style name="tabTextStyle" parent="Widget.Sherlock.ActionBar.TabText">
         <item name="android:textColor">@android:color/black</item>
+    </style>
+    <style name="tabBarStyle" parent="Widget.Sherlock.ActionBar.TabBar">
+        <item name="android:divider">@drawable/tab_divider</item>
     </style>
 </resources>
