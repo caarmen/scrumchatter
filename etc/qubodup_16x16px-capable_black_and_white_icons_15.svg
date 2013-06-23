@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://web.resource.org/cc/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" version="1.0" width="16" height="16" id="svg2">
+  <defs id="defs4"/>
+  <g id="layer1">
+    <path d="M 15.5,2.5 L 1.5,2.5 L 1.5,13.5 L 10.5,13.5 L 12.5,15.5 L 13.5,15.5 L 13.5,13.5 L 15.5,13.5 L 15.5,2.5 z " style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:0;stroke-dasharray:none;stroke-opacity:1" id="path3143"/>
+    <path d="M 0.5,0.5 L 12.5,0.5 L 12.5,7.5 L 6.5,7.5 L 4.5,9.5 L 3.5,9.5 L 3.5,7.5 L 0.5,7.5 L 0.5,0.5 z " style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:0;stroke-dasharray:none;stroke-opacity:1" id="path2170"/>
+    <path d="M 13.5,4.5 L 13.5,9.5 L 10.5,9.5 L 8.5,11.5 L 7.5,11.5 L 7.5,9.5 L 6.5,9.5 L 6.5,4.5 L 13.5,4.5 z " style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:bevel;stroke-miterlimit:0;stroke-dasharray:none;stroke-opacity:1" id="path3145"/>
+  </g>
+  <metadata>
+    <rdf:RDF>
+      <cc:Work>
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+        <cc:license rdf:resource="http://creativecommons.org/licenses/publicdomain/"/>
+        <dc:publisher>
+          <cc:Agent rdf:about="http://openclipart.org/">
+            <dc:title>Open Clip Art Library</dc:title>
+          </cc:Agent>
+        </dc:publisher>
+        <dc:title>16x16px-capable, black and white icons</dc:title>
+        <dc:date>2008-02-17T17:44:03</dc:date>
+        <dc:description>Some icons I created and mostly didn't use so far.</dc:description>
+        <dc:source>http://openclipart.org/detail/14322/16x16px-capable-black-and-white-icons-by-qubodup-14322</dc:source>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>qubodup</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:subject>
+          <rdf:Bag>
+            <rdf:li>black &amp; white</rdf:li>
+            <rdf:li>cartoon</rdf:li>
+            <rdf:li>clip art</rdf:li>
+            <rdf:li>clipart</rdf:li>
+            <rdf:li>icon</rdf:li>
+            <rdf:li>icons</rdf:li>
+            <rdf:li>pixel</rdf:li>
+            <rdf:li>remix problem</rdf:li>
+          </rdf:Bag>
+        </dc:subject>
+      </cc:Work>
+      <cc:License rdf:about="http://creativecommons.org/licenses/publicdomain/">
+        <cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+        <cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+        <cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+</svg>
