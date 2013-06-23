@@ -26,4 +26,7 @@
     <color name="chrono_inactive">#000</color>
     <color name="chrono_not_started">#aaa</color>
     <color name="header_background">#e0e0e0</color>
+    <color name="meeting_state_default">@color/abs__primary_text_holo_light</color>
+    <color name="meeting_state_in_progress">#a600a6</color>
+
 </resources>

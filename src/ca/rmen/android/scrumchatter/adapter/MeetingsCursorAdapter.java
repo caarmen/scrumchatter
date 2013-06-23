@@ -26,6 +26,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
@@ -38,11 +40,17 @@ import ca.rmen.android.scrumchatter.util.TextUtils;
  */
 public class MeetingsCursorAdapter extends CursorAdapter {
 	private final OnClickListener mOnClickListener;
+	private final int mColorStateInProgress;
+	private final int mColorStateDefault;
 
 	public MeetingsCursorAdapter(Context context,
 			OnClickListener onClickListener) {
 		super(context, null, true);
 		mOnClickListener = onClickListener;
+		mColorStateInProgress = context.getResources().getColor(
+				R.color.meeting_state_in_progress);
+		mColorStateDefault = context.getResources().getColor(
+				R.color.meeting_state_default);
 	}
 
 	@Override
@@ -99,6 +107,17 @@ public class MeetingsCursorAdapter extends CursorAdapter {
 			tvDuration.setText(duration);
 		else
 			tvDuration.setText(stateName);
+		if (state == State.IN_PROGRESS) {
+			Animation animBlink = AnimationUtils.loadAnimation(mContext,
+					R.anim.blink);
+			tvDuration.startAnimation(animBlink);
+			tvDuration.setTextColor(mColorStateInProgress);
+		} else {
+			Animation anim = tvDuration.getAnimation();
+			if (anim != null)
+				anim.cancel();
+			tvDuration.setTextColor(mColorStateDefault);
+		}
 
 		// Forward clicks to our OnClickListener. We put the cache in the tag
 		// so the listener can have access to data it needs to display
