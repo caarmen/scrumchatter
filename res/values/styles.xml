@@ -18,7 +18,7 @@
   along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources>
-
+	<!-- Action bar theme generation url: http://jgilfelt.github.io/android-actionbarstylegenerator/#name=scrum_chatter&compat=sherlock&theme=light_dark&actionbarstyle=solid&texture=0&hairline=0&backColor=6c006c%2C100&secondaryColor=ccc%2C100&tabColor=d25fd2%2C100&tertiaryColor=3F3F3F%2C100&accentColor=d25fd2%2C100&cabBackColor=002E3E%2C100&cabHighlightColor=d25fd2%2C100 -->
     <!--
         Base application theme, dependent on API level. This theme is replaced
         by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
