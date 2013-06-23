@@ -24,10 +24,9 @@
         <item name="popupMenuStyle">@style/PopupMenu.Scrum_chatter</item>
         <item name="dropDownListViewStyle">@style/DropDownListView.Scrum_chatter</item>
         <item name="actionBarTabStyle">@style/ActionBarTabStyle.Scrum_chatter</item>
-        <item name="android:actionBarTabStyle">@style/ActionBarTabStyle.Scrum_chatter</item>
+        <item name="actionBarTabTextStyle">@style/ScrumChatter.Tab.Text</item>
         <item name="actionDropDownStyle">@style/DropDownNav.Scrum_chatter</item>
         <item name="actionBarStyle">@style/ActionBar.Solid.Scrum_chatter</item>
-        <item name="android:actionBarStyle">@style/ActionBar.Solid.Scrum_chatter</item>
         <item name="actionModeBackground">@drawable/cab_background_top_scrum_chatter</item>
         <item name="actionModeSplitBackground">@drawable/cab_background_bottom_scrum_chatter</item>
         <item name="actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Scrum_chatter</item>
@@ -35,6 +34,10 @@
                 <!-- Light.DarkActionBar specific -->
         <item name="actionBarWidgetTheme">@style/Theme.Scrum_chatter.Widget</item>
 
+    </style>
+
+    <style name="ScrumChatter.Tab.Text" parent="Widget.Sherlock.ActionBar.TabText">
+        <item name="android:textColor">@android:color/black</item>
     </style>
 
     <style name="ActionBar.Solid.Scrum_chatter" parent="@style/Widget.Sherlock.Light.ActionBar.Solid.Inverse">
