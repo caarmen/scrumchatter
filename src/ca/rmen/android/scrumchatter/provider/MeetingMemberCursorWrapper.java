@@ -36,7 +36,7 @@ public class MeetingMemberCursorWrapper extends CursorWrapper {
 	}
 
 	public long getMemberId() {
-		return getLongField(MemberColumns.TABLE_NAME + "." + MemberColumns._ID);
+		return getLongField(MemberColumns._ID);
 	}
 
 	public String getMemberName() {

@@ -20,16 +20,20 @@ package ca.rmen.android.scrumchatter.adapter;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.SystemClock;
 import android.support.v4.widget.CursorAdapter;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Chronometer;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
+import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
@@ -39,8 +43,9 @@ import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
  * for that meeting.
  */
 public class MeetingCursorAdapter extends CursorAdapter {
+	private static final String TAG = Constants.TAG + "/"
+			+ MeetingCursorAdapter.class.getSimpleName();
 	private final OnClickListener mOnClickListener;
-
 	private final int mColorChronoActive;
 	private final int mColorChronoInactive;
 	private final int mColorChronoNotStarted;
@@ -102,6 +107,10 @@ public class MeetingCursorAdapter extends CursorAdapter {
 				.findViewById(R.id.tv_duration);
 		ImageButton btnStartStop = (ImageButton) view
 				.findViewById(R.id.btn_start_stop_member);
+		ImageView ivChatterFace = (ImageView) view
+				.findViewById(R.id.iv_chatter_face);
+		final AnimationDrawable animChatterFace = (AnimationDrawable) ivChatterFace
+				.getDrawable();
 
 		// Set up the member's name
 		tvName.setText(memberName);
@@ -134,11 +143,25 @@ public class MeetingCursorAdapter extends CursorAdapter {
 					- hasBeenTalkingFor);
 			chronometer.start();
 			chronometer.setTextColor(mColorChronoActive);
+			if (ivChatterFace.getVisibility() != View.VISIBLE) {
+				Log.v(TAG, "show chatter face");
+				ivChatterFace.setVisibility(View.VISIBLE);
+			}
+			boolean posted = ivChatterFace.post(new Runnable() {
+
+				@Override
+				public void run() {
+					Log.v(TAG, "start chatter face animation");
+					animChatterFace.start();
+				}
+			});
+			Log.v(TAG, "posted = " + posted);
 		} else {
 			chronometer.stop();
 			chronometer.setText(DateUtils.formatElapsedTime(duration));
 			chronometer.setTextColor(duration > 0 ? mColorChronoInactive
 					: mColorChronoNotStarted);
+			ivChatterFace.setVisibility(View.INVISIBLE);
 		}
 
 		// Set the member id as a tag, so when the OnClickListener receives the

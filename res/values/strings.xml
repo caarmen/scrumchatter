@@ -40,6 +40,7 @@
     <string name="action_stop_meeting">Stop meeting</string>
     <string name="action_start">Start</string>
     
+    <string name="chatter_face_label">Chatter face</string>
     <string name="meeting_header_total_duration">Meeting duration:</string>
 
     <string name="meeting_state_not_started">Not started</string>
