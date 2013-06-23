@@ -268,6 +268,7 @@ public class ScrumChatterProvider extends ContentProvider {
 			// Notify the uri which changed.
 			Set<Uri> urisToNotify = new HashSet<Uri>();
 			urisToNotify.add(uri);
+			urisToNotify.add(MemberStatsColumns.CONTENT_URI);
 
 			// Notify other uris if they depend on the given uri which just
 			// changed.
@@ -275,7 +276,6 @@ public class ScrumChatterProvider extends ContentProvider {
 			// member_stats uris.
 			if (table.equals(MemberColumns.TABLE_NAME)) {
 				urisToNotify.add(MeetingMemberColumns.CONTENT_URI);
-				urisToNotify.add(MemberStatsColumns.CONTENT_URI);
 			}
 			// If a meeting changed, notify the meeting_member uri, including
 			// the meeting id in the uri to notify,
