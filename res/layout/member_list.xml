@@ -21,13 +21,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin" >
+    android:orientation="vertical" >
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:background="@color/header_background"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin" >
 
         <TextView
             android:id="@+id/tv_name"
@@ -36,13 +37,13 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
-            android:layout_toLeftOf="@+id/tv_avg_duration"
+            android:layout_marginLeft="@dimen/list_inner_horizontal_margin"
             android:clickable="true"
             android:text="@string/member_list_header_name"
             android:textColor="@color/selected_header" />
 
         <TextView
-            android:id="@id/tv_avg_duration"
+            android:id="@+id/tv_avg_duration"
             style="@style/listHeader"
             android:layout_width="70dp"
             android:layout_height="wrap_content"
@@ -63,10 +64,9 @@
 
         <ImageButton
             android:id="@id/btn_delete"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/listItemButton"
             android:layout_alignParentRight="true"
-            android:layout_alignTop="@+id/tv_name"
+            android:layout_marginRight="@dimen/list_inner_horizontal_margin"
             android:contentDescription="@string/action_delete_member"
             android:src="@drawable/ic_action_delete"
             android:visibility="invisible" />
@@ -82,6 +82,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
         tools:listitem="@android:layout/simple_list_item_2" />
 
 </LinearLayout>
