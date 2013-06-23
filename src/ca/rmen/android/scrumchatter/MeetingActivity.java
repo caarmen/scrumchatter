@@ -188,9 +188,13 @@ public class MeetingActivity extends SherlockFragmentActivity {
 					R.anim.blink);
 			mMeetingChronometer.startAnimation(animBlink);
 		} else {
-			Animation animBlink = mMeetingChronometer.getAnimation();
-			if (animBlink != null)
-				animBlink.cancel();
+			Animation anim = mMeetingChronometer.getAnimation();
+			if (anim != null) {
+				anim.cancel();
+				// Need to make sure the animation doesn't stay faded out.
+				anim = AnimationUtils.loadAnimation(this, R.anim.show);
+				mMeetingChronometer.startAnimation(anim);
+			}
 		}
 	}
 

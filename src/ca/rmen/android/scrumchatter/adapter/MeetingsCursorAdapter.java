@@ -114,8 +114,12 @@ public class MeetingsCursorAdapter extends CursorAdapter {
 			tvDuration.setTextColor(mColorStateInProgress);
 		} else {
 			Animation anim = tvDuration.getAnimation();
-			if (anim != null)
+			if (anim != null) {
 				anim.cancel();
+				// Need to make sure the animation doesn't stay faded out.
+				anim = AnimationUtils.loadAnimation(mContext, R.anim.show);
+				tvDuration.startAnimation(anim);
+			}
 			tvDuration.setTextColor(mColorStateDefault);
 		}
 
