@@ -24,7 +24,6 @@ import android.graphics.drawable.AnimationDrawable;
 import android.os.SystemClock;
 import android.support.v4.widget.CursorAdapter;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -33,7 +32,6 @@ import android.widget.Chronometer;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
@@ -43,8 +41,6 @@ import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
  * for that meeting.
  */
 public class MeetingCursorAdapter extends CursorAdapter {
-	private static final String TAG = Constants.TAG + "/"
-			+ MeetingCursorAdapter.class.getSimpleName();
 	private final OnClickListener mOnClickListener;
 	private final int mColorChronoActive;
 	private final int mColorChronoInactive;
@@ -144,18 +140,10 @@ public class MeetingCursorAdapter extends CursorAdapter {
 			chronometer.start();
 			chronometer.setTextColor(mColorChronoActive);
 			if (ivChatterFace.getVisibility() != View.VISIBLE) {
-				Log.v(TAG, "show chatter face");
 				ivChatterFace.setVisibility(View.VISIBLE);
 			}
-			boolean posted = ivChatterFace.post(new Runnable() {
-
-				@Override
-				public void run() {
-					Log.v(TAG, "start chatter face animation");
-					animChatterFace.start();
-				}
-			});
-			Log.v(TAG, "posted = " + posted);
+			if (!animChatterFace.isRunning())
+				animChatterFace.start();
 		} else {
 			chronometer.stop();
 			chronometer.setText(DateUtils.formatElapsedTime(duration));
