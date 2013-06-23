@@ -24,7 +24,6 @@
         <item name="android:popupMenuStyle">@style/PopupMenu.Scrum_chatter</item>
         <item name="android:dropDownListViewStyle">@style/DropDownListView.Scrum_chatter</item>
         <item name="android:actionBarTabStyle">@style/ActionBarTabStyle.Scrum_chatter</item>
-        <item name="android:actionBarTabTextStyle">@style/ScrumChatter.Tab.Text</item>
         <item name="android:actionDropDownStyle">@style/DropDownNav.Scrum_chatter</item>
         <item name="android:actionBarStyle">@style/ActionBar.Solid.Scrum_chatter</item>
         <item name="android:actionModeBackground">@drawable/cab_background_top_scrum_chatter</item>

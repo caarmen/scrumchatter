@@ -24,7 +24,6 @@
         <item name="popupMenuStyle">@style/PopupMenu.Scrum_chatter</item>
         <item name="dropDownListViewStyle">@style/DropDownListView.Scrum_chatter</item>
         <item name="actionBarTabStyle">@style/ActionBarTabStyle.Scrum_chatter</item>
-        <item name="actionBarTabTextStyle">@style/ScrumChatter.Tab.Text</item>
         <item name="actionDropDownStyle">@style/DropDownNav.Scrum_chatter</item>
         <item name="actionBarStyle">@style/ActionBar.Solid.Scrum_chatter</item>
         <item name="actionModeBackground">@drawable/cab_background_top_scrum_chatter</item>
@@ -36,13 +35,8 @@
 
     </style>
 
-    <style name="ScrumChatter.Tab.Text" parent="Widget.Sherlock.ActionBar.TabText">
-        <item name="android:textColor">@android:color/black</item>
-    </style>
-
     <style name="ActionBar.Solid.Scrum_chatter" parent="@style/Widget.Sherlock.Light.ActionBar.Solid.Inverse">
         <item name="background">@drawable/ab_solid_scrum_chatter</item>
-        <item name="android:background">@drawable/ab_solid_scrum_chatter</item>
         <item name="backgroundStacked">@drawable/ab_stacked_solid_scrum_chatter</item>
         <item name="backgroundSplit">@drawable/ab_bottom_solid_scrum_chatter</item>
         <item name="progressBarStyle">@style/ProgressBar.Scrum_chatter</item>
