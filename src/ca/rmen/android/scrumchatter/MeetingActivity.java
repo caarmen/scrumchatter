@@ -20,9 +20,11 @@ package ca.rmen.android.scrumchatter;
 
 import java.util.ArrayList;
 
+import android.app.AlertDialog;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderOperation.Builder;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -432,7 +434,22 @@ public class MeetingActivity extends SherlockFragmentActivity {
 				break;
 			// Stop the whole meeting.
 			case R.id.btn_stop_meeting:
-				stopMeeting();
+				// Let's ask him if he's sure.
+				AlertDialog.Builder builder = new AlertDialog.Builder(
+						MeetingActivity.this);
+				builder.setTitle(R.string.dialog_message_stop_meeting_confirm)
+						.setNegativeButton(android.R.string.cancel, null)
+						.setPositiveButton(android.R.string.ok,
+								new DialogInterface.OnClickListener() {
+
+									// The user has confirmed to delete the
+									// member.
+									public void onClick(DialogInterface dialog,
+											int whichButton) {
+										stopMeeting();
+									}
+								});
+				builder.create().show();
 				break;
 			default:
 				break;

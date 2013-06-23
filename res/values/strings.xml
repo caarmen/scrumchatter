@@ -31,6 +31,7 @@
     <string name="action_delete_meeting">Delete meeting.</string>
     <string name="dialog_message_delete_member_confirm">Delete %s?</string>
     <string name="dialog_message_delete_meeting_confirm">Delete meeting from %s?</string>
+    <string name="dialog_message_stop_meeting_confirm">Stop meeting?</string>
     <string name="member_list_header_name">Name</string>
     <string name="member_list_header_avg_duration">Average Chatter Time</string>
     <string name="member_list_header_sum_duration">Total Chatter Time</string>
