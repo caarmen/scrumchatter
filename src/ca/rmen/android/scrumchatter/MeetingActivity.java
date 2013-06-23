@@ -29,6 +29,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.support.v4.app.NavUtils;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
@@ -78,6 +79,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
 
 		Intent intent = getIntent();
 		loadMeeting(intent);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	}
 
 	@Override
@@ -99,6 +101,10 @@ public class MeetingActivity extends SherlockFragmentActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
+		// Respond to the action bar's Up/Home button
+		case android.R.id.home:
+			NavUtils.navigateUpFromSameTask(this);
+			return true;
 		case R.id.action_share:
 			AsyncTask<Void, Void, Void> asyncTask = new AsyncTask<Void, Void, Void>() {
 
