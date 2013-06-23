@@ -36,6 +36,8 @@ import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Chronometer;
 import ca.rmen.android.scrumchatter.export.MeetingExport;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
@@ -162,7 +164,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
 			mMeetingChronometer.setText(DateUtils.formatElapsedTime(duration));
 		}
 		getSupportActionBar().setTitle(TextUtils.formatDateTime(this, date));
-		updateStopButton(state);
+		onMeetingStateChanged(state);
 
 		// Load the list of team members.
 		MeetingFragment fragment = (MeetingFragment) getSupportFragmentManager()
@@ -171,15 +173,25 @@ public class MeetingActivity extends SherlockFragmentActivity {
 	}
 
 	/**
-	 * Hide, show, enable or disable the stop meeting button, depending on the
-	 * given state of the meeting.
+	 * Update UI components based on the meeting state.
 	 */
-	private void updateStopButton(State state) {
+	private void onMeetingStateChanged(State state) {
 		// Show the "stop meeting" button if the meeting is not finished.
 		mBtnStopMeeting.setVisibility(state == State.NOT_STARTED
 				|| state == State.IN_PROGRESS ? View.VISIBLE : View.INVISIBLE);
 		// Only enable the "stop meeting" button if the meeting is in progress.
 		mBtnStopMeeting.setEnabled(state == State.IN_PROGRESS);
+
+		// Blink the chronometer when the meeting is in progress
+		if (state == State.IN_PROGRESS) {
+			Animation animBlink = AnimationUtils.loadAnimation(this,
+					R.anim.blink);
+			mMeetingChronometer.startAnimation(animBlink);
+		} else {
+			Animation animBlink = mMeetingChronometer.getAnimation();
+			if (animBlink != null)
+				animBlink.cancel();
+		}
 	}
 
 	/**
@@ -223,7 +235,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		ContentValues values = new ContentValues(1);
 		values.put(MeetingColumns.STATE, newState.ordinal());
 		getContentResolver().update(mMeetingUri, values, null, null);
-		updateStopButton(newState);
+		onMeetingStateChanged(newState);
 	}
 
 	/**
