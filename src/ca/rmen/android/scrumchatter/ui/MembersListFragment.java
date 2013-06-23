@@ -90,8 +90,6 @@ public class MembersListFragment extends SherlockListFragment {
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-		mAdapter = new MembersCursorAdapter(activity, mOnClickListener);
-		setListAdapter(mAdapter);
 		getLoaderManager().initLoader(URL_LOADER, null, mLoaderCallbacks);
 	}
 
@@ -212,11 +210,20 @@ public class MembersListFragment extends SherlockListFragment {
 
 		@Override
 		public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+			Log.v(TAG, "onLoadFinished");
+			if (mAdapter == null) {
+				mAdapter = new MembersCursorAdapter(getActivity(),
+						mOnClickListener);
+				setListAdapter(mAdapter);
+			}
+			getView().findViewById(R.id.progressContainer).setVisibility(
+					View.GONE);
 			mAdapter.changeCursor(cursor);
 		}
 
 		@Override
 		public void onLoaderReset(Loader<Cursor> loader) {
+			Log.v(TAG, "onLoaderReset");
 			mAdapter.changeCursor(null);
 		}
 

@@ -56,4 +56,6 @@
     <string name="export_message_body">The Scrum Chatter report is attached.</string>
     <string name="export_error">Could not create Scrum Chatter report.  Make sure your phone\'s SD card is available.</string>
     
+    <string name="loading">Loading...</string>
+    
 </resources>

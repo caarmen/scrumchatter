@@ -67,8 +67,6 @@ public class MeetingsListFragment extends SherlockListFragment {
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-		mAdapter = new MeetingsCursorAdapter(activity, mOnClickListener);
-		setListAdapter(mAdapter);
 		getLoaderManager().initLoader(URL_LOADER, null, mLoaderCallbacks);
 	}
 
@@ -98,7 +96,7 @@ public class MeetingsListFragment extends SherlockListFragment {
 		intent.putExtra(MeetingActivity.EXTRA_MEETING_ID, id);
 		startActivity(intent);
 	}
-	
+
 	private LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
 		@Override
 		public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
@@ -109,12 +107,20 @@ public class MeetingsListFragment extends SherlockListFragment {
 
 		@Override
 		public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+			if (mAdapter == null) {
+				mAdapter = new MeetingsCursorAdapter(getActivity(),
+						mOnClickListener);
+				setListAdapter(mAdapter);
+			}
+			getView().findViewById(R.id.progressContainer).setVisibility(
+					View.GONE);
 			mAdapter.changeCursor(cursor);
 		}
 
 		@Override
 		public void onLoaderReset(Loader<Cursor> loader) {
-			mAdapter.changeCursor(null);
+			if (mAdapter != null)
+				mAdapter.changeCursor(null);
 		}
 	};
 

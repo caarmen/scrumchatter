@@ -90,9 +90,7 @@ public class MeetingFragment extends SherlockListFragment {
 		bundle.putInt(EXTRA_MEETING_STATE, state.ordinal());
 		if (mAdapter == null) {
 			mAdapter = new MeetingCursorAdapter(getActivity(), onClickListener);
-			setListAdapter(mAdapter);
-			getLoaderManager().initLoader(LOADER_ID, bundle,
-					mLoaderCallbacks);
+			getLoaderManager().initLoader(LOADER_ID, bundle, mLoaderCallbacks);
 		} else {
 			getLoaderManager().restartLoader(LOADER_ID, bundle,
 					mLoaderCallbacks);
@@ -105,7 +103,8 @@ public class MeetingFragment extends SherlockListFragment {
 		public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
 			Log.v(TAG, "onCreateLoader, loaderId = " + loaderId + ", bundle = "
 					+ bundle);
-			State meetingState = State.values()[bundle.getInt(EXTRA_MEETING_STATE,State.NOT_STARTED.ordinal())];
+			State meetingState = State.values()[bundle.getInt(
+					EXTRA_MEETING_STATE, State.NOT_STARTED.ordinal())];
 			String selection = null;
 			String orderBy = MemberColumns.NAME;
 			if (meetingState == State.FINISHED) {
@@ -131,6 +130,11 @@ public class MeetingFragment extends SherlockListFragment {
 		@Override
 		public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 			Log.v(TAG, "onLoadFinished");
+			if (getListAdapter() == null) {
+				setListAdapter(mAdapter);
+				getActivity().findViewById(R.id.progressContainer)
+						.setVisibility(View.GONE);
+			}
 			mAdapter.changeCursor(cursor);
 		}
 
