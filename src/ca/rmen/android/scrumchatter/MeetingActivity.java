@@ -148,10 +148,14 @@ public class MeetingActivity extends SherlockFragmentActivity {
 		cursorWrapper.close();
 
 		// Update our views based on the meeting attributes.
-		if (state == State.IN_PROGRESS) {
-			// Only show the "stop meeting" button if the meeting is in
-			// progress.
+		if (state == State.NOT_STARTED) {
+			// Show the "stop meeting" button
 			mBtnStopMeeting.setVisibility(View.VISIBLE);
+			mBtnStopMeeting.setEnabled(false);
+		} else if (state == State.IN_PROGRESS) {
+			// Show the "stop meeting" button
+			mBtnStopMeeting.setVisibility(View.VISIBLE);
+			mBtnStopMeeting.setEnabled(true);
 			// If the meeting is in progress, show the Chronometer.
 			long timeSinceMeetingStartedMillis = System.currentTimeMillis()
 					- date;
