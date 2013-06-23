@@ -36,15 +36,14 @@
 
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
         <item name="android:listViewStyle">@style/listStyle</item>
-        <item name="android:actionBarTabTextStyle">@style/tabTextStyle</item>
         <item name="actionBarTabTextStyle">@style/tabTextStyle</item>
         <item name="actionBarDivider">@drawable/tab_divider</item>
-        <item name="android:actionBarTabBarStyle">@style/tabBarStyle</item>
+        <item name="actionBarTabBarStyle">@style/tabBarStyle</item>
     </style>
 
     <style name="listHeader">
         <item name="android:textColor">@color/unselected_header</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:textStyle">italic</item>
     </style>
 
     <style name="listItemButton">

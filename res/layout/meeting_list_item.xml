@@ -20,7 +20,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:descendantFocusability="blocksDescendants" >
+    android:descendantFocusability="blocksDescendants"
+    android:paddingLeft="@dimen/list_inner_horizontal_margin"
+    android:paddingRight="@dimen/list_inner_horizontal_margin" >
 
     <TextView
         android:id="@+id/tv_meeting_date"
