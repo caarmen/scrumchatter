@@ -20,6 +20,7 @@
 <resources>
 
     <string name="app_name">Scrum Chatter</string>
+    <string name="app_version">1.0.0</string>
     <string name="title_section_meetings">Meetings</string>
     <string name="title_section_team">Team</string>
     <string name="action_share">Share</string>
@@ -39,23 +40,30 @@
     <string name="meeting_list_header_duration">Duration</string>
     <string name="action_stop_meeting">Stop meeting</string>
     <string name="action_start">Start</string>
-    
     <string name="chatter_face_label">Chatter face</string>
     <string name="meeting_header_total_duration">Meeting duration:</string>
-
     <string name="meeting_state_not_started">Not started</string>
     <string name="meeting_state_in_progress">In progress</string>
     <string name="meeting_state_finished">Finished</string>
-    
     <string name="export_meeting_date">Scrum Chatter meeting on %s</string>
     <string name="export_meeting_duration">Total meeting duration: %s</string>
-    
     <string name="export_header_meeting_date">Date</string>
     <string name="export_header_meeting_duration">Total duration</string>
     <string name="export_message_subject">Scrum Chatter report</string>
     <string name="export_message_body">The Scrum Chatter report is attached.</string>
     <string name="export_error">Could not create Scrum Chatter report.  Make sure your phone\'s SD card is available.</string>
-    
-    <string name="loading">Loading...</string>
-    
+    <string name="loading">Loading&#8230;</string>
+    <string name="about">About</string>
+    <string name="about_author">By Carmen Alvarez</string>
+    <string name="about_version">v</string>
+    <string name="about_source_text">Source code on GitHub:</string>
+    <string name="about_source_link">https://github.com/caarmen/scrumchatter</string>
+    <string name="about_credit_title">Special thanks to:</string>
+    <string name="about_credit_content_provider_generator_text">BoD for the chatter emoticon and his content provider generator.</string>
+    <string name="about_credit_content_provider_generator_link">https://github.com/BoD/android-contentprovider-generator</string>
+    <string name="about_credit_actionbar_style_generator_text">Jeff Gilfelt for his action bar style generator.</string>
+    <string name="about_credit_actionbar_style_generator_link">http://jgilfelt.github.io/android-actionbarstylegenerator/</string>
+    <string name="about_credit_app_icon_text">qubodup for the speech bubble icon on openclipart.</string>
+    <string name="about_credit_app_icon_link">http://openclipart.org/detail/14322/16x16px-capable-black-and-white-icons-by-qubodup-14322</string>
+
 </resources>

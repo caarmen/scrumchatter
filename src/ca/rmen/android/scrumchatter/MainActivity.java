@@ -21,6 +21,7 @@ package ca.rmen.android.scrumchatter;
 import java.io.FileNotFoundException;
 import java.util.Locale;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -114,7 +115,8 @@ public class MainActivity extends SherlockFragmentActivity implements
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == R.id.action_share) {
+		switch (item.getItemId()) {
+		case R.id.action_share:
 			AsyncTask<Void, Void, Boolean> asyncTask = new AsyncTask<Void, Void, Boolean>() {
 
 				@Override
@@ -140,6 +142,10 @@ public class MainActivity extends SherlockFragmentActivity implements
 				}
 			};
 			asyncTask.execute();
+			return true;
+		case R.id.action_about:
+			Intent intent = new Intent(this, AboutActivity.class);
+			startActivity(intent);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);

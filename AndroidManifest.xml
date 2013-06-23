@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ca.rmen.android.scrumchatter"
-    android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionCode="100"
+    android:versionName="@string/app_version" >
 
     <uses-sdk
         android:minSdkVersion="9"
@@ -36,11 +36,21 @@
                 android:value="ca.rmen.android.scrumchatter.MainActivity" />
         </activity>
 
+        <activity
+            android:name="ca.rmen.android.scrumchatter.AboutActivity"
+            android:label="@string/about"
+            android:parentActivityName="ca.rmen.android.scrumchatter.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ca.rmen.android.scrumchatter.MainActivity" />
+        </activity>
+
         <provider
             android:name="ca.rmen.android.scrumchatter.provider.ScrumChatterProvider"
             android:authorities="ca.rmen.android.scrumchatter.provider"
             android:exported="false" >
         </provider>
+
     </application>
 
 </manifest>
