@@ -23,7 +23,7 @@
         Base application theme, dependent on API level. This theme is replaced
         by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
     -->
-    <style name="AppBaseTheme" parent="android:Theme.Light">
+    <style name="AppBaseTheme" parent="Theme.Scrum_chatter">
         <!--
             Theme customizations available in newer API levels can go in
             res/values-vXX/styles.xml, while customizations related to
@@ -36,6 +36,8 @@
 
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
         <item name="android:listViewStyle">@style/listStyle</item>
+        <item name="android:actionBarTabTextStyle">@style/tabTextStyle</item>
+        <item name="actionBarTabTextStyle">@style/tabTextStyle</item>
     </style>
 
     <style name="listHeader">
@@ -54,4 +56,7 @@
         <item name="android:listSelector">@drawable/selector</item>
     </style>
 
+    <style name="tabTextStyle" parent="Widget.Sherlock.ActionBar.TabText">
+        <item name="android:textColor">@android:color/black</item>
+    </style>
 </resources>
