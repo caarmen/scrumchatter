@@ -231,8 +231,8 @@ public class ScrumChatterProvider extends ContentProvider {
 		// @formatter:off
 		final Cursor res = qb.query(
 				mScrumChatterDatabase.getReadableDatabase(), projection,
-				queryParams.selection, selectionArgs, groupBy,
-				null, sortOrder == null ? queryParams.orderBy : sortOrder);
+				queryParams.selection, selectionArgs, groupBy, null,
+				sortOrder == null ? queryParams.orderBy : sortOrder);
 		// @formatter:on
 		logCursor(res, selectionArgs);
 		res.setNotificationUri(getContext().getContentResolver(), uri);
@@ -268,12 +268,15 @@ public class ScrumChatterProvider extends ContentProvider {
 			// Notify the uri which changed.
 			Set<Uri> urisToNotify = new HashSet<Uri>();
 			urisToNotify.add(uri);
+
+			// Whether a meeting, meeting_member, or meeting table was
+			// modified, update the member_stats view.
 			urisToNotify.add(MemberStatsColumns.CONTENT_URI);
 
 			// Notify other uris if they depend on the given uri which just
 			// changed.
-			// If a member changed, notify the the meeting_member and
-			// member_stats uris.
+			
+			// If a member changed, notify the the meeting_member uri.
 			if (table.equals(MemberColumns.TABLE_NAME)) {
 				urisToNotify.add(MeetingMemberColumns.CONTENT_URI);
 			}
@@ -281,12 +284,13 @@ public class ScrumChatterProvider extends ContentProvider {
 			// the meeting id in the uri to notify,
 			// if the given uri is for a specific meeting.
 			else if (table.equals(MeetingColumns.TABLE_NAME)) {
-				Uri meetingMemberUriToNotify = MeetingMemberColumns.CONTENT_URI;
-				final int uriMatch = URI_MATCHER.match(uri);
-				if (uriMatch == URI_TYPE_MEETING_ID) {
+				final Uri meetingMemberUriToNotify;
+				if (URI_MATCHER.match(uri) == URI_TYPE_MEETING_ID) {
 					String meetingId = uri.getLastPathSegment();
 					meetingMemberUriToNotify = Uri.withAppendedPath(
 							MeetingMemberColumns.CONTENT_URI, meetingId);
+				} else {
+					 meetingMemberUriToNotify = MeetingMemberColumns.CONTENT_URI;
 				}
 				urisToNotify.add(meetingMemberUriToNotify);
 			}
