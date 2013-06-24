@@ -93,12 +93,12 @@ public class MembersCursorAdapter extends CursorAdapter {
 		btnDelete.setTag(cache);
 	}
 
-	// TODO for now this cache class is not really used to
-	// cache data. The only fields that are used at all are
-	// the id and name, when we show a popup dialog warning
-	// before user deletion. We may not really need a cache as we
-	// won't be dealing with large lists. Really, how many team
-	// members attend meetings?
+	/**
+	 * This cache class is not really used to cache data. The only fields that
+	 * are used at all are the id and name, when we show a popup dialog warning
+	 * before user deletion. We may not really need a cache as we won't be
+	 * dealing with large lists. Really, how many team members attend meetings?
+	 */
 	public static class MemberItemCache {
 		public final long id;
 		public final String name;

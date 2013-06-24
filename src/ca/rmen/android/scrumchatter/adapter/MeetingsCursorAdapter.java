@@ -134,7 +134,7 @@ public class MeetingsCursorAdapter extends CursorAdapter {
 	}
 
 	/**
-	 * This is not a real cache yet: we just store the minimum data here needed
+	 * This is not a real cache (yet?): we just store the minimum data here needed
 	 * by the OnClickListener.
 	 */
 	public static class MeetingItemCache {
