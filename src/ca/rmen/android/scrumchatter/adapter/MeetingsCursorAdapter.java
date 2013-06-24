@@ -42,6 +42,7 @@ public class MeetingsCursorAdapter extends CursorAdapter {
 	private final OnClickListener mOnClickListener;
 	private final int mColorStateInProgress;
 	private final int mColorStateDefault;
+	private final String[] mMeetingStateNames;
 
 	public MeetingsCursorAdapter(Context context,
 			OnClickListener onClickListener) {
@@ -51,6 +52,9 @@ public class MeetingsCursorAdapter extends CursorAdapter {
 				R.color.meeting_state_in_progress);
 		mColorStateDefault = context.getResources().getColor(
 				R.color.meeting_state_default);
+		mMeetingStateNames = context.getResources().getStringArray(
+				R.array.meeting_states);
+
 	}
 
 	@Override
@@ -86,10 +90,7 @@ public class MeetingsCursorAdapter extends CursorAdapter {
 				.getTotalDuration());
 		MeetingColumns.State state = cursorWrapper.getState();
 
-		// TODO cache the meeting state names
-		String[] meetingStates = context.getResources().getStringArray(
-				R.array.meeting_states);
-		String stateName = meetingStates[state.ordinal()];
+		String stateName = mMeetingStateNames[state.ordinal()];
 
 		// Find the views we need to set up.
 		TextView tvDate = (TextView) view.findViewById(R.id.tv_meeting_date);
