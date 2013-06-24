@@ -38,7 +38,7 @@ import ca.rmen.android.scrumchatter.Constants;
 
 /**
  * Provider for the Scrum Chatter app. This provider provides access to the
- * member, meeting, and meeting_member tables.
+ * member, meeting, and meeting_member tables, and the member_stats view.
  * 
  * Part of this class was generated using the Android Content Provider
  * Generator: https://github.com/BoD/android-contentprovider-generator
@@ -275,7 +275,7 @@ public class ScrumChatterProvider extends ContentProvider {
 
 			// Notify other uris if they depend on the given uri which just
 			// changed.
-			
+
 			// If a member changed, notify the the meeting_member uri.
 			if (table.equals(MemberColumns.TABLE_NAME)) {
 				urisToNotify.add(MeetingMemberColumns.CONTENT_URI);
@@ -284,16 +284,18 @@ public class ScrumChatterProvider extends ContentProvider {
 			// the meeting id in the uri to notify,
 			// if the given uri is for a specific meeting.
 			else if (table.equals(MeetingColumns.TABLE_NAME)) {
-				final Uri meetingMemberUriToNotify;
+				Uri meetingMemberUriToNotify = MeetingMemberColumns.CONTENT_URI;
+				// A specific meeting changed, notify meeting_member for that
+				// meeting.
 				if (URI_MATCHER.match(uri) == URI_TYPE_MEETING_ID) {
 					String meetingId = uri.getLastPathSegment();
-					meetingMemberUriToNotify = Uri.withAppendedPath(
-							MeetingMemberColumns.CONTENT_URI, meetingId);
-				} else {
-					 meetingMemberUriToNotify = MeetingMemberColumns.CONTENT_URI;
+					meetingMemberUriToNotify = meetingMemberUriToNotify
+							.buildUpon().appendPath(meetingId).build();
 				}
 				urisToNotify.add(meetingMemberUriToNotify);
 			}
+
+			// Notify all the relevant uris.
 			for (Uri uriToNotify : urisToNotify) {
 				Log.v(TAG, "notifyChange: notify uri " + uriToNotify);
 				getContext().getContentResolver().notifyChange(uriToNotify,
@@ -320,9 +322,11 @@ public class ScrumChatterProvider extends ContentProvider {
 	}
 
 	/**
-	 * returns a StatentParams containing the table name and possibly a
-	 * selection and selection args, depending on whether a selection was
-	 * provided by the user, and if an id was provided in the Uri.
+	 * Used for write operations (insert, update, delete).
+	 * 
+	 * Returns a StatementParams containing the table name and possibly a
+	 * selection, depending on whether a selection was provided by the user, and
+	 * if an id was provided in the Uri.
 	 * 
 	 * @param uri
 	 *            provided by the user of the ContentProvider. If the uri
@@ -330,8 +334,8 @@ public class ScrumChatterProvider extends ContentProvider {
 	 *            selection.
 	 * @param selection
 	 *            provided by the user of the ContentProvider
-	 * @return the table, selection, and selectionArgs to use based on the uri
-	 *         and selection provided by the user of the ContentProvider.
+	 * @return the table and selection to use based on the uri and selection
+	 *         provided by the user of the ContentProvider.
 	 */
 	private StatementParams getStatementParams(Uri uri, String selection) {
 		StatementParams res = new StatementParams();
@@ -372,9 +376,14 @@ public class ScrumChatterProvider extends ContentProvider {
 	}
 
 	/**
+	 * Used for read operations (select).
 	 * 
 	 * @param uri
+	 *            provided by the user of the ContentProvider. If the uri
+	 *            contains a path with an id, we will add the id to the
+	 *            selection.
 	 * @param selection
+	 *            provided by the user of the ContentProvider
 	 * @return the full QueryParams based on the Uri and selection provided by
 	 *         the user of the ContentProvider.
 	 */
@@ -391,6 +400,7 @@ public class ScrumChatterProvider extends ContentProvider {
 		// this will be used as the meeting id.
 		case URI_TYPE_MEETING_MEMBER:
 		case URI_TYPE_MEETING_MEMBER_ID:
+			// The join contains the member, meeting_member, and meeting tables.
 			res.table = MemberColumns.TABLE_NAME + " LEFT OUTER JOIN "
 					+ MeetingMemberColumns.TABLE_NAME + " ON "
 					+ MemberColumns.TABLE_NAME + "." + MemberColumns._ID
@@ -429,7 +439,7 @@ public class ScrumChatterProvider extends ContentProvider {
 
 		case URI_TYPE_MEMBER_STATS:
 			res.table = MemberStatsColumns.VIEW_NAME;
-			res.orderBy = MemberColumns.DEFAULT_ORDER;
+			res.orderBy = MemberStatsColumns.DEFAULT_ORDER;
 			break;
 
 		default:
@@ -446,16 +456,5 @@ public class ScrumChatterProvider extends ContentProvider {
 		}
 
 		return res;
-	}
-
-	public static Uri notify(Uri uri, boolean notify) {
-		return uri.buildUpon()
-				.appendQueryParameter(QUERY_NOTIFY, String.valueOf(notify))
-				.build();
-	}
-
-	public static Uri groupBy(Uri uri, String groupBy) {
-		return uri.buildUpon().appendQueryParameter(QUERY_GROUP_BY, groupBy)
-				.build();
 	}
 }
