@@ -27,9 +27,4 @@ public class TextUtils {
 				DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
 	}
 
-	public static String formatShortDate(Context context, long dateMillis) {
-		return DateUtils.formatDateTime(context, dateMillis,
-				DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_NUMERIC_DATE);
-	}
-
 }
