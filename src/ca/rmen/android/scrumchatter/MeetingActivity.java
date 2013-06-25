@@ -26,6 +26,7 @@ import android.content.ContentProviderOperation.Builder;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -69,6 +70,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
 	private Chronometer mMeetingChronometer;
 	private Uri mMeetingUri;
 	private long mMeetingId;
+	private State mMeetingState = State.NOT_STARTED;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -94,23 +96,24 @@ public class MeetingActivity extends SherlockFragmentActivity {
 	}
 
 	@Override
+	protected void onPause() {
+		getContentResolver().unregisterContentObserver(mMeetingObserver);
+		super.onPause();
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		if (mMeetingUri != null)
+			getContentResolver().registerContentObserver(mMeetingUri, false,
+					mMeetingObserver);
+	}
+
+	@Override
 	public boolean onCreateOptionsMenu(final Menu menu) {
 		getSupportMenuInflater().inflate(R.menu.meeting_menu, menu);
 		final MenuItem shareItem = menu.findItem(R.id.action_share);
-		AsyncTask<Void, Void, State> task = new AsyncTask<Void, Void, MeetingColumns.State>() {
-
-			@Override
-			protected State doInBackground(Void... params) {
-				return getMeetingState();
-			}
-
-			@Override
-			protected void onPostExecute(State state) {
-				super.onPostExecute(state);
-				shareItem.setVisible(state == State.FINISHED);
-			}
-		};
-		task.execute();
+		shareItem.setVisible(mMeetingState == State.FINISHED);
 		return true;
 	}
 
@@ -151,7 +154,6 @@ public class MeetingActivity extends SherlockFragmentActivity {
 
 			long mDuration;
 			long mDate;
-			State mState;
 
 			@Override
 			protected Void doInBackground(Void... params) {
@@ -163,6 +165,10 @@ public class MeetingActivity extends SherlockFragmentActivity {
 				// code in an Activity, but oh well...)
 				mMeetingUri = Uri.withAppendedPath(MeetingColumns.CONTENT_URI,
 						String.valueOf(mMeetingId));
+				getContentResolver()
+						.unregisterContentObserver(mMeetingObserver);
+				getContentResolver().registerContentObserver(mMeetingUri,
+						false, mMeetingObserver);
 				Cursor meetingCursor = getContentResolver().query(mMeetingUri,
 						null, null, null, null);
 				MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(
@@ -170,7 +176,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
 				cursorWrapper.moveToFirst();
 				mDuration = cursorWrapper.getTotalDuration();
 				mDate = cursorWrapper.getMeetingDate();
-				mState = cursorWrapper.getState();
+				mMeetingState = cursorWrapper.getState();
 				cursorWrapper.close();
 				return null;
 			}
@@ -178,14 +184,14 @@ public class MeetingActivity extends SherlockFragmentActivity {
 			@Override
 			protected void onPostExecute(Void result) {
 				super.onPostExecute(result);
-				if (mState == State.IN_PROGRESS) {
+				if (mMeetingState == State.IN_PROGRESS) {
 					// If the meeting is in progress, show the Chronometer.
 					long timeSinceMeetingStartedMillis = System
 							.currentTimeMillis() - mDate;
 					mMeetingChronometer.setBase(SystemClock.elapsedRealtime()
 							- timeSinceMeetingStartedMillis);
 					mMeetingChronometer.start();
-				} else if (mState == State.FINISHED) {
+				} else if (mMeetingState == State.FINISHED) {
 					// For finished meetings, show the duration we retrieved
 					// from the
 					// db.
@@ -194,12 +200,13 @@ public class MeetingActivity extends SherlockFragmentActivity {
 				}
 				getSupportActionBar().setTitle(
 						TextUtils.formatDateTime(MeetingActivity.this, mDate));
-				onMeetingStateChanged(mState);
+				onMeetingStateChanged();
 
 				// Load the list of team members.
 				MeetingFragment fragment = (MeetingFragment) getSupportFragmentManager()
 						.findFragmentById(R.id.meeting_fragment);
-				fragment.loadMeeting(mMeetingId, mState, mOnClickListener);
+				fragment.loadMeeting(mMeetingId, mMeetingState,
+						mOnClickListener);
 			}
 		};
 		task.execute();
@@ -208,15 +215,16 @@ public class MeetingActivity extends SherlockFragmentActivity {
 	/**
 	 * Update UI components based on the meeting state.
 	 */
-	private void onMeetingStateChanged(State state) {
+	private void onMeetingStateChanged() {
 		// Show the "stop meeting" button if the meeting is not finished.
-		mBtnStopMeeting.setVisibility(state == State.NOT_STARTED
-				|| state == State.IN_PROGRESS ? View.VISIBLE : View.INVISIBLE);
+		mBtnStopMeeting.setVisibility(mMeetingState == State.NOT_STARTED
+				|| mMeetingState == State.IN_PROGRESS ? View.VISIBLE
+				: View.INVISIBLE);
 		// Only enable the "stop meeting" button if the meeting is in progress.
-		mBtnStopMeeting.setEnabled(state == State.IN_PROGRESS);
+		mBtnStopMeeting.setEnabled(mMeetingState == State.IN_PROGRESS);
 
 		// Blink the chronometer when the meeting is in progress
-		if (state == State.IN_PROGRESS) {
+		if (mMeetingState == State.IN_PROGRESS) {
 			Animation animBlink = AnimationUtils.loadAnimation(this,
 					R.anim.blink);
 			mMeetingChronometer.startAnimation(animBlink);
@@ -242,23 +250,6 @@ public class MeetingActivity extends SherlockFragmentActivity {
 				MeetingColumns.CONTENT_URI, values);
 		long meetingId = Long.parseLong(newMeetingUri.getLastPathSegment());
 		return meetingId;
-	}
-
-	/**
-	 * @return the state of this meeting.
-	 */
-	private State getMeetingState() {
-		Cursor cursor = getContentResolver().query(mMeetingUri,
-				new String[] { MeetingColumns.STATE }, null, null, null);
-		State oldState = null;
-		if (cursor != null) {
-			MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(
-					cursor);
-			if (cursorWrapper.moveToFirst())
-				oldState = cursorWrapper.getState();
-			cursorWrapper.close();
-		}
-		return oldState;
 	}
 
 	/**
@@ -308,15 +299,10 @@ public class MeetingActivity extends SherlockFragmentActivity {
 	 * and show the "stop meeting" button.
 	 */
 	private void startMeeting() {
-		AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>() {
-
-			long mNewMeetingStartDate = -1;
+		AsyncTask<Void, Void, Long> task = new AsyncTask<Void, Void, Long>() {
 
 			@Override
-			protected Boolean doInBackground(Void... params) {
-				State state = getMeetingState();
-				if (state == State.IN_PROGRESS)
-					return false;
+			protected Long doInBackground(Void... params) {
 				setMeetingState(State.IN_PROGRESS);
 				/**
 				 * Change the date of the meeting to now. We do this when the
@@ -324,24 +310,21 @@ public class MeetingActivity extends SherlockFragmentActivity {
 				 * easier to track the duration of the meeting.
 				 */
 				ContentValues values = new ContentValues(1);
-				mNewMeetingStartDate = System.currentTimeMillis();
-				values.put(MeetingColumns.MEETING_DATE, mNewMeetingStartDate);
+				long newMeetingStartDate = System.currentTimeMillis();
+				values.put(MeetingColumns.MEETING_DATE, newMeetingStartDate);
 				getContentResolver().update(mMeetingUri, values, null, null);
-				return true;
+				return newMeetingStartDate;
 			}
 
 			@Override
-			protected void onPostExecute(Boolean updateViews) {
-				super.onPostExecute(updateViews);
-				if (updateViews) {
-					mBtnStopMeeting.setVisibility(View.VISIBLE);
-					getSupportActionBar().setTitle(
-							TextUtils.formatDateTime(MeetingActivity.this,
-									mNewMeetingStartDate));
-					mMeetingChronometer.setBase(SystemClock.elapsedRealtime());
-					mMeetingChronometer.start();
-					onMeetingStateChanged(State.IN_PROGRESS);
-				}
+			protected void onPostExecute(Long newMeetingStartDate) {
+				super.onPostExecute(newMeetingStartDate);
+				mBtnStopMeeting.setVisibility(View.VISIBLE);
+				getSupportActionBar().setTitle(
+						TextUtils.formatDateTime(MeetingActivity.this,
+								newMeetingStartDate));
+				mMeetingChronometer.setBase(SystemClock.elapsedRealtime());
+				mMeetingChronometer.start();
 			}
 		};
 		task.execute();
@@ -377,7 +360,6 @@ public class MeetingActivity extends SherlockFragmentActivity {
 				fragment.loadMeeting(mMeetingId, State.FINISHED,
 						mOnClickListener);
 				supportInvalidateOptionsMenu();
-				onMeetingStateChanged(State.FINISHED);
 			}
 		};
 		task.execute();
@@ -517,7 +499,8 @@ public class MeetingActivity extends SherlockFragmentActivity {
 			switch (v.getId()) {
 			// Start or stop the team member talking
 			case R.id.btn_start_stop_member:
-				startMeeting();
+				if (mMeetingState != State.IN_PROGRESS)
+					startMeeting();
 				long memberId = (Long) v.getTag();
 				toggleTalkingMember(memberId);
 				break;
@@ -543,6 +526,50 @@ public class MeetingActivity extends SherlockFragmentActivity {
 			default:
 				break;
 			}
+		}
+	};
+
+	private ContentObserver mMeetingObserver = new ContentObserver(null) {
+
+		@Override
+		public void onChange(boolean selfChange) {
+			super.onChange(selfChange);
+			AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>() {
+
+				@Override
+				protected Boolean doInBackground(Void... params) {
+					Cursor cursor = getContentResolver().query(mMeetingUri,
+							new String[] { MeetingColumns.STATE }, null, null,
+							null);
+					MeetingCursorWrapper cursorWrapper = null;
+					if (cursor != null) {
+						try {
+							cursorWrapper = new MeetingCursorWrapper(cursor);
+							if (cursorWrapper.moveToFirst()) {
+								State meetingState = cursorWrapper.getState();
+								if (mMeetingState != meetingState) {
+									mMeetingState = cursorWrapper.getState();
+									return true;
+								}
+							}
+						} finally {
+							cursorWrapper.close();
+						}
+					}
+					return false;
+				}
+
+				@Override
+				protected void onPostExecute(Boolean meetingStateChanged) {
+					super.onPostExecute(meetingStateChanged);
+					if (meetingStateChanged) {
+						onMeetingStateChanged();
+						supportInvalidateOptionsMenu();
+					}
+				}
+
+			};
+			task.execute();
 		}
 
 	};
