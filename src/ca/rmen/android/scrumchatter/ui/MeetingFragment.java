@@ -18,7 +18,6 @@
  */
 package ca.rmen.android.scrumchatter.ui;
 
-import android.app.Activity;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -66,12 +65,6 @@ public class MeetingFragment extends SherlockListFragment {
 		Log.v(TAG, "onCreateView");
 		View view = inflater.inflate(R.layout.meeting_fragment, null);
 		return view;
-	}
-
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		Log.v(TAG, "onAttach");
 	}
 
 	/**

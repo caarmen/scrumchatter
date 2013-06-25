@@ -24,15 +24,18 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.MeetingActivity;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.adapter.MeetingsCursorAdapter;
@@ -48,7 +51,7 @@ import com.actionbarsherlock.view.MenuItem;
  * Displays the list of meetings that have taken place.
  */
 public class MeetingsListFragment extends SherlockListFragment {
-
+	private static final String TAG = Constants.TAG + "/" + MeetingsListFragment.class.getSimpleName();
 	private static final int URL_LOADER = 0;
 
 	private MeetingsCursorAdapter mAdapter;
@@ -100,6 +103,7 @@ public class MeetingsListFragment extends SherlockListFragment {
 	private LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
 		@Override
 		public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
+			Log.v(TAG, "onCreateLoader, loaderId = " + loaderId + ", bundle = " + bundle);
 			CursorLoader loader = new CursorLoader(getActivity(),
 					MeetingColumns.CONTENT_URI, null, null, null, null);
 			return loader;
@@ -107,6 +111,7 @@ public class MeetingsListFragment extends SherlockListFragment {
 
 		@Override
 		public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+			Log.v(TAG, "onLoadFinished, loader = " + loader + ", cursor = " + cursor);
 			if (mAdapter == null) {
 				mAdapter = new MeetingsCursorAdapter(getActivity(),
 						mOnClickListener);
@@ -119,6 +124,7 @@ public class MeetingsListFragment extends SherlockListFragment {
 
 		@Override
 		public void onLoaderReset(Loader<Cursor> loader) {
+			Log.v(TAG, "onLoaderReset " + loader);
 			if (mAdapter != null)
 				mAdapter.changeCursor(null);
 		}
@@ -147,12 +153,20 @@ public class MeetingsListFragment extends SherlockListFragment {
 									// meeting.
 									public void onClick(DialogInterface dialog,
 											int whichButton) {
-										// TODO do on an AsyncTask
-										Uri uri = Uri.withAppendedPath(
-												MeetingColumns.CONTENT_URI,
-												String.valueOf(cache.id));
-										activity.getContentResolver().delete(
-												uri, null, null);
+										AsyncTask<Void, Void, Void> task = new AsyncTask<Void,Void,Void>(){
+
+											@Override
+											protected Void doInBackground(
+													Void... params) {
+												Uri uri = Uri.withAppendedPath(
+														MeetingColumns.CONTENT_URI,
+														String.valueOf(cache.id));
+												activity.getContentResolver().delete(
+														uri, null, null);
+												return null;
+											}
+										};
+										task.execute();
 									}
 								});
 				builder.create().show();

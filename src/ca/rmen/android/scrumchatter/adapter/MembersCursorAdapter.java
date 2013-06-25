@@ -37,7 +37,7 @@ public class MembersCursorAdapter extends CursorAdapter {
 	private final OnClickListener mOnClickListener;
 
 	public MembersCursorAdapter(Context context, OnClickListener onClickListener) {
-		super(context, null, true);
+		super(context, null, false);
 		mOnClickListener = onClickListener;
 	}
 

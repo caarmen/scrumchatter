@@ -27,6 +27,7 @@ import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
@@ -117,20 +118,27 @@ public class MembersListFragment extends SherlockListFragment {
 
 								public void onClick(DialogInterface dialog,
 										int whichButton) {
-									String memberName = input.getText()
+									final String memberName = input.getText()
 											.toString().trim();
 
 									// Ignore an empty name.
 									if (!TextUtils.isEmpty(memberName)) {
-										// Create the new member. TODO put this
-										// in an AsyncTask (we don't have enough
-										// inner classes here yet...)
-										ContentValues values = new ContentValues();
-										values.put(MemberColumns.NAME,
-												memberName);
-										activity.getContentResolver().insert(
-												MemberColumns.CONTENT_URI,
-												values);
+										// Create the new member.
+										AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+
+											@Override
+											protected Void doInBackground(
+													Void... params) {
+												ContentValues values = new ContentValues();
+												values.put(MemberColumns.NAME,
+														memberName);
+												activity.getContentResolver()
+														.insert(MemberColumns.CONTENT_URI,
+																values);
+												return null;
+											}
+										};
+										task.execute();
 									}
 								}
 							});
@@ -159,33 +167,48 @@ public class MembersListFragment extends SherlockListFragment {
 				private void validateMemberName() {
 					// Start off with everything a-ok.
 					input.setError(null);
-					Button okButton = dialog
+					final Button okButton = dialog
 							.getButton(AlertDialog.BUTTON_POSITIVE);
 					okButton.setEnabled(true);
 
 					// Check if this team member exists already.
-					String memberName = input.getText().toString().trim();
-					Cursor existingMemberCountCursor = activity
-							.getContentResolver().query(
-									MemberColumns.CONTENT_URI,
-									new String[] { "count(*)" },
-									MemberColumns.NAME + "=?",
-									new String[] { memberName }, null);
+					final String memberName = input.getText().toString().trim();
+					AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>() {
 
-					// Now Check if the team member exists.
-					if (existingMemberCountCursor != null) {
-						existingMemberCountCursor.moveToFirst();
-						int existingMemberCount = existingMemberCountCursor
-								.getInt(0);
-						existingMemberCountCursor.close();
-						// If the member exists, highlight the error
-						// and disable the OK button.
-						if (existingMemberCount > 0) {
-							input.setError(activity.getString(
-									R.string.error_member_exists, memberName));
-							okButton.setEnabled(false);
+						@Override
+						protected Boolean doInBackground(Void... params) {
+							Cursor existingMemberCountCursor = activity
+									.getContentResolver().query(
+											MemberColumns.CONTENT_URI,
+											new String[] { "count(*)" },
+											MemberColumns.NAME + "=?",
+											new String[] { memberName }, null);
+
+							// Now Check if the team member exists.
+							if (existingMemberCountCursor != null) {
+								existingMemberCountCursor.moveToFirst();
+								int existingMemberCount = existingMemberCountCursor
+										.getInt(0);
+								existingMemberCountCursor.close();
+								return existingMemberCount <= 0;
+							}
+							return true;
 						}
-					}
+
+						@Override
+						protected void onPostExecute(Boolean isValid) {
+							super.onPostExecute(isValid);
+							// If the member exists, highlight the error
+							// and disable the OK button.
+							if (!isValid) {
+								input.setError(activity.getString(
+										R.string.error_member_exists,
+										memberName));
+								okButton.setEnabled(false);
+							}
+						}
+					};
+					task.execute();
 				}
 			});
 			dialog.show();
@@ -257,12 +280,22 @@ public class MembersListFragment extends SherlockListFragment {
 										public void onClick(
 												DialogInterface dialog,
 												int whichButton) {
-											// TODO do on a background thread.
-											Uri uri = Uri.withAppendedPath(
-													MemberColumns.CONTENT_URI,
-													String.valueOf(cache.id));
-											activity.getContentResolver()
-													.delete(uri, null, null);
+											AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+
+												@Override
+												protected Void doInBackground(
+														Void... params) {
+													Uri uri = Uri
+															.withAppendedPath(
+																	MemberColumns.CONTENT_URI,
+																	String.valueOf(cache.id));
+													activity.getContentResolver()
+															.delete(uri, null,
+																	null);
+													return null;
+												}
+											};
+											task.execute();
 										}
 									});
 					builder.create().show();

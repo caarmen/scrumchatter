@@ -46,7 +46,7 @@ public class MeetingsCursorAdapter extends CursorAdapter {
 
 	public MeetingsCursorAdapter(Context context,
 			OnClickListener onClickListener) {
-		super(context, null, true);
+		super(context, null, false);
 		mOnClickListener = onClickListener;
 		mColorStateInProgress = context.getResources().getColor(
 				R.color.meeting_state_in_progress);

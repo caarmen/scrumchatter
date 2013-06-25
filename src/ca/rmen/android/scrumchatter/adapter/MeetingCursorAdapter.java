@@ -52,7 +52,7 @@ public class MeetingCursorAdapter extends CursorAdapter {
 	 *            listener.
 	 */
 	public MeetingCursorAdapter(Context context, OnClickListener onClickListener) {
-		super(context, null, true);
+		super(context, null, false);
 		mOnClickListener = onClickListener;
 		mColorChronoActive = context.getResources().getColor(
 				R.color.chrono_active);
