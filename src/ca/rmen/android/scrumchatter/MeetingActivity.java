@@ -89,13 +89,6 @@ public class MeetingActivity extends SherlockFragmentActivity {
 	}
 
 	@Override
-	protected void onNewIntent(Intent intent) {
-		Log.v(TAG, "onNewIntent: intent = " + intent);
-		super.onNewIntent(intent);
-		loadMeeting(intent);
-	}
-
-	@Override
 	protected void onPause() {
 		getContentResolver().unregisterContentObserver(mMeetingObserver);
 		super.onPause();
@@ -165,8 +158,6 @@ public class MeetingActivity extends SherlockFragmentActivity {
 				// code in an Activity, but oh well...)
 				mMeetingUri = Uri.withAppendedPath(MeetingColumns.CONTENT_URI,
 						String.valueOf(mMeetingId));
-				getContentResolver()
-						.unregisterContentObserver(mMeetingObserver);
 				getContentResolver().registerContentObserver(mMeetingUri,
 						false, mMeetingObserver);
 				Cursor meetingCursor = getContentResolver().query(mMeetingUri,
