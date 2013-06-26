@@ -32,6 +32,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 import ca.rmen.android.scrumchatter.export.MeetingsExport;
 import ca.rmen.android.scrumchatter.ui.MeetingsListFragment;
@@ -62,6 +63,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,6 +113,9 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_share:
+                final View progressContainer = findViewById(R.id.progressContainer);
+                if (progressContainer != null) progressContainer.setVisibility(View.VISIBLE);
+
                 AsyncTask<Void, Void, Boolean> asyncTask = new AsyncTask<Void, Void, Boolean>() {
 
                     @Override
@@ -129,6 +134,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
                     @Override
                     protected void onPostExecute(Boolean success) {
                         super.onPostExecute(success);
+                        if (progressContainer != null) progressContainer.setVisibility(View.GONE);
                         if (!success) Toast.makeText(MainActivity.this, R.string.export_error, Toast.LENGTH_LONG).show();
                     }
                 };
