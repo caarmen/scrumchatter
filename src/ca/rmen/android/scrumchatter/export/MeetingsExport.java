@@ -26,8 +26,14 @@ import java.util.List;
 
 import jxl.JXLException;
 import jxl.Workbook;
+import jxl.format.Border;
+import jxl.format.BorderLineStyle;
 import jxl.format.CellFormat;
+import jxl.write.DateFormat;
+import jxl.write.DateFormats;
+import jxl.write.Formula;
 import jxl.write.Label;
+import jxl.write.Number;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableFont;
 import jxl.write.WritableSheet;
@@ -37,7 +43,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.text.format.DateUtils;
 import android.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
@@ -60,6 +65,9 @@ public class MeetingsExport {
     private WritableWorkbook mWorkbook;
     private WritableSheet mSheet;
     private WritableCellFormat mBoldFormat;
+    private WritableCellFormat mLongDurationFormat = new WritableCellFormat(DateFormats.FORMAT11);
+    private WritableCellFormat mShortDurationFormat = new WritableCellFormat(DateFormats.FORMAT10);
+
 
     public MeetingsExport(Context context) throws FileNotFoundException {
         mContext = context;
@@ -67,6 +75,9 @@ public class MeetingsExport {
         Log.v(TAG, "Will export to " + mFile);
     }
 
+    /**
+     * @return true if we were able to export the file.
+     */
     public boolean exportMeetings() {
         Log.v(TAG, "exportMeetings");
 
@@ -112,9 +123,11 @@ public class MeetingsExport {
             long currentMeetingId = -1;
             int rowNumber = 1;
             while (cursorWrapper.moveToNext()) {
-                String[] rowValues = new String[columnHeadings.size()];
-                rowValues[0] = TextUtils.formatDateTime(mContext, cursorWrapper.getMeetingDate());
-                rowValues[rowValues.length - 1] = DateUtils.formatElapsedTime(cursorWrapper.getTotalDuration());
+                // Write one row to the Excel file, for one meeting.
+                String meetingDate = TextUtils.formatDateTime(mContext, cursorWrapper.getMeetingDate());
+                insertCell(meetingDate, rowNumber, 0, null);
+                long meetingDuration = cursorWrapper.getTotalDuration();
+                insertDurationCell(meetingDuration, rowNumber, columnHeadings.size() - 1);
                 currentMeetingId = cursorWrapper.getMeetingId();
 
                 do {
@@ -124,18 +137,32 @@ public class MeetingsExport {
                         break;
                     }
                     String memberName = cursorWrapper.getMemberName();
-                    int memberColumnIndex = memberNames.indexOf(memberName);
+                    int memberColumnIndex = memberNames.indexOf(memberName) + 1;
                     long memberDuration = cursorWrapper.getDuration();
-                    rowValues[memberColumnIndex + 1] = DateUtils.formatElapsedTime(memberDuration);
+                    insertDurationCell(memberDuration, rowNumber, memberColumnIndex);
                 } while (cursorWrapper.moveToNext());
-
-                // Write one row to the Excel file, for one meeting.
-                try {
-                    writeRow(rowNumber++, rowValues);
-                } catch (IOException e) {
-                    Log.e(TAG, e.getMessage(), e);
-                    return false;
+                rowNumber++;
+            }
+            try {
+                WritableCellFormat boldTopBorderLabel = new WritableCellFormat(mBoldFormat);
+                boldTopBorderLabel.setBorder(Border.TOP, BorderLineStyle.DOUBLE);
+                WritableCellFormat boldTopBorderLongDuration = new WritableCellFormat(mLongDurationFormat);
+                boldTopBorderLongDuration.setFont(new WritableFont(mBoldFormat.getFont()));
+                boldTopBorderLongDuration.setBorder(Border.TOP, BorderLineStyle.DOUBLE);
+                WritableCellFormat boldShortDuration = new WritableCellFormat(mShortDurationFormat);
+                
+                boldShortDuration.setFont(new WritableFont(mBoldFormat.getFont()));
+                insertCell(mContext.getString(R.string.member_list_header_sum_duration), rowNumber, 0, boldTopBorderLabel);
+                insertCell(mContext.getString(R.string.member_list_header_avg_duration), rowNumber + 1, 0, mBoldFormat);
+                for (int col = 1; col < columnHeadings.size(); col++) {
+                    char colLetter = (char) ((int) 'A' + col);
+                    Formula sumFormula = new Formula(col, rowNumber, "SUM(" + colLetter + "2:" + colLetter + rowNumber + ")", boldTopBorderLongDuration);
+                    Formula avgFormula = new Formula(col, rowNumber + 1, "AVERAGE(" + colLetter + "2:" + colLetter + rowNumber + ")", boldShortDuration);
+                    mSheet.addCell(sumFormula);
+                    mSheet.addCell(avgFormula);
                 }
+            } catch (JXLException e) {
+                Log.e(TAG, "Error adding formulas: " + e.getMessage(), e);
             }
         } finally {
             cursorWrapper.close();
@@ -176,16 +203,6 @@ public class MeetingsExport {
         }
     }
 
-    /**
-     * Write a single row to the Excel file.
-     */
-    private void writeRow(int rowNumber, String[] cellValues) throws IOException {
-        mSheet.insertRow(rowNumber);
-        for (int i = 0; i < cellValues.length; i++) {
-            CellFormat cellFormat = null;
-            insertCell(cellValues[i], rowNumber, i, cellFormat);
-        }
-    }
 
     /**
      * Write a single cell to the Excel file
@@ -201,6 +218,16 @@ public class MeetingsExport {
             mSheet.addCell(label);
         } catch (JXLException e) {
             Log.e(TAG, "writeHeader Could not insert cell " + text + " at row=" + row + ", col=" + column, e);
+        }
+    }
+
+    private void insertDurationCell(long durationInSeconds, int row, int column) {
+        double durationInDays = (double) durationInSeconds / (24 * 60 * 60);
+        Number number = new Number(column, row, durationInDays, durationInSeconds >= 3600 ? mLongDurationFormat : mShortDurationFormat);
+        try {
+            mSheet.addCell(number);
+        } catch (JXLException e) {
+            Log.e(TAG, "writeHeader Could not insert cell " + durationInSeconds + " at row=" + row + ", col=" + column, e);
         }
     }
 
@@ -221,6 +248,7 @@ public class MeetingsExport {
             mBoldFormat = new WritableCellFormat(cellFormat);
             boldFont.setBoldStyle(WritableFont.BOLD);
             mBoldFormat.setFont(boldFont);
+
 
         } catch (WriteException e) {
             Log.e(TAG, "createCellFormats Could not create cell formats", e);
