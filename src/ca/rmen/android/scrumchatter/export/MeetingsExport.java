@@ -289,7 +289,6 @@ public class MeetingsExport {
         sendIntent.putExtra(Intent.EXTRA_TEXT, mContext.getString(R.string.export_message_body));
         sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + mFile.getAbsolutePath()));
         sendIntent.setType("application/vnd.ms-excel");
-        sendIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         mContext.startActivity(Intent.createChooser(sendIntent, mContext.getResources().getText(R.string.action_share)));
     }
 }

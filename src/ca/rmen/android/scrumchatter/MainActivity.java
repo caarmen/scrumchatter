@@ -21,6 +21,7 @@ package ca.rmen.android.scrumchatter;
 import java.io.FileNotFoundException;
 import java.util.Locale;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -69,7 +70,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        StrictMode.setThreadPolicy(new ThreadPolicy.Builder().detectDiskReads().detectDiskWrites().penaltyLog().penaltyDeath().build());
+        //StrictMode.setThreadPolicy(new ThreadPolicy.Builder().detectDiskReads().detectDiskWrites().penaltyLog().penaltyDeath().build());
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
@@ -113,9 +114,8 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_share:
-                final View progressContainer = findViewById(R.id.progressContainer);
-                if (progressContainer != null) progressContainer.setVisibility(View.VISIBLE);
 
+                final ProgressDialog progressDialog = ProgressDialog.show(this, null, getString(R.string.progress_dialog_message), true);
                 AsyncTask<Void, Void, Boolean> asyncTask = new AsyncTask<Void, Void, Boolean>() {
 
                     @Override
@@ -132,12 +132,19 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
                     }
 
                     @Override
+                    protected void onPreExecute() {
+                        super.onPreExecute();
+                        progressDialog.show();
+                    }
+
+                    @Override
                     protected void onPostExecute(Boolean success) {
                         super.onPostExecute(success);
-                        if (progressContainer != null) progressContainer.setVisibility(View.GONE);
+                        progressDialog.dismiss();
                         if (!success) Toast.makeText(MainActivity.this, R.string.export_error, Toast.LENGTH_LONG).show();
                     }
                 };
+
                 asyncTask.execute();
                 return true;
             case R.id.action_about:

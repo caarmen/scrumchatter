@@ -52,7 +52,8 @@
     <string name="export_message_subject">Scrum Chatter report</string>
     <string name="export_message_body">The Scrum Chatter report is attached.</string>
     <string name="export_error">Could not create Scrum Chatter report.  Make sure your phone\'s SD card is available.</string>
-    <string name="loading"></string>
+    <string name="loading">Loading&#8230;</string>
+    <string name="progress_dialog_message">Please wait&#8230;</string>
     <string name="about">About</string>
     <string name="about_author">By Carmen Alvarez</string>
     <string name="about_version">v</string>
