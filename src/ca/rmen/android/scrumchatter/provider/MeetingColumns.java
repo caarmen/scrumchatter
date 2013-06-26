@@ -27,19 +27,18 @@ import android.provider.BaseColumns;
  * A row in this table contains attributes of a meeting.
  */
 public class MeetingColumns implements BaseColumns {
-	public static final String TABLE_NAME = "meeting";
-	public static final Uri CONTENT_URI = Uri
-			.parse(ScrumChatterProvider.CONTENT_URI_BASE + "/" + TABLE_NAME);
+    public static final String TABLE_NAME = "meeting";
+    public static final Uri CONTENT_URI = Uri.parse(ScrumChatterProvider.CONTENT_URI_BASE + "/" + TABLE_NAME);
 
-	public static final String _ID = BaseColumns._ID;
+    public static final String _ID = BaseColumns._ID;
 
-	public static final String MEETING_DATE = "meeting_date";
-	public static final String TOTAL_DURATION = "total_duration";
-	public static final String STATE = "state";
+    public static final String MEETING_DATE = "meeting_date";
+    public static final String TOTAL_DURATION = "total_duration";
+    public static final String STATE = "state";
 
-	public static final String DEFAULT_ORDER = _ID;
+    public static final String DEFAULT_ORDER = _ID;
 
-	public enum State {
-		NOT_STARTED, IN_PROGRESS, FINISHED
-	}
+    public enum State {
+        NOT_STARTED, IN_PROGRESS, FINISHED
+    }
 }

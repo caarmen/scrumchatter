@@ -28,13 +28,12 @@ import ca.rmen.android.scrumchatter.Constants;
  * Creates and upgrades database tables.
  */
 public class ScrumChatterDatabase extends SQLiteOpenHelper {
-	private static final String TAG = Constants.TAG
-			+ ScrumChatterDatabase.class.getSimpleName();
+    private static final String TAG = Constants.TAG + ScrumChatterDatabase.class.getSimpleName();
 
-	public static final String DATABASE_NAME = "scrumchatter.db";
-	private static final int DATABASE_VERSION = 1;
+    public static final String DATABASE_NAME = "scrumchatter.db";
+    private static final int DATABASE_VERSION = 1;
 
-	// @formatter:off
+    // @formatter:off
 	private static final String SQL_CREATE_TABLE_MEETING_MEMBER = "CREATE TABLE IF NOT EXISTS "
 			+ MeetingMemberColumns.TABLE_NAME
 			+ " ( "
@@ -94,32 +93,31 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
 
 	// @formatter:on
 
-	public ScrumChatterDatabase(Context context) {
-		super(context, DATABASE_NAME, null, DATABASE_VERSION);
-	}
+    public ScrumChatterDatabase(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
 
-	@Override
-	public void onCreate(SQLiteDatabase db) {
-		Log.d(TAG, "onCreate");
-		db.execSQL(SQL_CREATE_TABLE_MEETING_MEMBER);
-		db.execSQL(SQL_CREATE_TABLE_MEMBER);
-		db.execSQL(SQL_CREATE_TABLE_MEETING);
-		db.execSQL(SQL_CREATE_VIEW_MEMBER_STATS);
-	}
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        Log.d(TAG, "onCreate");
+        db.execSQL(SQL_CREATE_TABLE_MEETING_MEMBER);
+        db.execSQL(SQL_CREATE_TABLE_MEMBER);
+        db.execSQL(SQL_CREATE_TABLE_MEETING);
+        db.execSQL(SQL_CREATE_VIEW_MEMBER_STATS);
+    }
 
-	@Override
-	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		Log.d(TAG, "Upgrading database from version " + oldVersion + " to "
-				+ newVersion);
-	}
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        Log.d(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion);
+    }
 
-	@Override
-	public void onOpen(SQLiteDatabase db) {
-		Log.d(TAG, "onOpen");
-		if (!db.isReadOnly()) {
-			// Enable foreign key constraints
-			db.execSQL("PRAGMA foreign_keys=ON;");
-		}
-	}
+    @Override
+    public void onOpen(SQLiteDatabase db) {
+        Log.d(TAG, "onOpen");
+        if (!db.isReadOnly()) {
+            // Enable foreign key constraints
+            db.execSQL("PRAGMA foreign_keys=ON;");
+        }
+    }
 
 }

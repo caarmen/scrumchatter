@@ -34,78 +34,74 @@ import ca.rmen.android.scrumchatter.provider.MemberCursorWrapper;
  * Adapter for the list of team members.
  */
 public class MembersCursorAdapter extends CursorAdapter {
-	private final OnClickListener mOnClickListener;
+    private final OnClickListener mOnClickListener;
 
-	public MembersCursorAdapter(Context context, OnClickListener onClickListener) {
-		super(context, null, false);
-		mOnClickListener = onClickListener;
-	}
+    public MembersCursorAdapter(Context context, OnClickListener onClickListener) {
+        super(context, null, false);
+        mOnClickListener = onClickListener;
+    }
 
-	@Override
-	public void bindView(View view, Context context, Cursor cursor) {
-		fillView(view, cursor);
-	}
+    @Override
+    public void bindView(View view, Context context, Cursor cursor) {
+        fillView(view, cursor);
+    }
 
-	@Override
-	public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
-		LayoutInflater layoutInflater = (LayoutInflater) context
-				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View view = layoutInflater.inflate(R.layout.member_list_item, null);
-		fillView(view, cursor);
-		return view;
-	}
+    @Override
+    public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
+        LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = layoutInflater.inflate(R.layout.member_list_item, null);
+        fillView(view, cursor);
+        return view;
+    }
 
-	/**
-	 * Set up the view with the data from the given team member
-	 * 
-	 * @param view
-	 *            a newly created, or recycled view
-	 * @param cursor
-	 *            a row for a given team member.
-	 */
-	private void fillView(View view, Cursor cursor) {
-		// Get the data from the cursor
-		@SuppressWarnings("resource")
-		MemberCursorWrapper memberCursorWrapper = new MemberCursorWrapper(
-				cursor);
-		Long memberId = memberCursorWrapper.getId();
-		String memberName = memberCursorWrapper.getName();
-		Integer avgDuration = memberCursorWrapper.getAverageDuration();
-		Integer sumDuration = memberCursorWrapper.getSumDuration();
-		MemberItemCache cache = new MemberItemCache(memberId, memberName);
+    /**
+     * Set up the view with the data from the given team member
+     * 
+     * @param view
+     *            a newly created, or recycled view
+     * @param cursor
+     *            a row for a given team member.
+     */
+    private void fillView(View view, Cursor cursor) {
+        // Get the data from the cursor
+        @SuppressWarnings("resource")
+        MemberCursorWrapper memberCursorWrapper = new MemberCursorWrapper(cursor);
+        Long memberId = memberCursorWrapper.getId();
+        String memberName = memberCursorWrapper.getName();
+        Integer avgDuration = memberCursorWrapper.getAverageDuration();
+        Integer sumDuration = memberCursorWrapper.getSumDuration();
+        MemberItemCache cache = new MemberItemCache(memberId, memberName);
 
-		// Find the views we need to update
-		TextView tvName = (TextView) view.findViewById(R.id.tv_name);
-		TextView tvAvgDuration = (TextView) view
-				.findViewById(R.id.tv_avg_duration);
-		TextView tvSumDuration = (TextView) view
-				.findViewById(R.id.tv_sum_duration);
-		View btnDelete = view.findViewById(R.id.btn_delete);
+        // Find the views we need to update
+        TextView tvName = (TextView) view.findViewById(R.id.tv_name);
+        TextView tvAvgDuration = (TextView) view.findViewById(R.id.tv_avg_duration);
+        TextView tvSumDuration = (TextView) view.findViewById(R.id.tv_sum_duration);
+        View btnDelete = view.findViewById(R.id.btn_delete);
 
-		// Setup our views with the member data
-		tvName.setText(memberName);
-		tvAvgDuration.setText(DateUtils.formatElapsedTime(avgDuration));
-		tvSumDuration.setText(DateUtils.formatElapsedTime(sumDuration));
+        // Setup our views with the member data
+        tvName.setText(memberName);
+        tvAvgDuration.setText(DateUtils.formatElapsedTime(avgDuration));
+        tvSumDuration.setText(DateUtils.formatElapsedTime(sumDuration));
 
-		// Forward clicks to our OnClickListener, and use the tag
-		// to pass data about the member that the OnClickListener needs.
-		btnDelete.setOnClickListener(mOnClickListener);
-		btnDelete.setTag(cache);
-	}
+        // Forward clicks to our OnClickListener, and use the tag
+        // to pass data about the member that the OnClickListener needs.
+        btnDelete.setOnClickListener(mOnClickListener);
+        btnDelete.setTag(cache);
+    }
 
-	/**
-	 * This cache class is not really used to cache data. The only fields that
-	 * are used at all are the id and name, when we show a popup dialog warning
-	 * before user deletion. We may not really need a cache as we won't be
-	 * dealing with large lists. Really, how many team members attend meetings?
-	 */
-	public static class MemberItemCache {
-		public final long id;
-		public final String name;
+    /**
+     * This cache class is not really used to cache data. The only fields that
+     * are used at all are the id and name, when we show a popup dialog warning
+     * before user deletion. We may not really need a cache as we won't be
+     * dealing with large lists. Really, how many team members attend meetings?
+     */
+    public static class MemberItemCache {
+        public final long id;
+        public final String name;
 
-		private MemberItemCache(long id, String name) {
-			this.id = id;
-			this.name = name;
-		}
-	}
+        private MemberItemCache(long id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+    }
 }

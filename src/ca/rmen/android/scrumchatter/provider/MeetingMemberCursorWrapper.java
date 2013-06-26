@@ -25,64 +25,61 @@ import android.database.CursorWrapper;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 
 public class MeetingMemberCursorWrapper extends CursorWrapper {
-	private HashMap<String, Integer> mColumnIndexes = new HashMap<String, Integer>();
+    private HashMap<String, Integer> mColumnIndexes = new HashMap<String, Integer>();
 
-	public MeetingMemberCursorWrapper(Cursor cursor) {
-		super(cursor);
-	}
+    public MeetingMemberCursorWrapper(Cursor cursor) {
+        super(cursor);
+    }
 
-	public long getMeetingId() {
-		return getLongField(MeetingMemberColumns.MEETING_ID);
-	}
+    public long getMeetingId() {
+        return getLongField(MeetingMemberColumns.MEETING_ID);
+    }
 
-	public long getMemberId() {
-		return getLongField(MemberColumns._ID);
-	}
+    public long getMemberId() {
+        return getLongField(MemberColumns._ID);
+    }
 
-	public String getMemberName() {
-		Integer index = getIndex(MemberColumns.NAME);
-		if (isNull(index))
-			return null;
-		return getString(index);
-	}
+    public String getMemberName() {
+        Integer index = getIndex(MemberColumns.NAME);
+        if (isNull(index)) return null;
+        return getString(index);
+    }
 
-	public long getDuration() {
-		return getLongField(MeetingMemberColumns.DURATION);
-	}
+    public long getDuration() {
+        return getLongField(MeetingMemberColumns.DURATION);
+    }
 
-	public long getTotalDuration() {
-		return getLongField(MeetingColumns.TOTAL_DURATION);
-	}
+    public long getTotalDuration() {
+        return getLongField(MeetingColumns.TOTAL_DURATION);
+    }
 
-	public long getTalkStartTime() {
-		return getLongField(MeetingMemberColumns.TALK_START_TIME);
-	}
+    public long getTalkStartTime() {
+        return getLongField(MeetingMemberColumns.TALK_START_TIME);
+    }
 
-	public long getMeetingDate() {
-		return getLongField(MeetingColumns.MEETING_DATE);
-	}
+    public long getMeetingDate() {
+        return getLongField(MeetingColumns.MEETING_DATE);
+    }
 
-	public State getMeetingState() {
-		Integer index = getIndex(MeetingColumns.STATE);
-		if (isNull(index))
-			return State.NOT_STARTED;
-		int stateInt = getInt(index);
-		return State.values()[stateInt];
-	}
+    public State getMeetingState() {
+        Integer index = getIndex(MeetingColumns.STATE);
+        if (isNull(index)) return State.NOT_STARTED;
+        int stateInt = getInt(index);
+        return State.values()[stateInt];
+    }
 
-	private long getLongField(String columnName) {
-		Integer index = getIndex(columnName);
-		if (isNull(index))
-			return 0;
-		return getLong(index);
-	}
+    private long getLongField(String columnName) {
+        Integer index = getIndex(columnName);
+        if (isNull(index)) return 0;
+        return getLong(index);
+    }
 
-	private Integer getIndex(String columnName) {
-		Integer index = mColumnIndexes.get(columnName);
-		if (index == null) {
-			index = getColumnIndexOrThrow(columnName);
-			mColumnIndexes.put(columnName, index);
-		}
-		return index;
-	}
+    private Integer getIndex(String columnName) {
+        Integer index = mColumnIndexes.get(columnName);
+        if (index == null) {
+            index = getColumnIndexOrThrow(columnName);
+            mColumnIndexes.put(columnName, index);
+        }
+        return index;
+    }
 }

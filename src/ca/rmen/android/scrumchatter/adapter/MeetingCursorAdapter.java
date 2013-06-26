@@ -41,119 +41,103 @@ import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
  * for that meeting.
  */
 public class MeetingCursorAdapter extends CursorAdapter {
-	private final OnClickListener mOnClickListener;
-	private final int mColorChronoActive;
-	private final int mColorChronoInactive;
-	private final int mColorChronoNotStarted;
+    private final OnClickListener mOnClickListener;
+    private final int mColorChronoActive;
+    private final int mColorChronoInactive;
+    private final int mColorChronoNotStarted;
 
-	/**
-	 * @param onClickListener
-	 *            clicks on widgets on each list item will be forwarded to this
-	 *            listener.
-	 */
-	public MeetingCursorAdapter(Context context, OnClickListener onClickListener) {
-		super(context, null, false);
-		mOnClickListener = onClickListener;
-		mColorChronoActive = context.getResources().getColor(
-				R.color.chrono_active);
-		mColorChronoInactive = context.getResources().getColor(
-				R.color.chrono_inactive);
-		mColorChronoNotStarted = context.getResources().getColor(
-				R.color.chrono_not_started);
-	}
+    /**
+     * @param onClickListener
+     *            clicks on widgets on each list item will be forwarded to this
+     *            listener.
+     */
+    public MeetingCursorAdapter(Context context, OnClickListener onClickListener) {
+        super(context, null, false);
+        mOnClickListener = onClickListener;
+        mColorChronoActive = context.getResources().getColor(R.color.chrono_active);
+        mColorChronoInactive = context.getResources().getColor(R.color.chrono_inactive);
+        mColorChronoNotStarted = context.getResources().getColor(R.color.chrono_not_started);
+    }
 
-	@Override
-	public void bindView(View view, Context context, Cursor cursor) {
-		fillView(view, cursor);
-	}
+    @Override
+    public void bindView(View view, Context context, Cursor cursor) {
+        fillView(view, cursor);
+    }
 
-	@Override
-	public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
-		LayoutInflater layoutInflater = (LayoutInflater) context
-				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View view = layoutInflater.inflate(R.layout.meeting_member_list_item,
-				null);
-		fillView(view, cursor);
-		return view;
-	}
+    @Override
+    public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
+        LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = layoutInflater.inflate(R.layout.meeting_member_list_item, null);
+        fillView(view, cursor);
+        return view;
+    }
 
-	/**
-	 * Set the view elements (TextView text, etc) for the given member of a
-	 * meeting.
-	 * 
-	 * @param view
-	 *            a view we just created or recycled
-	 * @param cursor
-	 *            a row for one member in one meeting.
-	 */
-	private void fillView(View view, Cursor cursor) {
-		// Extract the fields we need from this cursor
-		@SuppressWarnings("resource")
-		MeetingMemberCursorWrapper cursorWrapper = new MeetingMemberCursorWrapper(
-				cursor);
-		Long memberId = cursorWrapper.getMemberId();
-		String memberName = cursorWrapper.getMemberName();
-		long duration = cursorWrapper.getDuration();
-		State meetingState = cursorWrapper.getMeetingState();
-		Long talkStartTime = cursorWrapper.getTalkStartTime();
+    /**
+     * Set the view elements (TextView text, etc) for the given member of a
+     * meeting.
+     * 
+     * @param view
+     *            a view we just created or recycled
+     * @param cursor
+     *            a row for one member in one meeting.
+     */
+    private void fillView(View view, Cursor cursor) {
+        // Extract the fields we need from this cursor
+        @SuppressWarnings("resource")
+        MeetingMemberCursorWrapper cursorWrapper = new MeetingMemberCursorWrapper(cursor);
+        Long memberId = cursorWrapper.getMemberId();
+        String memberName = cursorWrapper.getMemberName();
+        long duration = cursorWrapper.getDuration();
+        State meetingState = cursorWrapper.getMeetingState();
+        Long talkStartTime = cursorWrapper.getTalkStartTime();
 
-		// Find the Views we need to set up
-		TextView tvName = (TextView) view.findViewById(R.id.tv_name);
-		Chronometer chronometer = (Chronometer) view
-				.findViewById(R.id.tv_duration);
-		ImageButton btnStartStop = (ImageButton) view
-				.findViewById(R.id.btn_start_stop_member);
-		ImageView ivChatterFace = (ImageView) view
-				.findViewById(R.id.iv_chatter_face);
-		final AnimationDrawable animChatterFace = (AnimationDrawable) ivChatterFace
-				.getDrawable();
+        // Find the Views we need to set up
+        TextView tvName = (TextView) view.findViewById(R.id.tv_name);
+        Chronometer chronometer = (Chronometer) view.findViewById(R.id.tv_duration);
+        ImageButton btnStartStop = (ImageButton) view.findViewById(R.id.btn_start_stop_member);
+        ImageView ivChatterFace = (ImageView) view.findViewById(R.id.iv_chatter_face);
+        final AnimationDrawable animChatterFace = (AnimationDrawable) ivChatterFace.getDrawable();
 
-		// Set up the member's name
-		tvName.setText(memberName);
+        // Set up the member's name
+        tvName.setText(memberName);
 
-		// if the talkStartTime is non-zero, this means the
-		// member is talking (and started talking that long ago).
-		boolean memberIsTalking = talkStartTime != null && talkStartTime > 0;
+        // if the talkStartTime is non-zero, this means the
+        // member is talking (and started talking that long ago).
+        boolean memberIsTalking = talkStartTime != null && talkStartTime > 0;
 
-		// Set up the start/stop button for this member.
-		// If the meeting is finished, we hide the start/stop button.
-		if (meetingState == State.FINISHED) {
-			btnStartStop.setVisibility(View.INVISIBLE);
-		}
-		// If the meeting is in progress, set the button to stop
-		// or start, depending on whether the member is already talking
-		// or not.
-		else {
-			btnStartStop.setOnClickListener(mOnClickListener);
-			btnStartStop
-					.setImageResource(memberIsTalking ? R.drawable.ic_action_stop
-							: R.drawable.ic_action_start);
-		}
+        // Set up the start/stop button for this member.
+        // If the meeting is finished, we hide the start/stop button.
+        if (meetingState == State.FINISHED) {
+            btnStartStop.setVisibility(View.INVISIBLE);
+        }
+        // If the meeting is in progress, set the button to stop
+        // or start, depending on whether the member is already talking
+        // or not.
+        else {
+            btnStartStop.setOnClickListener(mOnClickListener);
+            btnStartStop.setImageResource(memberIsTalking ? R.drawable.ic_action_stop : R.drawable.ic_action_start);
+        }
 
-		// If the member is currently talking, show the chronometer.
-		// Otherwise, show the duration that they talked (if any).
-		if (memberIsTalking) {
-			long hasBeenTalkingFor = duration * 1000
-					+ (System.currentTimeMillis() - talkStartTime);
-			chronometer.setBase(SystemClock.elapsedRealtime()
-					- hasBeenTalkingFor);
-			chronometer.start();
-			chronometer.setTextColor(mColorChronoActive);
-			if (ivChatterFace.getVisibility() != View.VISIBLE) {
-				ivChatterFace.setVisibility(View.VISIBLE);
-			}
-			if (!animChatterFace.isRunning())
-				animChatterFace.start();
-		} else {
-			chronometer.stop();
-			chronometer.setText(DateUtils.formatElapsedTime(duration));
-			chronometer.setTextColor(duration > 0 ? mColorChronoInactive
-					: mColorChronoNotStarted);
-			ivChatterFace.setVisibility(View.INVISIBLE);
-		}
+        // If the member is currently talking, show the chronometer.
+        // Otherwise, show the duration that they talked (if any).
+        if (memberIsTalking) {
+            long hasBeenTalkingFor = duration * 1000 + (System.currentTimeMillis() - talkStartTime);
+            chronometer.setBase(SystemClock.elapsedRealtime() - hasBeenTalkingFor);
+            chronometer.start();
+            chronometer.setTextColor(mColorChronoActive);
+            if (ivChatterFace.getVisibility() != View.VISIBLE) {
+                ivChatterFace.setVisibility(View.VISIBLE);
+            }
+            if (!animChatterFace.isRunning()) animChatterFace.start();
+        } else {
+            chronometer.stop();
+            chronometer.setText(DateUtils.formatElapsedTime(duration));
+            chronometer.setTextColor(duration > 0 ? mColorChronoInactive : mColorChronoNotStarted);
+            ivChatterFace.setVisibility(View.INVISIBLE);
+        }
 
-		// Set the member id as a tag, so when the OnClickListener receives the
-		// click action, it knows for which member the user clicked.
-		btnStartStop.setTag(memberId);
-	}
+        // Set the member id as a tag, so when the OnClickListener receives the
+        // click action, it knows for which member the user clicked.
+        btnStartStop.setTag(memberId);
+    }
 }

@@ -22,9 +22,8 @@ import android.content.Context;
 import android.text.format.DateUtils;
 
 public class TextUtils {
-	public static String formatDateTime(Context context, long dateMillis) {
-		return DateUtils.formatDateTime(context, dateMillis,
-				DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
-	}
+    public static String formatDateTime(Context context, long dateMillis) {
+        return DateUtils.formatDateTime(context, dateMillis, DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
+    }
 
 }
