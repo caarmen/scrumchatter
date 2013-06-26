@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.text.format.DateUtils;
+import android.util.Log;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
 import ca.rmen.android.scrumchatter.provider.MeetingCursorWrapper;
@@ -33,6 +34,7 @@ import ca.rmen.android.scrumchatter.util.TextUtils;
 
 public class MeetingExport {
 
+    private static final String TAG = MeetingExport.class.getSimpleName();
     private Context mContext;
 
     public MeetingExport(Context context) {
@@ -88,11 +90,13 @@ public class MeetingExport {
      * @param body
      */
     private void showChooser(String subject, String body) {
+        Log.v(TAG, "showChooser");
         Intent sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);
         sendIntent.setType("text/plain");
         sendIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
         sendIntent.putExtra(Intent.EXTRA_TEXT, body);
+        sendIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         mContext.startActivity(Intent.createChooser(sendIntent, mContext.getResources().getText(R.string.action_share)));
     }
 }

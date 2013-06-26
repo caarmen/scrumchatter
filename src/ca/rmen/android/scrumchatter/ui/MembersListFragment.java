@@ -135,12 +135,10 @@ public class MembersListFragment extends SherlockListFragment {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    validateMemberName();
                 }
 
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                    validateMemberName();
                 }
 
                 @Override
