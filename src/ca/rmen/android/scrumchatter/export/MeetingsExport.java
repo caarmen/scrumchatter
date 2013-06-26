@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import jxl.CellView;
 import jxl.JXLException;
 import jxl.Workbook;
 import jxl.format.Border;
@@ -143,27 +144,8 @@ public class MeetingsExport {
                 } while (cursorWrapper.moveToNext());
                 rowNumber++;
             }
-            try {
-                WritableCellFormat boldTopBorderLabel = new WritableCellFormat(mBoldFormat);
-                boldTopBorderLabel.setBorder(Border.TOP, BorderLineStyle.DOUBLE);
-                WritableCellFormat boldTopBorderLongDuration = new WritableCellFormat(mLongDurationFormat);
-                boldTopBorderLongDuration.setFont(new WritableFont(mBoldFormat.getFont()));
-                boldTopBorderLongDuration.setBorder(Border.TOP, BorderLineStyle.DOUBLE);
-                WritableCellFormat boldShortDuration = new WritableCellFormat(mShortDurationFormat);
-                
-                boldShortDuration.setFont(new WritableFont(mBoldFormat.getFont()));
-                insertCell(mContext.getString(R.string.member_list_header_sum_duration), rowNumber, 0, boldTopBorderLabel);
-                insertCell(mContext.getString(R.string.member_list_header_avg_duration), rowNumber + 1, 0, mBoldFormat);
-                for (int col = 1; col < columnHeadings.size(); col++) {
-                    char colLetter = (char) ((int) 'A' + col);
-                    Formula sumFormula = new Formula(col, rowNumber, "SUM(" + colLetter + "2:" + colLetter + rowNumber + ")", boldTopBorderLongDuration);
-                    Formula avgFormula = new Formula(col, rowNumber + 1, "AVERAGE(" + colLetter + "2:" + colLetter + rowNumber + ")", boldShortDuration);
-                    mSheet.addCell(sumFormula);
-                    mSheet.addCell(avgFormula);
-                }
-            } catch (JXLException e) {
-                Log.e(TAG, "Error adding formulas: " + e.getMessage(), e);
-            }
+            writeFooter(rowNumber, columnHeadings.size());
+
         } finally {
             cursorWrapper.close();
         }
@@ -203,6 +185,48 @@ public class MeetingsExport {
         }
     }
 
+    /**
+     * Write the average and sum formulas at the bottom of the table.
+     * @param rowNumber The row number for the row after the last row of the meetings.
+     * @param columnCount The total number of columns in the table.
+     */
+    private void writeFooter(int rowNumber, int columnCount){
+        try {
+            // Create formats we need for the bottom rows of the table.
+            WritableCellFormat boldTopBorderLabel = new WritableCellFormat(mBoldFormat);
+            boldTopBorderLabel.setBorder(Border.TOP, BorderLineStyle.DOUBLE);
+            WritableCellFormat boldTopBorderLongDuration = new WritableCellFormat(mLongDurationFormat);
+            boldTopBorderLongDuration.setFont(new WritableFont(mBoldFormat.getFont()));
+            boldTopBorderLongDuration.setBorder(Border.TOP, BorderLineStyle.DOUBLE);
+            WritableCellFormat boldShortDuration = new WritableCellFormat(mShortDurationFormat);
+
+            boldShortDuration.setFont(new WritableFont(mBoldFormat.getFont()));
+            
+            // Insert the average and total titles.
+            insertCell(mContext.getString(R.string.member_list_header_sum_duration), rowNumber, 0, boldTopBorderLabel);
+            insertCell(mContext.getString(R.string.member_list_header_avg_duration), rowNumber + 1, 0, mBoldFormat);
+            
+            // Insert the average and total formulas for all members and for the total meeting duration.
+            for (int col = 1; col < columnCount; col++) {
+                char colLetter = (char) ((int) 'A' + col);
+                Formula sumFormula = new Formula(col, rowNumber, "SUM(" + colLetter + "2:" + colLetter + rowNumber + ")", boldTopBorderLongDuration);
+                Formula avgFormula = new Formula(col, rowNumber + 1, "AVERAGE(" + colLetter + "2:" + colLetter + rowNumber + ")", boldShortDuration);
+                mSheet.addCell(sumFormula);
+                mSheet.addCell(avgFormula);
+            }
+            
+            // Now that the whole table is filled, auto-size the width of the first and last columns.
+            CellView columnView = mSheet.getColumnView(0);
+            columnView.setAutosize(true);
+            mSheet.setColumnView(0, columnView);
+
+            columnView = mSheet.getColumnView(columnCount - 1);
+            columnView.setAutosize(true);
+            mSheet.setColumnView(columnCount - 1, columnView);
+        } catch (JXLException e) {
+            Log.e(TAG, "Error adding formulas: " + e.getMessage(), e);
+        }       
+    }
 
     /**
      * Write a single cell to the Excel file
