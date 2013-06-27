@@ -210,8 +210,10 @@ public class MeetingsExport {
             // Insert the average and total formulas for all members and for the total meeting duration.
             for (int col = 1; col < columnCount; col++) {
                 char colLetter = (char) ((int) 'A' + col);
-                Formula sumFormula = new Formula(col, rowNumber, "SUM(" + colLetter + "2:" + colLetter + rowNumber + ")", boldTopBorderLongDuration);
-                Formula avgFormula = new Formula(col, rowNumber + 1, "AVERAGE(" + colLetter + "2:" + colLetter + rowNumber + ")", boldShortDuration);
+                Formula sumFormula = new Formula(col, rowNumber, "SUM(" + colLetter + "2:" + colLetter + rowNumber + ")");
+                sumFormula.setCellFormat(boldTopBorderLongDuration);
+                Formula avgFormula = new Formula(col, rowNumber + 1, "AVERAGE(" + colLetter + "2:" + colLetter + rowNumber + ")");
+                avgFormula.setCellFormat(boldShortDuration);
                 mSheet.addCell(sumFormula);
                 mSheet.addCell(avgFormula);
             }
