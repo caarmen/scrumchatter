@@ -22,16 +22,19 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import jxl.CellView;
 import jxl.JXLException;
 import jxl.Workbook;
+import jxl.format.Alignment;
 import jxl.format.Border;
 import jxl.format.BorderLineStyle;
 import jxl.format.CellFormat;
 import jxl.write.DateFormat;
 import jxl.write.DateFormats;
+import jxl.write.DateTime;
 import jxl.write.Formula;
 import jxl.write.Label;
 import jxl.write.Number;
@@ -51,7 +54,6 @@ import ca.rmen.android.scrumchatter.provider.MeetingColumns;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberColumns;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
-import ca.rmen.android.scrumchatter.util.TextUtils;
 
 /**
  * Export data for all meetings to an Excel file.
@@ -65,9 +67,11 @@ public class MeetingsExport {
     private final File mFile;
     private WritableWorkbook mWorkbook;
     private WritableSheet mSheet;
+    private WritableCellFormat mDefaultFormat;
     private WritableCellFormat mBoldFormat;
     private WritableCellFormat mLongDurationFormat = new WritableCellFormat(DateFormats.FORMAT11);
     private WritableCellFormat mShortDurationFormat = new WritableCellFormat(DateFormats.FORMAT10);
+    private WritableCellFormat mDateFormat = new WritableCellFormat(new DateFormat("dd-MMM-yyyy HH:mm"));
 
 
     public MeetingsExport(Context context) throws FileNotFoundException {
@@ -125,10 +129,8 @@ public class MeetingsExport {
             int rowNumber = 1;
             while (cursorWrapper.moveToNext()) {
                 // Write one row to the Excel file, for one meeting.
-                String meetingDate = TextUtils.formatDateTime(mContext, cursorWrapper.getMeetingDate());
-                insertCell(meetingDate, rowNumber, 0, null);
-                long meetingDuration = cursorWrapper.getTotalDuration();
-                insertDurationCell(meetingDuration, rowNumber, columnHeadings.size() - 1);
+                insertDateCell(cursorWrapper.getMeetingDate(), rowNumber, 0);
+                insertDurationCell(cursorWrapper.getTotalDuration(), rowNumber, columnHeadings.size() - 1);
                 currentMeetingId = cursorWrapper.getMeetingId();
 
                 do {
@@ -139,8 +141,7 @@ public class MeetingsExport {
                     }
                     String memberName = cursorWrapper.getMemberName();
                     int memberColumnIndex = memberNames.indexOf(memberName) + 1;
-                    long memberDuration = cursorWrapper.getDuration();
-                    insertDurationCell(memberDuration, rowNumber, memberColumnIndex);
+                    insertDurationCell(cursorWrapper.getDuration(), rowNumber, memberColumnIndex);
                 } while (cursorWrapper.moveToNext());
                 rowNumber++;
             }
@@ -237,7 +238,7 @@ public class MeetingsExport {
      *            may be null for the default cell format.
      */
     private void insertCell(String text, int row, int column, CellFormat format) {
-        Label label = format == null ? new Label(column, row, text) : new Label(column, row, text, format);
+        Label label = format == null ? new Label(column, row, text, mDefaultFormat) : new Label(column, row, text, format);
         try {
             mSheet.addCell(label);
         } catch (JXLException e) {
@@ -255,6 +256,14 @@ public class MeetingsExport {
         }
     }
 
+    private void insertDateCell(long dateInMillis, int row, int column){
+        DateTime dateCell = new DateTime(0, row, new Date(dateInMillis), mDateFormat);
+        try {
+            mSheet.addCell(dateCell);
+        } catch (JXLException e) {
+            Log.e(TAG, "writeHeader Could not insert cell " + dateCell + " at row=" + row + ", col=" + column, e);
+        }
+    }
     /**
      * In order to set text to bold, red, or green, we need to create cell
      * formats for each style.
@@ -272,6 +281,14 @@ public class MeetingsExport {
             mBoldFormat = new WritableCellFormat(cellFormat);
             boldFont.setBoldStyle(WritableFont.BOLD);
             mBoldFormat.setFont(boldFont);
+            mBoldFormat.setAlignment(Alignment.CENTRE);
+            
+            // Center other formats
+            mDefaultFormat = new WritableCellFormat(cellFormat);
+            mDefaultFormat.setAlignment(Alignment.CENTRE);
+            mLongDurationFormat.setAlignment(Alignment.CENTRE);
+            mShortDurationFormat.setAlignment(Alignment.CENTRE);
+            mDateFormat.setAlignment(Alignment.CENTRE);
 
 
         } catch (WriteException e) {
