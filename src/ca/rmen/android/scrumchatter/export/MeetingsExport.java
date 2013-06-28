@@ -23,7 +23,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import jxl.CellView;
 import jxl.JXLException;
@@ -54,6 +56,8 @@ import ca.rmen.android.scrumchatter.provider.MeetingColumns;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberColumns;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
+import ca.rmen.android.scrumchatter.provider.MemberCursorWrapper;
+import ca.rmen.android.scrumchatter.provider.MemberStatsColumns;
 
 /**
  * Export data for all meetings to an Excel file.
@@ -86,13 +90,20 @@ public class MeetingsExport {
     public boolean exportMeetings() {
         Log.v(TAG, "exportMeetings");
 
-        // Build a cache of all member names
+        // Build a cache of all member names, including the average and total duration for each member.
         List<String> memberNames = new ArrayList<String>();
-        Cursor c = mContext.getContentResolver().query(MemberColumns.CONTENT_URI, new String[] { MemberColumns.NAME }, null, null, MemberColumns.NAME);
+        Map<String, Integer> avgMemberDurations = new HashMap<String, Integer>();
+        Map<String, Integer> sumMemberDurations = new HashMap<String, Integer>();
+        Cursor c = mContext.getContentResolver().query(MemberStatsColumns.CONTENT_URI,
+                new String[] { MemberColumns.NAME, MemberStatsColumns.AVG_DURATION, MemberStatsColumns.SUM_DURATION }, null, null, MemberColumns.NAME);
+        MemberCursorWrapper memberCursorWrapper = new MemberCursorWrapper(c);
         while (c.moveToNext()) {
-            memberNames.add(c.getString(0));
+            String memberName = memberCursorWrapper.getName();
+            memberNames.add(memberName);
+            avgMemberDurations.put(memberName, memberCursorWrapper.getAverageDuration());
+            sumMemberDurations.put(memberName, memberCursorWrapper.getSumDuration());
         }
-        c.close();
+        memberCursorWrapper.close();
 
         // Write out the column headings
         List<String> columnHeadings = new ArrayList<String>();
@@ -124,13 +135,16 @@ public class MeetingsExport {
 				// @formatter:on
 
         MeetingMemberCursorWrapper cursorWrapper = new MeetingMemberCursorWrapper(c);
+        long totalMeetingDuration = 0;
         try {
             long currentMeetingId = -1;
             int rowNumber = 1;
             while (cursorWrapper.moveToNext()) {
                 // Write one row to the Excel file, for one meeting.
                 insertDateCell(cursorWrapper.getMeetingDate(), rowNumber, 0);
-                insertDurationCell(cursorWrapper.getTotalDuration(), rowNumber, columnHeadings.size() - 1);
+                long meetingDuration = cursorWrapper.getTotalDuration();
+                totalMeetingDuration += meetingDuration;
+                insertDurationCell(cursorWrapper.getTotalDuration(), rowNumber, columnHeadings.size() - 1, null);
                 currentMeetingId = cursorWrapper.getMeetingId();
 
                 do {
@@ -141,11 +155,12 @@ public class MeetingsExport {
                     }
                     String memberName = cursorWrapper.getMemberName();
                     int memberColumnIndex = memberNames.indexOf(memberName) + 1;
-                    insertDurationCell(cursorWrapper.getDuration(), rowNumber, memberColumnIndex);
+                    insertDurationCell(cursorWrapper.getDuration(), rowNumber, memberColumnIndex, null);
                 } while (cursorWrapper.moveToNext());
                 rowNumber++;
             }
-            writeFooter(rowNumber, columnHeadings.size());
+            // Write the table footer containing the averages and totals
+            writeFooter(rowNumber, memberNames, sumMemberDurations, avgMemberDurations, totalMeetingDuration);
 
         } finally {
             cursorWrapper.close();
@@ -188,10 +203,15 @@ public class MeetingsExport {
 
     /**
      * Write the average and sum formulas at the bottom of the table.
+     * 
      * @param rowNumber The row number for the row after the last row of the meetings.
-     * @param columnCount The total number of columns in the table.
+     * @param memberNames
+     * @param sumMemberDurations The total speaking time per member, in seconds
+     * @param avgMemberDurations The average speaking time per member, in seconds
+     * @param totalMeetingDuration The total time of all meetings.
      */
-    private void writeFooter(int rowNumber, int columnCount){
+    private void writeFooter(int rowNumber, List<String> memberNames, Map<String, Integer> sumMemberDurations, Map<String, Integer> avgMemberDurations,
+            long totalMeetingDuration) {
         try {
             // Create formats we need for the bottom rows of the table.
             WritableCellFormat boldTopBorderLabel = new WritableCellFormat(mBoldFormat);
@@ -200,23 +220,27 @@ public class MeetingsExport {
             boldTopBorderLongDuration.setFont(new WritableFont(mBoldFormat.getFont()));
             boldTopBorderLongDuration.setBorder(Border.TOP, BorderLineStyle.DOUBLE);
             WritableCellFormat boldShortDuration = new WritableCellFormat(mShortDurationFormat);
-
             boldShortDuration.setFont(new WritableFont(mBoldFormat.getFont()));
-            
+
             // Insert the average and total titles.
             insertCell(mContext.getString(R.string.member_list_header_sum_duration), rowNumber, 0, boldTopBorderLabel);
             insertCell(mContext.getString(R.string.member_list_header_avg_duration), rowNumber + 1, 0, mBoldFormat);
-            
-            // Insert the average and total formulas for all members and for the total meeting duration.
-            for (int col = 1; col < columnCount; col++) {
-                char colLetter = (char) ((int) 'A' + col);
-                Formula sumFormula = new Formula(col, rowNumber, "SUM(" + colLetter + "2:" + colLetter + rowNumber + ")");
-                sumFormula.setCellFormat(boldTopBorderLongDuration);
-                Formula avgFormula = new Formula(col, rowNumber + 1, "AVERAGE(" + colLetter + "2:" + colLetter + rowNumber + ")");
-                avgFormula.setCellFormat(boldShortDuration);
-                mSheet.addCell(sumFormula);
-                mSheet.addCell(avgFormula);
+
+            int columnCount = memberNames.size() + 2;
+
+            // Insert the average and total durations for all members
+            for (int i = 0; i < memberNames.size(); i++) {
+                String memberName = memberNames.get(i);
+                int col = i + 1;
+                insertDurationCell(sumMemberDurations.get(memberName), rowNumber, col, boldTopBorderLongDuration);
+                insertDurationCell(avgMemberDurations.get(memberName), rowNumber + 1, col, boldShortDuration);
             }
+            
+            // Insert the average and total durations for the meetings.
+            insertDurationCell(totalMeetingDuration, rowNumber, columnCount - 1, boldTopBorderLongDuration);
+            int numMeetings = rowNumber - 1;
+            long averageMeetingDuration = totalMeetingDuration / numMeetings;
+            insertDurationCell(averageMeetingDuration, rowNumber + 1, columnCount - 1, boldShortDuration);
             
             // Now that the whole table is filled, auto-size the width of the first and last columns.
             CellView columnView = mSheet.getColumnView(0);
@@ -228,7 +252,7 @@ public class MeetingsExport {
             mSheet.setColumnView(columnCount - 1, columnView);
         } catch (JXLException e) {
             Log.e(TAG, "Error adding formulas: " + e.getMessage(), e);
-        }       
+        }
     }
 
     /**
@@ -248,9 +272,10 @@ public class MeetingsExport {
         }
     }
 
-    private void insertDurationCell(long durationInSeconds, int row, int column) {
+    private void insertDurationCell(long durationInSeconds, int row, int column, CellFormat cellFormat) {
         double durationInDays = (double) durationInSeconds / (24 * 60 * 60);
-        Number number = new Number(column, row, durationInDays, durationInSeconds >= 3600 ? mLongDurationFormat : mShortDurationFormat);
+        if (cellFormat == null) cellFormat = durationInSeconds >= 3600 ? mLongDurationFormat : mShortDurationFormat;
+        Number number = new Number(column, row, durationInDays, cellFormat);
         try {
             mSheet.addCell(number);
         } catch (JXLException e) {
@@ -258,7 +283,7 @@ public class MeetingsExport {
         }
     }
 
-    private void insertDateCell(long dateInMillis, int row, int column){
+    private void insertDateCell(long dateInMillis, int row, int column) {
         DateTime dateCell = new DateTime(0, row, new Date(dateInMillis), mDateFormat);
         try {
             mSheet.addCell(dateCell);
@@ -266,6 +291,7 @@ public class MeetingsExport {
             Log.e(TAG, "writeHeader Could not insert cell " + dateCell + " at row=" + row + ", col=" + column, e);
         }
     }
+
     /**
      * In order to set text to bold, red, or green, we need to create cell
      * formats for each style.
@@ -284,7 +310,7 @@ public class MeetingsExport {
             boldFont.setBoldStyle(WritableFont.BOLD);
             mBoldFormat.setFont(boldFont);
             mBoldFormat.setAlignment(Alignment.CENTRE);
-            
+
             // Center other formats
             mDefaultFormat = new WritableCellFormat(cellFormat);
             mDefaultFormat.setAlignment(Alignment.CENTRE);
