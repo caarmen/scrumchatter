@@ -73,7 +73,7 @@ public class MeetingsExport {
     private WritableSheet mSheet;
     private WritableCellFormat mDefaultFormat;
     private WritableCellFormat mBoldFormat;
-    private WritableCellFormat mLongDurationFormat = new WritableCellFormat(DateFormats.FORMAT11);
+    private WritableCellFormat mLongDurationFormat = new WritableCellFormat(DateFormats.FORMAT8);
     private WritableCellFormat mShortDurationFormat = new WritableCellFormat(DateFormats.FORMAT10);
     private WritableCellFormat mDateFormat = new WritableCellFormat(new DateFormat("dd-MMM-yyyy HH:mm"));
 
