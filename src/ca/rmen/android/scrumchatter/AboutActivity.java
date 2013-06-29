@@ -24,7 +24,7 @@ import android.support.v4.app.NavUtils;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
 
-public class AboutActivity extends SherlockFragmentActivity {
+public class AboutActivity extends SherlockFragmentActivity { // NO_UCD (use default)
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -50,7 +50,7 @@ public class ScrumChatterProvider extends ContentProvider {
     private static final String TYPE_CURSOR_DIR = "vnd.android.cursor.dir/";
 
     public static final String AUTHORITY = "ca.rmen.android.scrumchatter.provider";
-    public static final String CONTENT_URI_BASE = "content://" + AUTHORITY;
+    static final String CONTENT_URI_BASE = "content://" + AUTHORITY;
 
     public static final String QUERY_NOTIFY = "QUERY_NOTIFY";
     public static final String QUERY_GROUP_BY = "QUERY_GROUP_BY";
@@ -267,7 +267,6 @@ public class ScrumChatterProvider extends ContentProvider {
                 Log.v(TAG, "notifyChange: notify uri " + uriToNotify);
                 getContext().getContentResolver().notifyChange(uriToNotify, null);
             }
-
         }
     }
 

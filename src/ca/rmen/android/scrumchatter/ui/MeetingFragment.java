@@ -94,11 +94,11 @@ public class MeetingFragment extends SherlockListFragment {
             String selection = null;
             String orderBy = MemberColumns.NAME;
             if (meetingState == State.FINISHED) {
-                selection = MeetingMemberColumns.TABLE_NAME + "." + MeetingMemberColumns.DURATION + ">0";
-                orderBy = MeetingMemberColumns.TABLE_NAME + "." + MeetingMemberColumns.DURATION + " DESC";
+                selection = MeetingMemberColumns.DURATION + ">0";
+                orderBy = MeetingMemberColumns.DURATION + " DESC";
             }
-            String[] projection = new String[] { MemberColumns.TABLE_NAME + "." + MemberColumns._ID, MemberColumns.NAME,
-                    MeetingMemberColumns.TABLE_NAME + "." + MeetingMemberColumns.DURATION, MeetingColumns.STATE, MeetingMemberColumns.TALK_START_TIME };
+            String[] projection = new String[] { MeetingMemberColumns._ID, MemberColumns.NAME, MeetingMemberColumns.DURATION, MeetingColumns.STATE,
+                    MeetingMemberColumns.TALK_START_TIME };
 
             Uri uri = Uri.withAppendedPath(MeetingMemberColumns.CONTENT_URI, String.valueOf(mMeetingId));
             CursorLoader loader = new CursorLoader(getActivity(), uri, projection, selection, null, orderBy);

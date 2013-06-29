@@ -67,7 +67,7 @@ public class MeetingExport {
         Cursor meetingMemberCursor = mContext.getContentResolver().query(Uri.withAppendedPath(MeetingMemberColumns.CONTENT_URI, String.valueOf(meetingId)),
                 new String[] { MemberColumns.NAME, MeetingMemberColumns.DURATION },
 
-                MeetingMemberColumns.DURATION + ">0", null, MeetingMemberColumns.TABLE_NAME + "." + MeetingMemberColumns.DURATION + " DESC ");
+                MeetingMemberColumns.DURATION + ">0", null, MeetingMemberColumns.DURATION + " DESC ");
         MeetingMemberCursorWrapper meetingMemberCursorWrapper = new MeetingMemberCursorWrapper(meetingMemberCursor);
         if (meetingMemberCursorWrapper.moveToFirst()) {
             do {

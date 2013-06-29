@@ -46,7 +46,6 @@ import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.provider.MeetingCursorWrapper;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberColumns;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
-import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.provider.ScrumChatterProvider;
 import ca.rmen.android.scrumchatter.ui.MeetingFragment;
 import ca.rmen.android.scrumchatter.util.TextUtils;
@@ -114,7 +113,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
                 NavUtils.navigateUpFromSameTask(this);
                 return true;
             case R.id.action_share:
-            	// Export the meeting in a background thread.
+                // Export the meeting in a background thread.
                 AsyncTask<Void, Void, Void> asyncTask = new AsyncTask<Void, Void, Void>() {
 
                     @Override
@@ -334,7 +333,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
         // Query all team members who are still talking in this meeting.
         Uri uri = Uri.withAppendedPath(MeetingMemberColumns.CONTENT_URI, String.valueOf(mMeetingId));
         Cursor cursor = getContentResolver().query(uri,
-                new String[] { MemberColumns.TABLE_NAME + "." + MemberColumns._ID, MeetingMemberColumns.DURATION, MeetingMemberColumns.TALK_START_TIME },
+                new String[] { MeetingMemberColumns._ID, MeetingMemberColumns.DURATION, MeetingMemberColumns.TALK_START_TIME },
                 MeetingMemberColumns.TALK_START_TIME + ">0", null, null);
         if (cursor != null) {
             // Prepare some update statements to set the duration and reset the
@@ -389,8 +388,8 @@ public class MeetingActivity extends SherlockFragmentActivity {
                 // read its talk_start_time and duration fields.
                 Uri meetingMemberUri = Uri.withAppendedPath(MeetingMemberColumns.CONTENT_URI, String.valueOf(mMeetingId));
                 Cursor cursor = getContentResolver().query(meetingMemberUri,
-                        new String[] { MeetingMemberColumns.TALK_START_TIME, MeetingMemberColumns.TABLE_NAME + "." + MeetingMemberColumns.DURATION },
-                        MeetingMemberColumns.MEMBER_ID + "=?", new String[] { String.valueOf(memberId) }, null);
+                        new String[] { MeetingMemberColumns.TALK_START_TIME, MeetingMemberColumns.DURATION }, MeetingMemberColumns.MEMBER_ID + "=?",
+                        new String[] { String.valueOf(memberId) }, null);
                 long talkStartTime = 0;
                 long duration = 0;
                 if (cursor != null) {

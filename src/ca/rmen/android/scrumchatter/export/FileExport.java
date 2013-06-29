@@ -39,7 +39,7 @@ public abstract class FileExport {
     /**
      * @param mimeType will be used to show a list of applications which can share the file created by {@link #createFile()}.
      */
-    public FileExport(Context context, String mimeType) {
+    FileExport(Context context, String mimeType) {
         Log.v(TAG, "Constructor: mimeType=" + mimeType);
         mContext = context;
         mMimeType = mimeType;

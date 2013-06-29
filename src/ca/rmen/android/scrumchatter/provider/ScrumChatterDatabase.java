@@ -93,7 +93,7 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
 
 	// @formatter:on
 
-    public ScrumChatterDatabase(Context context) {
+    ScrumChatterDatabase(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
