@@ -18,10 +18,15 @@
   along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources>
+
     <string-array name="meeting_states">
         <item>@string/meeting_state_not_started</item>
         <item>@string/meeting_state_in_progress</item>
         <item>@string/meeting_state_finished</item>
     </string-array>
-    
+    <string-array name="export_choices">
+        <item>@string/export_format_excel</item>
+        <item>@string/export_format_db</item>
+    </string-array>
+
 </resources>

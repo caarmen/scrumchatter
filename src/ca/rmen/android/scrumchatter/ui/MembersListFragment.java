@@ -179,7 +179,6 @@ public class MembersListFragment extends SherlockListFragment {
 
                         @Override
                         protected void onPostExecute(Boolean isValid) {
-                            super.onPostExecute(isValid);
                             // If the member exists, highlight the error
                             // and disable the OK button.
                             if (!isValid) {

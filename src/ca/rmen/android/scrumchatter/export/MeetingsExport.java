@@ -19,7 +19,6 @@
 package ca.rmen.android.scrumchatter.export;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -37,7 +36,6 @@ import jxl.format.CellFormat;
 import jxl.write.DateFormat;
 import jxl.write.DateFormats;
 import jxl.write.DateTime;
-import jxl.write.Formula;
 import jxl.write.Label;
 import jxl.write.Number;
 import jxl.write.WritableCellFormat;
@@ -46,9 +44,7 @@ import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
@@ -62,13 +58,12 @@ import ca.rmen.android.scrumchatter.provider.MemberStatsColumns;
 /**
  * Export data for all meetings to an Excel file.
  */
-public class MeetingsExport {
+public class MeetingsExport extends FileExport {
     private static final String TAG = Constants.TAG + "/" + MeetingsExport.class.getSimpleName();
 
     private static final String EXCEL_FILE = "scrumchatter.xls";
+    private static final String MIME_TYPE = "application/vnd.ms-excel";
 
-    private final Context mContext;
-    private final File mFile;
     private WritableWorkbook mWorkbook;
     private WritableSheet mSheet;
     private WritableCellFormat mDefaultFormat;
@@ -78,17 +73,26 @@ public class MeetingsExport {
     private WritableCellFormat mDateFormat = new WritableCellFormat(new DateFormat("dd-MMM-yyyy HH:mm"));
 
 
-    public MeetingsExport(Context context) throws FileNotFoundException {
-        mContext = context;
-        mFile = new File(context.getExternalFilesDir(null), EXCEL_FILE);
-        Log.v(TAG, "Will export to " + mFile);
+    public MeetingsExport(Context context) {
+        super(context, MIME_TYPE);
     }
 
     /**
-     * @return true if we were able to export the file.
+     * Create and return an Excel file containing the speaking time for all members in all meetings.
+     * 
+     * @see ca.rmen.android.scrumchatter.export.FileExport#createFile()
      */
-    public boolean exportMeetings() {
-        Log.v(TAG, "exportMeetings");
+    protected File createFile() {
+        Log.v(TAG, "export");
+
+        File file = new File(mContext.getExternalFilesDir(null), EXCEL_FILE);
+
+        try {
+            mWorkbook = Workbook.createWorkbook(file);
+        } catch (IOException e) {
+            Log.v(TAG, e.getMessage(), e);
+            return null;
+        }
 
         // Build a cache of all member names, including the average and total duration for each member.
         List<String> memberNames = new ArrayList<String>();
@@ -114,7 +118,7 @@ public class MeetingsExport {
             writeHeader(columnHeadings);
         } catch (IOException e) {
             Log.e(TAG, e.getMessage(), e);
-            return false;
+            return null;
         }
 
         // Read all the meeting/member data
@@ -172,16 +176,12 @@ public class MeetingsExport {
             mWorkbook.close();
         } catch (IOException e) {
             Log.e(TAG, e.getMessage(), e);
-            return false;
+            return null;
         } catch (WriteException e) {
             Log.e(TAG, e.getMessage(), e);
-            return false;
+            return null;
         }
-
-        // Prompt the user to choose an app to share the file.
-        showChooser();
-        return true;
-
+        return file;
     }
 
     /**
@@ -189,7 +189,6 @@ public class MeetingsExport {
      * column. Also write the column headings.
      */
     private void writeHeader(List<String> columnNames) throws IOException {
-        mWorkbook = Workbook.createWorkbook(mFile);
         mSheet = mWorkbook.createSheet(mContext.getString(R.string.app_name), 0);
         mSheet.insertRow(0);
         mSheet.getSettings().setHorizontalFreeze(1);
@@ -235,13 +234,13 @@ public class MeetingsExport {
                 insertDurationCell(sumMemberDurations.get(memberName), rowNumber, col, boldTopBorderLongDuration);
                 insertDurationCell(avgMemberDurations.get(memberName), rowNumber + 1, col, boldShortDuration);
             }
-            
+
             // Insert the average and total durations for the meetings.
             insertDurationCell(totalMeetingDuration, rowNumber, columnCount - 1, boldTopBorderLongDuration);
             int numMeetings = rowNumber - 1;
             long averageMeetingDuration = totalMeetingDuration / numMeetings;
             insertDurationCell(averageMeetingDuration, rowNumber + 1, columnCount - 1, boldShortDuration);
-            
+
             // Now that the whole table is filled, auto-size the width of the first and last columns.
             CellView columnView = mSheet.getColumnView(0);
             columnView.setAutosize(true);
@@ -324,16 +323,4 @@ public class MeetingsExport {
         }
     }
 
-    /**
-     * Bring up the chooser to send the file.
-     */
-    private void showChooser() {
-        Intent sendIntent = new Intent();
-        sendIntent.setAction(Intent.ACTION_SEND);
-        sendIntent.putExtra(Intent.EXTRA_SUBJECT, mContext.getString(R.string.export_message_subject));
-        sendIntent.putExtra(Intent.EXTRA_TEXT, mContext.getString(R.string.export_message_body));
-        sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + mFile.getAbsolutePath()));
-        sendIntent.setType("application/vnd.ms-excel");
-        mContext.startActivity(Intent.createChooser(sendIntent, mContext.getResources().getText(R.string.action_share)));
-    }
 }

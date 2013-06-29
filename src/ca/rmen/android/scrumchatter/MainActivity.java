@@ -18,23 +18,22 @@
  */
 package ca.rmen.android.scrumchatter;
 
-import java.io.FileNotFoundException;
 import java.util.Locale;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.StrictMode;
-import android.os.StrictMode.ThreadPolicy;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
+import ca.rmen.android.scrumchatter.export.DBExport;
+import ca.rmen.android.scrumchatter.export.FileExport;
 import ca.rmen.android.scrumchatter.export.MeetingsExport;
 import ca.rmen.android.scrumchatter.ui.MeetingsListFragment;
 import ca.rmen.android.scrumchatter.ui.MembersListFragment;
@@ -114,38 +113,20 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_share:
+                // Build a chooser dialog for the file format.
+                AlertDialog.Builder builder = new AlertDialog.Builder(this).setTitle(R.string.export_choice_title).setItems(R.array.export_choices,
+                        new DialogInterface.OnClickListener() {
 
-                final ProgressDialog progressDialog = ProgressDialog.show(this, null, getString(R.string.progress_dialog_message), true);
-                AsyncTask<Void, Void, Boolean> asyncTask = new AsyncTask<Void, Void, Boolean>() {
-
-                    @Override
-                    protected Boolean doInBackground(Void... params) {
-                        MeetingsExport export;
-                        try {
-                            export = new MeetingsExport(MainActivity.this);
-                        } catch (FileNotFoundException e) {
-                            Log.e(TAG, e.getMessage(), e);
-                            return false;
-                        }
-                        Boolean success = export.exportMeetings();
-                        return success;
-                    }
-
-                    @Override
-                    protected void onPreExecute() {
-                        super.onPreExecute();
-                        progressDialog.show();
-                    }
-
-                    @Override
-                    protected void onPostExecute(Boolean success) {
-                        super.onPostExecute(success);
-                        progressDialog.dismiss();
-                        if (!success) Toast.makeText(MainActivity.this, R.string.export_error, Toast.LENGTH_LONG).show();
-                    }
-                };
-
-                asyncTask.execute();
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                String[] exportChoices = getResources().getStringArray(R.array.export_choices);
+                                FileExport fileExport = null;
+                                if (getString(R.string.export_format_excel).equals(exportChoices[which])) fileExport = new MeetingsExport(MainActivity.this);
+                                else if (getString(R.string.export_format_db).equals(exportChoices[which])) fileExport = new DBExport(MainActivity.this);
+                                shareFile(fileExport);
+                            }
+                        });
+                builder.create().show();
                 return true;
             case R.id.action_about:
                 Intent intent = new Intent(this, AboutActivity.class);
@@ -167,6 +148,34 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
 
     @Override
     public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {}
+
+    /**
+     * Share a file using an intent chooser.
+     * 
+     * @param fileExport The object responsible for creating the file to share.
+     */
+    private void shareFile(final FileExport fileExport) {
+        final ProgressDialog progressDialog = ProgressDialog.show(this, null, getString(R.string.progress_dialog_message), true);
+        AsyncTask<Void, Void, Boolean> asyncTask = new AsyncTask<Void, Void, Boolean>() {
+
+            @Override
+            protected Boolean doInBackground(Void... params) {
+                return fileExport.export();
+            }
+
+            @Override
+            protected void onPreExecute() {
+                progressDialog.show();
+            }
+
+            @Override
+            protected void onPostExecute(Boolean success) {
+                progressDialog.dismiss();
+                if (!success) Toast.makeText(MainActivity.this, R.string.export_error, Toast.LENGTH_LONG).show();
+            }
+        };
+        asyncTask.execute();
+    }
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to

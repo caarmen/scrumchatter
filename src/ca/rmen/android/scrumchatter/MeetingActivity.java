@@ -165,7 +165,6 @@ public class MeetingActivity extends SherlockFragmentActivity {
 
             @Override
             protected void onPostExecute(Void result) {
-                super.onPostExecute(result);
                 if (mMeetingState == State.IN_PROGRESS) {
                     // If the meeting is in progress, show the Chronometer.
                     long timeSinceMeetingStartedMillis = System.currentTimeMillis() - mDate;
@@ -287,7 +286,6 @@ public class MeetingActivity extends SherlockFragmentActivity {
 
             @Override
             protected void onPostExecute(Long newMeetingStartDate) {
-                super.onPostExecute(newMeetingStartDate);
                 mBtnStopMeeting.setVisibility(View.VISIBLE);
                 getSupportActionBar().setTitle(TextUtils.formatDateTime(MeetingActivity.this, newMeetingStartDate));
                 mMeetingChronometer.setBase(SystemClock.elapsedRealtime());
@@ -317,7 +315,6 @@ public class MeetingActivity extends SherlockFragmentActivity {
 
             @Override
             protected void onPostExecute(Void result) {
-                super.onPostExecute(result);
                 mBtnStopMeeting.setVisibility(View.INVISIBLE);
                 mMeetingChronometer.stop();
                 // Reload the list of team members.
@@ -493,7 +490,6 @@ public class MeetingActivity extends SherlockFragmentActivity {
 
                 @Override
                 protected void onPostExecute(Boolean meetingStateChanged) {
-                    super.onPostExecute(meetingStateChanged);
                     if (meetingStateChanged) {
                         onMeetingStateChanged();
                         supportInvalidateOptionsMenu();
