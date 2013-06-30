@@ -441,7 +441,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
                 // Stop the whole meeting.
                 case R.id.btn_stop_meeting:
                     // Let's ask him if he's sure.
-                    ScrumChatterDialog.showDialog(MeetingActivity.this, R.string.dialog_message_stop_meeting_confirm, 0,
+                    ScrumChatterDialog.showDialog(MeetingActivity.this, R.string.action_stop_meeting, R.string.dialog_confirm,
                             new DialogInterface.OnClickListener() {
 
                                 // The user has confirmed to delete the
