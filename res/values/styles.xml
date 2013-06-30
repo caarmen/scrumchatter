@@ -42,11 +42,6 @@
         <item name="actionBarTabBarStyle">@style/tabBarStyle</item>
     </style>
 
-    <style name="scrumDialogStyle">
-        <item name="android:textColor">@color/scrum_chatter_holo_purple</item>
-        <item name="android:editTextStyle">@style/EditTextscrum_chatter_holo</item>
-    </style>
-
     <style name="listHeader">
         <item name="android:textColor">@color/unselected_header</item>
         <item name="android:textStyle">italic</item>

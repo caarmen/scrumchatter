@@ -39,6 +39,8 @@
 
     <style name="scrumDialogStyle">
         <item name="android:textColor">@color/scrum_chatter_holo_purple</item>
+        <item name="android:listViewStyle">@style/listStyle</item>
+        <item name="android:editTextStyle">@style/EditTextscrum_chatter_holo</item>
     </style>
 
 </resources>
