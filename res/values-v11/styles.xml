@@ -34,6 +34,7 @@
         <item name="android:actionBarTabBarStyle">@style/tabBarStyle</item>
         <item name="android:actionBarTabTextStyle">@style/tabTextStyle</item>
         <item name="android:listViewStyle">@style/listStyle</item>
+        <item name="android:editTextBackground">@drawable/edit_text_holo_light</item>        
     </style>
 
 </resources>

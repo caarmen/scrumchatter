@@ -39,6 +39,7 @@
         <item name="actionBarTabTextStyle">@style/tabTextStyle</item>
         <item name="actionBarDivider">@drawable/tab_divider</item>
         <item name="actionBarTabBarStyle">@style/tabBarStyle</item>
+        <item name="android:editTextStyle">@style/EditTextscrum_chatter_holo</item>
     </style>
 
     <style name="listHeader">
