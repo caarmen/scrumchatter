@@ -19,7 +19,6 @@
 package ca.rmen.android.scrumchatter.ui;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -135,9 +134,8 @@ public class MeetingsListFragment extends SherlockListFragment {
                 case R.id.btn_delete:
                     final Activity activity = getActivity();
                     // Let's ask him if he's sure first.
-                    AlertDialog.Builder builder = new AlertDialog.Builder(activity).setTitle(R.string.action_delete_meeting)
-                            .setMessage(activity.getString(R.string.dialog_message_delete_meeting_confirm, cache.date))
-                            .setNegativeButton(android.R.string.cancel, null).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    ScrumChatterDialog.showDialog(activity, activity.getString(R.string.action_delete_meeting),
+                            activity.getString(R.string.dialog_message_delete_meeting_confirm, cache.date), new DialogInterface.OnClickListener() {
                                 // The user clicked ok. Let's delete the
                                 // meeting.
                                 public void onClick(DialogInterface dialog, int whichButton) {
@@ -155,7 +153,6 @@ public class MeetingsListFragment extends SherlockListFragment {
                                     task.execute();
                                 }
                             });
-                    builder.create().show();
                     break;
                 default:
                     break;

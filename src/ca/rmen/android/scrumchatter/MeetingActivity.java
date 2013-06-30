@@ -20,7 +20,6 @@ package ca.rmen.android.scrumchatter;
 
 import java.util.ArrayList;
 
-import android.app.AlertDialog;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderOperation.Builder;
 import android.content.ContentValues;
@@ -48,6 +47,7 @@ import ca.rmen.android.scrumchatter.provider.MeetingMemberColumns;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
 import ca.rmen.android.scrumchatter.provider.ScrumChatterProvider;
 import ca.rmen.android.scrumchatter.ui.MeetingFragment;
+import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog;
 import ca.rmen.android.scrumchatter.util.TextUtils;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -439,9 +439,8 @@ public class MeetingActivity extends SherlockFragmentActivity {
                 // Stop the whole meeting.
                 case R.id.btn_stop_meeting:
                     // Let's ask him if he's sure.
-                    AlertDialog.Builder builder = new AlertDialog.Builder(MeetingActivity.this);
-                    builder.setTitle(R.string.dialog_message_stop_meeting_confirm).setNegativeButton(android.R.string.cancel, null)
-                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    ScrumChatterDialog.showDialog(MeetingActivity.this, R.string.dialog_message_stop_meeting_confirm, 0,
+                            new DialogInterface.OnClickListener() {
 
                                 // The user has confirmed to delete the
                                 // member.
@@ -449,7 +448,6 @@ public class MeetingActivity extends SherlockFragmentActivity {
                                     stopMeeting();
                                 }
                             });
-                    builder.create().show();
                     break;
                 default:
                     break;

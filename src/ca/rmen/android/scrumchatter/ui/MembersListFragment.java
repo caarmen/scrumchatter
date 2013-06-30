@@ -24,12 +24,10 @@ package ca.rmen.android.scrumchatter.ui;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
@@ -38,7 +36,6 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -106,14 +103,10 @@ public class MembersListFragment extends SherlockListFragment {
             final Activity activity = getActivity();
             // We'll just show a dialog with a simple EditText for the team
             // member's name.
-            Context context = activity;
-            if(Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1){
-                context = new ContextThemeWrapper(activity, R.style.scrumDialogStyle);
-            }
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
             final EditText input = new EditText(activity);
-            builder.setView(input).setTitle(R.string.action_new_member).setMessage(R.string.dialog_message_new_member)
-                    .setNegativeButton(android.R.string.cancel, null).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            final AlertDialog dialog = ScrumChatterDialog.showDialog(getActivity(), R.string.action_new_member, R.string.dialog_message_new_member, input,
+                    new DialogInterface.OnClickListener() {
 
                         public void onClick(DialogInterface dialog, int whichButton) {
                             final String memberName = input.getText().toString().trim();
@@ -135,18 +128,16 @@ public class MembersListFragment extends SherlockListFragment {
                             }
                         }
                     });
-            final AlertDialog dialog = builder.create();
+
             // Prevent the user from creating multiple team members with the
             // same name.
             input.addTextChangedListener(new TextWatcher() {
 
                 @Override
-                public void afterTextChanged(Editable s) {
-                }
+                public void afterTextChanged(Editable s) {}
 
                 @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                }
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -197,12 +188,11 @@ public class MembersListFragment extends SherlockListFragment {
                     task.execute();
                 }
             });
-            dialog.show();
-
             return true;
         }
-        return true;
+        return false;
     }
+
 
     private LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
         @Override
@@ -244,10 +234,8 @@ public class MembersListFragment extends SherlockListFragment {
                         final MemberItemCache cache = (MemberItemCache) v.getTag();
                         final Activity activity = getActivity();
                         // Let's ask him if he's sure.
-                        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-                        builder.setTitle(R.string.action_delete_member)
-                                .setMessage(activity.getString(R.string.dialog_message_delete_member_confirm, cache.name))
-                                .setNegativeButton(android.R.string.cancel, null).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        ScrumChatterDialog.showDialog(activity, getString(R.string.action_delete_member),
+                                getString(R.string.dialog_message_delete_member_confirm, cache.name), new DialogInterface.OnClickListener() {
 
                                     // The user has confirmed to delete the
                                     // member.
@@ -265,7 +253,6 @@ public class MembersListFragment extends SherlockListFragment {
                                         task.execute();
                                     }
                                 });
-                        builder.create().show();
                     }
                     break;
                 case R.id.tv_name:

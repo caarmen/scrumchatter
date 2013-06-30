@@ -20,7 +20,6 @@ package ca.rmen.android.scrumchatter;
 
 import java.util.Locale;
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -38,6 +37,7 @@ import ca.rmen.android.scrumchatter.export.FileExport;
 import ca.rmen.android.scrumchatter.export.MeetingsExport;
 import ca.rmen.android.scrumchatter.ui.MeetingsListFragment;
 import ca.rmen.android.scrumchatter.ui.MembersListFragment;
+import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -116,8 +116,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
         switch (item.getItemId()) {
             case R.id.action_share:
                 // Build a chooser dialog for the file format.
-                AlertDialog.Builder builder = new AlertDialog.Builder(this).setTitle(R.string.export_choice_title).setItems(R.array.export_choices,
-                        new DialogInterface.OnClickListener() {
+                ScrumChatterDialog.showChoiceDialog(this, R.string.export_choice_title, R.array.export_choices, new DialogInterface.OnClickListener() {
 
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -128,7 +127,6 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
                                 shareFile(fileExport);
                             }
                         });
-                builder.create().show();
                 return true;
             case R.id.action_about:
                 Intent intent = new Intent(this, AboutActivity.class);
