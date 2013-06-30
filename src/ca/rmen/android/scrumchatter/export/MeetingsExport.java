@@ -238,7 +238,7 @@ public class MeetingsExport extends FileExport {
             // Insert the average and total durations for the meetings.
             insertDurationCell(totalMeetingDuration, rowNumber, columnCount - 1, boldTopBorderLongDuration);
             int numMeetings = rowNumber - 1;
-            long averageMeetingDuration = totalMeetingDuration / numMeetings;
+            long averageMeetingDuration = numMeetings == 0 ? 0 : totalMeetingDuration / numMeetings;
             insertDurationCell(averageMeetingDuration, rowNumber + 1, columnCount - 1, boldShortDuration);
 
             // Now that the whole table is filled, auto-size the width of the first and last columns.
