@@ -190,6 +190,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
      * Update UI components based on the meeting state.
      */
     private void onMeetingStateChanged() {
+        Log.v(TAG, "onMeetingStateChanged: meetingState = " + mMeetingState);
         // Show the "stop meeting" button if the meeting is not finished.
         mBtnStopMeeting.setVisibility(mMeetingState == State.NOT_STARTED || mMeetingState == State.IN_PROGRESS ? View.VISIBLE : View.INVISIBLE);
         // Only enable the "stop meeting" button if the meeting is in progress.
@@ -208,6 +209,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
                 mMeetingChronometer.startAnimation(anim);
             }
         }
+        supportInvalidateOptionsMenu();
     }
 
     /**
@@ -489,7 +491,6 @@ public class MeetingActivity extends SherlockFragmentActivity {
                 protected void onPostExecute(Boolean meetingStateChanged) {
                     if (meetingStateChanged) {
                         onMeetingStateChanged();
-                        supportInvalidateOptionsMenu();
                     }
                 }
 
