@@ -18,7 +18,8 @@
   along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources>
-	<!-- Action bar theme generation url: http://jgilfelt.github.io/android-actionbarstylegenerator/#name=scrum_chatter&compat=sherlock&theme=light_dark&actionbarstyle=solid&texture=0&hairline=0&backColor=6c006c%2C100&secondaryColor=ccc%2C100&tabColor=d25fd2%2C100&tertiaryColor=3F3F3F%2C100&accentColor=d25fd2%2C100&cabBackColor=002E3E%2C100&cabHighlightColor=d25fd2%2C100 -->
+
+    <!-- Action bar theme generation url: http://jgilfelt.github.io/android-actionbarstylegenerator/#name=scrum_chatter&compat=sherlock&theme=light_dark&actionbarstyle=solid&texture=0&hairline=0&backColor=6c006c%2C100&secondaryColor=ccc%2C100&tabColor=d25fd2%2C100&tertiaryColor=3F3F3F%2C100&accentColor=d25fd2%2C100&cabBackColor=002E3E%2C100&cabHighlightColor=d25fd2%2C100 -->
     <!--
         Base application theme, dependent on API level. This theme is replaced
         by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
@@ -39,6 +40,10 @@
         <item name="actionBarTabTextStyle">@style/tabTextStyle</item>
         <item name="actionBarDivider">@drawable/tab_divider</item>
         <item name="actionBarTabBarStyle">@style/tabBarStyle</item>
+    </style>
+
+    <style name="scrumDialogStyle">
+        <item name="android:textColor">@color/scrum_chatter_holo_purple</item>
         <item name="android:editTextStyle">@style/EditTextscrum_chatter_holo</item>
     </style>
 
@@ -61,7 +66,9 @@
     <style name="tabTextStyle" parent="Widget.Sherlock.ActionBar.TabText">
         <item name="android:textColor">@android:color/black</item>
     </style>
+
     <style name="tabBarStyle" parent="Widget.Sherlock.ActionBar.TabBar">
         <item name="android:divider">@drawable/tab_divider</item>
     </style>
+
 </resources>

@@ -24,10 +24,12 @@ package ca.rmen.android.scrumchatter.ui;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
@@ -36,6 +38,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -103,7 +106,11 @@ public class MembersListFragment extends SherlockListFragment {
             final Activity activity = getActivity();
             // We'll just show a dialog with a simple EditText for the team
             // member's name.
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+            Context context = activity;
+            if(Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1){
+                context = new ContextThemeWrapper(activity, R.style.scrumDialogStyle);
+            }
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
             final EditText input = new EditText(activity);
             builder.setView(input).setTitle(R.string.action_new_member).setMessage(R.string.dialog_message_new_member)
                     .setNegativeButton(android.R.string.cancel, null).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
