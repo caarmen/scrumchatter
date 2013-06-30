@@ -1,0 +1,4 @@
+local.properties
+etc/ignore
+bin/
+gen/
