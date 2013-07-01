@@ -23,7 +23,6 @@ import java.util.Arrays;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.NinePatch;
@@ -107,6 +106,7 @@ public class ScrumChatterDialog {
 
         // Show the dialog (we have to do this before we can modify its views).
         AlertDialog dialog = builder.create();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) dialog.getContext().setTheme(R.style.scrumDialogStyle);
         dialog.show();
 
         // For 3.x+, update the dialog elements which couldn't be updated cleanly with the theme:
@@ -114,18 +114,9 @@ public class ScrumChatterDialog {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             ListView listView = dialog.getListView();
             if (listView != null) listView.setSelector(R.drawable.selector);
-            uglyHackReplaceButtonBackground(dialog, android.R.id.button1);
-            uglyHackReplaceButtonBackground(dialog, android.R.id.button2);
-            uglyHackReplaceButtonBackground(dialog, android.R.id.button3);
             uglyHackReplaceBlueHoloBackground(context, (ViewGroup) dialog.getWindow().getDecorView());
         }
         return dialog;
-    }
-
-    @TargetApi(11)
-    private static void uglyHackReplaceButtonBackground(Dialog dialog, int buttonId) {
-        View button = dialog.findViewById(buttonId);
-        if (button != null) button.setBackgroundResource(R.drawable.selector);
     }
 
     /**
