@@ -42,6 +42,21 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data
+                    android:mimeType="*/*"
+                    android:pathPattern=".*\\.db"
+                    android:scheme="file" />
+                <data
+                    android:mimeType="application/octet-stream"
+                    android:pathPattern=".*\\.db"
+                    android:scheme="content" />
+            </intent-filter>
         </activity>
         <activity
             android:name="ca.rmen.android.scrumchatter.MeetingActivity"
@@ -53,7 +68,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="ca.rmen.android.scrumchatter.MainActivity" />
         </activity>
-
         <activity
             android:name="ca.rmen.android.scrumchatter.AboutActivity"
             android:label="@string/about"
@@ -68,7 +82,6 @@
             android:authorities="ca.rmen.android.scrumchatter.provider"
             android:exported="false" >
         </provider>
-
     </application>
 
 </manifest>

@@ -108,23 +108,26 @@ public class MembersListFragment extends SherlockListFragment {
             final AlertDialog dialog = ScrumChatterDialog.showDialog(getActivity(), R.string.action_new_member, R.string.dialog_message_new_member, input,
                     new DialogInterface.OnClickListener() {
 
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                            final String memberName = input.getText().toString().trim();
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (which == DialogInterface.BUTTON_POSITIVE) {
 
-                            // Ignore an empty name.
-                            if (!TextUtils.isEmpty(memberName)) {
-                                // Create the new member in a background thread.
-                                AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+                                final String memberName = input.getText().toString().trim();
 
-                                    @Override
-                                    protected Void doInBackground(Void... params) {
-                                        ContentValues values = new ContentValues();
-                                        values.put(MemberColumns.NAME, memberName);
-                                        activity.getContentResolver().insert(MemberColumns.CONTENT_URI, values);
-                                        return null;
-                                    }
-                                };
-                                task.execute();
+                                // Ignore an empty name.
+                                if (!TextUtils.isEmpty(memberName)) {
+                                    // Create the new member in a background thread.
+                                    AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+
+                                        @Override
+                                        protected Void doInBackground(Void... params) {
+                                            ContentValues values = new ContentValues();
+                                            values.put(MemberColumns.NAME, memberName);
+                                            activity.getContentResolver().insert(MemberColumns.CONTENT_URI, values);
+                                            return null;
+                                        }
+                                    };
+                                    task.execute();
+                                }
                             }
                         }
                     });
@@ -239,18 +242,21 @@ public class MembersListFragment extends SherlockListFragment {
 
                                     // The user has confirmed to delete the
                                     // member.
-                                    public void onClick(DialogInterface dialog, int whichButton) {
-                                        // Delete the member in a background thread
-                                        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        if (which == DialogInterface.BUTTON_POSITIVE) {
 
-                                            @Override
-                                            protected Void doInBackground(Void... params) {
-                                                Uri uri = Uri.withAppendedPath(MemberColumns.CONTENT_URI, String.valueOf(cache.id));
-                                                activity.getContentResolver().delete(uri, null, null);
-                                                return null;
-                                            }
-                                        };
-                                        task.execute();
+                                            // Delete the member in a background thread
+                                            AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+
+                                                @Override
+                                                protected Void doInBackground(Void... params) {
+                                                    Uri uri = Uri.withAppendedPath(MemberColumns.CONTENT_URI, String.valueOf(cache.id));
+                                                    activity.getContentResolver().delete(uri, null, null);
+                                                    return null;
+                                                }
+                                            };
+                                            task.execute();
+                                        }
                                     }
                                 });
                     }

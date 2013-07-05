@@ -80,7 +80,7 @@ public class ScrumChatterDialog {
      * @param items Optional. A list of items. If this is provided, the dialog will have no buttons. If the listener is provided, the listener will be notified
      *            when an item is selected.
      * @param listener Optional. If a list of items is provided, the listener will be notified when the user selects an item. Otherwise the listener will be
-     *            notified when the user taps on the positive button.
+     *            notified when the user taps on the positive or negative button.
      * @return
      */
     public static AlertDialog showDialog(Context context, String title, String message, View customView, CharSequence[] items,
@@ -98,7 +98,7 @@ public class ScrumChatterDialog {
         if (items != null && items.length > 0) {
             builder.setItems(items, listener);
         } else {
-            builder.setNegativeButton(android.R.string.cancel, null).setPositiveButton(android.R.string.ok, listener);
+            builder.setNegativeButton(android.R.string.cancel, listener).setPositiveButton(android.R.string.ok, listener);
         }
 
         // Add a custom view if provided.

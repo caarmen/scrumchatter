@@ -138,19 +138,21 @@ public class MeetingsListFragment extends SherlockListFragment {
                             activity.getString(R.string.dialog_message_delete_meeting_confirm, cache.date), new DialogInterface.OnClickListener() {
                                 // The user clicked ok. Let's delete the
                                 // meeting.
-                                public void onClick(DialogInterface dialog, int whichButton) {
-                                    // Delete the meeting in a background
-                                    // thread.
-                                    AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    if (which == DialogInterface.BUTTON_POSITIVE) {
+                                        // Delete the meeting in a background
+                                        // thread.
+                                        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
 
-                                        @Override
-                                        protected Void doInBackground(Void... params) {
-                                            Uri uri = Uri.withAppendedPath(MeetingColumns.CONTENT_URI, String.valueOf(cache.id));
-                                            activity.getContentResolver().delete(uri, null, null);
-                                            return null;
-                                        }
-                                    };
-                                    task.execute();
+                                            @Override
+                                            protected Void doInBackground(Void... params) {
+                                                Uri uri = Uri.withAppendedPath(MeetingColumns.CONTENT_URI, String.valueOf(cache.id));
+                                                activity.getContentResolver().delete(uri, null, null);
+                                                return null;
+                                            }
+                                        };
+                                        task.execute();
+                                    }
                                 }
                             });
                     break;

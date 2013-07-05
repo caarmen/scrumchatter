@@ -47,7 +47,7 @@
     <string name="meeting_state_finished">Finished</string>
     <string name="export_choice_title">Choose the format to share</string>
     <string name="export_format_excel">Excel</string>
-    <string name="export_format_db">Raw DB</string>
+    <string name="export_format_db">Database</string>
     <string name="export_meeting_date">Scrum Chatter meeting on %s</string>
     <string name="export_meeting_duration">Total meeting duration: %s</string>
     <string name="export_header_meeting_date">Date</string>

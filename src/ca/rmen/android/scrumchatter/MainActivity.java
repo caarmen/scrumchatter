@@ -26,6 +26,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -107,6 +108,12 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
             // this tab is selected.
             actionBar.addTab(actionBar.newTab().setText(mSectionsPagerAdapter.getPageTitle(i)).setTabListener(this));
         }
+        // If our activity was opened by choosing a file from a mail attachment, file browser, or other program, 
+        // import the database from this file.
+        Intent intent = getIntent();
+        if (intent != null) {
+            if (Intent.ACTION_VIEW.equals(intent.getAction())) importDB(intent.getData());
+        }
     }
 
     @Override
@@ -176,20 +183,31 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
                 Toast.makeText(this, getString(R.string.import_result_file_does_not_exist, file.getName()), Toast.LENGTH_SHORT).show();
                 return;
             }
-            final ProgressDialog progressDialog = ProgressDialog.show(this, null, getString(R.string.progress_dialog_message), true);
+            importDB(Uri.fromFile(file));
+        } else {
+            super.onActivityResult(requestCode, resultCode, intent);
+        }
+    }
 
-            ScrumChatterDialog.showDialog(this, getString(R.string.import_confirm_title), getString(R.string.import_confirm_message, file.getName()),
-                    new OnClickListener() {
+    /**
+     * Import the given database file. This will replace the current database.
+     */
+    private void importDB(final Uri uri) {
+        final ProgressDialog progressDialog = ProgressDialog.show(this, null, getString(R.string.progress_dialog_message), true);
 
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
+        ScrumChatterDialog.showDialog(this, getString(R.string.import_confirm_title), getString(R.string.import_confirm_message, uri.getEncodedPath()),
+                new OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (which == DialogInterface.BUTTON_POSITIVE) {
                             AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>() {
 
                                 @Override
                                 protected Boolean doInBackground(Void... params) {
                                     try {
-                                        Log.v(TAG, "Importing db from " + file);
-                                        DBImport.importDB(MainActivity.this, file);
+                                        Log.v(TAG, "Importing db from " + uri);
+                                        DBImport.importDB(MainActivity.this, uri);
                                     } catch (Exception e) {
                                         Log.e(TAG, "Error importing db: " + e.getMessage(), e);
                                         return false;
@@ -207,11 +225,12 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
 
                             };
                             task.execute();
+                        } else {
+                            progressDialog.cancel();
                         }
-                    });
-        } else {
-            super.onActivityResult(requestCode, resultCode, intent);
-        }
+                    }
+                });
+
     }
 
     /**

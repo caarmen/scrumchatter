@@ -446,8 +446,10 @@ public class MeetingActivity extends SherlockFragmentActivity {
 
                                 // The user has confirmed to delete the
                                 // member.
-                                public void onClick(DialogInterface dialog, int whichButton) {
-                                    stopMeeting();
+                                public void onClick(DialogInterface dialog, int which) {
+                                    if (which == DialogInterface.BUTTON_POSITIVE) {
+                                        stopMeeting();
+                                    }
                                 }
                             });
                     break;

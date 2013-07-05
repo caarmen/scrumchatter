@@ -19,6 +19,9 @@
 package ca.rmen.android.scrumchatter.provider;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 import android.content.ContentProviderOperation;
@@ -31,11 +34,27 @@ import android.net.Uri;
 import android.os.RemoteException;
 import android.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
+import ca.rmen.android.scrumchatter.util.IOUtils;
 
 public class DBImport {
     private static final String TAG = Constants.TAG + "/" + DBImport.class.getSimpleName();
 
-    public static void importDB(Context context, File importDb) throws RemoteException, OperationApplicationException {
+    public static void importDB(Context context, Uri uri) throws RemoteException, OperationApplicationException, FileNotFoundException {
+        if (uri.getScheme().equals("file")) {
+            File db = new File(uri.getEncodedPath());
+            importDB(context, db);
+        } else {
+            InputStream is = context.getContentResolver().openInputStream(uri);
+            File tempDb = new File(context.getCacheDir(), "temp" + System.currentTimeMillis() + ".db");
+            FileOutputStream os = new FileOutputStream(tempDb);
+            if (IOUtils.copy(is, os)) {
+                importDB(context, tempDb);
+                tempDb.delete();
+            }
+        }
+    }
+
+    public static void importDB(Context context, File importDb) throws RemoteException, OperationApplicationException, FileNotFoundException {
         Log.v(TAG, "importDB from " + importDb);
         SQLiteDatabase dbImport = SQLiteDatabase.openDatabase(importDb.getAbsolutePath(), null, SQLiteDatabase.OPEN_READONLY);
         ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
@@ -54,16 +73,16 @@ public class DBImport {
         if (c != null) {
             try {
                 if (c.moveToFirst()) {
-                int columnCount = c.getColumnCount();
-                do {
-                    Builder builder = ContentProviderOperation.newInsert(uri);
-                    for (int i = 0; i < columnCount; i++) {
-                        String columnName = c.getColumnName(i);
+                    int columnCount = c.getColumnCount();
+                    do {
+                        Builder builder = ContentProviderOperation.newInsert(uri);
+                        for (int i = 0; i < columnCount; i++) {
+                            String columnName = c.getColumnName(i);
                             Object value = c.getString(i);
-                        builder.withValue(columnName, value);
-                    }
-                    operations.add(builder.build());
-                } while (c.moveToNext());
+                            builder.withValue(columnName, value);
+                        }
+                        operations.add(builder.build());
+                    } while (c.moveToNext());
                 }
             } finally {
                 c.close();

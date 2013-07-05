@@ -19,16 +19,11 @@
 package ca.rmen.android.scrumchatter.export;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 import android.content.Context;
-import android.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.provider.ScrumChatterDatabase;
+import ca.rmen.android.scrumchatter.util.IOUtils;
 
 /**
  * Export the raw database file.
@@ -50,21 +45,9 @@ public class DBExport extends FileExport {
     protected File createFile() {
         File internalDBFile = mContext.getDatabasePath(ScrumChatterDatabase.DATABASE_NAME);
         File externalDBFile = new File(mContext.getExternalFilesDir(null), ScrumChatterDatabase.DATABASE_NAME);
-        try {
-            InputStream is = new FileInputStream(internalDBFile);
-            OutputStream os = new FileOutputStream(externalDBFile);
-            byte[] buffer = new byte[1024];
-            int len;
-            while ((len = is.read(buffer)) > 0) {
-                os.write(buffer, 0, len);
-            }
-            is.close();
-            os.close();
-            return externalDBFile;
-        } catch (IOException e) {
-            Log.v(TAG, "Could not copy DB file: " + e.getMessage(), e);
+        if (IOUtils.copy(internalDBFile, externalDBFile)) return externalDBFile;
+        else
             return null;
-        }
     }
 
 }
