@@ -24,6 +24,7 @@
     <string name="title_section_meetings">Meetings</string>
     <string name="title_section_team">Team</string>
     <string name="action_share">Share</string>
+    <string name="action_import">Import database</string>
     <string name="action_new_member">Add team member</string>
     <string name="action_new_meeting">New meeting</string>
     <string name="dialog_message_new_member">Enter the team member\'s name.</string>
@@ -57,6 +58,10 @@
     <string name="loading">Loading&#8230;</string>
     <string name="progress_dialog_message">Please wait&#8230;</string>
     <string name="dialog_confirm">Are you sure?</string>
+    <string name="import_confirm_title">Import database</string>
+    <string name="import_confirm_message">Delete the current database and replace with %s?</string>
+    <string name="import_result_success">Import successful</string>
+    <string name="import_result_failed">Import failed</string>
     <string name="about">About</string>
     <string name="about_author">By Carmen Alvarez</string>
     <string name="about_version">v</string>

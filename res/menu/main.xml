@@ -25,11 +25,16 @@
         android:orderInCategory="100"
         android:showAsAction="ifRoom"
         android:title="@string/action_share"/>
-
+    <item
+        android:id="@+id/action_import"
+        android:icon="@drawable/ic_action_import"
+        android:orderInCategory="101"
+        android:showAsAction="ifRoom"
+        android:title="@string/action_import"/>
     <item
         android:id="@+id/action_about"
         android:icon="@drawable/ic_action_about"
-        android:orderInCategory="101"
+        android:orderInCategory="102"
         android:showAsAction="ifRoom"
         android:title="@string/about"/>
 

@@ -18,10 +18,12 @@
  */
 package ca.rmen.android.scrumchatter;
 
+import java.io.File;
 import java.util.Locale;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -35,6 +37,7 @@ import android.widget.Toast;
 import ca.rmen.android.scrumchatter.export.DBExport;
 import ca.rmen.android.scrumchatter.export.FileExport;
 import ca.rmen.android.scrumchatter.export.MeetingsExport;
+import ca.rmen.android.scrumchatter.provider.DBImport;
 import ca.rmen.android.scrumchatter.ui.MeetingsListFragment;
 import ca.rmen.android.scrumchatter.ui.MembersListFragment;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog;
@@ -51,7 +54,7 @@ import com.actionbarsherlock.view.MenuItem;
 public class MainActivity extends SherlockFragmentActivity implements ActionBar.TabListener { // NO_UCD (use default)
 
     private static final String TAG = Constants.TAG + "/" + MainActivity.class.getSimpleName();
-
+    private static final int ACTIVITY_REQUEST_CODE_IMPORT = 1;
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a {@link android.support.v4.app.FragmentPagerAdapter} derivative, which
@@ -114,6 +117,11 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.action_import:
+                Intent importIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                importIntent.setType("file/*");
+                startActivityForResult(importIntent, ACTIVITY_REQUEST_CODE_IMPORT);
+                return true;
             case R.id.action_share:
                 // Build a chooser dialog for the file format.
                 ScrumChatterDialog.showChoiceDialog(this, R.string.export_choice_title, R.array.export_choices, new DialogInterface.OnClickListener() {
@@ -148,6 +156,47 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
 
     @Override
     public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {}
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == ACTIVITY_REQUEST_CODE_IMPORT) {
+            final String filePath = intent.getData().getPath();
+            final File file = new File(filePath);
+
+            ScrumChatterDialog.showDialog(this, getString(R.string.import_confirm_title), getString(R.string.import_confirm_message, file.getName()),
+                    new OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    AsyncTask<Void,Void,Boolean> task = new AsyncTask<Void,Void,Boolean>(){
+
+                                @Override
+                                protected Boolean doInBackground(Void... params) {
+                                    try {
+                                        Log.v(TAG, "Importing db from " + file);
+                                        DBImport.importDB(MainActivity.this, file);
+                                    } catch (Exception e) {
+                                        Log.e(TAG, "Error importing db: " + e.getMessage(), e);
+                                        return false;
+                                    }
+                                    return true;
+                                }
+
+                                @Override
+                                protected void onPostExecute(Boolean result) {
+                                    Toast.makeText(MainActivity.this, result ? R.string.import_result_success : R.string.import_result_failed,
+                                            Toast.LENGTH_SHORT).show();
+                                }
+
+                        
+                            };
+                            task.execute();
+                }
+            });
+        } else {
+            super.onActivityResult(requestCode, resultCode, intent);
+        }
+    }
 
     /**
      * Share a file using an intent chooser.
