@@ -21,6 +21,7 @@ package ca.rmen.android.scrumchatter;
 import java.io.File;
 import java.util.Locale;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -32,6 +33,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 import ca.rmen.android.scrumchatter.export.DBExport;
@@ -126,15 +128,15 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
                 // Build a chooser dialog for the file format.
                 ScrumChatterDialog.showChoiceDialog(this, R.string.export_choice_title, R.array.export_choices, new DialogInterface.OnClickListener() {
 
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                String[] exportChoices = getResources().getStringArray(R.array.export_choices);
-                                FileExport fileExport = null;
-                                if (getString(R.string.export_format_excel).equals(exportChoices[which])) fileExport = new MeetingsExport(MainActivity.this);
-                                else if (getString(R.string.export_format_db).equals(exportChoices[which])) fileExport = new DBExport(MainActivity.this);
-                                shareFile(fileExport);
-                            }
-                        });
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String[] exportChoices = getResources().getStringArray(R.array.export_choices);
+                        FileExport fileExport = null;
+                        if (getString(R.string.export_format_excel).equals(exportChoices[which])) fileExport = new MeetingsExport(MainActivity.this);
+                        else if (getString(R.string.export_format_db).equals(exportChoices[which])) fileExport = new DBExport(MainActivity.this);
+                        shareFile(fileExport);
+                    }
+                });
                 return true;
             case R.id.action_about:
                 Intent intent = new Intent(this, AboutActivity.class);
@@ -159,16 +161,29 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (requestCode == ACTIVITY_REQUEST_CODE_IMPORT) {
+        if (requestCode == ACTIVITY_REQUEST_CODE_IMPORT && resultCode == Activity.RESULT_OK) {
+            if (intent.getData() == null) {
+                Toast.makeText(this, R.string.import_result_no_file, Toast.LENGTH_SHORT).show();
+                return;
+            }
             final String filePath = intent.getData().getPath();
+            if (TextUtils.isEmpty(filePath)) {
+                Toast.makeText(this, R.string.import_result_no_file, Toast.LENGTH_SHORT).show();
+                return;
+            }
             final File file = new File(filePath);
+            if (!file.exists()) {
+                Toast.makeText(this, getString(R.string.import_result_file_does_not_exist, file.getName()), Toast.LENGTH_SHORT).show();
+                return;
+            }
+            final ProgressDialog progressDialog = ProgressDialog.show(this, null, getString(R.string.progress_dialog_message), true);
 
             ScrumChatterDialog.showDialog(this, getString(R.string.import_confirm_title), getString(R.string.import_confirm_message, file.getName()),
                     new OnClickListener() {
 
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    AsyncTask<Void,Void,Boolean> task = new AsyncTask<Void,Void,Boolean>(){
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>() {
 
                                 @Override
                                 protected Boolean doInBackground(Void... params) {
@@ -184,15 +199,16 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
 
                                 @Override
                                 protected void onPostExecute(Boolean result) {
+                                    progressDialog.cancel();
                                     Toast.makeText(MainActivity.this, result ? R.string.import_result_success : R.string.import_result_failed,
                                             Toast.LENGTH_SHORT).show();
                                 }
 
-                        
+
                             };
                             task.execute();
-                }
-            });
+                        }
+                    });
         } else {
             super.onActivityResult(requestCode, resultCode, intent);
         }

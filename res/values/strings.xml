@@ -62,6 +62,8 @@
     <string name="import_confirm_message">Delete the current database and replace with %s?</string>
     <string name="import_result_success">Import successful</string>
     <string name="import_result_failed">Import failed</string>
+    <string name="import_result_no_file">No file selected for import</string>
+    <string name="import_result_file_does_not_exist">%s does not exist. Cannot import.</string>
     <string name="about">About</string>
     <string name="about_author">By Carmen Alvarez</string>
     <string name="about_version">v</string>
