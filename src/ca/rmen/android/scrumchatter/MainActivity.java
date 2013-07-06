@@ -129,7 +129,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
             case R.id.action_import:
                 Intent importIntent = new Intent(Intent.ACTION_GET_CONTENT);
                 importIntent.setType("file/*");
-                startActivityForResult(importIntent, ACTIVITY_REQUEST_CODE_IMPORT);
+                startActivityForResult(Intent.createChooser(importIntent, getResources().getText(R.string.action_import)), ACTIVITY_REQUEST_CODE_IMPORT);
                 return true;
             case R.id.action_share:
                 // Build a chooser dialog for the file format.
