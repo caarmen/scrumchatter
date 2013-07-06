@@ -193,8 +193,6 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
      * Import the given database file. This will replace the current database.
      */
     private void importDB(final Uri uri) {
-        final ProgressDialog progressDialog = ProgressDialog.show(this, null, getString(R.string.progress_dialog_message), true);
-
         ScrumChatterDialog.showDialog(this, getString(R.string.import_confirm_title), getString(R.string.import_confirm_message, uri.getEncodedPath()),
                 new OnClickListener() {
 
@@ -202,6 +200,12 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
                     public void onClick(DialogInterface dialog, int which) {
                         if (which == DialogInterface.BUTTON_POSITIVE) {
                             AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>() {
+                                private ProgressDialog mProgressDialog;
+
+                                @Override
+                                protected void onPreExecute() {
+                                    mProgressDialog = ProgressDialog.show(MainActivity.this, null, getString(R.string.progress_dialog_message), true);
+                                }
 
                                 @Override
                                 protected Boolean doInBackground(Void... params) {
@@ -217,7 +221,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
 
                                 @Override
                                 protected void onPostExecute(Boolean result) {
-                                    progressDialog.cancel();
+                                    mProgressDialog.cancel();
                                     Toast.makeText(MainActivity.this, result ? R.string.import_result_success : R.string.import_result_failed,
                                             Toast.LENGTH_SHORT).show();
                                 }
@@ -225,8 +229,6 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
 
                             };
                             task.execute();
-                        } else {
-                            progressDialog.cancel();
                         }
                     }
                 });

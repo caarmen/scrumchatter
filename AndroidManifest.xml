@@ -19,7 +19,7 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ca.rmen.android.scrumchatter"
-    android:versionCode="100"
+    android:versionCode="102"
     android:versionName="@string/app_version" >
 
     <uses-sdk
@@ -49,13 +49,11 @@
                 <category android:name="android.intent.category.DEFAULT" />
 
                 <data
+                    android:host="*"
                     android:mimeType="*/*"
                     android:pathPattern=".*\\.db"
                     android:scheme="file" />
-                <data
-                    android:mimeType="application/octet-stream"
-                    android:pathPattern=".*\\.db"
-                    android:scheme="content" />
+
             </intent-filter>
         </activity>
         <activity
