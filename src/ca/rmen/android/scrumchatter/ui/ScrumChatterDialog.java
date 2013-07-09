@@ -140,7 +140,7 @@ public class ScrumChatterDialog {
                     if (isHoloBlueNinePatch((NinePatchDrawable) drawable)) {
                         imageView.setImageResource(R.drawable.divider_strong_scrum_chatter);
                         // On 2.x, in a dialog with a list, the divider is hidden.  Let's show it.
-                        imageView.setVisibility(View.VISIBLE);
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) imageView.setVisibility(View.VISIBLE);
                     }
                 }
             }
