@@ -17,7 +17,7 @@
   You should have received a copy of the GNU General Public License
   along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
 -->
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- Action bar theme generation url: http://jgilfelt.github.io/android-actionbarstylegenerator/#name=scrum_chatter&compat=sherlock&theme=light_dark&actionbarstyle=solid&texture=0&hairline=0&backColor=6c006c%2C100&secondaryColor=ccc%2C100&tabColor=d25fd2%2C100&tertiaryColor=3F3F3F%2C100&accentColor=d25fd2%2C100&cabBackColor=002E3E%2C100&cabHighlightColor=d25fd2%2C100 -->
     <!--
@@ -40,6 +40,7 @@
         <item name="actionBarTabTextStyle">@style/tabTextStyle</item>
         <item name="actionBarDivider">@drawable/tab_divider</item>
         <item name="actionBarTabBarStyle">@style/tabBarStyle</item>
+        <item name="android:editTextStyle">@style/EditTextscrum_chatter_holo</item>
     </style>
 
     <style name="listHeader">
@@ -64,6 +65,37 @@
 
     <style name="tabBarStyle" parent="Widget.Sherlock.ActionBar.TabBar">
         <item name="android:divider">@drawable/tab_divider</item>
+    </style>
+
+    <style name="dialogStyle" parent="android:Theme.Dialog">
+        <!-- Copied from standard android:Theme.Dialog.Alert - cannot just inherit it because of different ids towards android versions -->
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:buttonStyle">@style/buttonStyle</item>
+        <item name="android:textAppearanceLarge">@style/textAppearanceLarge</item>
+        <item name="android:textAppearanceMedium">@style/textAppearanceMedium</item>
+        <item name="android:alertDialogStyle">@style/alertDialogStyle</item>
+        <item name="android:listViewStyle">@style/listStyle</item>
+    </style>
+
+    <style name="textAppearanceLarge" parent="@android:style/TextAppearance.Large">
+        <item name="android:textColor">@color/scrum_chatter_holo_purple</item>
+    </style>
+
+    <style name="textAppearanceMedium" parent="@android:style/TextAppearance.Medium">
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="alertDialogStyle">
+        <item name="android:topDark">@drawable/popup_top_bright</item>
+        <item name="android:centerDark">@drawable/popup_center_bright</item>
+        <item name="android:bottomBright">@drawable/popup_bottom_bright</item>
+        <item name="android:bottomMedium">@drawable/popup_bottom_bright</item>
+    </style>
+
+    <style name="buttonStyle" parent="@android:style/Widget.Button">
+        <item name="android:background">@drawable/btn_default</item>
     </style>
 
 </resources>

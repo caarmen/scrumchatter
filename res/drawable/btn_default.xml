@@ -17,16 +17,9 @@
   You should have received a copy of the GNU General Public License
   along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
 -->
-<resources>
-    <!-- http://colorschemedesigner.com/#4W11Tw0w0w0w0 -->
-    <color name="scrum_chatter_holo_purple">#a600a6</color>
-    <color name="selected_header">#7c1f7c</color>
-    <color name="unselected_header">#333</color>
-    <color name="item_pressed">#33d25fd2</color>
-    <color name="chrono_active">@color/scrum_chatter_holo_purple</color>
-    <color name="chrono_inactive">#000</color>
-    <color name="chrono_not_started">#aaa</color>
-    <color name="light_gray">#e0e0e0</color>
-    <color name="meeting_state_default">@color/abs__primary_text_holo_light</color>
-    <color name="meeting_state_in_progress">@color/scrum_chatter_holo_purple</color>
-</resources>
+<selector xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:state_pressed="true"  
+        android:drawable="@drawable/btn_default_pressed"/>
+    
+    <item android:drawable="@drawable/btn_default_normal"/>
+</selector>

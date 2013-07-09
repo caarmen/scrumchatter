@@ -89,7 +89,7 @@ public class ScrumChatterDialog {
                 + ", listener = " + listener);
 
         // For 3.x+, use our custom theme for the dialog. This will impact the title text color and the EditText color.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) context = new ContextThemeWrapper(context, R.style.scrumDialogStyle);
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) */context = new ContextThemeWrapper(context, R.style.dialogStyle);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(title).setMessage(message);
@@ -106,7 +106,7 @@ public class ScrumChatterDialog {
 
         // Show the dialog (we have to do this before we can modify its views).
         AlertDialog dialog = builder.create();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) dialog.getContext().setTheme(R.style.scrumDialogStyle);
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) */dialog.getContext().setTheme(R.style.dialogStyle);
         dialog.show();
 
         // For 3.x+, update the dialog elements which couldn't be updated cleanly with the theme:
@@ -114,17 +114,17 @@ public class ScrumChatterDialog {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             ListView listView = dialog.getListView();
             if (listView != null) listView.setSelector(R.drawable.selector);
-            uglyHackReplaceBlueHoloBackground(context, (ViewGroup) dialog.getWindow().getDecorView());
         }
+        uglyHackReplaceBlueHoloBackground(context, (ViewGroup) dialog.getWindow().getDecorView());
         return dialog;
     }
 
     /**
      * Iterate through the whole view tree and replace the holo blue element(s) with our holo color.
+     * For 2.x, the horizontal divider is a nine patch image "divider_horizontal_dark".
      * For 3.x, the horizontal divider is a nine patch image "divider_strong_holo".
      * For 4.x, the horizontal divider is a holo color.
      */
-    @TargetApi(11)
     private static void uglyHackReplaceBlueHoloBackground(Context context, ViewGroup viewGroup) {
         int childCount = viewGroup.getChildCount();
         for (int i = 0; i < childCount; i++) {
@@ -134,13 +134,11 @@ public class ScrumChatterDialog {
             }
             // 3.x: replace the nine patch
             else if (child instanceof ImageView) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                    ImageView imageView = (ImageView) child;
-                    Drawable drawable = imageView.getDrawable();
-                    if (drawable instanceof NinePatchDrawable) {
-                        if (isHoloBlueNinePatch((NinePatchDrawable) drawable)) {
-                            imageView.setImageResource(R.drawable.divider_strong_scrum_chatter);
-                        }
+                ImageView imageView = (ImageView) child;
+                Drawable drawable = imageView.getDrawable();
+                if (drawable instanceof NinePatchDrawable) {
+                    if (isHoloBlueNinePatch((NinePatchDrawable) drawable)) {
+                        imageView.setImageResource(R.drawable.divider_strong_scrum_chatter);
                     }
                 }
             }
@@ -157,7 +155,6 @@ public class ScrumChatterDialog {
     /**
      * @return true if the given nine patch is the divider_strong_holo nine patch.
      */
-    @TargetApi(11)
     private static boolean isHoloBlueNinePatch(NinePatchDrawable n) {
         // horrible, horrible...
         String imageSource = null;
@@ -168,7 +165,7 @@ public class ScrumChatterDialog {
         } catch (IllegalAccessException e) {
             Log.v(TAG, "Oops: " + e.getMessage(), e);
         }
-        return imageSource != null && imageSource.contains("divider_strong_holo");
+        return imageSource != null && (imageSource.contains("divider_strong_holo") || imageSource.contains("divider_horizontal_dark"));
     }
 
     /**

@@ -37,7 +37,7 @@
         <item name="android:editTextBackground">@drawable/edit_text_holo_light</item>
     </style>
 
-    <style name="scrumDialogStyle">
+    <style name="dialogStyle">
         <item name="android:textColor">@color/scrum_chatter_holo_purple</item>
         <item name="android:listViewStyle">@style/listStyle</item>
         <item name="android:editTextStyle">@style/EditTextscrum_chatter_holo</item>
