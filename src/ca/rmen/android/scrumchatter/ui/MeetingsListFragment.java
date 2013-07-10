@@ -102,7 +102,7 @@ public class MeetingsListFragment extends SherlockListFragment {
         @Override
         public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
             Log.v(TAG, "onCreateLoader, loaderId = " + loaderId + ", bundle = " + bundle);
-            CursorLoader loader = new CursorLoader(getActivity(), MeetingColumns.CONTENT_URI, null, null, null, null);
+            CursorLoader loader = new CursorLoader(getActivity(), MeetingColumns.CONTENT_URI, null, null, null, MeetingColumns.MEETING_DATE + " DESC");
             return loader;
         }
 
