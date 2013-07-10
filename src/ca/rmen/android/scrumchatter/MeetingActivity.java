@@ -63,7 +63,6 @@ public class MeetingActivity extends SherlockFragmentActivity {
     public static final String EXTRA_MEETING_ID = MeetingActivity.class.getPackage().getName() + ".meeting_id";
     private View mBtnStopMeeting;
     private View mProgressBarHeader;
-    private View mHeader;
     private Chronometer mMeetingChronometer;
     private Uri mMeetingUri;
     private long mMeetingId;
@@ -77,7 +76,6 @@ public class MeetingActivity extends SherlockFragmentActivity {
 
         mBtnStopMeeting = findViewById(R.id.btn_stop_meeting);
         mMeetingChronometer = (Chronometer) findViewById(R.id.tv_meeting_duration);
-        mHeader = findViewById(R.id.header_divider);
         mProgressBarHeader = findViewById(R.id.header_progress_bar);
 
         mBtnStopMeeting.setOnClickListener(mOnClickListener);
@@ -201,10 +199,8 @@ public class MeetingActivity extends SherlockFragmentActivity {
         // Blink the chronometer when the meeting is in progress
         if (mMeetingState == State.IN_PROGRESS) {
             mProgressBarHeader.setVisibility(View.VISIBLE);
-            mHeader.setVisibility(View.GONE);
         } else {
-            mProgressBarHeader.setVisibility(View.GONE);
-            mHeader.setVisibility(View.VISIBLE);
+            mProgressBarHeader.setVisibility(View.INVISIBLE);
         }
         supportInvalidateOptionsMenu();
     }
