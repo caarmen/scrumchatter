@@ -35,6 +35,7 @@
         <item name="android:actionBarTabTextStyle">@style/tabTextStyle</item>
         <item name="android:listViewStyle">@style/listStyle</item>
         <item name="android:editTextBackground">@drawable/edit_text_holo_light</item>
+        <item name="android:progressBarStyleHorizontal">@style/ProgressBarscrum_chatter_holo</item>
     </style>
 
     <style name="dialogStyle">

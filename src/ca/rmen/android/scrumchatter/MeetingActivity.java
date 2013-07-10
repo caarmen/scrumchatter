@@ -36,8 +36,6 @@ import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Chronometer;
 import ca.rmen.android.scrumchatter.export.MeetingExport;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
@@ -64,6 +62,8 @@ public class MeetingActivity extends SherlockFragmentActivity {
 
     public static final String EXTRA_MEETING_ID = MeetingActivity.class.getPackage().getName() + ".meeting_id";
     private View mBtnStopMeeting;
+    private View mProgressBarHeader;
+    private View mHeader;
     private Chronometer mMeetingChronometer;
     private Uri mMeetingUri;
     private long mMeetingId;
@@ -77,6 +77,8 @@ public class MeetingActivity extends SherlockFragmentActivity {
 
         mBtnStopMeeting = findViewById(R.id.btn_stop_meeting);
         mMeetingChronometer = (Chronometer) findViewById(R.id.tv_meeting_duration);
+        mHeader = findViewById(R.id.header_divider);
+        mProgressBarHeader = findViewById(R.id.header_progress_bar);
 
         mBtnStopMeeting.setOnClickListener(mOnClickListener);
 
@@ -198,16 +200,11 @@ public class MeetingActivity extends SherlockFragmentActivity {
 
         // Blink the chronometer when the meeting is in progress
         if (mMeetingState == State.IN_PROGRESS) {
-            Animation animBlink = AnimationUtils.loadAnimation(this, R.anim.blink);
-            mMeetingChronometer.startAnimation(animBlink);
+            mProgressBarHeader.setVisibility(View.VISIBLE);
+            mHeader.setVisibility(View.GONE);
         } else {
-            Animation anim = mMeetingChronometer.getAnimation();
-            if (anim != null) {
-                anim.cancel();
-                // Need to make sure the animation doesn't stay faded out.
-                anim = AnimationUtils.loadAnimation(this, R.anim.show);
-                mMeetingChronometer.startAnimation(anim);
-            }
+            mProgressBarHeader.setVisibility(View.GONE);
+            mHeader.setVisibility(View.VISIBLE);
         }
         supportInvalidateOptionsMenu();
     }

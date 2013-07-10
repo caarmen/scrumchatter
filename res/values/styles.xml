@@ -42,6 +42,7 @@
         <item name="actionBarTabBarStyle">@style/tabBarStyle</item>
         <item name="android:editTextStyle">@style/EditTextscrum_chatter_holo</item>
         <item name="android:textColorSecondaryInverse">@android:color/black</item>
+        <item name="android:progressBarStyleHorizontal">@style/ProgressBarscrum_chatter_holo</item>
     </style>
 
     <style name="listHeader">
@@ -69,6 +70,7 @@
     </style>
 
     <style name="dialogStyle" parent="android:Theme.Dialog">
+
         <!-- Copied from standard android:Theme.Dialog.Alert - cannot just inherit it because of different ids towards android versions -->
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowIsFloating">true</item>
