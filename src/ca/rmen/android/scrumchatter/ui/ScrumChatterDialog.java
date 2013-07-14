@@ -29,11 +29,17 @@ import android.graphics.NinePatch;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.NinePatchDrawable;
+import android.os.AsyncTask;
 import android.os.Build;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import ca.rmen.android.scrumchatter.Constants;
@@ -54,6 +60,64 @@ public class ScrumChatterDialog {
     private static int sHoloPurpleColorId = -1;
     private static Field sNinePatchSourceField = null;
     private static Field sNinePatchField = null;
+
+    public interface InputValidator {
+        /**
+         * @param input
+         * @return an error string if the input has a problem, null if the input is valid.
+         */
+        String getError(CharSequence input);
+    };
+
+    public static AlertDialog showEditTextDialog(Context context, int titleId, int messageId, final EditText input,
+            DialogInterface.OnClickListener positiveListener, final InputValidator validator) {
+
+        final AlertDialog dialog = showDialog(context, titleId, messageId, input, positiveListener);
+        input.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                validateMemberName();
+            }
+
+            private void validateMemberName() {
+                // Start off with everything a-ok.
+                input.setError(null);
+                final Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                okButton.setEnabled(true);
+
+                // Search for an error in background thread, update the dialog in the UI thread.
+                AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>() {
+
+                    /**
+                     * @return an error String if the input is invalid.
+                     */
+                    @Override
+                    protected String doInBackground(Void... params) {
+                        return validator.getError(input.getText().toString().trim());
+                    }
+
+                    @Override
+                    protected void onPostExecute(String error) {
+                        // If the input is invalid, highlight the error
+                        // and disable the OK button.
+                        if (!TextUtils.isEmpty(error)) {
+                            input.setError(error);
+                            okButton.setEnabled(false);
+                        }
+                    }
+                };
+                task.execute();
+            }
+        });
+        return dialog;
+    }
 
     public static AlertDialog showChoiceDialog(Context context, int titleId, int choicesArrayId, DialogInterface.OnClickListener itemListener) {
         return showDialog(context, context.getString(titleId), null, null, context.getResources().getStringArray(choicesArrayId), itemListener);

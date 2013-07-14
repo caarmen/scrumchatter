@@ -22,7 +22,6 @@ package ca.rmen.android.scrumchatter.ui;
  * Displays the list of team members.
  */
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -35,15 +34,12 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import ca.rmen.android.scrumchatter.Constants;
@@ -53,6 +49,7 @@ import ca.rmen.android.scrumchatter.adapter.MembersCursorAdapter.MemberItemCache
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberStatsColumns;
 import ca.rmen.android.scrumchatter.provider.TeamColumns;
+import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog.InputValidator;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
@@ -117,97 +114,63 @@ public class MembersListFragment extends SherlockListFragment {
         // Create a new team member
         if (item.getItemId() == R.id.action_new_member) {
             final Activity activity = getActivity();
-            // We'll just show a dialog with a simple EditText for the team
-            // member's name.
 
             final EditText input = new EditText(activity);
-            final AlertDialog dialog = ScrumChatterDialog.showDialog(getActivity(), R.string.action_new_member, R.string.dialog_message_new_member, input,
-                    new DialogInterface.OnClickListener() {
 
-                        public void onClick(DialogInterface dialog, int which) {
-                            if (which == DialogInterface.BUTTON_POSITIVE) {
+            // Prevent the user from creating multiple team members with the same name.
+            InputValidator validator = new InputValidator() {
 
-                                final String memberName = input.getText().toString().trim();
+                @Override
+                public String getError(CharSequence input) {
+                    // Query for a member with this name.
+                    Cursor existingMemberCountCursor = activity.getContentResolver().query(MemberColumns.CONTENT_URI, new String[] { "count(*)" },
+                            MemberColumns.NAME + "=? AND " + MemberColumns.TEAM_ID + "=?", new String[] { String.valueOf(input), String.valueOf(mTeamId) },
+                            null);
 
-                                // Ignore an empty name.
-                                if (!TextUtils.isEmpty(memberName)) {
-                                    // Create the new member in a background thread.
-                                    AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+                    // Now Check if the team member exists.
+                    if (existingMemberCountCursor != null) {
+                        if (existingMemberCountCursor.moveToFirst()) {
+                            int existingMemberCount = existingMemberCountCursor.getInt(0);
+                            existingMemberCountCursor.close();
+                            if (existingMemberCount > 0) return activity.getString(R.string.error_member_exists, input);
+                        }
+                    }
+                    return null;
+                }
+            };
 
-                                        @Override
-                                        protected Void doInBackground(Void... params) {
-                                            ContentValues values = new ContentValues();
-                                            values.put(MemberColumns.NAME, memberName);
-                                            values.put(MemberColumns.TEAM_ID, mTeamId);
-                                            activity.getContentResolver().insert(MemberColumns.CONTENT_URI, values);
-                                            return null;
-                                        }
-                                    };
-                                    task.execute();
+            DialogInterface.OnClickListener onClickListener = new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    if (which == DialogInterface.BUTTON_POSITIVE) {
+
+                        final String memberName = input.getText().toString().trim();
+
+                        // Ignore an empty name.
+                        if (!TextUtils.isEmpty(memberName)) {
+                            // Create the new member in a background thread.
+                            AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+
+                                @Override
+                                protected Void doInBackground(Void... params) {
+                                    ContentValues values = new ContentValues();
+                                    values.put(MemberColumns.NAME, memberName);
+                                    values.put(MemberColumns.TEAM_ID, mTeamId);
+                                    activity.getContentResolver().insert(MemberColumns.CONTENT_URI, values);
+                                    return null;
                                 }
-                            }
+                            };
+                            task.execute();
                         }
-                    });
-
-            // Prevent the user from creating multiple team members with the
-            // same name.
-            input.addTextChangedListener(new TextWatcher() {
-
-                @Override
-                public void afterTextChanged(Editable s) {}
-
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    validateMemberName();
+                    }
                 }
 
-                private void validateMemberName() {
-                    // Start off with everything a-ok.
-                    input.setError(null);
-                    final Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                    okButton.setEnabled(true);
+            };
+            ScrumChatterDialog.showEditTextDialog(getActivity(), R.string.action_new_member, R.string.dialog_message_new_member, input, onClickListener,
+                    validator);
 
-                    // Check if this team member exists already.
-                    final String memberName = input.getText().toString().trim();
-                    // Search for an existing member with this name, in a background thread.
-                    // Show a warning in the UI thread.
-                    AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>() {
 
-                        /**
-                         * @return true if the member name is valid.
-                         */
-                        @Override
-                        protected Boolean doInBackground(Void... params) {
-                            // Query for a memmber with this name.
-                            Cursor existingMemberCountCursor = activity.getContentResolver().query(MemberColumns.CONTENT_URI, new String[] { "count(*)" },
-                                    MemberColumns.NAME + "=? AND " + MemberColumns.TEAM_ID + "=?", new String[] { memberName, String.valueOf(mTeamId) }, null);
-
-                            // Now Check if the team member exists.
-                            if (existingMemberCountCursor != null) {
-                                existingMemberCountCursor.moveToFirst();
-                                int existingMemberCount = existingMemberCountCursor.getInt(0);
-                                existingMemberCountCursor.close();
-                                return existingMemberCount <= 0;
-                            }
-                            return true;
-                        }
-
-                        @Override
-                        protected void onPostExecute(Boolean isValid) {
-                            // If the member exists, highlight the error
-                            // and disable the OK button.
-                            if (!isValid) {
-                                input.setError(activity.getString(R.string.error_member_exists, memberName));
-                                okButton.setEnabled(false);
-                            }
-                        }
-                    };
-                    task.execute();
-                }
-            });
             return true;
         }
         return false;
