@@ -54,6 +54,7 @@ import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberCursorWrapper;
 import ca.rmen.android.scrumchatter.provider.MemberStatsColumns;
+import ca.rmen.android.scrumchatter.provider.TeamColumns;
 
 /**
  * Export data for all meetings to an Excel file.
@@ -93,13 +94,39 @@ public class MeetingsExport extends FileExport {
             Log.v(TAG, e.getMessage(), e);
             return null;
         }
+        // Create one worksheet for each team
+        Cursor c = mContext.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { TeamColumns._ID, TeamColumns.TEAM_NAME }, null, null,
+                TeamColumns.TEAM_NAME + " COLLATE NOCASE");
+        if (c != null) {
+            while (c.moveToNext()) {
+                int teamId = c.getInt(0);
+                String teamName = c.getString(1);
+                export(teamId, teamName);
+            }
+            c.close();
+        }
+        // Clean up
+        try {
+            mWorkbook.write();
+            mWorkbook.close();
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage(), e);
+            return null;
+        } catch (WriteException e) {
+            Log.e(TAG, e.getMessage(), e);
+            return null;
+        }
+        return file;
+    }
 
+    private void export(int teamId, String teamName) {
         // Build a cache of all member names, including the average and total duration for each member.
         List<String> memberNames = new ArrayList<String>();
         Map<String, Integer> avgMemberDurations = new HashMap<String, Integer>();
         Map<String, Integer> sumMemberDurations = new HashMap<String, Integer>();
         Cursor c = mContext.getContentResolver().query(MemberStatsColumns.CONTENT_URI,
-                new String[] { MemberColumns.NAME, MemberStatsColumns.AVG_DURATION, MemberStatsColumns.SUM_DURATION }, null, null, MemberColumns.NAME);
+                new String[] { MemberColumns.NAME, MemberStatsColumns.AVG_DURATION, MemberStatsColumns.SUM_DURATION }, MemberStatsColumns.TEAM_ID + "=?",
+                new String[] { String.valueOf(teamId) }, MemberColumns.NAME);
         MemberCursorWrapper memberCursorWrapper = new MemberCursorWrapper(c);
         while (c.moveToNext()) {
             String memberName = memberCursorWrapper.getName();
@@ -115,10 +142,10 @@ public class MeetingsExport extends FileExport {
         columnHeadings.addAll(memberNames);
         columnHeadings.add(mContext.getString(R.string.export_header_meeting_duration));
         try {
-            writeHeader(columnHeadings);
+            writeHeader(teamName, columnHeadings);
         } catch (IOException e) {
             Log.e(TAG, e.getMessage(), e);
-            return null;
+            return;
         }
 
         // Read all the meeting/member data
@@ -131,8 +158,8 @@ public class MeetingsExport extends FileExport {
 						MeetingColumns.TOTAL_DURATION,
 						MemberColumns.NAME,
 						MeetingMemberColumns.DURATION },
-				MeetingMemberColumns.DURATION + ">0",
-				null,
+				MeetingMemberColumns.DURATION + ">0 AND " + MeetingColumns.TEAM_ID + "=?",
+				new String[]{String.valueOf(teamId)},
 				MeetingColumns.MEETING_DATE + ", " 
 				+ MeetingMemberColumns.MEETING_ID + ", "
 				+ MemberColumns.NAME);
@@ -169,27 +196,15 @@ public class MeetingsExport extends FileExport {
         } finally {
             cursorWrapper.close();
         }
-
-        // Clean up
-        try {
-            mWorkbook.write();
-            mWorkbook.close();
-        } catch (IOException e) {
-            Log.e(TAG, e.getMessage(), e);
-            return null;
-        } catch (WriteException e) {
-            Log.e(TAG, e.getMessage(), e);
-            return null;
-        }
-        return file;
     }
+
 
     /**
      * Create the workbook, sheet, custom cell formats, and freeze row and
      * column. Also write the column headings.
      */
-    private void writeHeader(List<String> columnNames) throws IOException {
-        mSheet = mWorkbook.createSheet(mContext.getString(R.string.app_name), 0);
+    private void writeHeader(String teamName, List<String> columnNames) throws IOException {
+        mSheet = mWorkbook.createSheet(teamName, 0);
         mSheet.insertRow(0);
         mSheet.getSettings().setHorizontalFreeze(1);
         mSheet.getSettings().setVerticalFreeze(1);
