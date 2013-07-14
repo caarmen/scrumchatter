@@ -41,11 +41,13 @@ public class Teams {
     private static final String TAG = Teams.class.getSimpleName();
     private final Context mContext;
 
-    private class Team {
+    public static class Team {
+        final int teamId;
         final Uri teamUri;
         final String teamName;
 
-        public Team(Uri teamUri, String teamName) {
+        public Team(int teamId, Uri teamUri, String teamName) {
+            this.teamId = teamId;
             this.teamUri = teamUri;
             this.teamName = teamName;
         }
@@ -57,25 +59,27 @@ public class Teams {
 
     /**
      * Show a dialog with the list of teams. Upon selecting a team, update the shared preference for the current team.
+     * 
+     * @param team the current team being used.
      */
-    public void selectTeam() {
+    public void selectTeam(final Team team) {
         AsyncTask<Void, Void, CharSequence[]> task = new AsyncTask<Void, Void, CharSequence[]>() {
 
             @Override
             protected CharSequence[] doInBackground(Void... params) {
-                Cursor c = mContext.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { TeamColumns.TEAM_NAME }, null, null,
-                        TeamColumns.TEAM_NAME + " COLLATE NOCASE");
+                Cursor c = mContext.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { TeamColumns.TEAM_NAME }, TeamColumns._ID + "!=?",
+                        new String[] { String.valueOf(team.teamId) }, TeamColumns.TEAM_NAME + " COLLATE NOCASE");
                 if (c != null) {
                     try {
+                        CharSequence[] result = new CharSequence[c.getCount() + 1];
+                        int i = 0;
                         if (c.moveToFirst()) {
-                            CharSequence[] result = new CharSequence[c.getCount() + 1];
-                            int i = 0;
                             do {
                                 result[i++] = c.getString(0);
                             } while (c.moveToNext());
-                            result[i++] = mContext.getString(R.string.new_team);
-                            return result;
                         }
+                        result[i++] = mContext.getString(R.string.new_team);
+                        return result;
                     } finally {
                         c.close();
                     }
@@ -85,7 +89,7 @@ public class Teams {
 
             @Override
             protected void onPostExecute(final CharSequence[] result) {
-                if (result != null && result.length > 1) {
+                if (result != null && result.length >= 1) {
                     OnClickListener itemListener = new OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -173,62 +177,49 @@ public class Teams {
      * Retrieve the currently selected team. Show a dialog with a text input to rename this team. Validate that the new name doesn't correspond to any other
      * existing team. Upon pressing ok, rename the current team.
      */
-    public void renameTeam() {
-        AsyncTask<Void, Void, Team> task = new AsyncTask<Void, Void, Team>() {
+    public void renameTeam(final Team team) {
+        if (team != null) {
+            // Show a dialog to input a new team name for the current team.
+            TeamNameValidator validator = new TeamNameValidator(team.teamName);
+            final EditText editText = new EditText(mContext);
+            DialogInterface.OnClickListener onClickListener = new DialogInterface.OnClickListener() {
 
-            @Override
-            protected Team doInBackground(Void... args) {
-                return getCurrentTeam();
-            }
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    if (which == DialogInterface.BUTTON_POSITIVE) {
 
-            @Override
-            protected void onPostExecute(final Team team) {
-                if (team != null) {
-                    // Show a dialog to input a new team name for the current team.
-                    TeamNameValidator validator = new TeamNameValidator(team.teamName);
-                    final EditText editText = new EditText(mContext);
-                    DialogInterface.OnClickListener onClickListener = new DialogInterface.OnClickListener() {
+                        final String teamName = editText.getText().toString().trim();
 
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            if (which == DialogInterface.BUTTON_POSITIVE) {
+                        // Ignore an empty name.
+                        if (!TextUtils.isEmpty(teamName)) {
+                            // Rename the team in a background thread.
+                            AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
 
-                                final String teamName = editText.getText().toString().trim();
-
-                                // Ignore an empty name.
-                                if (!TextUtils.isEmpty(teamName)) {
-                                    // Rename the team in a background thread.
-                                    AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-
-                                        @Override
-                                        protected Void doInBackground(Void... params) {
-                                            ContentValues values = new ContentValues(1);
-                                            values.put(TeamColumns.TEAM_NAME, teamName);
-                                            mContext.getContentResolver().update(team.teamUri, values, null, null);
-                                            return null;
-                                        }
-                                    };
-                                    task.execute();
+                                @Override
+                                protected Void doInBackground(Void... params) {
+                                    ContentValues values = new ContentValues(1);
+                                    values.put(TeamColumns.TEAM_NAME, teamName);
+                                    mContext.getContentResolver().update(team.teamUri, values, null, null);
+                                    return null;
                                 }
-                            }
+                            };
+                            task.execute();
                         }
-                    };
-                    editText.setText(team.teamName);
-                    ScrumChatterDialog.showEditTextDialog(mContext, R.string.action_team_rename, R.string.dialog_message_rename_team, editText,
-                            onClickListener, validator);
+                    }
                 }
-            }
-        };
-        task.execute();
+            };
+            editText.setText(team.teamName);
+            ScrumChatterDialog.showEditTextDialog(mContext, R.string.action_team_rename, R.string.dialog_message_rename_team, editText, onClickListener,
+                    validator);
+        }
     }
 
     /**
      * Shows a confirmation dialog to the user. Upon pressing OK, the current team is deleted.
      */
-    public void deleteTeam() {
+    public void deleteTeam(final Team team) {
 
         AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-            Team mTeam;
             int mTeamCount = 0;
 
             @Override
@@ -241,7 +232,6 @@ public class Teams {
                         c.close();
                     }
                 }
-                if (mTeamCount > 0) mTeam = getCurrentTeam();
                 return null;
             }
 
@@ -252,7 +242,7 @@ public class Teams {
                     ScrumChatterDialog.showDialog(mContext, R.string.action_team_delete, R.string.dialog_error_one_team_required, null);
                 }
                 // Delete this team
-                else if (mTeam != null) {
+                else if (team != null) {
                     DialogInterface.OnClickListener onClickListener = new DialogInterface.OnClickListener() {
 
                         @Override
@@ -262,7 +252,7 @@ public class Teams {
                                     @Override
                                     protected Void doInBackground(Void... params) {
                                         // delete this team
-                                        mContext.getContentResolver().delete(mTeam.teamUri, null, null);
+                                        mContext.getContentResolver().delete(team.teamUri, null, null);
                                         // pick another current team
                                         Cursor c = mContext.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { TeamColumns._ID }, null, null,
                                                 null);
@@ -287,7 +277,7 @@ public class Teams {
                         }
                     };
                     ScrumChatterDialog.showDialog(mContext, mContext.getString(R.string.action_team_delete),
-                            mContext.getString(R.string.dialog_message_delete_team_confirm, mTeam.teamName), onClickListener);
+                            mContext.getString(R.string.dialog_message_delete_team_confirm, team.teamName), onClickListener);
                 }
             }
         };
@@ -297,7 +287,7 @@ public class Teams {
     /**
      * @return the Team currently selected by the user.
      */
-    private Team getCurrentTeam() {
+    public Team getCurrentTeam() {
         // Retrieve the current team name and construct a uri for the team based on the current team id.
         int teamId = PreferenceManager.getDefaultSharedPreferences(mContext).getInt(Constants.EXTRA_TEAM_ID, TeamColumns.DEFAULT_TEAM_ID);
         Uri teamUri = Uri.withAppendedPath(TeamColumns.CONTENT_URI, String.valueOf(teamId));
@@ -306,7 +296,7 @@ public class Teams {
             try {
                 if (c.moveToFirst()) {
                     String teamName = c.getString(0);
-                    return new Team(teamUri, teamName);
+                    return new Team(teamId, teamUri, teamName);
                 }
             } finally {
                 c.close();
