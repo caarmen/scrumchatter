@@ -124,9 +124,9 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
 			+ MeetingColumns._ID
 			+ " INTEGER , "
 			+ MeetingColumns.MEETING_DATE
-			+ " INTEGER " 
+			+ " INTEGER,  " 
 			+ MeetingColumns.TOTAL_DURATION
-			+ " INTEGER " 
+			+ " INTEGER,  " 
 			+ MeetingColumns.STATE
 			+ " INTEGER " 
 			+ " );";
@@ -147,6 +147,7 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
 			+ "," + MeetingColumns.MEETING_DATE
 			+ "," + MeetingColumns.TOTAL_DURATION
 			+ "," + MeetingColumns.STATE
+			+ "," + TeamColumns.DEFAULT_TEAM_ID
 			+ " FROM " + MeetingColumns.TABLE_NAME + TEMP_SUFFIX;
 
 	private static final String SQL_DROP_TABLE_MEETING= "DROP TABLE " + MeetingColumns.TABLE_NAME;
@@ -180,41 +181,39 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         Log.d(TAG, "onCreate");
-        db.execSQL(SQL_CREATE_TABLE_TEAM);
-        db.execSQL(SQL_CREATE_TABLE_MEETING_MEMBER);
-        db.execSQL(SQL_CREATE_TABLE_MEMBER);
-        db.execSQL(SQL_CREATE_TABLE_MEETING);
-        db.execSQL(SQL_CREATE_VIEW_MEMBER_STATS);
+        execSQL(db, SQL_CREATE_TABLE_TEAM);
+        execSQL(db, SQL_CREATE_TABLE_MEETING_MEMBER);
+        execSQL(db, SQL_CREATE_TABLE_MEMBER);
+        execSQL(db, SQL_CREATE_TABLE_MEETING);
+        execSQL(db, SQL_CREATE_VIEW_MEMBER_STATS);
         insertDefaultTeam(db);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         Log.d(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion);
-        if (newVersion < 2) {
+        if (oldVersion < 2) {
             // Create the team table
-            db.execSQL(SQL_CREATE_TABLE_TEAM);
+            execSQL(db, SQL_CREATE_TABLE_TEAM);
             // Insert the default team
             insertDefaultTeam(db);
             // Update the member table so all members are in the default team
-            db.beginTransaction();
-            db.execSQL(SQL_CREATE_TABLE_MEMBER_TEMP);
-            db.execSQL(SQL_INSERT_TABLE_MEMBER_TEMP);
-            db.execSQL(SQL_DROP_TABLE_MEMBER);
-            db.execSQL(SQL_CREATE_TABLE_MEMBER);
-            db.execSQL(SQL_INSERT_TABLE_MEMBER);
-            db.execSQL(SQL_DROP_TABLE_MEMBER_TEMP);
+            execSQL(db, SQL_CREATE_TABLE_MEMBER_TEMP);
+            execSQL(db, SQL_INSERT_TABLE_MEMBER_TEMP);
+            execSQL(db, SQL_DROP_TABLE_MEMBER);
+            execSQL(db, SQL_CREATE_TABLE_MEMBER);
+            execSQL(db, SQL_INSERT_TABLE_MEMBER);
+            execSQL(db, SQL_DROP_TABLE_MEMBER_TEMP);
             // Update the meeting table so all meetings are for the default team
-            db.execSQL(SQL_CREATE_TABLE_MEETING_TEMP);
-            db.execSQL(SQL_INSERT_TABLE_MEETING_TEMP);
-            db.execSQL(SQL_DROP_TABLE_MEETING);
-            db.execSQL(SQL_CREATE_TABLE_MEETING);
-            db.execSQL(SQL_INSERT_TABLE_MEETING);
-            db.execSQL(SQL_DROP_TABLE_MEETING_TEMP);
+            execSQL(db, SQL_CREATE_TABLE_MEETING_TEMP);
+            execSQL(db, SQL_INSERT_TABLE_MEETING_TEMP);
+            execSQL(db, SQL_DROP_TABLE_MEETING);
+            execSQL(db, SQL_CREATE_TABLE_MEETING);
+            execSQL(db, SQL_INSERT_TABLE_MEETING);
+            execSQL(db, SQL_DROP_TABLE_MEETING_TEMP);
             // Recreate the views
-            db.execSQL(SQL_DROP_VIEW_MEMBER_STATS);
-            db.execSQL(SQL_CREATE_VIEW_MEMBER_STATS);
-            db.endTransaction();
+            execSQL(db, SQL_DROP_VIEW_MEMBER_STATS);
+            execSQL(db, SQL_CREATE_VIEW_MEMBER_STATS);
         }
     }
 
@@ -235,5 +234,10 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
         values.put(TeamColumns._ID, TeamColumns.DEFAULT_TEAM_ID);
         values.put(TeamColumns.TEAM_NAME, TeamColumns.DEFAULT_TEAM_NAME);
         db.insert(TeamColumns.TABLE_NAME, null, values);
+    }
+
+    private void execSQL(SQLiteDatabase db, String sql) {
+        Log.v(TAG, sql);
+        db.execSQL(sql);
     }
 }
