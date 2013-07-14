@@ -34,9 +34,22 @@ import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.provider.TeamColumns;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog.InputValidator;
 
+/**
+ * Provides both UI and DB logic regarding the management of Teams: renaming, choosing, creating, and deleting teams.
+ */
 public class Teams {
     private static final String TAG = Teams.class.getSimpleName();
     private final Context mContext;
+
+    private class Team {
+        final Uri teamUri;
+        final String teamName;
+
+        public Team(Uri teamUri, String teamName) {
+            this.teamUri = teamUri;
+            this.teamName = teamName;
+        }
+    };
 
     public Teams(Context context) {
         mContext = context;
@@ -142,7 +155,9 @@ public class Teams {
                             protected Void doInBackground(Void... params) {
                                 ContentValues values = new ContentValues(1);
                                 values.put(TeamColumns.TEAM_NAME, teamName);
-                                mContext.getContentResolver().insert(TeamColumns.CONTENT_URI, values);
+                                Uri newTeamUri = mContext.getContentResolver().insert(TeamColumns.CONTENT_URI, values);
+                                int newTeamId = Integer.valueOf(newTeamUri.getLastPathSegment());
+                                PreferenceManager.getDefaultSharedPreferences(mContext).edit().putInt(Constants.EXTRA_TEAM_ID, newTeamId).commit();
                                 return null;
                             }
                         };
@@ -159,35 +174,18 @@ public class Teams {
      * existing team. Upon pressing ok, rename the current team.
      */
     public void renameTeam() {
-        AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>() {
-            private Uri mTeamUri;
-            private String mTeamName;
+        AsyncTask<Void, Void, Team> task = new AsyncTask<Void, Void, Team>() {
 
             @Override
-            protected Boolean doInBackground(Void... args) {
-                // Retrieve the current team name and construct a uri for the team based on the current team id.
-                int teamId = PreferenceManager.getDefaultSharedPreferences(mContext).getInt(Constants.EXTRA_TEAM_ID, TeamColumns.DEFAULT_TEAM_ID);
-                mTeamUri = Uri.withAppendedPath(TeamColumns.CONTENT_URI, String.valueOf(teamId));
-                Cursor c = mContext.getContentResolver().query(mTeamUri, new String[] { TeamColumns.TEAM_NAME }, null, null, null);
-                if (c != null) {
-                    try {
-                        if (c.moveToFirst()) {
-                            mTeamName = c.getString(0);
-                            return true;
-                        }
-                    } finally {
-                        c.close();
-                    }
-                }
-                return false;
+            protected Team doInBackground(Void... args) {
+                return getCurrentTeam();
             }
 
             @Override
-            protected void onPostExecute(Boolean gotTeamName) {
-                if (gotTeamName) {
-
+            protected void onPostExecute(final Team team) {
+                if (team != null) {
                     // Show a dialog to input a new team name for the current team.
-                    TeamNameValidator validator = new TeamNameValidator(mTeamName);
+                    TeamNameValidator validator = new TeamNameValidator(team.teamName);
                     final EditText editText = new EditText(mContext);
                     DialogInterface.OnClickListener onClickListener = new DialogInterface.OnClickListener() {
 
@@ -206,7 +204,7 @@ public class Teams {
                                         protected Void doInBackground(Void... params) {
                                             ContentValues values = new ContentValues(1);
                                             values.put(TeamColumns.TEAM_NAME, teamName);
-                                            mContext.getContentResolver().update(mTeamUri, values, null, null);
+                                            mContext.getContentResolver().update(team.teamUri, values, null, null);
                                             return null;
                                         }
                                     };
@@ -215,15 +213,107 @@ public class Teams {
                             }
                         }
                     };
-                    editText.setText(mTeamName);
+                    editText.setText(team.teamName);
                     ScrumChatterDialog.showEditTextDialog(mContext, R.string.action_team_rename, R.string.dialog_message_rename_team, editText,
                             onClickListener, validator);
-                } else {
-                    Log.wtf(TAG, "Could not determine the curent team name");
                 }
             }
         };
         task.execute();
+    }
+
+    /**
+     * Shows a confirmation dialog to the user. Upon pressing OK, the current team is deleted.
+     */
+    public void deleteTeam() {
+
+        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+            Team mTeam;
+            int mTeamCount = 0;
+
+            @Override
+            protected Void doInBackground(Void... params) {
+                Cursor c = mContext.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { "count(*)" }, null, null, null);
+                if (c != null) {
+                    try {
+                        if (c.moveToFirst()) mTeamCount = c.getInt(0);
+                    } finally {
+                        c.close();
+                    }
+                }
+                if (mTeamCount > 0) mTeam = getCurrentTeam();
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void result) {
+                // We need at least one team in the app.
+                if (mTeamCount <= 1) {
+                    ScrumChatterDialog.showDialog(mContext, R.string.action_team_delete, R.string.dialog_error_one_team_required, null);
+                }
+                // Delete this team
+                else if (mTeam != null) {
+                    DialogInterface.OnClickListener onClickListener = new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (which == DialogInterface.BUTTON_POSITIVE) {
+                                AsyncTask<Void, Void, Void> deleteTask = new AsyncTask<Void, Void, Void>() {
+                                    @Override
+                                    protected Void doInBackground(Void... params) {
+                                        // delete this team
+                                        mContext.getContentResolver().delete(mTeam.teamUri, null, null);
+                                        // pick another current team
+                                        Cursor c = mContext.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { TeamColumns._ID }, null, null,
+                                                null);
+                                        if (c != null) {
+                                            try {
+                                                if (c.moveToFirst()) {
+                                                    int teamId = c.getInt(0);
+                                                    PreferenceManager.getDefaultSharedPreferences(mContext).edit().putInt(Constants.EXTRA_TEAM_ID, teamId)
+                                                            .commit();
+                                                }
+                                            } finally {
+                                                c.close();
+                                            }
+
+                                        }
+                                        return null;
+                                    }
+
+                                };
+                                deleteTask.execute();
+                            }
+                        }
+                    };
+                    ScrumChatterDialog.showDialog(mContext, mContext.getString(R.string.action_team_delete),
+                            mContext.getString(R.string.dialog_message_delete_team_confirm, mTeam.teamName), onClickListener);
+                }
+            }
+        };
+        task.execute();
+    }
+
+    /**
+     * @return the Team currently selected by the user.
+     */
+    private Team getCurrentTeam() {
+        // Retrieve the current team name and construct a uri for the team based on the current team id.
+        int teamId = PreferenceManager.getDefaultSharedPreferences(mContext).getInt(Constants.EXTRA_TEAM_ID, TeamColumns.DEFAULT_TEAM_ID);
+        Uri teamUri = Uri.withAppendedPath(TeamColumns.CONTENT_URI, String.valueOf(teamId));
+        Cursor c = mContext.getContentResolver().query(teamUri, new String[] { TeamColumns.TEAM_NAME }, null, null, null);
+        if (c != null) {
+            try {
+                if (c.moveToFirst()) {
+                    String teamName = c.getString(0);
+                    return new Team(teamUri, teamName);
+                }
+            } finally {
+                c.close();
+            }
+        }
+        Log.wtf(TAG, "Could not get the curren team", new Throwable());
+        return null;
     }
 
     private class TeamNameValidator implements InputValidator {

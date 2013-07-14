@@ -135,6 +135,9 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
             case R.id.action_team_rename:
                 mTeams.renameTeam();
                 return true;
+            case R.id.action_team_delete:
+                mTeams.deleteTeam();
+                return true;
             case R.id.action_import:
                 Intent importIntent = new Intent(Intent.ACTION_GET_CONTENT);
                 importIntent.setType("file/*");

@@ -39,8 +39,10 @@
     <string name="action_delete_meeting">Delete meeting.</string>
     <string name="dialog_message_delete_member_confirm">Delete %s?</string>
     <string name="dialog_message_delete_meeting_confirm">Delete meeting from %s?</string>
+    <string name="dialog_message_delete_team_confirm">Delete %s?</string>
     <string name="dialog_message_switch_team">Choose a team</string>
     <string name="dialog_message_rename_team">Enter a name for this team</string>
+    <string name="dialog_error_one_team_required">Sorry, you need at least one team!</string>
     <string name="new_team">New team&#8230;</string>
     <string name="member_list_header_name">Name</string>
     <string name="member_list_header_avg_duration">Average Chatter Time</string>
