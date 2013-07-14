@@ -44,6 +44,7 @@ import ca.rmen.android.scrumchatter.provider.DBImport;
 import ca.rmen.android.scrumchatter.ui.MeetingsListFragment;
 import ca.rmen.android.scrumchatter.ui.MembersListFragment;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog;
+import ca.rmen.android.scrumchatter.ui.Teams;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -70,6 +71,8 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
+
+    private Teams mTeams = new Teams(this);
 
 
     @Override
@@ -126,6 +129,12 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.action_team_switch:
+                mTeams.selectTeam();
+                return true;
+            case R.id.action_team_rename:
+                mTeams.renameTeam();
+                return true;
             case R.id.action_import:
                 Intent importIntent = new Intent(Intent.ACTION_GET_CONTENT);
                 importIntent.setType("file/*");
@@ -188,6 +197,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
             super.onActivityResult(requestCode, resultCode, intent);
         }
     }
+
 
     /**
      * Import the given database file. This will replace the current database.
@@ -303,4 +313,5 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
             return null;
         }
     }
+
 }

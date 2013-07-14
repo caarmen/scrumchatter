@@ -115,7 +115,7 @@ public class MembersListFragment extends SherlockListFragment {
         if (item.getItemId() == R.id.action_new_member) {
             final Activity activity = getActivity();
 
-            final EditText input = new EditText(activity);
+            final EditText editText = new EditText(activity);
 
             // Prevent the user from creating multiple team members with the same name.
             InputValidator validator = new InputValidator() {
@@ -145,7 +145,7 @@ public class MembersListFragment extends SherlockListFragment {
                 public void onClick(DialogInterface dialog, int which) {
                     if (which == DialogInterface.BUTTON_POSITIVE) {
 
-                        final String memberName = input.getText().toString().trim();
+                        final String memberName = editText.getText().toString().trim();
 
                         // Ignore an empty name.
                         if (!TextUtils.isEmpty(memberName)) {
@@ -154,7 +154,7 @@ public class MembersListFragment extends SherlockListFragment {
 
                                 @Override
                                 protected Void doInBackground(Void... params) {
-                                    ContentValues values = new ContentValues();
+                                    ContentValues values = new ContentValues(2);
                                     values.put(MemberColumns.NAME, memberName);
                                     values.put(MemberColumns.TEAM_ID, mTeamId);
                                     activity.getContentResolver().insert(MemberColumns.CONTENT_URI, values);
@@ -167,7 +167,7 @@ public class MembersListFragment extends SherlockListFragment {
                 }
 
             };
-            ScrumChatterDialog.showEditTextDialog(getActivity(), R.string.action_new_member, R.string.dialog_message_new_member, input, onClickListener,
+            ScrumChatterDialog.showEditTextDialog(getActivity(), R.string.action_new_member, R.string.dialog_message_new_member, editText, onClickListener,
                     validator);
 
 

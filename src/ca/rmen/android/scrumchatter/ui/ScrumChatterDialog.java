@@ -123,6 +123,10 @@ public class ScrumChatterDialog {
         return showDialog(context, context.getString(titleId), null, null, context.getResources().getStringArray(choicesArrayId), itemListener);
     }
 
+    public static AlertDialog showChoiceDialog(Context context, int titleId, CharSequence[] choices, DialogInterface.OnClickListener itemListener) {
+        return showDialog(context, context.getString(titleId), null, null, choices, itemListener);
+    }
+
     public static AlertDialog showDialog(Context context, String title, String message, DialogInterface.OnClickListener positiveListener) {
         return showDialog(context, title, message, null, null, positiveListener);
     }
