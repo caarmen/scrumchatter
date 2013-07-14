@@ -18,6 +18,7 @@
  */
 package ca.rmen.android.scrumchatter.provider;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -28,12 +29,23 @@ import ca.rmen.android.scrumchatter.Constants;
  * Creates and upgrades database tables.
  */
 public class ScrumChatterDatabase extends SQLiteOpenHelper {
-    private static final String TAG = Constants.TAG + ScrumChatterDatabase.class.getSimpleName();
+	private static final String TAG = Constants.TAG
+			+ ScrumChatterDatabase.class.getSimpleName();
 
-    public static final String DATABASE_NAME = "scrumchatter.db";
-    private static final int DATABASE_VERSION = 1;
+	public static final String DATABASE_NAME = "scrumchatter.db";
+	private static final int DATABASE_VERSION = 2;
 
-    // @formatter:off
+	private static final String TEMP_SUFFIX = "_temp";
+
+	// @formatter:off
+	private static final String SQL_CREATE_TABLE_TEAM = "CREATE TABLE IF NOT EXISTS "
+			+ TeamColumns.TABLE_NAME
+			+ " ( "
+			+ TeamColumns._ID
+			+ " INTEGER PRIMARY KEY AUTOINCREMENT, "
+			+ TeamColumns.TEAM_NAME + " TEXT"
+			+ " );";
+
 	private static final String SQL_CREATE_TABLE_MEETING_MEMBER = "CREATE TABLE IF NOT EXISTS "
 			+ MeetingMemberColumns.TABLE_NAME
 			+ " ( "
@@ -49,6 +61,7 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
 			+ ", CONSTRAINT MEETING_ID_FK FOREIGN KEY (MEETING_ID) REFERENCES MEETING(_ID) ON DELETE CASCADE "
 			+ ", CONSTRAINT MEMBER_ID_FK FOREIGN KEY (MEMBER_ID) REFERENCES MEMBER(_ID) ON DELETE CASCADE"
 			+ " );";
+	
 
 	private static final String SQL_CREATE_TABLE_MEMBER = "CREATE TABLE IF NOT EXISTS "
 			+ MemberColumns.TABLE_NAME
@@ -56,7 +69,38 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
 			+ MemberColumns._ID
 			+ " INTEGER PRIMARY KEY AUTOINCREMENT, "
 			+ MemberColumns.NAME
-			+ " TEXT " + " );";
+			+ " TEXT, " 
+			+ MemberColumns.TEAM_ID
+			+ " INTEGER NOT NULL, "
+			+ " CONSTRAINT TEAM_ID_FK FOREIGN KEY (" + MemberColumns.TEAM_ID + ") REFERENCES TEAM(" + TeamColumns._ID + ") ON DELETE CASCADE"
+			+ " );";
+	
+	private static final String SQL_CREATE_TABLE_MEMBER_TEMP = "CREATE TABLE "
+			+ MemberColumns.TABLE_NAME + TEMP_SUFFIX
+			+ " ( "
+			+ MemberColumns._ID
+			+ " INTEGER , "
+			+ MemberColumns.NAME
+			+ " TEXT " 
+			+ " );";
+	
+	private static final String SQL_INSERT_TABLE_MEMBER_TEMP = "INSERT INTO "
+			+ MemberColumns.TABLE_NAME + TEMP_SUFFIX
+			+ " SELECT " 
+			+ MemberColumns._ID
+			+ "," + MemberColumns.NAME
+			+ " FROM " + MemberColumns.TABLE_NAME;
+
+	private static final String SQL_INSERT_TABLE_MEMBER = "INSERT INTO "
+			+ MemberColumns.TABLE_NAME
+			+ " SELECT " 
+			+ MemberColumns._ID
+			+ "," + MemberColumns.NAME
+			+ "," + TeamColumns.DEFAULT_TEAM_ID
+			+ " FROM " + MemberColumns.TABLE_NAME + TEMP_SUFFIX;
+
+	private static final String SQL_DROP_TABLE_MEMBER = "DROP TABLE " + MemberColumns.TABLE_NAME;
+	private static final String SQL_DROP_TABLE_MEMBER_TEMP = "DROP TABLE " + MemberColumns.TABLE_NAME + TEMP_SUFFIX;
 
 	private static final String SQL_CREATE_TABLE_MEETING = "CREATE TABLE IF NOT EXISTS "
 			+ MeetingColumns.TABLE_NAME
@@ -69,8 +113,45 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
 			+ " INTEGER, "
 			+ MeetingColumns.STATE
 			+ " INTEGER NOT NULL DEFAULT "
-			+ MeetingColumns.State.NOT_STARTED.ordinal() + " );";
+			+ MeetingColumns.State.NOT_STARTED.ordinal() + ", " 
+			+ MeetingColumns.TEAM_ID
+			+ " INTEGER NOT NULL, "
+			+ " CONSTRAINT TEAM_ID_FK FOREIGN KEY("+ MeetingColumns.TEAM_ID+ ") REFERENCES " + TeamColumns.TABLE_NAME + "(" + TeamColumns._ID + ") ON DELETE CASCADE"
+			+ " );";
 
+	private static final String SQL_CREATE_TABLE_MEETING_TEMP = "CREATE TABLE "
+			+ MeetingColumns.TABLE_NAME + TEMP_SUFFIX
+			+ " ( "
+			+ MeetingColumns._ID
+			+ " INTEGER , "
+			+ MeetingColumns.MEETING_DATE
+			+ " INTEGER " 
+			+ MeetingColumns.TOTAL_DURATION
+			+ " INTEGER " 
+			+ MeetingColumns.STATE
+			+ " INTEGER " 
+			+ " );";
+	
+	private static final String SQL_INSERT_TABLE_MEETING_TEMP = "INSERT INTO "
+			+ MeetingColumns.TABLE_NAME + TEMP_SUFFIX
+			+ " SELECT " 
+			+ MeetingColumns._ID
+			+ "," + MeetingColumns.MEETING_DATE
+			+ "," + MeetingColumns.TOTAL_DURATION
+			+ "," + MeetingColumns.STATE
+			+ " FROM " + MeetingColumns.TABLE_NAME;
+
+	private static final String SQL_INSERT_TABLE_MEETING = "INSERT INTO "
+			+ MeetingColumns.TABLE_NAME
+			+ " SELECT " 
+			+ MeetingColumns._ID
+			+ "," + MeetingColumns.MEETING_DATE
+			+ "," + MeetingColumns.TOTAL_DURATION
+			+ "," + MeetingColumns.STATE
+			+ " FROM " + MeetingColumns.TABLE_NAME + TEMP_SUFFIX;
+
+	private static final String SQL_DROP_TABLE_MEETING= "DROP TABLE " + MeetingColumns.TABLE_NAME;
+	private static final String SQL_DROP_TABLE_MEETING_TEMP = "DROP TABLE " + MeetingColumns.TABLE_NAME + TEMP_SUFFIX;
 	private static final String SQL_CREATE_VIEW_MEMBER_STATS = "CREATE VIEW "
 			+ MemberStatsColumns.VIEW_NAME + " AS " + " SELECT "
 			+ MemberColumns.TABLE_NAME + "." + MemberColumns._ID + " AS "
@@ -89,35 +170,64 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
 			+ MeetingMemberColumns.MEMBER_ID + " AND "
 			+ MeetingMemberColumns.TABLE_NAME + "."
 			+ MeetingMemberColumns.DURATION + "> 0" + " GROUP BY "
-			+ MemberColumns.TABLE_NAME + "." + MemberColumns.NAME;;
+			+ MemberColumns.TABLE_NAME + "." + MemberColumns.NAME;
+			
+			
 
 	// @formatter:on
 
-    ScrumChatterDatabase(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
-    }
+	ScrumChatterDatabase(Context context) {
+		super(context, DATABASE_NAME, null, DATABASE_VERSION);
+	}
 
-    @Override
-    public void onCreate(SQLiteDatabase db) {
-        Log.d(TAG, "onCreate");
-        db.execSQL(SQL_CREATE_TABLE_MEETING_MEMBER);
-        db.execSQL(SQL_CREATE_TABLE_MEMBER);
-        db.execSQL(SQL_CREATE_TABLE_MEETING);
-        db.execSQL(SQL_CREATE_VIEW_MEMBER_STATS);
-    }
+	@Override
+	public void onCreate(SQLiteDatabase db) {
+		Log.d(TAG, "onCreate");
+		db.execSQL(SQL_CREATE_TABLE_TEAM);
+		db.execSQL(SQL_CREATE_TABLE_MEETING_MEMBER);
+		db.execSQL(SQL_CREATE_TABLE_MEMBER);
+		db.execSQL(SQL_CREATE_TABLE_MEETING);
+		db.execSQL(SQL_CREATE_VIEW_MEMBER_STATS);
+	}
 
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        Log.d(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion);
-    }
+	@Override
+	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+		Log.d(TAG, "Upgrading database from version " + oldVersion + " to "
+				+ newVersion);
+		if (newVersion < 2) {
+			// Create the team table
+			db.execSQL(SQL_CREATE_TABLE_TEAM);
+			// Insert the default team
+			ContentValues values = new ContentValues(2);
+			values.put(TeamColumns._ID, TeamColumns.DEFAULT_TEAM_ID);
+			values.put(TeamColumns.TEAM_NAME, TeamColumns.DEFAULT_TEAM_NAME);
+			db.insert(TeamColumns.TABLE_NAME, null, values);
+			// Update the member table so all members are in the default team
+			db.beginTransaction();
+			db.execSQL(SQL_CREATE_TABLE_MEMBER_TEMP);
+			db.execSQL(SQL_INSERT_TABLE_MEMBER_TEMP);
+			db.execSQL(SQL_DROP_TABLE_MEMBER);
+			db.execSQL(SQL_CREATE_TABLE_MEMBER);
+			db.execSQL(SQL_INSERT_TABLE_MEMBER);
+			db.execSQL(SQL_DROP_TABLE_MEMBER_TEMP);
+			// Update the meeting table so all meetings are for the default team
+			db.execSQL(SQL_CREATE_TABLE_MEETING_TEMP);
+			db.execSQL(SQL_INSERT_TABLE_MEETING_TEMP);
+			db.execSQL(SQL_DROP_TABLE_MEETING);
+			db.execSQL(SQL_CREATE_TABLE_MEETING);
+			db.execSQL(SQL_INSERT_TABLE_MEETING);
+			db.execSQL(SQL_DROP_TABLE_MEETING_TEMP);
+			db.endTransaction();
+		}
+	}
 
-    @Override
-    public void onOpen(SQLiteDatabase db) {
-        Log.d(TAG, "onOpen");
-        if (!db.isReadOnly()) {
-            // Enable foreign key constraints
-            db.execSQL("PRAGMA foreign_keys=ON;");
-        }
-    }
+	@Override
+	public void onOpen(SQLiteDatabase db) {
+		Log.d(TAG, "onOpen");
+		if (!db.isReadOnly()) {
+			// Enable foreign key constraints
+			db.execSQL("PRAGMA foreign_keys=ON;");
+		}
+	}
 
 }

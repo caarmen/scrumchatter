@@ -22,19 +22,21 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 
 /**
- * Table, column names, and column types (enums) for the member table.
+ * Table, column names, and column types (enums) for the team table.
  * 
- * A row in this table contains attributes of a single team member.
+ * A row in this table contains attributes of a team.
  */
-public class MemberColumns implements BaseColumns {
-	static final String TABLE_NAME = "member";
+public class TeamColumns implements BaseColumns {
+	static final String TABLE_NAME = "team";
 	public static final Uri CONTENT_URI = Uri
 			.parse(ScrumChatterProvider.CONTENT_URI_BASE + "/" + TABLE_NAME);
 
 	public static final String _ID = BaseColumns._ID;
 
-	public static final String NAME = "name";
-	public static final String TEAM_ID = "team_id";
+	public static final String TEAM_NAME = "team_name";
+
+	static final int DEFAULT_TEAM_ID = 1;
+	static final String DEFAULT_TEAM_NAME = "Team A";
 
 	static final String DEFAULT_ORDER = _ID;
 }
