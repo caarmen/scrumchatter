@@ -64,7 +64,7 @@ public class MembersListFragment extends SherlockListFragment {
     private static final String TAG = Constants.TAG + "/" + MembersListFragment.class.getSimpleName();
 
     private static final int URL_LOADER = 0;
-    private String mOrderByField = MemberColumns.NAME;
+    private String mOrderByField = MemberColumns.NAME + " COLLATE NOCASE";
     private TextView mTextViewName;
     private TextView mTextViewAvgDuration;
     private TextView mTextViewSumDuration;
@@ -309,7 +309,7 @@ public class MembersListFragment extends SherlockListFragment {
             // field and highlight that header column.
             switch (viewId) {
                 case R.id.tv_name:
-                    mOrderByField = MemberColumns.NAME;
+                    mOrderByField = MemberColumns.NAME + " COLLATE NOCASE";
                     mTextViewName.setTextColor(selectedHeaderColor);
                     break;
                 case R.id.tv_avg_duration:

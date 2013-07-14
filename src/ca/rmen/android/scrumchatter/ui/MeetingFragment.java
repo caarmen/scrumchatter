@@ -92,7 +92,7 @@ public class MeetingFragment extends SherlockListFragment {
             Log.v(TAG, "onCreateLoader, loaderId = " + loaderId + ", bundle = " + bundle);
             State meetingState = State.values()[bundle.getInt(EXTRA_MEETING_STATE, State.NOT_STARTED.ordinal())];
             String selection = null;
-            String orderBy = MemberColumns.NAME;
+            String orderBy = MemberColumns.NAME + " COLLATE NOCASE";
             if (meetingState == State.FINISHED) {
                 selection = MeetingMemberColumns.DURATION + ">0";
                 orderBy = MeetingMemberColumns.DURATION + " DESC";
