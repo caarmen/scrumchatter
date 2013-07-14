@@ -20,5 +20,7 @@ package ca.rmen.android.scrumchatter;
 
 public class Constants {
     public static final String TAG = "ScrumChatter";
-    public static final String EXTRA_TEAM_ID = "team_id";
+    public static final String PREF_TEAM_ID = "team_id";
+    public static final int DEFAULT_TEAM_ID = 1;
+    public static final String DEFAULT_TEAM_NAME = "Team A";
 }

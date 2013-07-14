@@ -338,7 +338,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
             @Override
             protected void onPostExecute(Void result) {
                 // If the user has renamed the default team or added other teams, show the current team name in the title
-                if (mTeamCount > 1 || (mTeam != null && !mTeam.teamName.equals(TeamColumns.DEFAULT_TEAM_NAME))) getSupportActionBar().setTitle(mTeam.teamName);
+                if (mTeamCount > 1 || (mTeam != null && !mTeam.teamName.equals(Constants.DEFAULT_TEAM_NAME))) getSupportActionBar().setTitle(mTeam.teamName);
                 // otherwise the user doesn't care about team management: just show the app title.
                 else
                     getSupportActionBar().setTitle(R.string.app_name);

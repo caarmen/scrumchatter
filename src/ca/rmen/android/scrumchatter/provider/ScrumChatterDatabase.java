@@ -95,7 +95,7 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
 			+ " SELECT " 
 			+ MemberColumns._ID
 			+ "," + MemberColumns.NAME
-			+ "," + TeamColumns.DEFAULT_TEAM_ID
+			+ "," + Constants.DEFAULT_TEAM_ID
 			+ " FROM " + MemberColumns.TABLE_NAME + TEMP_SUFFIX;
 
 	private static final String SQL_DROP_TABLE_MEMBER = "DROP TABLE " + MemberColumns.TABLE_NAME;
@@ -147,7 +147,7 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
 			+ "," + MeetingColumns.MEETING_DATE
 			+ "," + MeetingColumns.TOTAL_DURATION
 			+ "," + MeetingColumns.STATE
-			+ "," + TeamColumns.DEFAULT_TEAM_ID
+			+ "," + Constants.DEFAULT_TEAM_ID
 			+ " FROM " + MeetingColumns.TABLE_NAME + TEMP_SUFFIX;
 
 	private static final String SQL_DROP_TABLE_MEETING= "DROP TABLE " + MeetingColumns.TABLE_NAME;
@@ -231,8 +231,8 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
      */
     private void insertDefaultTeam(SQLiteDatabase db) {
         ContentValues values = new ContentValues(2);
-        values.put(TeamColumns._ID, TeamColumns.DEFAULT_TEAM_ID);
-        values.put(TeamColumns.TEAM_NAME, TeamColumns.DEFAULT_TEAM_NAME);
+        values.put(TeamColumns._ID, Constants.DEFAULT_TEAM_ID);
+        values.put(TeamColumns.TEAM_NAME, Constants.DEFAULT_TEAM_NAME);
         db.insert(TeamColumns.TABLE_NAME, null, values);
     }
 

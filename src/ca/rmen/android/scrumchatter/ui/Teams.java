@@ -116,7 +116,7 @@ public class Teams {
                                                 c.moveToFirst();
                                                 if (c.getCount() == 1) {
                                                     int teamId = c.getInt(0);
-                                                    PreferenceManager.getDefaultSharedPreferences(mContext).edit().putInt(Constants.EXTRA_TEAM_ID, teamId)
+                                                    PreferenceManager.getDefaultSharedPreferences(mContext).edit().putInt(Constants.PREF_TEAM_ID, teamId)
                                                             .commit();
                                                 } else {
                                                     Log.wtf(TAG, "Found " + c.getCount() + " teams for " + teamName);
@@ -169,7 +169,7 @@ public class Teams {
                                 values.put(TeamColumns.TEAM_NAME, teamName);
                                 Uri newTeamUri = mContext.getContentResolver().insert(TeamColumns.CONTENT_URI, values);
                                 int newTeamId = Integer.valueOf(newTeamUri.getLastPathSegment());
-                                PreferenceManager.getDefaultSharedPreferences(mContext).edit().putInt(Constants.EXTRA_TEAM_ID, newTeamId).commit();
+                                PreferenceManager.getDefaultSharedPreferences(mContext).edit().putInt(Constants.PREF_TEAM_ID, newTeamId).commit();
                                 return null;
                             }
                         };
@@ -279,7 +279,7 @@ public class Teams {
             try {
                 if (c.moveToFirst()) {
                     int teamId = c.getInt(0);
-                    PreferenceManager.getDefaultSharedPreferences(mContext).edit().putInt(Constants.EXTRA_TEAM_ID, teamId).commit();
+                    PreferenceManager.getDefaultSharedPreferences(mContext).edit().putInt(Constants.PREF_TEAM_ID, teamId).commit();
                 }
             } finally {
                 c.close();
@@ -292,7 +292,7 @@ public class Teams {
      */
     public Team getCurrentTeam() {
         // Retrieve the current team name and construct a uri for the team based on the current team id.
-        int teamId = PreferenceManager.getDefaultSharedPreferences(mContext).getInt(Constants.EXTRA_TEAM_ID, TeamColumns.DEFAULT_TEAM_ID);
+        int teamId = PreferenceManager.getDefaultSharedPreferences(mContext).getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
         Uri teamUri = Uri.withAppendedPath(TeamColumns.CONTENT_URI, String.valueOf(teamId));
         Cursor c = mContext.getContentResolver().query(teamUri, new String[] { TeamColumns.TEAM_NAME }, null, null, null);
         if (c != null) {

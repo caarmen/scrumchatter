@@ -43,7 +43,6 @@ import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.adapter.MeetingsCursorAdapter;
 import ca.rmen.android.scrumchatter.adapter.MeetingsCursorAdapter.MeetingItemCache;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
-import ca.rmen.android.scrumchatter.provider.TeamColumns;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
@@ -76,7 +75,7 @@ public class MeetingsListFragment extends SherlockListFragment {
         super.onAttach(activity);
         mPrefs = PreferenceManager.getDefaultSharedPreferences(activity);
         mPrefs.registerOnSharedPreferenceChangeListener(mPrefsListener);
-        mTeamId = mPrefs.getInt(Constants.EXTRA_TEAM_ID, TeamColumns.DEFAULT_TEAM_ID);
+        mTeamId = mPrefs.getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
         getLoaderManager().initLoader(URL_LOADER, null, mLoaderCallbacks);
     }
 
@@ -184,7 +183,7 @@ public class MeetingsListFragment extends SherlockListFragment {
 
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            mTeamId = sharedPreferences.getInt(Constants.EXTRA_TEAM_ID, TeamColumns.DEFAULT_TEAM_ID);
+            mTeamId = sharedPreferences.getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
             getLoaderManager().restartLoader(URL_LOADER, null, mLoaderCallbacks);
         }
     };

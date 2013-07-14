@@ -45,7 +45,6 @@ import ca.rmen.android.scrumchatter.provider.MeetingCursorWrapper;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberColumns;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
 import ca.rmen.android.scrumchatter.provider.ScrumChatterProvider;
-import ca.rmen.android.scrumchatter.provider.TeamColumns;
 import ca.rmen.android.scrumchatter.ui.MeetingFragment;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog;
 import ca.rmen.android.scrumchatter.util.TextUtils;
@@ -212,7 +211,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
      */
     private long createMeeting() {
         Log.v(TAG, "create new meeting");
-        int teamId = PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.EXTRA_TEAM_ID, TeamColumns.DEFAULT_TEAM_ID);
+        int teamId = PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
         ContentValues values = new ContentValues();
         values.put(MeetingColumns.MEETING_DATE, System.currentTimeMillis());
         values.put(MeetingColumns.TEAM_ID, teamId);

@@ -72,7 +72,7 @@ public class DBImport {
         Cursor c = context.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { TeamColumns._ID }, null, null, null);
         if (c.moveToFirst()) {
             int teamId = c.getInt(0);
-            PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(Constants.EXTRA_TEAM_ID, teamId);
+            PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(Constants.PREF_TEAM_ID, teamId);
         }
         c.close();
     }

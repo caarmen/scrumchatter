@@ -48,7 +48,6 @@ import ca.rmen.android.scrumchatter.adapter.MembersCursorAdapter;
 import ca.rmen.android.scrumchatter.adapter.MembersCursorAdapter.MemberItemCache;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberStatsColumns;
-import ca.rmen.android.scrumchatter.provider.TeamColumns;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog.InputValidator;
 
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -93,7 +92,7 @@ public class MembersListFragment extends SherlockListFragment {
         super.onAttach(activity);
         mPrefs = PreferenceManager.getDefaultSharedPreferences(activity);
         mPrefs.registerOnSharedPreferenceChangeListener(mPrefsListener);
-        mTeamId = mPrefs.getInt(Constants.EXTRA_TEAM_ID, TeamColumns.DEFAULT_TEAM_ID);
+        mTeamId = mPrefs.getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
         getLoaderManager().initLoader(URL_LOADER, null, mLoaderCallbacks);
     }
 
@@ -299,7 +298,7 @@ public class MembersListFragment extends SherlockListFragment {
 
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            mTeamId = sharedPreferences.getInt(Constants.EXTRA_TEAM_ID, TeamColumns.DEFAULT_TEAM_ID);
+            mTeamId = sharedPreferences.getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
             getLoaderManager().restartLoader(URL_LOADER, null, mLoaderCallbacks);
         }
     };
