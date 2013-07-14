@@ -99,8 +99,8 @@ public class MembersListFragment extends SherlockListFragment {
 
     @Override
     public void onDetach() {
-        super.onDetach();
         mPrefs.unregisterOnSharedPreferenceChangeListener(mPrefsListener);
+        super.onDetach();
     }
 
     @Override

@@ -81,6 +81,12 @@ public class MeetingsListFragment extends SherlockListFragment {
     }
 
     @Override
+    public void onDetach() {
+        mPrefs.unregisterOnSharedPreferenceChangeListener(mPrefsListener);
+        super.onDetach();
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.meetings_menu, menu);
