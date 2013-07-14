@@ -21,10 +21,13 @@ package ca.rmen.android.scrumchatter.ui;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -40,6 +43,7 @@ import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.adapter.MeetingsCursorAdapter;
 import ca.rmen.android.scrumchatter.adapter.MeetingsCursorAdapter.MeetingItemCache;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
+import ca.rmen.android.scrumchatter.provider.TeamColumns;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
@@ -54,6 +58,8 @@ public class MeetingsListFragment extends SherlockListFragment {
     private static final int URL_LOADER = 0;
 
     private MeetingsCursorAdapter mAdapter;
+    private SharedPreferences mPrefs;
+    private int mTeamId;
 
     public MeetingsListFragment() {
         super();
@@ -68,6 +74,9 @@ public class MeetingsListFragment extends SherlockListFragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(activity);
+        mPrefs.registerOnSharedPreferenceChangeListener(mPrefsListener);
+        mTeamId = mPrefs.getInt(Constants.EXTRA_TEAM_ID, TeamColumns.DEFAULT_TEAM_ID);
         getLoaderManager().initLoader(URL_LOADER, null, mLoaderCallbacks);
     }
 
@@ -102,7 +111,10 @@ public class MeetingsListFragment extends SherlockListFragment {
         @Override
         public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
             Log.v(TAG, "onCreateLoader, loaderId = " + loaderId + ", bundle = " + bundle);
-            CursorLoader loader = new CursorLoader(getActivity(), MeetingColumns.CONTENT_URI, null, null, null, MeetingColumns.MEETING_DATE + " DESC");
+            String selection = MeetingColumns.TEAM_ID + "=?";
+            String[] selectionArgs = new String[] { String.valueOf(mTeamId) };
+            CursorLoader loader = new CursorLoader(getActivity(), MeetingColumns.CONTENT_URI, null, selection, selectionArgs, MeetingColumns.MEETING_DATE
+                    + " DESC");
             return loader;
         }
 
@@ -159,6 +171,15 @@ public class MeetingsListFragment extends SherlockListFragment {
                 default:
                     break;
             }
+        }
+    };
+
+    private OnSharedPreferenceChangeListener mPrefsListener = new OnSharedPreferenceChangeListener() {
+
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+            mTeamId = sharedPreferences.getInt(Constants.EXTRA_TEAM_ID, TeamColumns.DEFAULT_TEAM_ID);
+            getLoaderManager().restartLoader(URL_LOADER, null, mLoaderCallbacks);
         }
     };
 }

@@ -35,7 +35,7 @@ public class TeamColumns implements BaseColumns {
 
 	public static final String TEAM_NAME = "team_name";
 
-	static final int DEFAULT_TEAM_ID = 1;
+	public static final int DEFAULT_TEAM_ID = 1;
 	static final String DEFAULT_TEAM_NAME = "Team A";
 
 	static final String DEFAULT_ORDER = _ID;

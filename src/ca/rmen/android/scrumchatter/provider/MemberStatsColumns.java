@@ -31,6 +31,7 @@ public class MemberStatsColumns implements BaseColumns {
     public static final Uri CONTENT_URI = Uri.parse(ScrumChatterProvider.CONTENT_URI_BASE + "/" + VIEW_NAME);
 
     public static final String _ID = BaseColumns._ID;
+    public static final String TEAM_ID = "team_id";
     public static final String SUM_DURATION = "sum_duration";
     public static final String AVG_DURATION = "avg_duration";
 

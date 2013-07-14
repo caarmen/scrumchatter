@@ -25,10 +25,13 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -49,6 +52,7 @@ import ca.rmen.android.scrumchatter.adapter.MembersCursorAdapter;
 import ca.rmen.android.scrumchatter.adapter.MembersCursorAdapter.MemberItemCache;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberStatsColumns;
+import ca.rmen.android.scrumchatter.provider.TeamColumns;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
@@ -66,6 +70,9 @@ public class MembersListFragment extends SherlockListFragment {
     private TextView mTextViewSumDuration;
 
     private MembersCursorAdapter mAdapter;
+    private SharedPreferences mPrefs;
+    private int mTeamId;
+
 
     public MembersListFragment() {
         super();
@@ -87,7 +94,16 @@ public class MembersListFragment extends SherlockListFragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(activity);
+        mPrefs.registerOnSharedPreferenceChangeListener(mPrefsListener);
+        mTeamId = mPrefs.getInt(Constants.EXTRA_TEAM_ID, TeamColumns.DEFAULT_TEAM_ID);
         getLoaderManager().initLoader(URL_LOADER, null, mLoaderCallbacks);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mPrefs.unregisterOnSharedPreferenceChangeListener(mPrefsListener);
     }
 
     @Override
@@ -122,6 +138,7 @@ public class MembersListFragment extends SherlockListFragment {
                                         protected Void doInBackground(Void... params) {
                                             ContentValues values = new ContentValues();
                                             values.put(MemberColumns.NAME, memberName);
+                                            values.put(MemberColumns.TEAM_ID, mTeamId);
                                             activity.getContentResolver().insert(MemberColumns.CONTENT_URI, values);
                                             return null;
                                         }
@@ -166,7 +183,7 @@ public class MembersListFragment extends SherlockListFragment {
                         protected Boolean doInBackground(Void... params) {
                             // Query for a memmber with this name.
                             Cursor existingMemberCountCursor = activity.getContentResolver().query(MemberColumns.CONTENT_URI, new String[] { "count(*)" },
-                                    MemberColumns.NAME + "=?", new String[] { memberName }, null);
+                                    MemberColumns.NAME + "=? AND " + MemberColumns.TEAM_ID + "=?", new String[] { memberName, String.valueOf(mTeamId) }, null);
 
                             // Now Check if the team member exists.
                             if (existingMemberCountCursor != null) {
@@ -202,7 +219,9 @@ public class MembersListFragment extends SherlockListFragment {
         public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
             Log.v(TAG, "onCreateLoader, order by " + mOrderByField);
             String[] projection = new String[] { MemberColumns._ID, MemberColumns.NAME, MemberStatsColumns.SUM_DURATION, MemberStatsColumns.AVG_DURATION };
-            CursorLoader loader = new CursorLoader(getActivity(), MemberStatsColumns.CONTENT_URI, projection, null, null, mOrderByField);
+            String selection = MemberStatsColumns.TEAM_ID + " =?";
+            String[] selectionArgs = new String[] { String.valueOf(mTeamId) };
+            CursorLoader loader = new CursorLoader(getActivity(), MemberStatsColumns.CONTENT_URI, projection, selection, selectionArgs, mOrderByField);
             return loader;
         }
 
@@ -307,6 +326,15 @@ public class MembersListFragment extends SherlockListFragment {
             // Requery if needed.
             if (!oldOrderByField.equals(mOrderByField)) getLoaderManager().restartLoader(URL_LOADER, null, mLoaderCallbacks);
 
+        }
+    };
+
+    private OnSharedPreferenceChangeListener mPrefsListener = new OnSharedPreferenceChangeListener() {
+
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+            mTeamId = sharedPreferences.getInt(Constants.EXTRA_TEAM_ID, TeamColumns.DEFAULT_TEAM_ID);
+            getLoaderManager().restartLoader(URL_LOADER, null, mLoaderCallbacks);
         }
     };
 }

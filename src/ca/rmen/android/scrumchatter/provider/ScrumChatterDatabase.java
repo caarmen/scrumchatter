@@ -29,15 +29,14 @@ import ca.rmen.android.scrumchatter.Constants;
  * Creates and upgrades database tables.
  */
 public class ScrumChatterDatabase extends SQLiteOpenHelper {
-	private static final String TAG = Constants.TAG
-			+ ScrumChatterDatabase.class.getSimpleName();
+    private static final String TAG = Constants.TAG + ScrumChatterDatabase.class.getSimpleName();
 
-	public static final String DATABASE_NAME = "scrumchatter.db";
-	private static final int DATABASE_VERSION = 2;
+    public static final String DATABASE_NAME = "scrumchatter.db";
+    private static final int DATABASE_VERSION = 2;
 
-	private static final String TEMP_SUFFIX = "_temp";
+    private static final String TEMP_SUFFIX = "_temp";
 
-	// @formatter:off
+    // @formatter:off
 	private static final String SQL_CREATE_TABLE_TEAM = "CREATE TABLE IF NOT EXISTS "
 			+ TeamColumns.TABLE_NAME
 			+ " ( "
@@ -154,80 +153,87 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
 	private static final String SQL_DROP_TABLE_MEETING_TEMP = "DROP TABLE " + MeetingColumns.TABLE_NAME + TEMP_SUFFIX;
 	private static final String SQL_CREATE_VIEW_MEMBER_STATS = "CREATE VIEW "
 			+ MemberStatsColumns.VIEW_NAME + " AS " + " SELECT "
-			+ MemberColumns.TABLE_NAME + "." + MemberColumns._ID + " AS "
-			+ MemberColumns._ID + ", " + MemberColumns.TABLE_NAME + "."
-			+ MemberColumns.NAME + ", " + " SUM("
-			+ MeetingMemberColumns.TABLE_NAME + "."
-			+ MeetingMemberColumns.DURATION + ") AS "
-			+ MemberStatsColumns.SUM_DURATION + "," + " AVG("
-			+ MeetingMemberColumns.TABLE_NAME + "."
-			+ MeetingMemberColumns.DURATION + ") AS "
-			+ MemberStatsColumns.AVG_DURATION + " FROM "
+			+ MemberColumns.TABLE_NAME + "." + MemberColumns._ID + " AS " + MemberColumns._ID + ", " 
+			+ MemberColumns.TABLE_NAME + "." + MemberColumns.NAME + ", " 
+			+ MemberColumns.TABLE_NAME + "." + MemberColumns.TEAM_ID+ " AS " + MemberStatsColumns.TEAM_ID + ", " 
+			+ " SUM(" + MeetingMemberColumns.TABLE_NAME + "." + MeetingMemberColumns.DURATION + ") AS " + MemberStatsColumns.SUM_DURATION + "," 
+			+ " AVG(" + MeetingMemberColumns.TABLE_NAME + "." + MeetingMemberColumns.DURATION + ") AS " + MemberStatsColumns.AVG_DURATION 
+			+ " FROM "
 			+ MemberColumns.TABLE_NAME + " LEFT OUTER JOIN "
-			+ MeetingMemberColumns.TABLE_NAME + " ON "
-			+ MemberColumns.TABLE_NAME + "." + MemberColumns._ID + " = "
-			+ MeetingMemberColumns.TABLE_NAME + "."
-			+ MeetingMemberColumns.MEMBER_ID + " AND "
-			+ MeetingMemberColumns.TABLE_NAME + "."
-			+ MeetingMemberColumns.DURATION + "> 0" + " GROUP BY "
-			+ MemberColumns.TABLE_NAME + "." + MemberColumns.NAME;
+			+ MeetingMemberColumns.TABLE_NAME + " ON " + MemberColumns.TABLE_NAME + "." + MemberColumns._ID + " = " + MeetingMemberColumns.TABLE_NAME + "." + MeetingMemberColumns.MEMBER_ID 
+			+ " AND " + MeetingMemberColumns.TABLE_NAME + "." + MeetingMemberColumns.DURATION + "> 0" 
+			+ " GROUP BY " 
+			+ MemberColumns.TABLE_NAME + "." + MemberColumns._ID+  ", "
+			+ MemberColumns.TABLE_NAME + "." + MemberColumns.NAME +  ", "
+			+ MemberColumns.TABLE_NAME + "." + MemberColumns.TEAM_ID;
+
+	private static final String SQL_DROP_VIEW_MEMBER_STATS = "DROP VIEW " + MemberStatsColumns.VIEW_NAME;
 			
 			
 
 	// @formatter:on
 
-	ScrumChatterDatabase(Context context) {
-		super(context, DATABASE_NAME, null, DATABASE_VERSION);
-	}
+    ScrumChatterDatabase(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
 
-	@Override
-	public void onCreate(SQLiteDatabase db) {
-		Log.d(TAG, "onCreate");
-		db.execSQL(SQL_CREATE_TABLE_TEAM);
-		db.execSQL(SQL_CREATE_TABLE_MEETING_MEMBER);
-		db.execSQL(SQL_CREATE_TABLE_MEMBER);
-		db.execSQL(SQL_CREATE_TABLE_MEETING);
-		db.execSQL(SQL_CREATE_VIEW_MEMBER_STATS);
-	}
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        Log.d(TAG, "onCreate");
+        db.execSQL(SQL_CREATE_TABLE_TEAM);
+        db.execSQL(SQL_CREATE_TABLE_MEETING_MEMBER);
+        db.execSQL(SQL_CREATE_TABLE_MEMBER);
+        db.execSQL(SQL_CREATE_TABLE_MEETING);
+        db.execSQL(SQL_CREATE_VIEW_MEMBER_STATS);
+        insertDefaultTeam(db);
+    }
 
-	@Override
-	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		Log.d(TAG, "Upgrading database from version " + oldVersion + " to "
-				+ newVersion);
-		if (newVersion < 2) {
-			// Create the team table
-			db.execSQL(SQL_CREATE_TABLE_TEAM);
-			// Insert the default team
-			ContentValues values = new ContentValues(2);
-			values.put(TeamColumns._ID, TeamColumns.DEFAULT_TEAM_ID);
-			values.put(TeamColumns.TEAM_NAME, TeamColumns.DEFAULT_TEAM_NAME);
-			db.insert(TeamColumns.TABLE_NAME, null, values);
-			// Update the member table so all members are in the default team
-			db.beginTransaction();
-			db.execSQL(SQL_CREATE_TABLE_MEMBER_TEMP);
-			db.execSQL(SQL_INSERT_TABLE_MEMBER_TEMP);
-			db.execSQL(SQL_DROP_TABLE_MEMBER);
-			db.execSQL(SQL_CREATE_TABLE_MEMBER);
-			db.execSQL(SQL_INSERT_TABLE_MEMBER);
-			db.execSQL(SQL_DROP_TABLE_MEMBER_TEMP);
-			// Update the meeting table so all meetings are for the default team
-			db.execSQL(SQL_CREATE_TABLE_MEETING_TEMP);
-			db.execSQL(SQL_INSERT_TABLE_MEETING_TEMP);
-			db.execSQL(SQL_DROP_TABLE_MEETING);
-			db.execSQL(SQL_CREATE_TABLE_MEETING);
-			db.execSQL(SQL_INSERT_TABLE_MEETING);
-			db.execSQL(SQL_DROP_TABLE_MEETING_TEMP);
-			db.endTransaction();
-		}
-	}
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        Log.d(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion);
+        if (newVersion < 2) {
+            // Create the team table
+            db.execSQL(SQL_CREATE_TABLE_TEAM);
+            // Insert the default team
+            insertDefaultTeam(db);
+            // Update the member table so all members are in the default team
+            db.beginTransaction();
+            db.execSQL(SQL_CREATE_TABLE_MEMBER_TEMP);
+            db.execSQL(SQL_INSERT_TABLE_MEMBER_TEMP);
+            db.execSQL(SQL_DROP_TABLE_MEMBER);
+            db.execSQL(SQL_CREATE_TABLE_MEMBER);
+            db.execSQL(SQL_INSERT_TABLE_MEMBER);
+            db.execSQL(SQL_DROP_TABLE_MEMBER_TEMP);
+            // Update the meeting table so all meetings are for the default team
+            db.execSQL(SQL_CREATE_TABLE_MEETING_TEMP);
+            db.execSQL(SQL_INSERT_TABLE_MEETING_TEMP);
+            db.execSQL(SQL_DROP_TABLE_MEETING);
+            db.execSQL(SQL_CREATE_TABLE_MEETING);
+            db.execSQL(SQL_INSERT_TABLE_MEETING);
+            db.execSQL(SQL_DROP_TABLE_MEETING_TEMP);
+            // Recreate the views
+            db.execSQL(SQL_DROP_VIEW_MEMBER_STATS);
+            db.execSQL(SQL_CREATE_VIEW_MEMBER_STATS);
+            db.endTransaction();
+        }
+    }
 
-	@Override
-	public void onOpen(SQLiteDatabase db) {
-		Log.d(TAG, "onOpen");
-		if (!db.isReadOnly()) {
-			// Enable foreign key constraints
-			db.execSQL("PRAGMA foreign_keys=ON;");
-		}
-	}
+    @Override
+    public void onOpen(SQLiteDatabase db) {
+        Log.d(TAG, "onOpen");
+        if (!db.isReadOnly()) {
+            // Enable foreign key constraints
+            db.execSQL("PRAGMA foreign_keys=ON;");
+        }
+    }
 
+    /**
+     * Insert the default team
+     */
+    private void insertDefaultTeam(SQLiteDatabase db) {
+        ContentValues values = new ContentValues(2);
+        values.put(TeamColumns._ID, TeamColumns.DEFAULT_TEAM_ID);
+        values.put(TeamColumns.TEAM_NAME, TeamColumns.DEFAULT_TEAM_NAME);
+        db.insert(TeamColumns.TABLE_NAME, null, values);
+    }
 }
