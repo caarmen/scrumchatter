@@ -65,6 +65,9 @@ public class Teams {
     public void selectTeam(final Team team) {
         AsyncTask<Void, Void, CharSequence[]> task = new AsyncTask<Void, Void, CharSequence[]>() {
 
+            /**
+             * Create the list of team names, excluding the currently selected team, and with a special last item to create a new team.
+             */
             @Override
             protected CharSequence[] doInBackground(Void... params) {
                 Cursor c = mContext.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { TeamColumns.TEAM_NAME }, TeamColumns._ID + "!=?",
@@ -73,10 +76,8 @@ public class Teams {
                     try {
                         CharSequence[] result = new CharSequence[c.getCount() + 1];
                         int i = 0;
-                        if (c.moveToFirst()) {
-                            do {
-                                result[i++] = c.getString(0);
-                            } while (c.moveToNext());
+                        while (c.moveToNext()) {
+                            result[i++] = c.getString(0);
                         }
                         result[i++] = mContext.getString(R.string.new_team);
                         return result;
@@ -87,15 +88,22 @@ public class Teams {
                 return null;
             }
 
+            /**
+             * Show a dialog with the list of teams. Upon clicking a team name, switch to that team. Else upon clicking the "create new team" button, create a
+             * new team.
+             */
             @Override
             protected void onPostExecute(final CharSequence[] result) {
                 if (result != null && result.length >= 1) {
                     OnClickListener itemListener = new OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            // The user clicked on the "new team" item.
                             if (which == result.length - 1) {
                                 createTeam();
-                            } else {
+                            }
+                            // The user selected an existing team.  Update the shared preference for this team, in the background.
+                            else {
                                 final CharSequence teamName = result[which];
                                 AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
 
@@ -105,8 +113,8 @@ public class Teams {
                                                 TeamColumns.TEAM_NAME + " = ?", new String[] { String.valueOf(teamName) }, null);
                                         if (c != null) {
                                             try {
+                                                c.moveToFirst();
                                                 if (c.getCount() == 1) {
-                                                    c.moveToFirst();
                                                     int teamId = c.getInt(0);
                                                     PreferenceManager.getDefaultSharedPreferences(mContext).edit().putInt(Constants.EXTRA_TEAM_ID, teamId)
                                                             .commit();
@@ -316,9 +324,15 @@ public class Teams {
         return 0;
     }
 
+    /**
+     * Returns an error if the user entered the name of an existing team. To prevent renaming or creating multiple teams with the same name.
+     */
     private class TeamNameValidator implements InputValidator {
         private final String mTeamName;
 
+        /**
+         * @param teamName optional. If given, we won't show an error for renaming a team to its current name.
+         */
         TeamNameValidator(String teamName) {
             mTeamName = teamName;
         }

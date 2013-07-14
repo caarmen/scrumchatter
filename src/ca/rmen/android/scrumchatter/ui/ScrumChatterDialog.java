@@ -52,14 +52,6 @@ import ca.rmen.android.scrumchatter.R;
  * 
  * Only 3.x+ devices will have customized dialogs.
  */
-/**
- * @author carmen
- *
- */
-/**
- * @author carmen
- * 
- */
 public class ScrumChatterDialog {
 
     private static final String TAG = Constants.TAG + "/" + ScrumChatterDialog.class.getSimpleName();
@@ -71,12 +63,16 @@ public class ScrumChatterDialog {
 
     public interface InputValidator {
         /**
-         * @param input
+         * @param input the text entered by the user.
          * @return an error string if the input has a problem, null if the input is valid.
          */
         String getError(CharSequence input);
     };
 
+    /**
+     * @param input an EditText for user input
+     * @param validator will be called with each text event on the edit text, to validate the user's input.
+     */
     public static AlertDialog showEditTextDialog(Context context, int titleId, int messageId, final EditText input,
             DialogInterface.OnClickListener positiveListener, final InputValidator validator) {
 

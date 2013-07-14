@@ -68,17 +68,13 @@ public class DBImport {
         buildInsertOperations(dbImport, MeetingColumns.CONTENT_URI, MeetingColumns.TABLE_NAME, operations);
         buildInsertOperations(dbImport, MeetingMemberColumns.CONTENT_URI, MeetingMemberColumns.TABLE_NAME, operations);
         context.getContentResolver().applyBatch(ScrumChatterProvider.AUTHORITY, operations);
+        // Set the first available team as our selected team
         Cursor c = context.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { TeamColumns._ID }, null, null, null);
-        if (c != null) {
-            try {
-                if (c.moveToFirst()) {
-                    int teamId = c.getInt(0);
-                    PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(Constants.EXTRA_TEAM_ID, teamId);
-                }
-            } finally {
-                c.close();
-            }
+        if (c.moveToFirst()) {
+            int teamId = c.getInt(0);
+            PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(Constants.EXTRA_TEAM_ID, teamId);
         }
+        c.close();
     }
 
     private static void buildInsertOperations(SQLiteDatabase dbImport, Uri uri, String table, ArrayList<ContentProviderOperation> operations) {

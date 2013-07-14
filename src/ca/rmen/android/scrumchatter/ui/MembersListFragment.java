@@ -292,6 +292,9 @@ public class MembersListFragment extends SherlockListFragment {
         }
     };
 
+    /**
+     * Refresh the list when the selected team changes.
+     */
     private OnSharedPreferenceChangeListener mPrefsListener = new OnSharedPreferenceChangeListener() {
 
         @Override

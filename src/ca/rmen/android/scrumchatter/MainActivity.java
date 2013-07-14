@@ -155,8 +155,10 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         Log.v(TAG, "onPrepareOptionsMenu " + menu);
+        // Only enable the "delete team" menu item if we have at least two teams.
         MenuItem deleteItem = menu.findItem(R.id.action_team_delete);
         deleteItem.setEnabled(mTeamCount > 1);
+        // Add the current team name to the delete and rename menu items
         if (mTeam != null) {
             deleteItem.setTitle(getString(R.string.action_team_delete_name, mTeam.teamName));
             MenuItem renameItem = menu.findItem(R.id.action_team_rename);
@@ -316,7 +318,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
     }
 
     /**
-     * Called when the current team was changed.
+     * Called when the current team was changed. Update our cache of the current team and update the ui (menu items, action bar title).
      */
     private void onTeamChanged() {
         AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
@@ -324,6 +326,8 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
             @Override
             protected Void doInBackground(Void... arg0) {
                 mTeam = mTeams.getCurrentTeam();
+                // If for some reason we have no current team, select any available team
+                // Should not really happen, so perhaps this check should be removed?
                 if (mTeam == null) {
                     mTeams.selectFirstTeam();
                 }
