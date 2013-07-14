@@ -320,6 +320,7 @@ public class ScrumChatterProvider extends ContentProvider {
         int matchedId = URI_MATCHER.match(uri);
         switch (matchedId) {
             case URI_TYPE_TEAM_ID:
+                id = uri.getLastPathSegment();
             case URI_TYPE_TEAM:
                 res.table = TeamColumns.TABLE_NAME;
                 break;

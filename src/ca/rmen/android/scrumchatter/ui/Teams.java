@@ -29,7 +29,6 @@ import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.EditText;
-import android.widget.Toast;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.provider.TeamColumns;
@@ -80,7 +79,32 @@ public class Teams {
                             if (which == result.length - 1) {
                                 createTeam();
                             } else {
-                                Toast.makeText(mContext, "Should switch teams to " + result[which], Toast.LENGTH_SHORT).show();
+                                final CharSequence teamName = result[which];
+                                AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+
+                                    @Override
+                                    protected Void doInBackground(Void... params) {
+                                        Cursor c = mContext.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { TeamColumns._ID },
+                                                TeamColumns.TEAM_NAME + " = ?", new String[] { String.valueOf(teamName) }, null);
+                                        if (c != null) {
+                                            try {
+                                                if (c.getCount() == 1) {
+                                                    c.moveToFirst();
+                                                    int teamId = c.getInt(0);
+                                                    PreferenceManager.getDefaultSharedPreferences(mContext).edit().putInt(Constants.EXTRA_TEAM_ID, teamId)
+                                                            .commit();
+                                                } else {
+                                                    Log.wtf(TAG, "Found " + c.getCount() + " teams for " + teamName);
+                                                }
+
+                                            } finally {
+                                                c.close();
+                                            }
+                                        }
+                                        return null;
+                                    }
+                                };
+                                task.execute();
                             }
                         }
                     };
