@@ -153,6 +153,19 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        Log.v(TAG, "onPrepareOptionsMenu " + menu);
+        MenuItem deleteItem = menu.findItem(R.id.action_team_delete);
+        deleteItem.setEnabled(mTeamCount > 1);
+        if (mTeam != null) {
+            deleteItem.setTitle(getString(R.string.action_team_delete_name, mTeam.teamName));
+            MenuItem renameItem = menu.findItem(R.id.action_team_rename);
+            renameItem.setTitle(getString(R.string.action_team_rename_name, mTeam.teamName));
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_team_switch:
@@ -322,6 +335,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
                 // otherwise the user doesn't care about team management: just show the app title.
                 else
                     getSupportActionBar().setTitle(R.string.app_name);
+                supportInvalidateOptionsMenu();
             }
         };
         task.execute();

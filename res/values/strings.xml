@@ -27,7 +27,9 @@
     <string name="action_team">Teams</string>
     <string name="action_team_switch">Switch teams</string>
     <string name="action_team_rename">Rename team</string>
+    <string name="action_team_rename_name">Rename %s</string>
     <string name="action_team_delete">Delete team</string>
+    <string name="action_team_delete_name">Delete %s</string>
     <string name="action_import">Import database</string>
     <string name="action_new_member">Add team member</string>
     <string name="action_new_meeting">New meeting</string>
