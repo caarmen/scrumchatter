@@ -52,6 +52,14 @@ import ca.rmen.android.scrumchatter.R;
  * 
  * Only 3.x+ devices will have customized dialogs.
  */
+/**
+ * @author carmen
+ *
+ */
+/**
+ * @author carmen
+ * 
+ */
 public class ScrumChatterDialog {
 
     private static final String TAG = Constants.TAG + "/" + ScrumChatterDialog.class.getSimpleName();
@@ -142,6 +150,23 @@ public class ScrumChatterDialog {
     }
 
     /**
+     * @return a dialog with the given title and message, and just one OK button.
+     */
+    public static AlertDialog showInfoDialog(Context context, int titleId, int messageId) {
+        context = new ContextThemeWrapper(context, R.style.dialogStyle);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(titleId).setMessage(messageId).setNeutralButton(android.R.string.ok, null);
+        // Show the dialog (we have to do this before we can modify its views).
+        AlertDialog dialog = builder.create();
+        dialog.getContext().setTheme(R.style.dialogStyle);
+        dialog.show();
+
+        uglyHackReplaceBlueHoloBackground(context, (ViewGroup) dialog.getWindow().getDecorView());
+        return dialog;
+    }
+
+    /**
      * @param title Optional. The title of the dialog.
      * @param message Optional. The message of the dialog.
      * @param customView Optional. A custom view for the dialog.
@@ -156,8 +181,7 @@ public class ScrumChatterDialog {
         Log.v(TAG, "showDialog: title = " + title + ", message = " + message + ", customView = " + customView + ", items = " + Arrays.toString(items)
                 + ", listener = " + listener);
 
-        // For 3.x+, use our custom theme for the dialog. This will impact the title text color and the EditText color.
-        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) */context = new ContextThemeWrapper(context, R.style.dialogStyle);
+        context = new ContextThemeWrapper(context, R.style.dialogStyle);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(title).setMessage(message);
@@ -174,7 +198,7 @@ public class ScrumChatterDialog {
 
         // Show the dialog (we have to do this before we can modify its views).
         AlertDialog dialog = builder.create();
-        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) */dialog.getContext().setTheme(R.style.dialogStyle);
+        dialog.getContext().setTheme(R.style.dialogStyle);
         dialog.show();
 
         // For 3.x+, update the dialog elements which couldn't be updated cleanly with the theme:

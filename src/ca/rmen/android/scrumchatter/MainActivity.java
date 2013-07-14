@@ -80,6 +80,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
 
     private Teams mTeams = new Teams(this);
     private Team mTeam = null;
+    private int mTeamCount = 0;
 
 
     @Override
@@ -310,7 +311,17 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
             @Override
             protected Void doInBackground(Void... arg0) {
                 mTeam = mTeams.getCurrentTeam();
+                mTeamCount = mTeams.getTeamCount();
                 return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void result) {
+                // If the user has renamed the default team or added other teams, show the current team name in the title
+                if (mTeamCount > 1 || !mTeam.teamName.equals(TeamColumns.DEFAULT_TEAM_NAME)) getSupportActionBar().setTitle(mTeam.teamName);
+                // otherwise the user doesn't care about team management: just show the app title.
+                else
+                    getSupportActionBar().setTitle(R.string.app_name);
             }
         };
         task.execute();

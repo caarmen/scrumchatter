@@ -42,9 +42,9 @@ public class Teams {
     private final Context mContext;
 
     public static class Team {
-        final int teamId;
-        final Uri teamUri;
-        final String teamName;
+        public final int teamId;
+        public final Uri teamUri;
+        public final String teamName;
 
         public Team(int teamId, Uri teamUri, String teamName) {
             this.teamId = teamId;
@@ -219,27 +219,18 @@ public class Teams {
      */
     public void deleteTeam(final Team team) {
 
-        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-            int mTeamCount = 0;
+        AsyncTask<Void, Void, Integer> task = new AsyncTask<Void, Void, Integer>() {
 
             @Override
-            protected Void doInBackground(Void... params) {
-                Cursor c = mContext.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { "count(*)" }, null, null, null);
-                if (c != null) {
-                    try {
-                        if (c.moveToFirst()) mTeamCount = c.getInt(0);
-                    } finally {
-                        c.close();
-                    }
-                }
-                return null;
+            protected Integer doInBackground(Void... params) {
+                return getTeamCount();
             }
 
             @Override
-            protected void onPostExecute(Void result) {
+            protected void onPostExecute(Integer teamCount) {
                 // We need at least one team in the app.
-                if (mTeamCount <= 1) {
-                    ScrumChatterDialog.showDialog(mContext, R.string.action_team_delete, R.string.dialog_error_one_team_required, null);
+                if (teamCount <= 1) {
+                    ScrumChatterDialog.showInfoDialog(mContext, R.string.action_team_delete, R.string.dialog_error_one_team_required);
                 }
                 // Delete this team
                 else if (team != null) {
@@ -304,6 +295,21 @@ public class Teams {
         }
         Log.wtf(TAG, "Could not get the curren team", new Throwable());
         return null;
+    }
+
+    /**
+     * @return the total number of teams
+     */
+    public int getTeamCount() {
+        Cursor c = mContext.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { "count(*)" }, null, null, null);
+        if (c != null) {
+            try {
+                if (c.moveToFirst()) return c.getInt(0);
+            } finally {
+                c.close();
+            }
+        }
+        return 0;
     }
 
     private class TeamNameValidator implements InputValidator {

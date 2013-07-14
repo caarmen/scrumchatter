@@ -27,16 +27,15 @@ import android.provider.BaseColumns;
  * A row in this table contains attributes of a team.
  */
 public class TeamColumns implements BaseColumns {
-	static final String TABLE_NAME = "team";
-	public static final Uri CONTENT_URI = Uri
-			.parse(ScrumChatterProvider.CONTENT_URI_BASE + "/" + TABLE_NAME);
+    static final String TABLE_NAME = "team";
+    public static final Uri CONTENT_URI = Uri.parse(ScrumChatterProvider.CONTENT_URI_BASE + "/" + TABLE_NAME);
 
-	public static final String _ID = BaseColumns._ID;
+    public static final String _ID = BaseColumns._ID;
 
-	public static final String TEAM_NAME = "team_name";
+    public static final String TEAM_NAME = "team_name";
 
-	public static final int DEFAULT_TEAM_ID = 1;
-	static final String DEFAULT_TEAM_NAME = "Team A";
+    public static final int DEFAULT_TEAM_ID = 1;
+    public static final String DEFAULT_TEAM_NAME = "Team A";
 
-	static final String DEFAULT_ORDER = _ID;
+    static final String DEFAULT_ORDER = _ID;
 }
