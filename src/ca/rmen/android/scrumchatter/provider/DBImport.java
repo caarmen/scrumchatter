@@ -32,6 +32,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.util.IOUtils;
@@ -61,10 +62,23 @@ public class DBImport {
         operations.add(ContentProviderOperation.newDelete(MeetingMemberColumns.CONTENT_URI).build());
         operations.add(ContentProviderOperation.newDelete(MemberColumns.CONTENT_URI).build());
         operations.add(ContentProviderOperation.newDelete(MeetingColumns.CONTENT_URI).build());
+        operations.add(ContentProviderOperation.newDelete(TeamColumns.CONTENT_URI).build());
+        buildInsertOperations(dbImport, TeamColumns.CONTENT_URI, TeamColumns.TABLE_NAME, operations);
         buildInsertOperations(dbImport, MemberColumns.CONTENT_URI, MemberColumns.TABLE_NAME, operations);
         buildInsertOperations(dbImport, MeetingColumns.CONTENT_URI, MeetingColumns.TABLE_NAME, operations);
         buildInsertOperations(dbImport, MeetingMemberColumns.CONTENT_URI, MeetingMemberColumns.TABLE_NAME, operations);
         context.getContentResolver().applyBatch(ScrumChatterProvider.AUTHORITY, operations);
+        Cursor c = context.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { TeamColumns._ID }, null, null, null);
+        if (c != null) {
+            try {
+                if (c.moveToFirst()) {
+                    int teamId = c.getInt(0);
+                    PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(Constants.EXTRA_TEAM_ID, teamId);
+                }
+            } finally {
+                c.close();
+            }
+        }
     }
 
     private static void buildInsertOperations(SQLiteDatabase dbImport, Uri uri, String table, ArrayList<ContentProviderOperation> operations) {

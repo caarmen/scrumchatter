@@ -245,20 +245,7 @@ public class Teams {
                                         // delete this team
                                         mContext.getContentResolver().delete(team.teamUri, null, null);
                                         // pick another current team
-                                        Cursor c = mContext.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { TeamColumns._ID }, null, null,
-                                                null);
-                                        if (c != null) {
-                                            try {
-                                                if (c.moveToFirst()) {
-                                                    int teamId = c.getInt(0);
-                                                    PreferenceManager.getDefaultSharedPreferences(mContext).edit().putInt(Constants.EXTRA_TEAM_ID, teamId)
-                                                            .commit();
-                                                }
-                                            } finally {
-                                                c.close();
-                                            }
-
-                                        }
+                                        selectFirstTeam();
                                         return null;
                                     }
 
@@ -273,6 +260,23 @@ public class Teams {
             }
         };
         task.execute();
+    }
+
+    /**
+     * Select the first team in our DB.
+     */
+    public void selectFirstTeam() {
+        Cursor c = mContext.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { TeamColumns._ID }, null, null, null);
+        if (c != null) {
+            try {
+                if (c.moveToFirst()) {
+                    int teamId = c.getInt(0);
+                    PreferenceManager.getDefaultSharedPreferences(mContext).edit().putInt(Constants.EXTRA_TEAM_ID, teamId).commit();
+                }
+            } finally {
+                c.close();
+            }
+        }
     }
 
     /**
