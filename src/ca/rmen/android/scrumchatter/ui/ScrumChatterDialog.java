@@ -43,8 +43,6 @@ import ca.rmen.android.scrumchatter.R;
  * Boy is customizing alert dialogs a pain in the booty. Tried the android-styled-dialogs library but it didn't fit the needs of this app: no support for alert
  * dialogs with EditTexts, and not a clean way to manage clicks on the dialog buttons. Started out trying to copy the resources used for dialogs, one-by-one,
  * from the core android framework, but that was more pain than the approach I decided to take in this class.
- * 
- * Only 3.x+ devices will have customized dialogs.
  */
 public class ScrumChatterDialog {
 
