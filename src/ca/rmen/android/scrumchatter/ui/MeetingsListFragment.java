@@ -43,6 +43,7 @@ import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.adapter.MeetingsCursorAdapter;
 import ca.rmen.android.scrumchatter.adapter.MeetingsCursorAdapter.MeetingItemCache;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
+import ca.rmen.android.scrumchatter.provider.MemberColumns;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
@@ -94,9 +95,35 @@ public class MeetingsListFragment extends SherlockListFragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Start a new meeting.
+    	// Check if we have any members first.  A meeting with no members is not much fun.
         if (item.getItemId() == R.id.action_new_meeting) {
-            Intent intent = new Intent(getActivity(), MeetingActivity.class);
-            startActivity(intent);
+        	AsyncTask<Void,Void,Boolean> task = new AsyncTask<Void,Void,Boolean>(){
+
+				@Override
+				protected Boolean doInBackground(Void... params) {
+					Cursor c = getActivity().getContentResolver().query(MemberColumns.CONTENT_URI, new String[]{"count(*)"}, MemberColumns.TEAM_ID + "=?", new String[]{String.valueOf(mTeamId)}, null);
+					try {
+						c.moveToFirst();
+						int memberCount = c.getInt(0);
+						return memberCount > 0;
+					} finally{
+						c.close();
+					}
+				}
+
+				@Override
+				protected void onPostExecute(Boolean result) {
+					if(result){
+			            Intent intent = new Intent(getActivity(), MeetingActivity.class);
+			            startActivity(intent);
+					} else {
+						ScrumChatterDialog.showInfoDialog(getActivity(), R.string.dialog_error_title_one_member_required, R.string.dialog_error_message_one_member_required);
+					}
+				}
+				
+			};
+			task.execute();
+
             return true;
         }
         return true;
