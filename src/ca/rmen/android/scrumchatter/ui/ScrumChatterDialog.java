@@ -29,11 +29,17 @@ import android.graphics.NinePatch;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.NinePatchDrawable;
+import android.os.AsyncTask;
 import android.os.Build;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import ca.rmen.android.scrumchatter.Constants;
@@ -53,8 +59,74 @@ public class ScrumChatterDialog {
     private static Field sNinePatchSourceField = null;
     private static Field sNinePatchField = null;
 
+    public interface InputValidator {
+        /**
+         * @param input the text entered by the user.
+         * @return an error string if the input has a problem, null if the input is valid.
+         */
+        String getError(CharSequence input);
+    };
+
+    /**
+     * @param input an EditText for user input
+     * @param validator will be called with each text event on the edit text, to validate the user's input.
+     */
+    public static AlertDialog showEditTextDialog(Context context, int titleId, int messageId, final EditText input,
+            DialogInterface.OnClickListener positiveListener, final InputValidator validator) {
+
+        final AlertDialog dialog = showDialog(context, titleId, messageId, input, positiveListener);
+        input.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                validateMemberName();
+            }
+
+            private void validateMemberName() {
+                // Start off with everything a-ok.
+                input.setError(null);
+                final Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                okButton.setEnabled(true);
+
+                // Search for an error in background thread, update the dialog in the UI thread.
+                AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>() {
+
+                    /**
+                     * @return an error String if the input is invalid.
+                     */
+                    @Override
+                    protected String doInBackground(Void... params) {
+                        return validator.getError(input.getText().toString().trim());
+                    }
+
+                    @Override
+                    protected void onPostExecute(String error) {
+                        // If the input is invalid, highlight the error
+                        // and disable the OK button.
+                        if (!TextUtils.isEmpty(error)) {
+                            input.setError(error);
+                            okButton.setEnabled(false);
+                        }
+                    }
+                };
+                task.execute();
+            }
+        });
+        return dialog;
+    }
+
     public static AlertDialog showChoiceDialog(Context context, int titleId, int choicesArrayId, DialogInterface.OnClickListener itemListener) {
         return showDialog(context, context.getString(titleId), null, null, context.getResources().getStringArray(choicesArrayId), itemListener);
+    }
+
+    public static AlertDialog showChoiceDialog(Context context, int titleId, CharSequence[] choices, DialogInterface.OnClickListener itemListener) {
+        return showDialog(context, context.getString(titleId), null, null, choices, itemListener);
     }
 
     public static AlertDialog showDialog(Context context, String title, String message, DialogInterface.OnClickListener positiveListener) {
@@ -72,6 +144,23 @@ public class ScrumChatterDialog {
     }
 
     /**
+     * @return a dialog with the given title and message, and just one OK button.
+     */
+    public static AlertDialog showInfoDialog(Context context, int titleId, int messageId) {
+        context = new ContextThemeWrapper(context, R.style.dialogStyle);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(titleId).setMessage(messageId).setNeutralButton(android.R.string.ok, null);
+        // Show the dialog (we have to do this before we can modify its views).
+        AlertDialog dialog = builder.create();
+        dialog.getContext().setTheme(R.style.dialogStyle);
+        dialog.show();
+
+        uglyHackReplaceBlueHoloBackground(context, (ViewGroup) dialog.getWindow().getDecorView());
+        return dialog;
+    }
+
+    /**
      * @param title Optional. The title of the dialog.
      * @param message Optional. The message of the dialog.
      * @param customView Optional. A custom view for the dialog.
@@ -86,8 +175,7 @@ public class ScrumChatterDialog {
         Log.v(TAG, "showDialog: title = " + title + ", message = " + message + ", customView = " + customView + ", items = " + Arrays.toString(items)
                 + ", listener = " + listener);
 
-        // For 3.x+, use our custom theme for the dialog. This will impact the title text color and the EditText color.
-        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) */context = new ContextThemeWrapper(context, R.style.dialogStyle);
+        context = new ContextThemeWrapper(context, R.style.dialogStyle);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(title).setMessage(message);
@@ -104,7 +192,7 @@ public class ScrumChatterDialog {
 
         // Show the dialog (we have to do this before we can modify its views).
         AlertDialog dialog = builder.create();
-        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) */dialog.getContext().setTheme(R.style.dialogStyle);
+        dialog.getContext().setTheme(R.style.dialogStyle);
         dialog.show();
 
         // For 3.x+, update the dialog elements which couldn't be updated cleanly with the theme:

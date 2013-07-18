@@ -33,6 +33,7 @@ public class MemberColumns implements BaseColumns {
     public static final String _ID = BaseColumns._ID;
 
     public static final String NAME = "name";
+    public static final String TEAM_ID = "member_team_id";
 
     static final String DEFAULT_ORDER = _ID;
 }

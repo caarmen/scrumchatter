@@ -26,9 +26,13 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -41,9 +45,12 @@ import ca.rmen.android.scrumchatter.export.DBExport;
 import ca.rmen.android.scrumchatter.export.FileExport;
 import ca.rmen.android.scrumchatter.export.MeetingsExport;
 import ca.rmen.android.scrumchatter.provider.DBImport;
+import ca.rmen.android.scrumchatter.provider.TeamColumns;
 import ca.rmen.android.scrumchatter.ui.MeetingsListFragment;
 import ca.rmen.android.scrumchatter.ui.MembersListFragment;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog;
+import ca.rmen.android.scrumchatter.ui.Teams;
+import ca.rmen.android.scrumchatter.ui.Teams.Team;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -70,6 +77,10 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
+
+    private Teams mTeams = new Teams(this);
+    private Team mTeam = null;
+    private int mTeamCount = 0;
 
 
     @Override
@@ -108,12 +119,30 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
             // this tab is selected.
             actionBar.addTab(actionBar.newTab().setText(mSectionsPagerAdapter.getPageTitle(i)).setTabListener(this));
         }
+
+        onTeamChanged();
         // If our activity was opened by choosing a file from a mail attachment, file browser, or other program, 
         // import the database from this file.
         Intent intent = getIntent();
         if (intent != null) {
             if (Intent.ACTION_VIEW.equals(intent.getAction())) importDB(intent.getData());
         }
+    }
+
+    @Override
+    protected void onResume() {
+        Log.v(TAG, "onResume");
+        super.onResume();
+        getContentResolver().registerContentObserver(TeamColumns.CONTENT_URI, true, mContentObserver);
+        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(mSharedPrefsListener);
+    }
+
+    @Override
+    protected void onPause() {
+        Log.v(TAG, "onPause");
+        PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(mSharedPrefsListener);
+        getContentResolver().unregisterContentObserver(mContentObserver);
+        super.onPause();
     }
 
     @Override
@@ -124,8 +153,32 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        Log.v(TAG, "onPrepareOptionsMenu " + menu);
+        // Only enable the "delete team" menu item if we have at least two teams.
+        MenuItem deleteItem = menu.findItem(R.id.action_team_delete);
+        deleteItem.setEnabled(mTeamCount > 1);
+        // Add the current team name to the delete and rename menu items
+        if (mTeam != null) {
+            deleteItem.setTitle(getString(R.string.action_team_delete_name, mTeam.teamName));
+            MenuItem renameItem = menu.findItem(R.id.action_team_rename);
+            renameItem.setTitle(getString(R.string.action_team_rename_name, mTeam.teamName));
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.action_team_switch:
+                mTeams.selectTeam(mTeam);
+                return true;
+            case R.id.action_team_rename:
+                mTeams.renameTeam(mTeam);
+                return true;
+            case R.id.action_team_delete:
+                mTeams.deleteTeam(mTeam);
+                return true;
             case R.id.action_import:
                 Intent importIntent = new Intent(Intent.ACTION_GET_CONTENT);
                 importIntent.setType("file/*");
@@ -188,6 +241,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
             super.onActivityResult(requestCode, resultCode, intent);
         }
     }
+
 
     /**
      * Import the given database file. This will replace the current database.
@@ -264,6 +318,37 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
     }
 
     /**
+     * Called when the current team was changed. Update our cache of the current team and update the ui (menu items, action bar title).
+     */
+    private void onTeamChanged() {
+        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(Void... arg0) {
+                mTeam = mTeams.getCurrentTeam();
+                // If for some reason we have no current team, select any available team
+                // Should not really happen, so perhaps this check should be removed?
+                if (mTeam == null) {
+                    mTeams.selectFirstTeam();
+                }
+                mTeamCount = mTeams.getTeamCount();
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void result) {
+                // If the user has renamed the default team or added other teams, show the current team name in the title
+                if (mTeamCount > 1 || (mTeam != null && !mTeam.teamName.equals(Constants.DEFAULT_TEAM_NAME))) getSupportActionBar().setTitle(mTeam.teamName);
+                // otherwise the user doesn't care about team management: just show the app title.
+                else
+                    getSupportActionBar().setTitle(R.string.app_name);
+                supportInvalidateOptionsMenu();
+            }
+        };
+        task.execute();
+    }
+
+    /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
      */
@@ -303,4 +388,19 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
             return null;
         }
     }
+
+    private ContentObserver mContentObserver = new ContentObserver(null) {
+        @Override
+        public void onChange(boolean selfChange) {
+            onTeamChanged();
+        }
+    };
+
+    private OnSharedPreferenceChangeListener mSharedPrefsListener = new OnSharedPreferenceChangeListener() {
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+            onTeamChanged();
+        }
+    };
+
 }

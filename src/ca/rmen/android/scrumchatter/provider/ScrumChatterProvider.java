@@ -55,20 +55,26 @@ public class ScrumChatterProvider extends ContentProvider {
     public static final String QUERY_NOTIFY = "QUERY_NOTIFY";
     public static final String QUERY_GROUP_BY = "QUERY_GROUP_BY";
 
-    private static final int URI_TYPE_MEETING_MEMBER = 0;
-    private static final int URI_TYPE_MEETING_MEMBER_ID = 1;
+    private static final int URI_TYPE_TEAM = 0;
+    private static final int URI_TYPE_TEAM_ID = 1;
 
-    private static final int URI_TYPE_MEMBER = 2;
-    private static final int URI_TYPE_MEMBER_ID = 3;
+    private static final int URI_TYPE_MEETING_MEMBER = 2;
+    private static final int URI_TYPE_MEETING_MEMBER_ID = 3;
 
-    private static final int URI_TYPE_MEETING = 4;
-    private static final int URI_TYPE_MEETING_ID = 5;
+    private static final int URI_TYPE_MEMBER = 4;
+    private static final int URI_TYPE_MEMBER_ID = 5;
 
-    private static final int URI_TYPE_MEMBER_STATS = 6;
+    private static final int URI_TYPE_MEETING = 6;
+    private static final int URI_TYPE_MEETING_ID = 7;
+
+    private static final int URI_TYPE_MEMBER_STATS = 8;
 
     private static final UriMatcher URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
 
     static {
+        URI_MATCHER.addURI(AUTHORITY, TeamColumns.TABLE_NAME, URI_TYPE_TEAM);
+        URI_MATCHER.addURI(AUTHORITY, TeamColumns.TABLE_NAME + "/#", URI_TYPE_TEAM_ID);
+
         URI_MATCHER.addURI(AUTHORITY, MeetingMemberColumns.TABLE_NAME, URI_TYPE_MEETING_MEMBER);
         URI_MATCHER.addURI(AUTHORITY, MeetingMemberColumns.TABLE_NAME + "/#", URI_TYPE_MEETING_MEMBER_ID);
 
@@ -94,6 +100,11 @@ public class ScrumChatterProvider extends ContentProvider {
     public String getType(Uri uri) {
         final int match = URI_MATCHER.match(uri);
         switch (match) {
+            case URI_TYPE_TEAM:
+                return TYPE_CURSOR_DIR + TeamColumns.TABLE_NAME;
+            case URI_TYPE_TEAM_ID:
+                return TYPE_CURSOR_ITEM + TeamColumns.TABLE_NAME;
+
             case URI_TYPE_MEETING_MEMBER:
                 return TYPE_CURSOR_DIR + MeetingMemberColumns.TABLE_NAME;
             case URI_TYPE_MEETING_MEMBER_ID:
@@ -123,10 +134,11 @@ public class ScrumChatterProvider extends ContentProvider {
         final long rowId = mScrumChatterDatabase.getWritableDatabase().insert(table, null, values);
         // When we insert a row into the meeting table, we have to add
         // all existing members to this meeting. To do this, we create
-        // one row for each member into the meeting_member table.
+        // one row for each member into the meeting_member table for this team.
         if (table.equals(MeetingColumns.TABLE_NAME)) {
-            Cursor members = mScrumChatterDatabase.getReadableDatabase().query(MemberColumns.TABLE_NAME, new String[] { MemberColumns._ID }, null, null, null,
-                    null, null);
+            int teamId = values.getAsInteger(MeetingColumns.TEAM_ID);
+            Cursor members = mScrumChatterDatabase.getReadableDatabase().query(MemberColumns.TABLE_NAME, new String[] { MemberColumns._ID },
+                    MemberColumns.TEAM_ID + "=?", new String[] { String.valueOf(teamId) }, null, null, null);
             if (members != null) {
                 ContentValues[] newMeetingMembers = new ContentValues[members.getCount()];
                 if (members.moveToFirst()) {
@@ -307,6 +319,11 @@ public class ScrumChatterProvider extends ContentProvider {
         String id = null;
         int matchedId = URI_MATCHER.match(uri);
         switch (matchedId) {
+            case URI_TYPE_TEAM_ID:
+                id = uri.getLastPathSegment();
+            case URI_TYPE_TEAM:
+                res.table = TeamColumns.TABLE_NAME;
+                break;
             case URI_TYPE_MEETING_MEMBER_ID:
             case URI_TYPE_MEETING_MEMBER:
                 res.table = MeetingMemberColumns.TABLE_NAME;
@@ -375,6 +392,13 @@ public class ScrumChatterProvider extends ContentProvider {
                     if (selection != null) res.selection = selection + " AND (" + res.selection + ") ";
                 }
                 res.orderBy = MemberColumns.NAME;
+                break;
+
+            case URI_TYPE_TEAM_ID:
+                id = uri.getLastPathSegment();
+            case URI_TYPE_TEAM:
+                res.table = TeamColumns.TABLE_NAME;
+                res.orderBy = TeamColumns.DEFAULT_ORDER;
                 break;
 
             case URI_TYPE_MEMBER_ID:

@@ -20,19 +20,32 @@
 <resources>
 
     <string name="app_name">Scrum Chatter</string>
-    <string name="app_version">1.0.4</string>
+    <string name="app_version">1.0.6</string>
     <string name="title_section_meetings">Meetings</string>
     <string name="title_section_team">Team</string>
     <string name="action_share">Share</string>
+    <string name="action_team">Teams</string>
+    <string name="action_team_switch">Switch teams</string>
+    <string name="action_team_rename">Rename team</string>
+    <string name="action_team_rename_name">Rename %s</string>
+    <string name="action_team_delete">Delete team</string>
+    <string name="action_team_delete_name">Delete %s</string>
     <string name="action_import">Import database</string>
     <string name="action_new_member">Add team member</string>
     <string name="action_new_meeting">New meeting</string>
+    <string name="action_new_team">New team</string>
     <string name="dialog_message_new_member">Enter the team member\'s name.</string>
     <string name="error_member_exists">%s is already a team member.</string>
+    <string name="error_team_exists">You already have the %s team.</string>
     <string name="action_delete_member">Delete member.</string>
     <string name="action_delete_meeting">Delete meeting.</string>
     <string name="dialog_message_delete_member_confirm">Delete %s?</string>
     <string name="dialog_message_delete_meeting_confirm">Delete meeting from %s?</string>
+    <string name="dialog_message_delete_team_confirm">Delete %s?</string>
+    <string name="dialog_message_switch_team">Choose a team</string>
+    <string name="dialog_message_rename_team">Enter a name for this team</string>
+    <string name="dialog_error_one_team_required">Sorry, you need at least one team!</string>
+    <string name="new_team">New team&#8230;</string>
     <string name="member_list_header_name">Name</string>
     <string name="member_list_header_avg_duration">Average Chatter Time</string>
     <string name="member_list_header_sum_duration">Total Chatter Time</string>

@@ -18,6 +18,7 @@
  */
 package ca.rmen.android.scrumchatter.provider;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -31,9 +32,19 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
     private static final String TAG = Constants.TAG + ScrumChatterDatabase.class.getSimpleName();
 
     public static final String DATABASE_NAME = "scrumchatter.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
+
+    private static final String TEMP_SUFFIX = "_temp";
 
     // @formatter:off
+	private static final String SQL_CREATE_TABLE_TEAM = "CREATE TABLE IF NOT EXISTS "
+			+ TeamColumns.TABLE_NAME
+			+ " ( "
+			+ TeamColumns._ID
+			+ " INTEGER PRIMARY KEY AUTOINCREMENT, "
+			+ TeamColumns.TEAM_NAME + " TEXT"
+			+ " );";
+
 	private static final String SQL_CREATE_TABLE_MEETING_MEMBER = "CREATE TABLE IF NOT EXISTS "
 			+ MeetingMemberColumns.TABLE_NAME
 			+ " ( "
@@ -49,6 +60,7 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
 			+ ", CONSTRAINT MEETING_ID_FK FOREIGN KEY (MEETING_ID) REFERENCES MEETING(_ID) ON DELETE CASCADE "
 			+ ", CONSTRAINT MEMBER_ID_FK FOREIGN KEY (MEMBER_ID) REFERENCES MEMBER(_ID) ON DELETE CASCADE"
 			+ " );";
+	
 
 	private static final String SQL_CREATE_TABLE_MEMBER = "CREATE TABLE IF NOT EXISTS "
 			+ MemberColumns.TABLE_NAME
@@ -56,7 +68,38 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
 			+ MemberColumns._ID
 			+ " INTEGER PRIMARY KEY AUTOINCREMENT, "
 			+ MemberColumns.NAME
-			+ " TEXT " + " );";
+			+ " TEXT, " 
+			+ MemberColumns.TEAM_ID
+			+ " INTEGER NOT NULL, "
+			+ " CONSTRAINT TEAM_ID_FK FOREIGN KEY (" + MemberColumns.TEAM_ID + ") REFERENCES TEAM(" + TeamColumns._ID + ") ON DELETE CASCADE"
+			+ " );";
+	
+	private static final String SQL_CREATE_TABLE_MEMBER_TEMP = "CREATE TABLE "
+			+ MemberColumns.TABLE_NAME + TEMP_SUFFIX
+			+ " ( "
+			+ MemberColumns._ID
+			+ " INTEGER , "
+			+ MemberColumns.NAME
+			+ " TEXT " 
+			+ " );";
+	
+	private static final String SQL_INSERT_TABLE_MEMBER_TEMP = "INSERT INTO "
+			+ MemberColumns.TABLE_NAME + TEMP_SUFFIX
+			+ " SELECT " 
+			+ MemberColumns._ID
+			+ "," + MemberColumns.NAME
+			+ " FROM " + MemberColumns.TABLE_NAME;
+
+	private static final String SQL_INSERT_TABLE_MEMBER = "INSERT INTO "
+			+ MemberColumns.TABLE_NAME
+			+ " SELECT " 
+			+ MemberColumns._ID
+			+ "," + MemberColumns.NAME
+			+ "," + Constants.DEFAULT_TEAM_ID
+			+ " FROM " + MemberColumns.TABLE_NAME + TEMP_SUFFIX;
+
+	private static final String SQL_DROP_TABLE_MEMBER = "DROP TABLE " + MemberColumns.TABLE_NAME;
+	private static final String SQL_DROP_TABLE_MEMBER_TEMP = "DROP TABLE " + MemberColumns.TABLE_NAME + TEMP_SUFFIX;
 
 	private static final String SQL_CREATE_TABLE_MEETING = "CREATE TABLE IF NOT EXISTS "
 			+ MeetingColumns.TABLE_NAME
@@ -69,27 +112,65 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
 			+ " INTEGER, "
 			+ MeetingColumns.STATE
 			+ " INTEGER NOT NULL DEFAULT "
-			+ MeetingColumns.State.NOT_STARTED.ordinal() + " );";
+			+ MeetingColumns.State.NOT_STARTED.ordinal() + ", " 
+			+ MeetingColumns.TEAM_ID
+			+ " INTEGER NOT NULL, "
+			+ " CONSTRAINT TEAM_ID_FK FOREIGN KEY("+ MeetingColumns.TEAM_ID+ ") REFERENCES " + TeamColumns.TABLE_NAME + "(" + TeamColumns._ID + ") ON DELETE CASCADE"
+			+ " );";
 
+	private static final String SQL_CREATE_TABLE_MEETING_TEMP = "CREATE TABLE "
+			+ MeetingColumns.TABLE_NAME + TEMP_SUFFIX
+			+ " ( "
+			+ MeetingColumns._ID
+			+ " INTEGER , "
+			+ MeetingColumns.MEETING_DATE
+			+ " INTEGER,  " 
+			+ MeetingColumns.TOTAL_DURATION
+			+ " INTEGER,  " 
+			+ MeetingColumns.STATE
+			+ " INTEGER " 
+			+ " );";
+	
+	private static final String SQL_INSERT_TABLE_MEETING_TEMP = "INSERT INTO "
+			+ MeetingColumns.TABLE_NAME + TEMP_SUFFIX
+			+ " SELECT " 
+			+ MeetingColumns._ID
+			+ "," + MeetingColumns.MEETING_DATE
+			+ "," + MeetingColumns.TOTAL_DURATION
+			+ "," + MeetingColumns.STATE
+			+ " FROM " + MeetingColumns.TABLE_NAME;
+
+	private static final String SQL_INSERT_TABLE_MEETING = "INSERT INTO "
+			+ MeetingColumns.TABLE_NAME
+			+ " SELECT " 
+			+ MeetingColumns._ID
+			+ "," + MeetingColumns.MEETING_DATE
+			+ "," + MeetingColumns.TOTAL_DURATION
+			+ "," + MeetingColumns.STATE
+			+ "," + Constants.DEFAULT_TEAM_ID
+			+ " FROM " + MeetingColumns.TABLE_NAME + TEMP_SUFFIX;
+
+	private static final String SQL_DROP_TABLE_MEETING= "DROP TABLE " + MeetingColumns.TABLE_NAME;
+	private static final String SQL_DROP_TABLE_MEETING_TEMP = "DROP TABLE " + MeetingColumns.TABLE_NAME + TEMP_SUFFIX;
 	private static final String SQL_CREATE_VIEW_MEMBER_STATS = "CREATE VIEW "
 			+ MemberStatsColumns.VIEW_NAME + " AS " + " SELECT "
-			+ MemberColumns.TABLE_NAME + "." + MemberColumns._ID + " AS "
-			+ MemberColumns._ID + ", " + MemberColumns.TABLE_NAME + "."
-			+ MemberColumns.NAME + ", " + " SUM("
-			+ MeetingMemberColumns.TABLE_NAME + "."
-			+ MeetingMemberColumns.DURATION + ") AS "
-			+ MemberStatsColumns.SUM_DURATION + "," + " AVG("
-			+ MeetingMemberColumns.TABLE_NAME + "."
-			+ MeetingMemberColumns.DURATION + ") AS "
-			+ MemberStatsColumns.AVG_DURATION + " FROM "
+			+ MemberColumns.TABLE_NAME + "." + MemberColumns._ID + " AS " + MemberColumns._ID + ", " 
+			+ MemberColumns.TABLE_NAME + "." + MemberColumns.NAME + ", " 
+			+ MemberColumns.TABLE_NAME + "." + MemberColumns.TEAM_ID+ " AS " + MemberStatsColumns.TEAM_ID + ", " 
+			+ " SUM(" + MeetingMemberColumns.TABLE_NAME + "." + MeetingMemberColumns.DURATION + ") AS " + MemberStatsColumns.SUM_DURATION + "," 
+			+ " AVG(" + MeetingMemberColumns.TABLE_NAME + "." + MeetingMemberColumns.DURATION + ") AS " + MemberStatsColumns.AVG_DURATION 
+			+ " FROM "
 			+ MemberColumns.TABLE_NAME + " LEFT OUTER JOIN "
-			+ MeetingMemberColumns.TABLE_NAME + " ON "
-			+ MemberColumns.TABLE_NAME + "." + MemberColumns._ID + " = "
-			+ MeetingMemberColumns.TABLE_NAME + "."
-			+ MeetingMemberColumns.MEMBER_ID + " AND "
-			+ MeetingMemberColumns.TABLE_NAME + "."
-			+ MeetingMemberColumns.DURATION + "> 0" + " GROUP BY "
-			+ MemberColumns.TABLE_NAME + "." + MemberColumns.NAME;;
+			+ MeetingMemberColumns.TABLE_NAME + " ON " + MemberColumns.TABLE_NAME + "." + MemberColumns._ID + " = " + MeetingMemberColumns.TABLE_NAME + "." + MeetingMemberColumns.MEMBER_ID 
+			+ " AND " + MeetingMemberColumns.TABLE_NAME + "." + MeetingMemberColumns.DURATION + "> 0" 
+			+ " GROUP BY " 
+			+ MemberColumns.TABLE_NAME + "." + MemberColumns._ID+  ", "
+			+ MemberColumns.TABLE_NAME + "." + MemberColumns.NAME +  ", "
+			+ MemberColumns.TABLE_NAME + "." + MemberColumns.TEAM_ID;
+
+	private static final String SQL_DROP_VIEW_MEMBER_STATS = "DROP VIEW " + MemberStatsColumns.VIEW_NAME;
+			
+			
 
 	// @formatter:on
 
@@ -100,15 +181,40 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         Log.d(TAG, "onCreate");
-        db.execSQL(SQL_CREATE_TABLE_MEETING_MEMBER);
-        db.execSQL(SQL_CREATE_TABLE_MEMBER);
-        db.execSQL(SQL_CREATE_TABLE_MEETING);
-        db.execSQL(SQL_CREATE_VIEW_MEMBER_STATS);
+        execSQL(db, SQL_CREATE_TABLE_TEAM);
+        execSQL(db, SQL_CREATE_TABLE_MEETING_MEMBER);
+        execSQL(db, SQL_CREATE_TABLE_MEMBER);
+        execSQL(db, SQL_CREATE_TABLE_MEETING);
+        execSQL(db, SQL_CREATE_VIEW_MEMBER_STATS);
+        insertDefaultTeam(db);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         Log.d(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion);
+        if (oldVersion < 2) {
+            // Create the team table
+            execSQL(db, SQL_CREATE_TABLE_TEAM);
+            // Insert the default team
+            insertDefaultTeam(db);
+            // Update the member table so all members are in the default team
+            execSQL(db, SQL_CREATE_TABLE_MEMBER_TEMP);
+            execSQL(db, SQL_INSERT_TABLE_MEMBER_TEMP);
+            execSQL(db, SQL_DROP_TABLE_MEMBER);
+            execSQL(db, SQL_CREATE_TABLE_MEMBER);
+            execSQL(db, SQL_INSERT_TABLE_MEMBER);
+            execSQL(db, SQL_DROP_TABLE_MEMBER_TEMP);
+            // Update the meeting table so all meetings are for the default team
+            execSQL(db, SQL_CREATE_TABLE_MEETING_TEMP);
+            execSQL(db, SQL_INSERT_TABLE_MEETING_TEMP);
+            execSQL(db, SQL_DROP_TABLE_MEETING);
+            execSQL(db, SQL_CREATE_TABLE_MEETING);
+            execSQL(db, SQL_INSERT_TABLE_MEETING);
+            execSQL(db, SQL_DROP_TABLE_MEETING_TEMP);
+            // Recreate the views
+            execSQL(db, SQL_DROP_VIEW_MEMBER_STATS);
+            execSQL(db, SQL_CREATE_VIEW_MEMBER_STATS);
+        }
     }
 
     @Override
@@ -120,4 +226,18 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
         }
     }
 
+    /**
+     * Insert the default team
+     */
+    private void insertDefaultTeam(SQLiteDatabase db) {
+        ContentValues values = new ContentValues(2);
+        values.put(TeamColumns._ID, Constants.DEFAULT_TEAM_ID);
+        values.put(TeamColumns.TEAM_NAME, Constants.DEFAULT_TEAM_NAME);
+        db.insert(TeamColumns.TABLE_NAME, null, values);
+    }
+
+    private void execSQL(SQLiteDatabase db, String sql) {
+        Log.v(TAG, sql);
+        db.execSQL(sql);
+    }
 }

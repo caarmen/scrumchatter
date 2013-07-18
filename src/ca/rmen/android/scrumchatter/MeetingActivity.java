@@ -31,6 +31,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -210,8 +211,10 @@ public class MeetingActivity extends SherlockFragmentActivity {
      */
     private long createMeeting() {
         Log.v(TAG, "create new meeting");
+        int teamId = PreferenceManager.getDefaultSharedPreferences(this).getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
         ContentValues values = new ContentValues();
         values.put(MeetingColumns.MEETING_DATE, System.currentTimeMillis());
+        values.put(MeetingColumns.TEAM_ID, teamId);
         Uri newMeetingUri = getContentResolver().insert(MeetingColumns.CONTENT_URI, values);
         long meetingId = Long.parseLong(newMeetingUri.getLastPathSegment());
         return meetingId;
