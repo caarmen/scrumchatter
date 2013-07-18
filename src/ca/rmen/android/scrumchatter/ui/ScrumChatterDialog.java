@@ -196,7 +196,7 @@ public class ScrumChatterDialog {
         dialog.show();
 
         // For 3.x+, update the dialog elements which couldn't be updated cleanly with the theme:
-        // The buttons, list items, and horizontal divider.
+        // The list items.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             ListView listView = dialog.getListView();
             if (listView != null) listView.setSelector(R.drawable.selector);
@@ -218,7 +218,7 @@ public class ScrumChatterDialog {
             if (child instanceof ViewGroup) {
                 uglyHackReplaceBlueHoloBackground(context, (ViewGroup) child);
             }
-            // 3.x: replace the nine patch
+            // 2.x and 3.x: replace the nine patch
             else if (child instanceof ImageView) {
                 ImageView imageView = (ImageView) child;
                 Drawable drawable = imageView.getDrawable();
