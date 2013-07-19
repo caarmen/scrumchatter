@@ -84,6 +84,8 @@ public class MembersListFragment extends SherlockListFragment {
         mTextViewName.setOnClickListener(mOnClickListener);
         mTextViewAvgDuration.setOnClickListener(mOnClickListener);
         mTextViewSumDuration.setOnClickListener(mOnClickListener);
+        TextView emptyText = (TextView) view.findViewById(android.R.id.empty);
+        emptyText.setText(R.string.empty_list_members);
         return view;
     }
 

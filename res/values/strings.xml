@@ -71,6 +71,8 @@
     <string name="export_message_body">The Scrum Chatter report is attached.</string>
     <string name="export_error">Could not create Scrum Chatter report.  Make sure your phone\'s SD card is available.</string>
     <string name="loading">Loading&#8230;</string>
+    <string name="empty_list_meetings">You have not created any meetings.</string>
+    <string name="empty_list_members">You have no team members.</string>
     <string name="progress_dialog_message">Please wait&#8230;</string>
     <string name="dialog_confirm">Are you sure?</string>
     <string name="import_confirm_title">Import database</string>
