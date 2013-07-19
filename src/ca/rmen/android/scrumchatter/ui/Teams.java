@@ -63,24 +63,28 @@ public class Teams {
      * @param team the current team being used.
      */
     public void selectTeam(final Team team) {
-        AsyncTask<Void, Void, CharSequence[]> task = new AsyncTask<Void, Void, CharSequence[]>() {
+        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+            CharSequence[] mTeamNames = null;
+            int mSelectedTeam = -1;
 
             /**
              * Create the list of team names, excluding the currently selected team, and with a special last item to create a new team.
              */
             @Override
-            protected CharSequence[] doInBackground(Void... params) {
-                Cursor c = mContext.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { TeamColumns.TEAM_NAME }, TeamColumns._ID + "!=?",
-                        new String[] { String.valueOf(team.teamId) }, TeamColumns.TEAM_NAME + " COLLATE NOCASE");
+            protected Void doInBackground(Void... params) {
+                Cursor c = mContext.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { TeamColumns.TEAM_NAME }, null, null,
+                        TeamColumns.TEAM_NAME + " COLLATE NOCASE");
+
                 if (c != null) {
                     try {
-                        CharSequence[] result = new CharSequence[c.getCount() + 1];
+                        mTeamNames = new CharSequence[c.getCount() + 1];
                         int i = 0;
                         while (c.moveToNext()) {
-                            result[i++] = c.getString(0);
+                            String teamName = c.getString(0);
+                            if (teamName.equals(team.teamName)) mSelectedTeam = i;
+                            mTeamNames[i++] = teamName;
                         }
-                        result[i++] = mContext.getString(R.string.new_team);
-                        return result;
+                        mTeamNames[i++] = mContext.getString(R.string.new_team);
                     } finally {
                         c.close();
                     }
@@ -93,18 +97,18 @@ public class Teams {
              * new team.
              */
             @Override
-            protected void onPostExecute(final CharSequence[] result) {
-                if (result != null && result.length >= 1) {
+            protected void onPostExecute(Void result) {
+                if (mTeamNames != null && mTeamNames.length >= 1) {
                     OnClickListener itemListener = new OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             // The user clicked on the "new team" item.
-                            if (which == result.length - 1) {
+                            if (which == mTeamNames.length - 1) {
                                 createTeam();
                             }
                             // The user selected an existing team.  Update the shared preference for this team, in the background.
                             else {
-                                final CharSequence teamName = result[which];
+                                final CharSequence teamName = mTeamNames[which];
                                 AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
 
                                     @Override
@@ -133,7 +137,7 @@ public class Teams {
                             }
                         }
                     };
-                    ScrumChatterDialog.showChoiceDialog(mContext, R.string.dialog_message_switch_team, result, itemListener);
+                    ScrumChatterDialog.showChoiceDialog(mContext, R.string.dialog_message_switch_team, mTeamNames, mSelectedTeam, itemListener);
 
                 } else {
                     Log.wtf(TAG, "No existing teams found");
