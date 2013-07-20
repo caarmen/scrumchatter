@@ -23,8 +23,10 @@ import java.util.Arrays;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnShowListener;
 import android.graphics.NinePatch;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -39,6 +41,7 @@ import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckedTextView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -177,9 +180,9 @@ public class ScrumChatterDialog {
         Log.v(TAG, "showDialog: title = " + title + ", message = " + message + ", customView = " + customView + ", items = " + Arrays.toString(items)
                 + ", listener = " + listener);
 
-        context = new ContextThemeWrapper(context, R.style.dialogStyle);
+        final Context contextWrapper = new ContextThemeWrapper(context, R.style.dialogStyle);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        AlertDialog.Builder builder = new AlertDialog.Builder(contextWrapper);
         builder.setTitle(title).setMessage(message);
 
         // If items are provided, set the items.  Otherwise add a positive and negative button.
@@ -197,7 +200,6 @@ public class ScrumChatterDialog {
         // Show the dialog (we have to do this before we can modify its views).
         AlertDialog dialog = builder.create();
         dialog.getContext().setTheme(R.style.dialogStyle);
-        dialog.show();
 
         // For 3.x+, update the dialog elements which couldn't be updated cleanly with the theme:
         // The list items.
@@ -205,7 +207,15 @@ public class ScrumChatterDialog {
             ListView listView = dialog.getListView();
             if (listView != null) listView.setSelector(R.drawable.selector);
         }
-        uglyHackReplaceBlueHoloBackground(context, (ViewGroup) dialog.getWindow().getDecorView());
+        OnShowListener showListener = new OnShowListener() {
+
+            @Override
+            public void onShow(DialogInterface dialog) {
+                uglyHackReplaceBlueHoloBackground(contextWrapper, (ViewGroup) ((Dialog) dialog).getWindow().getDecorView());
+            }
+        };
+        dialog.setOnShowListener(showListener);
+        dialog.show();
         return dialog;
     }
 
@@ -233,6 +243,10 @@ public class ScrumChatterDialog {
                         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) imageView.setVisibility(View.VISIBLE);
                     }
                 }
+            }
+            // 2.x: replace the radio button
+            else if (child instanceof CheckedTextView) {
+                ((CheckedTextView) child).setCheckMarkDrawable(R.drawable.btn_radio_holo_light);
             }
             // 4.x: replace the color
             else {
