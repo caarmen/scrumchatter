@@ -102,6 +102,7 @@ public class Teams {
                     OnClickListener itemListener = new OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
                             // The user clicked on the "new team" item.
                             if (which == mTeamNames.length - 1) {
                                 createTeam();

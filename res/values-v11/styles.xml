@@ -36,6 +36,7 @@
         <item name="android:listViewStyle">@style/listStyle</item>
         <item name="android:editTextBackground">@drawable/edit_text_holo_light</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarscrum_chatter_holo</item>
+        <item name="android:listChoiceIndicatorSingle">@drawable/btn_radio_holo_light</item>
     </style>
 
     <style name="dialogStyle">
@@ -43,6 +44,7 @@
         <item name="android:listViewStyle">@style/listStyle</item>
         <item name="android:editTextStyle">@style/EditTextscrum_chatter_holo</item>
         <item name="android:selectableItemBackground">@drawable/selector</item>
+        <item name="android:listChoiceIndicatorSingle">@drawable/btn_radio_holo_light</item>
     </style>
 
 </resources>
