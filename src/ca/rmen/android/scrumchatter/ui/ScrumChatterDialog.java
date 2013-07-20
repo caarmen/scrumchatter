@@ -121,16 +121,17 @@ public class ScrumChatterDialog {
         return dialog;
     }
 
-    public static AlertDialog showChoiceDialog(Context context, int titleId, int choicesArrayId, DialogInterface.OnClickListener itemListener) {
-        return showDialog(context, context.getString(titleId), null, null, context.getResources().getStringArray(choicesArrayId), itemListener);
+    public static AlertDialog showChoiceDialog(Context context, int titleId, int choicesArrayId, int selectedItem, DialogInterface.OnClickListener itemListener) {
+        return showDialog(context, context.getString(titleId), null, null, context.getResources().getStringArray(choicesArrayId), selectedItem, itemListener);
     }
 
-    public static AlertDialog showChoiceDialog(Context context, int titleId, CharSequence[] choices, DialogInterface.OnClickListener itemListener) {
-        return showDialog(context, context.getString(titleId), null, null, choices, itemListener);
+    public static AlertDialog showChoiceDialog(Context context, int titleId, CharSequence[] choices, int selectedItem,
+            DialogInterface.OnClickListener itemListener) {
+        return showDialog(context, context.getString(titleId), null, null, choices, selectedItem, itemListener);
     }
 
     public static AlertDialog showDialog(Context context, String title, String message, DialogInterface.OnClickListener positiveListener) {
-        return showDialog(context, title, message, null, null, positiveListener);
+        return showDialog(context, title, message, null, null, -1, positiveListener);
     }
 
     public static AlertDialog showDialog(Context context, int titleId, int messageId, DialogInterface.OnClickListener positiveListener) {
@@ -140,7 +141,7 @@ public class ScrumChatterDialog {
     public static AlertDialog showDialog(Context context, int titleId, int messageId, View customView, DialogInterface.OnClickListener positiveListener) {
         String title = titleId > 0 ? context.getString(titleId) : null;
         String message = messageId > 0 ? context.getString(messageId) : null;
-        return showDialog(context, title, message, customView, null, positiveListener);
+        return showDialog(context, title, message, customView, null, -1, positiveListener);
     }
 
     /**
@@ -166,11 +167,12 @@ public class ScrumChatterDialog {
      * @param customView Optional. A custom view for the dialog.
      * @param items Optional. A list of items. If this is provided, the dialog will have no buttons. If the listener is provided, the listener will be notified
      *            when an item is selected.
+     * @param selectedItem Optional. If items is provided, you may optionally select one of the items to be selected by default.
      * @param listener Optional. If a list of items is provided, the listener will be notified when the user selects an item. Otherwise the listener will be
      *            notified when the user taps on the positive or negative button.
      * @return
      */
-    public static AlertDialog showDialog(Context context, String title, String message, View customView, CharSequence[] items,
+    public static AlertDialog showDialog(Context context, String title, String message, View customView, CharSequence[] items, int selectedItem,
             DialogInterface.OnClickListener listener) {
         Log.v(TAG, "showDialog: title = " + title + ", message = " + message + ", customView = " + customView + ", items = " + Arrays.toString(items)
                 + ", listener = " + listener);
@@ -182,7 +184,9 @@ public class ScrumChatterDialog {
 
         // If items are provided, set the items.  Otherwise add a positive and negative button.
         if (items != null && items.length > 0) {
-            builder.setItems(items, listener);
+            if (selectedItem >= 0) builder.setSingleChoiceItems(items, selectedItem, listener);
+            else
+                builder.setItems(items, listener);
         } else {
             builder.setNegativeButton(android.R.string.cancel, listener).setPositiveButton(android.R.string.ok, listener);
         }

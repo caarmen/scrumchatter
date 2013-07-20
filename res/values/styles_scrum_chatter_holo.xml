@@ -15,4 +15,8 @@
         <item name="android:maxHeight">16dip</item>
     </style>
 
+    <style name="RadioButtonscrum_chatter" parent="android:Widget.CompoundButton.RadioButton">
+        <item name="android:button">@drawable/btn_radio_holo_light</item>
+    </style>
+
 </resources>

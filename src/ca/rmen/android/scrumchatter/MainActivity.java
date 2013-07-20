@@ -186,7 +186,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
                 return true;
             case R.id.action_share:
                 // Build a chooser dialog for the file format.
-                ScrumChatterDialog.showChoiceDialog(this, R.string.export_choice_title, R.array.export_choices, new DialogInterface.OnClickListener() {
+                ScrumChatterDialog.showChoiceDialog(this, R.string.export_choice_title, R.array.export_choices, -1, new DialogInterface.OnClickListener() {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
