@@ -21,7 +21,6 @@ package ca.rmen.android.scrumchatter.export;
 import java.io.File;
 
 import android.content.Context;
-import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.provider.ScrumChatterDatabase;
 import ca.rmen.android.scrumchatter.util.IOUtils;
 
@@ -29,7 +28,6 @@ import ca.rmen.android.scrumchatter.util.IOUtils;
  * Export the raw database file.
  */
 public class DBExport extends FileExport {
-    private static final String TAG = Constants.TAG + "/" + DBExport.class.getSimpleName();
     private static final String MIME_TYPE = "application/octet-stream";
 
     public DBExport(Context context) {

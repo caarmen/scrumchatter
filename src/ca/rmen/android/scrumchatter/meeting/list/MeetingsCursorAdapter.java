@@ -38,13 +38,13 @@ import ca.rmen.android.scrumchatter.util.TextUtils;
 /**
  * Adapter for the list of meetings.
  */
-public class MeetingsCursorAdapter extends CursorAdapter {
+class MeetingsCursorAdapter extends CursorAdapter {
     private final OnClickListener mOnClickListener;
     private final int mColorStateInProgress;
     private final int mColorStateDefault;
     private final String[] mMeetingStateNames;
 
-    public MeetingsCursorAdapter(Context context, OnClickListener onClickListener) {
+    MeetingsCursorAdapter(Context context, OnClickListener onClickListener) {
         super(context, null, false);
         mOnClickListener = onClickListener;
         mColorStateInProgress = context.getResources().getColor(R.color.meeting_state_in_progress);
@@ -127,9 +127,9 @@ public class MeetingsCursorAdapter extends CursorAdapter {
      * This is not a real cache (yet?): we just store the minimum data here needed
      * by the OnClickListener.
      */
-    public static class MeetingItemCache {
-        public final long id;
-        public final String date;
+    static class MeetingItemCache {
+        final long id;
+        final String date;
 
         private MeetingItemCache(long id, String date) {
             this.id = id;

@@ -33,10 +33,10 @@ import ca.rmen.android.scrumchatter.provider.MemberCursorWrapper;
 /**
  * Adapter for the list of team members.
  */
-public class MembersCursorAdapter extends CursorAdapter {
+class MembersCursorAdapter extends CursorAdapter {
     private final OnClickListener mOnClickListener;
 
-    public MembersCursorAdapter(Context context, OnClickListener onClickListener) {
+    MembersCursorAdapter(Context context, OnClickListener onClickListener) {
         super(context, null, false);
         mOnClickListener = onClickListener;
     }
@@ -95,9 +95,9 @@ public class MembersCursorAdapter extends CursorAdapter {
      * before user deletion. We may not really need a cache as we won't be
      * dealing with large lists. Really, how many team members attend meetings?
      */
-    public static class MemberItemCache {
-        public final long id;
-        public final String name;
+    static class MemberItemCache {
+        final long id;
+        final String name;
 
         private MemberItemCache(long id, String name) {
             this.id = id;

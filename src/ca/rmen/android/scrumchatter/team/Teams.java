@@ -43,12 +43,10 @@ public class Teams {
     private final Context mContext;
 
     public static class Team {
-        public final int teamId;
-        public final Uri teamUri;
+        private final Uri teamUri;
         public final String teamName;
 
-        public Team(int teamId, Uri teamUri, String teamName) {
-            this.teamId = teamId;
+        private Team(Uri teamUri, String teamName) {
             this.teamUri = teamUri;
             this.teamName = teamName;
         }
@@ -305,7 +303,7 @@ public class Teams {
             try {
                 if (c.moveToFirst()) {
                     String teamName = c.getString(0);
-                    return new Team(teamId, teamUri, teamName);
+                    return new Team(teamUri, teamName);
                 }
             } finally {
                 c.close();

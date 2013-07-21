@@ -55,7 +55,7 @@ public class DBImport {
         }
     }
 
-    public static void importDB(Context context, File importDb) throws RemoteException, OperationApplicationException, FileNotFoundException {
+    private static void importDB(Context context, File importDb) throws RemoteException, OperationApplicationException, FileNotFoundException {
         Log.v(TAG, "importDB from " + importDb);
         SQLiteDatabase dbImport = SQLiteDatabase.openDatabase(importDb.getAbsolutePath(), null, SQLiteDatabase.OPEN_READONLY);
         ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();

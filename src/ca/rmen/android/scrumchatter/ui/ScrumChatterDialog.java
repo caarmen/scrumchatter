@@ -141,7 +141,7 @@ public class ScrumChatterDialog {
         return showDialog(context, titleId, messageId, null, positiveListener);
     }
 
-    public static AlertDialog showDialog(Context context, int titleId, int messageId, View customView, DialogInterface.OnClickListener positiveListener) {
+    private static AlertDialog showDialog(Context context, int titleId, int messageId, View customView, DialogInterface.OnClickListener positiveListener) {
         String title = titleId > 0 ? context.getString(titleId) : null;
         String message = messageId > 0 ? context.getString(messageId) : null;
         return showDialog(context, title, message, customView, null, -1, positiveListener);
@@ -175,7 +175,7 @@ public class ScrumChatterDialog {
      *            notified when the user taps on the positive or negative button.
      * @return
      */
-    public static AlertDialog showDialog(Context context, String title, String message, View customView, CharSequence[] items, int selectedItem,
+    private static AlertDialog showDialog(Context context, String title, String message, View customView, CharSequence[] items, int selectedItem,
             DialogInterface.OnClickListener listener) {
         Log.v(TAG, "showDialog: title = " + title + ", message = " + message + ", customView = " + customView + ", items = " + Arrays.toString(items)
                 + ", listener = " + listener);

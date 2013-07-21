@@ -40,7 +40,7 @@ import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
  * Adapter for the list of members in one meeting, and their speaking durations
  * for that meeting.
  */
-public class MeetingCursorAdapter extends CursorAdapter {
+class MeetingCursorAdapter extends CursorAdapter {
     private final OnClickListener mOnClickListener;
     private final int mColorChronoActive;
     private final int mColorChronoInactive;
@@ -51,7 +51,7 @@ public class MeetingCursorAdapter extends CursorAdapter {
      *            clicks on widgets on each list item will be forwarded to this
      *            listener.
      */
-    public MeetingCursorAdapter(Context context, OnClickListener onClickListener) {
+    MeetingCursorAdapter(Context context, OnClickListener onClickListener) {
         super(context, null, false);
         mOnClickListener = onClickListener;
         mColorChronoActive = context.getResources().getColor(R.color.chrono_active);

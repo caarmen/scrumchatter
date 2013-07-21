@@ -41,7 +41,7 @@ import com.actionbarsherlock.app.SherlockListFragment;
 /**
  * Displays the list of members participating in a particular meeting.
  */
-public class MeetingFragment extends SherlockListFragment {
+public class MeetingFragment extends SherlockListFragment { // NO_UCD (use default)
 
     private static final String TAG = Constants.TAG + "/" + MeetingFragment.class.getSimpleName();
 
@@ -71,7 +71,7 @@ public class MeetingFragment extends SherlockListFragment {
      *            This will be forwarded to the adapter, so clicks on views in
      *            the list will be managed by this listener.
      */
-    public void loadMeeting(long meetingId, State state, OnClickListener onClickListener) {
+    void loadMeeting(long meetingId, State state, OnClickListener onClickListener) {
         Log.v(TAG, "loadMeeting");
         mMeetingId = meetingId;
         Bundle bundle = new Bundle(1);
