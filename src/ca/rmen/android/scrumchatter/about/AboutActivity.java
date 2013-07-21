@@ -16,10 +16,11 @@
  * You should have received a copy of the GNU General Public License
  * along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
  */
-package ca.rmen.android.scrumchatter;
+package ca.rmen.android.scrumchatter.about;
 
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import ca.rmen.android.scrumchatter.R;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;

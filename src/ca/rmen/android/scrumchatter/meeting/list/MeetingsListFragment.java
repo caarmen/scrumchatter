@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
  */
-package ca.rmen.android.scrumchatter.ui;
+package ca.rmen.android.scrumchatter.meeting.list;
 
 import android.app.Activity;
 import android.content.DialogInterface;
@@ -39,12 +39,12 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 import ca.rmen.android.scrumchatter.Constants;
-import ca.rmen.android.scrumchatter.MeetingActivity;
 import ca.rmen.android.scrumchatter.R;
-import ca.rmen.android.scrumchatter.adapter.MeetingsCursorAdapter;
-import ca.rmen.android.scrumchatter.adapter.MeetingsCursorAdapter.MeetingItemCache;
+import ca.rmen.android.scrumchatter.meeting.detail.MeetingActivity;
+import ca.rmen.android.scrumchatter.meeting.list.MeetingsCursorAdapter.MeetingItemCache;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
+import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;

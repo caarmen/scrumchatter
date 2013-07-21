@@ -34,7 +34,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="ca.rmen.android.scrumchatter.MainActivity"
+            android:name="ca.rmen.android.scrumchatter.main.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait" >
             <intent-filter>
@@ -53,26 +53,26 @@
                     android:mimeType="*/*"
                     android:pathPattern=".*\\.db"
                     android:scheme="file" />
-
             </intent-filter>
         </activity>
         <activity
-            android:name="ca.rmen.android.scrumchatter.MeetingActivity"
+            android:name="ca.rmen.android.scrumchatter.meeting.detail.MeetingActivity"
             android:label="@string/app_name"
+            android:parentActivityName="ca.rmen.android.scrumchatter.main.MainActivity"
             android:screenOrientation="portrait" >
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="ca.rmen.android.scrumchatter.MainActivity" />
+                android:value="ca.rmen.android.scrumchatter.main.MainActivity" />
         </activity>
         <activity
-            android:name="ca.rmen.android.scrumchatter.AboutActivity"
+            android:name="ca.rmen.android.scrumchatter.about.AboutActivity"
             android:label="@string/about"
-            android:parentActivityName="ca.rmen.android.scrumchatter.MainActivity" >
+            android:parentActivityName="ca.rmen.android.scrumchatter.main.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="ca.rmen.android.scrumchatter.MainActivity" />
+                android:value="ca.rmen.android.scrumchatter.main.MainActivity" />
         </activity>
 
         <provider

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
  */
-package ca.rmen.android.scrumchatter.adapter;
+package ca.rmen.android.scrumchatter.meeting.detail;
 
 import android.content.Context;
 import android.database.Cursor;

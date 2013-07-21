@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
  */
-package ca.rmen.android.scrumchatter;
+package ca.rmen.android.scrumchatter.main;
 
 import java.io.File;
 import java.util.Locale;
@@ -41,16 +41,24 @@ import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
+import ca.rmen.android.scrumchatter.Constants;
+import ca.rmen.android.scrumchatter.R;
+import ca.rmen.android.scrumchatter.R.array;
+import ca.rmen.android.scrumchatter.R.id;
+import ca.rmen.android.scrumchatter.R.layout;
+import ca.rmen.android.scrumchatter.R.menu;
+import ca.rmen.android.scrumchatter.R.string;
+import ca.rmen.android.scrumchatter.about.AboutActivity;
 import ca.rmen.android.scrumchatter.export.DBExport;
 import ca.rmen.android.scrumchatter.export.FileExport;
 import ca.rmen.android.scrumchatter.export.MeetingsExport;
+import ca.rmen.android.scrumchatter.meeting.list.MeetingsListFragment;
+import ca.rmen.android.scrumchatter.member.list.MembersListFragment;
 import ca.rmen.android.scrumchatter.provider.DBImport;
 import ca.rmen.android.scrumchatter.provider.TeamColumns;
-import ca.rmen.android.scrumchatter.ui.MeetingsListFragment;
-import ca.rmen.android.scrumchatter.ui.MembersListFragment;
+import ca.rmen.android.scrumchatter.team.Teams;
+import ca.rmen.android.scrumchatter.team.Teams.Team;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog;
-import ca.rmen.android.scrumchatter.ui.Teams;
-import ca.rmen.android.scrumchatter.ui.Teams.Team;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
  */
-package ca.rmen.android.scrumchatter.ui;
+package ca.rmen.android.scrumchatter.team;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -32,6 +32,7 @@ import android.widget.EditText;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.provider.TeamColumns;
+import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog.InputValidator;
 
 /**

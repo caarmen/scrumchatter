@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
  */
-package ca.rmen.android.scrumchatter.ui;
+package ca.rmen.android.scrumchatter.member.list;
 
 /**
  * Displays the list of team members.
@@ -44,10 +44,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
-import ca.rmen.android.scrumchatter.adapter.MembersCursorAdapter;
-import ca.rmen.android.scrumchatter.adapter.MembersCursorAdapter.MemberItemCache;
+import ca.rmen.android.scrumchatter.member.list.MembersCursorAdapter.MemberItemCache;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberStatsColumns;
+import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog.InputValidator;
 
 import com.actionbarsherlock.app.SherlockListFragment;
