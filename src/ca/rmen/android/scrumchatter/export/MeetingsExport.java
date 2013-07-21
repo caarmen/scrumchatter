@@ -125,7 +125,8 @@ public class MeetingsExport extends FileExport {
         Map<String, Integer> avgMemberDurations = new HashMap<String, Integer>();
         Map<String, Integer> sumMemberDurations = new HashMap<String, Integer>();
         Cursor c = mContext.getContentResolver().query(MemberStatsColumns.CONTENT_URI,
-                new String[] { MemberColumns.NAME, MemberStatsColumns.AVG_DURATION, MemberStatsColumns.SUM_DURATION }, MemberStatsColumns.TEAM_ID + "=?",
+                new String[] { MemberColumns.NAME, MemberStatsColumns.AVG_DURATION, MemberStatsColumns.SUM_DURATION },
+                MemberStatsColumns.TEAM_ID + "=? AND " + "(" + MemberStatsColumns.SUM_DURATION + ">0 OR " + MemberStatsColumns.AVG_DURATION + " >0 " + ")",
                 new String[] { String.valueOf(teamId) }, MemberColumns.NAME);
         MemberCursorWrapper memberCursorWrapper = new MemberCursorWrapper(c);
         while (c.moveToNext()) {

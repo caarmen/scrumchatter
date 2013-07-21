@@ -34,6 +34,7 @@ public class MemberColumns implements BaseColumns {
 
     public static final String NAME = "name";
     public static final String TEAM_ID = "member_team_id";
+    public static final String DELETED = "deleted";
 
     static final String DEFAULT_ORDER = _ID;
 }

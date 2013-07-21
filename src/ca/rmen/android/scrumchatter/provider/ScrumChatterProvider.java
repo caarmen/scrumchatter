@@ -138,7 +138,7 @@ public class ScrumChatterProvider extends ContentProvider {
         if (table.equals(MeetingColumns.TABLE_NAME)) {
             int teamId = values.getAsInteger(MeetingColumns.TEAM_ID);
             Cursor members = mScrumChatterDatabase.getReadableDatabase().query(MemberColumns.TABLE_NAME, new String[] { MemberColumns._ID },
-                    MemberColumns.TEAM_ID + "=?", new String[] { String.valueOf(teamId) }, null, null, null);
+                    MemberColumns.TEAM_ID + "=? AND " + MemberColumns.DELETED + "=0 ", new String[] { String.valueOf(teamId) }, null, null, null);
             if (members != null) {
                 ContentValues[] newMeetingMembers = new ContentValues[members.getCount()];
                 if (members.moveToFirst()) {

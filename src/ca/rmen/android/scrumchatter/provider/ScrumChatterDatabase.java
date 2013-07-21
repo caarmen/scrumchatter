@@ -32,7 +32,7 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
     private static final String TAG = Constants.TAG + ScrumChatterDatabase.class.getSimpleName();
 
     public static final String DATABASE_NAME = "scrumchatter.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     private static final String TEMP_SUFFIX = "_temp";
 
@@ -71,6 +71,8 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
 			+ " TEXT, " 
 			+ MemberColumns.TEAM_ID
 			+ " INTEGER NOT NULL, "
+            + MemberColumns.DELETED
+            + " INTEGER NOT NULL, "
 			+ " CONSTRAINT TEAM_ID_FK FOREIGN KEY (" + MemberColumns.TEAM_ID + ") REFERENCES TEAM(" + TeamColumns._ID + ") ON DELETE CASCADE"
 			+ " );";
 	
@@ -97,6 +99,11 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
 			+ "," + MemberColumns.NAME
 			+ "," + Constants.DEFAULT_TEAM_ID
 			+ " FROM " + MemberColumns.TABLE_NAME + TEMP_SUFFIX;
+	
+	private static final String SQL_ALTER_TABLE_MEMBER_V3 = "ALTER TABLE " 
+	        + MemberColumns.TABLE_NAME
+	        + " ADD COLUMN "
+	        + MemberColumns.DELETED + " NOT NULL DEFAULT 0";
 
 	private static final String SQL_DROP_TABLE_MEMBER = "DROP TABLE " + MemberColumns.TABLE_NAME;
 	private static final String SQL_DROP_TABLE_MEMBER_TEMP = "DROP TABLE " + MemberColumns.TABLE_NAME + TEMP_SUFFIX;
@@ -156,6 +163,7 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
 			+ MemberStatsColumns.VIEW_NAME + " AS " + " SELECT "
 			+ MemberColumns.TABLE_NAME + "." + MemberColumns._ID + " AS " + MemberColumns._ID + ", " 
 			+ MemberColumns.TABLE_NAME + "." + MemberColumns.NAME + ", " 
+			+ MemberColumns.TABLE_NAME + "." + MemberColumns.DELETED + ", "
 			+ MemberColumns.TABLE_NAME + "." + MemberColumns.TEAM_ID+ " AS " + MemberStatsColumns.TEAM_ID + ", " 
 			+ " SUM(" + MeetingMemberColumns.TABLE_NAME + "." + MeetingMemberColumns.DURATION + ") AS " + MemberStatsColumns.SUM_DURATION + "," 
 			+ " AVG(" + MeetingMemberColumns.TABLE_NAME + "." + MeetingMemberColumns.DURATION + ") AS " + MemberStatsColumns.AVG_DURATION 
@@ -166,6 +174,7 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
 			+ " GROUP BY " 
 			+ MemberColumns.TABLE_NAME + "." + MemberColumns._ID+  ", "
 			+ MemberColumns.TABLE_NAME + "." + MemberColumns.NAME +  ", "
+            + MemberColumns.TABLE_NAME + "." + MemberColumns.DELETED +  ", "
 			+ MemberColumns.TABLE_NAME + "." + MemberColumns.TEAM_ID;
 
 	private static final String SQL_DROP_VIEW_MEMBER_STATS = "DROP VIEW " + MemberStatsColumns.VIEW_NAME;
@@ -211,6 +220,10 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
             execSQL(db, SQL_CREATE_TABLE_MEETING);
             execSQL(db, SQL_INSERT_TABLE_MEETING);
             execSQL(db, SQL_DROP_TABLE_MEETING_TEMP);
+        }
+
+        if (oldVersion < 3) {
+            execSQL(db, SQL_ALTER_TABLE_MEMBER_V3);
             // Recreate the views
             execSQL(db, SQL_DROP_VIEW_MEMBER_STATS);
             execSQL(db, SQL_CREATE_VIEW_MEMBER_STATS);

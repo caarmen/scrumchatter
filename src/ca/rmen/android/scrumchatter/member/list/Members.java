@@ -118,7 +118,9 @@ public class Members {
                         @Override
                         protected Void doInBackground(Void... params) {
                             Uri uri = Uri.withAppendedPath(MemberColumns.CONTENT_URI, String.valueOf(member.id));
-                            mContext.getContentResolver().delete(uri, null, null);
+                            ContentValues values = new ContentValues(1);
+                            values.put(MemberColumns.DELETED, 1);
+                            mContext.getContentResolver().update(uri, values, null, null);
                             return null;
                         }
                     };

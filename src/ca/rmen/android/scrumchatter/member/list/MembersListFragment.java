@@ -119,7 +119,7 @@ public class MembersListFragment extends SherlockListFragment {
         public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
             Log.v(TAG, "onCreateLoader, order by " + mOrderByField);
             String[] projection = new String[] { MemberColumns._ID, MemberColumns.NAME, MemberStatsColumns.SUM_DURATION, MemberStatsColumns.AVG_DURATION };
-            String selection = MemberStatsColumns.TEAM_ID + " =?";
+            String selection = MemberStatsColumns.TEAM_ID + " =? AND " + MemberColumns.DELETED + "=0 ";
             String[] selectionArgs = new String[] { String.valueOf(mTeamId) };
             CursorLoader loader = new CursorLoader(getActivity(), MemberStatsColumns.CONTENT_URI, projection, selection, selectionArgs, mOrderByField);
             return loader;
