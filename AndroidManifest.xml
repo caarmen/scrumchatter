@@ -19,7 +19,7 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ca.rmen.android.scrumchatter"
-    android:versionCode="107"
+    android:versionCode="108"
     android:versionName="@string/app_version" >
 
     <uses-sdk
