@@ -33,13 +33,13 @@ import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog;
 import ca.rmen.android.scrumchatter.util.TextUtils;
 
 /**
- * Provides both UI and DB logic regarding the management of meetings: creating, starting, stopping, etc.
+ * Provides UI and DB logic regarding the management of meetings: creating and deleting meetings.
  */
-public class Meetings {
+class Meetings {
     private static final String TAG = Constants.TAG + "/" + Meetings.class.getSimpleName();
     private final Context mContext;
 
-    public Meetings(Context context) {
+    Meetings(Context context) {
         mContext = context;
     }
 
@@ -47,7 +47,7 @@ public class Meetings {
      * Checks if there are any team members in the given team id. If not, an error dialog is shown. If the team does have members, then we start
      * the MeetingActivity class for a new meeting.
      */
-    public void createMeeting(final int teamId) {
+    void createMeeting(final int teamId) {
         Log.v(TAG, "createMeeting in team " + teamId);
         AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>() {
 
@@ -84,11 +84,11 @@ public class Meetings {
     /**
      * Shows a confirmation dialog, then deletes the given meeting if the user presses OK.
      */
-    public void delete(final Meeting meeting) {
+    void delete(final Meeting meeting) {
         Log.v(TAG, "delete meeting");
         // Let's ask him if he's sure first.
         ScrumChatterDialog.showDialog(mContext, mContext.getString(R.string.action_delete_meeting),
-                mContext.getString(R.string.dialog_message_delete_meeting_confirm, TextUtils.formatDateTime(mContext, meeting.startDate)),
+                mContext.getString(R.string.dialog_message_delete_meeting_confirm, TextUtils.formatDateTime(mContext, meeting.getStartDate())),
                 new DialogInterface.OnClickListener() {
                     // The user clicked ok. Let's delete the
                     // meeting.

@@ -36,22 +36,25 @@ import ca.rmen.android.scrumchatter.provider.MeetingMemberColumns;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
 import ca.rmen.android.scrumchatter.provider.ScrumChatterProvider;
 
+/**
+ * Model of meetings, providing attributes and behavior.
+ */
 public class Meeting {
     private static final String TAG = Constants.TAG + "/" + Meeting.class.getSimpleName();
     private final Context mContext;
-    public final long id;
-    public final Uri uri;
-    public long startDate;
-    public State state;
-    public long duration;
+    private final long mId;
+    private final Uri mUri;
+    private long mStartDate;
+    private State mState;
+    private long mDuration;
 
     private Meeting(Context context, long id, long startDate, State state, long duration) {
         mContext = context;
-        this.id = id;
-        this.startDate = startDate;
-        this.state = state;
-        this.duration = duration;
-        this.uri = Uri.withAppendedPath(MeetingColumns.CONTENT_URI, String.valueOf(id));
+        mId = id;
+        mStartDate = startDate;
+        mState = state;
+        mDuration = duration;
+        mUri = Uri.withAppendedPath(MeetingColumns.CONTENT_URI, String.valueOf(id));
     }
 
     /**
@@ -70,6 +73,9 @@ public class Meeting {
         return new Meeting(context, id, startDate, state, duration);
     }
 
+    /**
+     * Read an existing meeting from the DB.
+     */
     public static Meeting read(Context context, MeetingCursorWrapper cursorWrapper) {
         long id = cursorWrapper.getId();
         long startDate = cursorWrapper.getMeetingDate();
@@ -93,6 +99,38 @@ public class Meeting {
         return new Meeting(context, meetingId, startDate, State.NOT_STARTED, 0);
     }
 
+    public long getId() {
+        return mId;
+    }
+
+    public Uri getUri() {
+        return mUri;
+    }
+
+    public long getStartDate() {
+        return mStartDate;
+    }
+
+    public void setStartDate(long startDate) {
+        mStartDate = startDate;
+    }
+
+    public State getState() {
+        return mState;
+    }
+
+    public void setState(State state) {
+        mState = state;
+    }
+
+    public long getDuration() {
+        return mDuration;
+    }
+
+    public void setDuration(long duration) {
+        mDuration = duration;
+    }
+
     /**
      * Updates the start time to now, sets the state to in_progress, and persists the changes.
      */
@@ -102,8 +140,8 @@ public class Meeting {
          * meeting goes from not-started to in-progress. This way it is
          * easier to track the duration of the meeting.
          */
-        startDate = System.currentTimeMillis();
-        state = State.IN_PROGRESS;
+        mStartDate = System.currentTimeMillis();
+        mState = State.IN_PROGRESS;
         save();
     }
 
@@ -111,9 +149,9 @@ public class Meeting {
      * Updates the meeting duration to time elapsed since startDate, sets the state to finished, and persists the changes.
      */
     void stop() {
-        state = State.FINISHED;
-        long meetingDuration = System.currentTimeMillis() - startDate;
-        duration = meetingDuration / 1000;
+        mState = State.FINISHED;
+        long meetingDuration = System.currentTimeMillis() - mStartDate;
+        mDuration = meetingDuration / 1000;
         shutEverybodyUp();
         save();
     }
@@ -124,7 +162,7 @@ public class Meeting {
      */
     private void shutEverybodyUp() {
         // Query all team members who are still talking in this meeting.
-        Uri uri = Uri.withAppendedPath(MeetingMemberColumns.CONTENT_URI, String.valueOf(id));
+        Uri uri = Uri.withAppendedPath(MeetingMemberColumns.CONTENT_URI, String.valueOf(mId));
         Cursor cursor = mContext.getContentResolver().query(uri,
                 new String[] { MeetingMemberColumns._ID, MeetingMemberColumns.DURATION, MeetingMemberColumns.TALK_START_TIME },
                 MeetingMemberColumns.TALK_START_TIME + ">0", null, null);
@@ -146,7 +184,7 @@ public class Meeting {
                     builder.withValue(MeetingMemberColumns.DURATION, newDuration);
                     builder.withValue(MeetingMemberColumns.TALK_START_TIME, 0);
                     builder.withSelection(MeetingMemberColumns.MEMBER_ID + "=? AND " + MeetingMemberColumns.MEETING_ID + "=?",
-                            new String[] { String.valueOf(memberId), String.valueOf(id) });
+                            new String[] { String.valueOf(memberId), String.valueOf(mId) });
                     operations.add(builder.build());
                 } while (cursorWrapper.moveToNext());
             }
@@ -168,7 +206,7 @@ public class Meeting {
 
         // Find out if this member is currently talking:
         // read its talk_start_time and duration fields.
-        Uri meetingMemberUri = Uri.withAppendedPath(MeetingMemberColumns.CONTENT_URI, String.valueOf(id));
+        Uri meetingMemberUri = Uri.withAppendedPath(MeetingMemberColumns.CONTENT_URI, String.valueOf(mId));
         Cursor cursor = mContext.getContentResolver().query(meetingMemberUri,
                 new String[] { MeetingMemberColumns.TALK_START_TIME, MeetingMemberColumns.DURATION }, MeetingMemberColumns.MEMBER_ID + "=?",
                 new String[] { String.valueOf(memberId) }, null);
@@ -198,19 +236,25 @@ public class Meeting {
 
         mContext.getContentResolver().update(MeetingMemberColumns.CONTENT_URI, values,
                 MeetingMemberColumns.MEMBER_ID + "=? AND " + MeetingMemberColumns.MEETING_ID + "=?",
-                new String[] { String.valueOf(memberId), String.valueOf(id) });
+                new String[] { String.valueOf(memberId), String.valueOf(mId) });
     }
 
+    /**
+     * Delete this meeting from the DB
+     */
     public void delete() {
-        mContext.getContentResolver().delete(uri, null, null);
+        mContext.getContentResolver().delete(mUri, null, null);
     }
 
-    void save() {
+    /**
+     * Update this meeting in the DB.
+     */
+    private void save() {
         ContentValues values = new ContentValues(3);
-        values.put(MeetingColumns.STATE, state.ordinal());
-        values.put(MeetingColumns.MEETING_DATE, startDate);
-        values.put(MeetingColumns.TOTAL_DURATION, duration);
-        mContext.getContentResolver().update(uri, values, null, null);
+        values.put(MeetingColumns.STATE, mState.ordinal());
+        values.put(MeetingColumns.MEETING_DATE, mStartDate);
+        values.put(MeetingColumns.TOTAL_DURATION, mDuration);
+        mContext.getContentResolver().update(mUri, values, null, null);
     }
 
 }

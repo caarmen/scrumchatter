@@ -28,7 +28,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import ca.rmen.android.scrumchatter.R;
-import ca.rmen.android.scrumchatter.member.Members.Member;
+import ca.rmen.android.scrumchatter.member.list.Members.Member;
 import ca.rmen.android.scrumchatter.provider.MemberCursorWrapper;
 
 /**

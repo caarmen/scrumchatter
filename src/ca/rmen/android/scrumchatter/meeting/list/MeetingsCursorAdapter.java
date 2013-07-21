@@ -78,10 +78,10 @@ class MeetingsCursorAdapter extends CursorAdapter {
         // Get the data from the cursor
         MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(cursor);
         Meeting meeting = Meeting.read(context, cursorWrapper);
-        String dateString = TextUtils.formatDateTime(context, meeting.startDate);
-        String duration = DateUtils.formatElapsedTime(meeting.duration);
+        String dateString = TextUtils.formatDateTime(context, meeting.getStartDate());
+        String duration = DateUtils.formatElapsedTime(meeting.getDuration());
 
-        String stateName = mMeetingStateNames[meeting.state.ordinal()];
+        String stateName = mMeetingStateNames[meeting.getState().ordinal()];
 
         // Find the views we need to set up.
         TextView tvDate = (TextView) view.findViewById(R.id.tv_meeting_date);
@@ -94,10 +94,10 @@ class MeetingsCursorAdapter extends CursorAdapter {
         // Fill the duration view. We will only show the duration if
         // the meeting is finished. For not-started or in-progress
         // meetings, we show the state.
-        if (meeting.state == State.FINISHED) tvDuration.setText(duration);
+        if (meeting.getState() == State.FINISHED) tvDuration.setText(duration);
         else
             tvDuration.setText(stateName);
-        if (meeting.state == State.IN_PROGRESS) {
+        if (meeting.getState() == State.IN_PROGRESS) {
             Animation animBlink = AnimationUtils.loadAnimation(mContext, R.anim.blink);
             tvDuration.startAnimation(animBlink);
             tvDuration.setTextColor(mColorStateInProgress);

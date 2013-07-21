@@ -38,8 +38,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
-import ca.rmen.android.scrumchatter.member.Members;
-import ca.rmen.android.scrumchatter.member.Members.Member;
+import ca.rmen.android.scrumchatter.member.list.Members.Member;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberStatsColumns;
 

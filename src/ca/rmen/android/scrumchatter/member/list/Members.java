@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
  */
-package ca.rmen.android.scrumchatter.member;
+package ca.rmen.android.scrumchatter.member.list;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -41,8 +41,8 @@ public class Members {
     private final Context mContext;
 
     public static class Member {
-        public final long id;
-        public final String name;
+        private final long id;
+        private final String name;
 
         public Member(long memberId, String memberName) {
             this.id = memberId;
