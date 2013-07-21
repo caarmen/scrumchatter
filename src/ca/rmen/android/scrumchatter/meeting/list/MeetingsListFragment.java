@@ -19,13 +19,10 @@
 package ca.rmen.android.scrumchatter.meeting.list;
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -40,11 +37,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
+import ca.rmen.android.scrumchatter.meeting.detail.Meeting;
 import ca.rmen.android.scrumchatter.meeting.detail.MeetingActivity;
-import ca.rmen.android.scrumchatter.meeting.list.MeetingsCursorAdapter.MeetingItemCache;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
-import ca.rmen.android.scrumchatter.provider.MemberColumns;
-import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
@@ -60,6 +55,7 @@ public class MeetingsListFragment extends SherlockListFragment {
 
     private MeetingsCursorAdapter mAdapter;
     private SharedPreferences mPrefs;
+    private Meetings mMeetings;
     private int mTeamId;
 
     public MeetingsListFragment() {
@@ -78,6 +74,7 @@ public class MeetingsListFragment extends SherlockListFragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        mMeetings = new Meetings(activity);
         mPrefs = PreferenceManager.getDefaultSharedPreferences(activity);
         mPrefs.registerOnSharedPreferenceChangeListener(mPrefsListener);
         mTeamId = mPrefs.getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
@@ -101,35 +98,7 @@ public class MeetingsListFragment extends SherlockListFragment {
         // Start a new meeting.
         // Check if we have any members first.  A meeting with no members is not much fun.
         if (item.getItemId() == R.id.action_new_meeting) {
-            AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>() {
-
-                @Override
-                protected Boolean doInBackground(Void... params) {
-                    Cursor c = getActivity().getContentResolver().query(MemberColumns.CONTENT_URI, new String[] { "count(*)" }, MemberColumns.TEAM_ID + "=?",
-                            new String[] { String.valueOf(mTeamId) }, null);
-                    try {
-                        c.moveToFirst();
-                        int memberCount = c.getInt(0);
-                        return memberCount > 0;
-                    } finally {
-                        c.close();
-                    }
-                }
-
-                @Override
-                protected void onPostExecute(Boolean result) {
-                    if (result) {
-                        Intent intent = new Intent(getActivity(), MeetingActivity.class);
-                        startActivity(intent);
-                    } else {
-                        ScrumChatterDialog.showInfoDialog(getActivity(), R.string.dialog_error_title_one_member_required,
-                                R.string.dialog_error_message_one_member_required);
-                    }
-                }
-
-            };
-            task.execute();
-
+            mMeetings.createMeeting(mTeamId);
             return true;
         }
         return true;
@@ -178,33 +147,11 @@ public class MeetingsListFragment extends SherlockListFragment {
 
         @Override
         public void onClick(View v) {
-            final MeetingItemCache cache = (MeetingItemCache) v.getTag();
+            final Meeting meeting = (Meeting) v.getTag();
             switch (v.getId()) {
             // The user wants to delete a meeting
                 case R.id.btn_delete:
-                    final Activity activity = getActivity();
-                    // Let's ask him if he's sure first.
-                    ScrumChatterDialog.showDialog(activity, activity.getString(R.string.action_delete_meeting),
-                            activity.getString(R.string.dialog_message_delete_meeting_confirm, cache.date), new DialogInterface.OnClickListener() {
-                                // The user clicked ok. Let's delete the
-                                // meeting.
-                                public void onClick(DialogInterface dialog, int which) {
-                                    if (which == DialogInterface.BUTTON_POSITIVE) {
-                                        // Delete the meeting in a background
-                                        // thread.
-                                        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-
-                                            @Override
-                                            protected Void doInBackground(Void... params) {
-                                                Uri uri = Uri.withAppendedPath(MeetingColumns.CONTENT_URI, String.valueOf(cache.id));
-                                                activity.getContentResolver().delete(uri, null, null);
-                                                return null;
-                                            }
-                                        };
-                                        task.execute();
-                                    }
-                                }
-                            });
+                    mMeetings.delete(meeting);
                     break;
                 default:
                     break;

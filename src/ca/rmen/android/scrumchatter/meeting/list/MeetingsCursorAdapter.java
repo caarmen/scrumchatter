@@ -30,7 +30,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import ca.rmen.android.scrumchatter.R;
-import ca.rmen.android.scrumchatter.provider.MeetingColumns;
+import ca.rmen.android.scrumchatter.meeting.detail.Meeting;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.provider.MeetingCursorWrapper;
 import ca.rmen.android.scrumchatter.util.TextUtils;
@@ -76,14 +76,12 @@ class MeetingsCursorAdapter extends CursorAdapter {
      */
     private void fillView(Context context, View view, Cursor cursor) {
         // Get the data from the cursor
-        @SuppressWarnings("resource")
         MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(cursor);
-        long id = cursorWrapper.getId();
-        String date = TextUtils.formatDateTime(mContext, cursorWrapper.getMeetingDate());
-        String duration = DateUtils.formatElapsedTime(cursorWrapper.getTotalDuration());
-        MeetingColumns.State state = cursorWrapper.getState();
+        Meeting meeting = Meeting.read(context, cursorWrapper);
+        String dateString = TextUtils.formatDateTime(context, meeting.startDate);
+        String duration = DateUtils.formatElapsedTime(meeting.duration);
 
-        String stateName = mMeetingStateNames[state.ordinal()];
+        String stateName = mMeetingStateNames[meeting.state.ordinal()];
 
         // Find the views we need to set up.
         TextView tvDate = (TextView) view.findViewById(R.id.tv_meeting_date);
@@ -91,15 +89,15 @@ class MeetingsCursorAdapter extends CursorAdapter {
         View btnDelete = view.findViewById(R.id.btn_delete);
 
         // Fill the date view.
-        tvDate.setText(date);
+        tvDate.setText(dateString);
 
         // Fill the duration view. We will only show the duration if
         // the meeting is finished. For not-started or in-progress
         // meetings, we show the state.
-        if (state == State.FINISHED) tvDuration.setText(duration);
+        if (meeting.state == State.FINISHED) tvDuration.setText(duration);
         else
             tvDuration.setText(stateName);
-        if (state == State.IN_PROGRESS) {
+        if (meeting.state == State.IN_PROGRESS) {
             Animation animBlink = AnimationUtils.loadAnimation(mContext, R.anim.blink);
             tvDuration.startAnimation(animBlink);
             tvDuration.setTextColor(mColorStateInProgress);
@@ -118,22 +116,7 @@ class MeetingsCursorAdapter extends CursorAdapter {
         // so the listener can have access to data it needs to display
         // (showing the meeting date in the confirmation dialog to delete
         // a meeting).
-        MeetingItemCache cache = new MeetingItemCache(id, date);
-        btnDelete.setTag(cache);
+        btnDelete.setTag(meeting);
         btnDelete.setOnClickListener(mOnClickListener);
-    }
-
-    /**
-     * This is not a real cache (yet?): we just store the minimum data here needed
-     * by the OnClickListener.
-     */
-    static class MeetingItemCache {
-        final long id;
-        final String date;
-
-        private MeetingItemCache(long id, String date) {
-            this.id = id;
-            this.date = date;
-        }
     }
 }
