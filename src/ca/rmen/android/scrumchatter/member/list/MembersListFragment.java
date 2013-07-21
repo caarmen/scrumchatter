@@ -22,33 +22,26 @@ package ca.rmen.android.scrumchatter.member.list;
  * Displays the list of team members.
  */
 import android.app.Activity;
-import android.content.ContentValues;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.TextView;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
-import ca.rmen.android.scrumchatter.member.list.MembersCursorAdapter.MemberItemCache;
+import ca.rmen.android.scrumchatter.member.Members;
+import ca.rmen.android.scrumchatter.member.Members.Member;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberStatsColumns;
-import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog;
-import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog.InputValidator;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
@@ -68,6 +61,7 @@ public class MembersListFragment extends SherlockListFragment {
     private MembersCursorAdapter mAdapter;
     private SharedPreferences mPrefs;
     private int mTeamId;
+    private Members mMembers;
 
 
     public MembersListFragment() {
@@ -92,6 +86,7 @@ public class MembersListFragment extends SherlockListFragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        mMembers = new Members(activity);
         mPrefs = PreferenceManager.getDefaultSharedPreferences(activity);
         mPrefs.registerOnSharedPreferenceChangeListener(mPrefsListener);
         mTeamId = mPrefs.getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
@@ -114,69 +109,11 @@ public class MembersListFragment extends SherlockListFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Create a new team member
         if (item.getItemId() == R.id.action_new_member) {
-            final Activity activity = getActivity();
-
-            final EditText editText = new EditText(activity);
-
-            // Prevent the user from creating multiple team members with the same name.
-            InputValidator validator = new InputValidator() {
-
-                @Override
-                public String getError(CharSequence input) {
-                    // Query for a member with this name.
-                    Cursor existingMemberCountCursor = activity.getContentResolver().query(MemberColumns.CONTENT_URI, new String[] { "count(*)" },
-                            MemberColumns.NAME + "=? AND " + MemberColumns.TEAM_ID + "=?", new String[] { String.valueOf(input), String.valueOf(mTeamId) },
-                            null);
-
-                    // Now Check if the team member exists.
-                    if (existingMemberCountCursor != null) {
-                        if (existingMemberCountCursor.moveToFirst()) {
-                            int existingMemberCount = existingMemberCountCursor.getInt(0);
-                            existingMemberCountCursor.close();
-                            if (existingMemberCount > 0) return activity.getString(R.string.error_member_exists, input);
-                        }
-                    }
-                    return null;
-                }
-            };
-
-            DialogInterface.OnClickListener onClickListener = new DialogInterface.OnClickListener() {
-
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    if (which == DialogInterface.BUTTON_POSITIVE) {
-
-                        final String memberName = editText.getText().toString().trim();
-
-                        // Ignore an empty name.
-                        if (!TextUtils.isEmpty(memberName)) {
-                            // Create the new member in a background thread.
-                            AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-
-                                @Override
-                                protected Void doInBackground(Void... params) {
-                                    ContentValues values = new ContentValues(2);
-                                    values.put(MemberColumns.NAME, memberName);
-                                    values.put(MemberColumns.TEAM_ID, mTeamId);
-                                    activity.getContentResolver().insert(MemberColumns.CONTENT_URI, values);
-                                    return null;
-                                }
-                            };
-                            task.execute();
-                        }
-                    }
-                }
-
-            };
-            ScrumChatterDialog.showEditTextDialog(getActivity(), R.string.action_new_member, R.string.dialog_message_new_member, editText, onClickListener,
-                    validator);
-
-
+            mMembers.createMember(mTeamId);
             return true;
         }
         return false;
     }
-
 
     private LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
         @Override
@@ -216,32 +153,9 @@ public class MembersListFragment extends SherlockListFragment {
             switch (v.getId()) {
             // The user wants to delete a team member.
                 case R.id.btn_delete:
-                    if (v.getTag() instanceof MemberItemCache) {
-                        final MemberItemCache cache = (MemberItemCache) v.getTag();
-                        final Activity activity = getActivity();
-                        // Let's ask him if he's sure.
-                        ScrumChatterDialog.showDialog(activity, getString(R.string.action_delete_member),
-                                getString(R.string.dialog_message_delete_member_confirm, cache.name), new DialogInterface.OnClickListener() {
-
-                                    // The user has confirmed to delete the
-                                    // member.
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        if (which == DialogInterface.BUTTON_POSITIVE) {
-
-                                            // Delete the member in a background thread
-                                            AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-
-                                                @Override
-                                                protected Void doInBackground(Void... params) {
-                                                    Uri uri = Uri.withAppendedPath(MemberColumns.CONTENT_URI, String.valueOf(cache.id));
-                                                    activity.getContentResolver().delete(uri, null, null);
-                                                    return null;
-                                                }
-                                            };
-                                            task.execute();
-                                        }
-                                    }
-                                });
+                    if (v.getTag() instanceof Member) {
+                        final Member member = (Member) v.getTag();
+                        mMembers.deleteMember(member);
                     }
                     break;
                 case R.id.tv_name:

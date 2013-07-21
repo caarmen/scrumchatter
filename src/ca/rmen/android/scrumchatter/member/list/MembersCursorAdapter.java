@@ -28,6 +28,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import ca.rmen.android.scrumchatter.R;
+import ca.rmen.android.scrumchatter.member.Members.Member;
 import ca.rmen.android.scrumchatter.provider.MemberCursorWrapper;
 
 /**
@@ -70,7 +71,7 @@ class MembersCursorAdapter extends CursorAdapter {
         String memberName = memberCursorWrapper.getName();
         Integer avgDuration = memberCursorWrapper.getAverageDuration();
         Integer sumDuration = memberCursorWrapper.getSumDuration();
-        MemberItemCache cache = new MemberItemCache(memberId, memberName);
+        Member cache = new Member(memberId, memberName);
 
         // Find the views we need to update
         TextView tvName = (TextView) view.findViewById(R.id.tv_name);
@@ -87,21 +88,5 @@ class MembersCursorAdapter extends CursorAdapter {
         // to pass data about the member that the OnClickListener needs.
         btnDelete.setOnClickListener(mOnClickListener);
         btnDelete.setTag(cache);
-    }
-
-    /**
-     * This cache class is not really used to cache data. The only fields that
-     * are used at all are the id and name, when we show a popup dialog warning
-     * before user deletion. We may not really need a cache as we won't be
-     * dealing with large lists. Really, how many team members attend meetings?
-     */
-    static class MemberItemCache {
-        final long id;
-        final String name;
-
-        private MemberItemCache(long id, String name) {
-            this.id = id;
-            this.name = name;
-        }
     }
 }

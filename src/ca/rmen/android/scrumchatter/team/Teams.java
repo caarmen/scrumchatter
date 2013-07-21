@@ -36,10 +36,10 @@ import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog.InputValidator;
 
 /**
- * Provides both UI and DB logic regarding the management of Teams: renaming, choosing, creating, and deleting teams.
+ * Provides both UI and DB logic regarding the management of teams: renaming, choosing, creating, and deleting teams.
  */
 public class Teams {
-    private static final String TAG = Teams.class.getSimpleName();
+    private static final String TAG = Constants.TAG + "/" + Teams.class.getSimpleName();
     private final Context mContext;
 
     public static class Team {
