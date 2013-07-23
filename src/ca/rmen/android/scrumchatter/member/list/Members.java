@@ -85,6 +85,7 @@ public class Members {
                                 ContentValues values = new ContentValues(2);
                                 values.put(MemberColumns.NAME, memberName);
                                 values.put(MemberColumns.TEAM_ID, teamId);
+                                values.put(MemberColumns.DELETED, 0);
                                 mContext.getContentResolver().insert(MemberColumns.CONTENT_URI, values);
                                 return null;
                             }
