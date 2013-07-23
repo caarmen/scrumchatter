@@ -34,6 +34,7 @@ import android.graphics.drawable.NinePatchDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -76,6 +77,7 @@ public class ScrumChatterDialog {
      */
     public static AlertDialog showEditTextDialog(Context context, int titleId, int messageId, final EditText input,
             DialogInterface.OnClickListener positiveListener, final InputValidator validator) {
+        input.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
 
         final AlertDialog dialog = showDialog(context, titleId, messageId, input, positiveListener);
         input.addTextChangedListener(new TextWatcher() {
