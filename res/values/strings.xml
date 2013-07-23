@@ -34,7 +34,7 @@
     <string name="action_new_member">Add team member</string>
     <string name="action_new_meeting">New meeting</string>
     <string name="action_new_team">New team</string>
-    <string name="dialog_message_new_member">Enter the team member\'s name.</string>
+    <string name="hint_new_member">Team member\'s name.</string>
     <string name="error_member_exists">%s is already a team member.</string>
     <string name="error_team_exists">You already have the %s team.</string>
     <string name="action_delete_member">Delete member.</string>
@@ -43,7 +43,7 @@
     <string name="dialog_message_delete_meeting_confirm">Delete meeting from %s?</string>
     <string name="dialog_message_delete_team_confirm">Delete %s?</string>
     <string name="dialog_message_switch_team">Choose a team</string>
-    <string name="dialog_message_rename_team">Enter a name for this team</string>
+    <string name="hint_team_name">Team name</string>
     <string name="dialog_error_one_team_required">Sorry, you need at least one team!</string>
     <string name="dialog_error_title_one_member_required">Can\'t start meeting</string>
     <string name="dialog_error_message_one_member_required">Sorry, you need at least one team member to have a meeting.</string>

@@ -41,6 +41,7 @@ import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckedTextView;
 import android.widget.EditText;
@@ -75,11 +76,21 @@ public class ScrumChatterDialog {
      * @param input an EditText for user input
      * @param validator will be called with each text event on the edit text, to validate the user's input.
      */
-    public static AlertDialog showEditTextDialog(Context context, int titleId, int messageId, final EditText input,
+    public static AlertDialog showEditTextDialog(Context context, int titleId, int hintId, final EditText input,
             DialogInterface.OnClickListener positiveListener, final InputValidator validator) {
-        input.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
 
-        final AlertDialog dialog = showDialog(context, titleId, messageId, input, positiveListener);
+        final AlertDialog dialog = showDialog(context, titleId, 0, input, positiveListener);
+        input.setHint(hintId);
+        // Show the keyboard when the EditText gains focus.
+        input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                }
+            }
+        });
+        // Validate the text as the user types.
         input.addTextChangedListener(new TextWatcher() {
 
             @Override

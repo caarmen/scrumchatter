@@ -96,7 +96,7 @@ public class Members {
             }
 
         };
-        ScrumChatterDialog.showEditTextDialog(mContext, R.string.action_new_member, R.string.dialog_message_new_member, editText, onClickListener, validator);
+        ScrumChatterDialog.showEditTextDialog(mContext, R.string.action_new_member, R.string.hint_new_member, editText, onClickListener, validator);
 
     }
 

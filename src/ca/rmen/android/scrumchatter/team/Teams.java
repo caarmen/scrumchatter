@@ -182,7 +182,7 @@ public class Teams {
                 }
             }
         };
-        ScrumChatterDialog.showEditTextDialog(mContext, R.string.action_new_team, R.string.dialog_message_rename_team, editText, onClickListener, validator);
+        ScrumChatterDialog.showEditTextDialog(mContext, R.string.action_new_team, R.string.hint_team_name, editText, onClickListener, validator);
     }
 
     /**
@@ -221,7 +221,7 @@ public class Teams {
                 }
             };
             editText.setText(team.teamName);
-            ScrumChatterDialog.showEditTextDialog(mContext, R.string.action_team_rename, R.string.dialog_message_rename_team, editText, onClickListener,
+            ScrumChatterDialog.showEditTextDialog(mContext, R.string.action_team_rename, R.string.hint_team_name, editText, onClickListener,
                     validator);
         }
     }
