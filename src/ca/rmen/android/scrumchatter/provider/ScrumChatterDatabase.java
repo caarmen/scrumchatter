@@ -162,8 +162,8 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
 	private static final String SQL_CREATE_VIEW_MEMBER_STATS = "CREATE VIEW "
 			+ MemberStatsColumns.VIEW_NAME + " AS " + " SELECT "
 			+ MemberColumns.TABLE_NAME + "." + MemberColumns._ID + " AS " + MemberColumns._ID + ", " 
-			+ MemberColumns.TABLE_NAME + "." + MemberColumns.NAME + ", " 
-			+ MemberColumns.TABLE_NAME + "." + MemberColumns.DELETED + ", "
+			+ MemberColumns.TABLE_NAME + "." + MemberColumns.NAME + " AS " + MemberColumns.NAME + ", " 
+			+ MemberColumns.TABLE_NAME + "." + MemberColumns.DELETED + " AS " + MemberColumns.DELETED + ", "
 			+ MemberColumns.TABLE_NAME + "." + MemberColumns.TEAM_ID+ " AS " + MemberStatsColumns.TEAM_ID + ", " 
 			+ " SUM(" + MeetingMemberColumns.TABLE_NAME + "." + MeetingMemberColumns.DURATION + ") AS " + MemberStatsColumns.SUM_DURATION + "," 
 			+ " AVG(" + MeetingMemberColumns.TABLE_NAME + "." + MeetingMemberColumns.DURATION + ") AS " + MemberStatsColumns.AVG_DURATION 
