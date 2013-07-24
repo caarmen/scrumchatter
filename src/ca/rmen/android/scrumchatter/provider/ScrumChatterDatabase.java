@@ -103,7 +103,7 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
 	private static final String SQL_ALTER_TABLE_MEMBER_V3 = "ALTER TABLE " 
 	        + MemberColumns.TABLE_NAME
 	        + " ADD COLUMN "
-	        + MemberColumns.DELETED + " NOT NULL DEFAULT 0";
+	        + MemberColumns.DELETED + " INTEGER NOT NULL DEFAULT 0";
 
 	private static final String SQL_DROP_TABLE_MEMBER = "DROP TABLE " + MemberColumns.TABLE_NAME;
 	private static final String SQL_DROP_TABLE_MEMBER_TEMP = "DROP TABLE " + MemberColumns.TABLE_NAME + TEMP_SUFFIX;
