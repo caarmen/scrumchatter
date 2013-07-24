@@ -36,21 +36,21 @@ import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog.InputValidator;
 /**
  * Provides both UI and DB logic regarding the management of members: creating, and deleting members for now.
  */
-public class Members {
+class Members {
     private static final String TAG = Constants.TAG + "/" + Members.class.getSimpleName();
     private final Context mContext;
 
-    public static class Member {
+    static class Member {
         private final long id;
         private final String name;
 
-        public Member(long memberId, String memberName) {
+        Member(long memberId, String memberName) {
             this.id = memberId;
             this.name = memberName;
         }
     };
 
-    public Members(Context context) {
+    Members(Context context) {
         mContext = context;
     }
 
@@ -60,7 +60,7 @@ public class Members {
      * 
      * @param teamId the id of the team in which the member should be added
      */
-    public void createMember(final int teamId) {
+    void createMember(final int teamId) {
         Log.v(TAG, "createMember, teamId = " + teamId);
         final EditText editText = new EditText(mContext);
 
@@ -104,7 +104,7 @@ public class Members {
     /**
      * Shows a confirmation dialog to the user. Upon pressing OK, the given member is deleted.
      */
-    public void deleteMember(final Member member) {
+    void deleteMember(final Member member) {
 
         DialogInterface.OnClickListener onClickListener = new DialogInterface.OnClickListener() {
 
