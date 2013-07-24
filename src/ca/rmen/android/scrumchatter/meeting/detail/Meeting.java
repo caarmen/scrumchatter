@@ -265,4 +265,10 @@ public class Meeting {
         mContext.getContentResolver().update(mUri, values, null, null);
     }
 
+    @Override
+    public String toString() {
+        return "Meeting [mId=" + mId + ", mUri=" + mUri + ", mStartDate=" + mStartDate + ", mState=" + mState + ", mDuration=" + mDuration + "]";
+    }
+
+
 }
