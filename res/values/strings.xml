@@ -37,8 +37,8 @@
     <string name="hint_new_member">Team member\'s name.</string>
     <string name="error_member_exists">%s is already a team member.</string>
     <string name="error_team_exists">You already have the %s team.</string>
-    <string name="action_delete_member">Delete member.</string>
-    <string name="action_delete_meeting">Delete meeting.</string>
+    <string name="action_delete_member">Delete member</string>
+    <string name="action_delete_meeting">Delete meeting</string>
     <string name="dialog_message_delete_member_confirm">Delete %s?</string>
     <string name="dialog_message_delete_meeting_confirm">Delete meeting from %s?</string>
     <string name="dialog_message_delete_team_confirm">Delete %s?</string>

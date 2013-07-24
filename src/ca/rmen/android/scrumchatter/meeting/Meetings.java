@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
  */
-package ca.rmen.android.scrumchatter.meeting.list;
+package ca.rmen.android.scrumchatter.meeting;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -35,11 +35,11 @@ import ca.rmen.android.scrumchatter.util.TextUtils;
 /**
  * Provides UI and DB logic regarding the management of meetings: creating and deleting meetings.
  */
-class Meetings {
+public class Meetings {
     private static final String TAG = Constants.TAG + "/" + Meetings.class.getSimpleName();
     private final Context mContext;
 
-    Meetings(Context context) {
+    public Meetings(Context context) {
         mContext = context;
     }
 
@@ -47,7 +47,7 @@ class Meetings {
      * Checks if there are any team members in the given team id. If not, an error dialog is shown. If the team does have members, then we start
      * the MeetingActivity class for a new meeting.
      */
-    void createMeeting(final int teamId) {
+    public void createMeeting(final int teamId) {
         Log.v(TAG, "createMeeting in team " + teamId);
         AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>() {
 
@@ -84,7 +84,7 @@ class Meetings {
     /**
      * Shows a confirmation dialog, then deletes the given meeting if the user presses OK.
      */
-    void delete(final Meeting meeting) {
+    public void delete(final Meeting meeting) {
         Log.v(TAG, "delete meeting");
         // Let's ask him if he's sure first.
         ScrumChatterDialog.showDialog(mContext, mContext.getString(R.string.action_delete_meeting),

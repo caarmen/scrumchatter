@@ -65,12 +65,20 @@ public class Meeting {
         Uri uri = Uri.withAppendedPath(MeetingColumns.CONTENT_URI, String.valueOf(id));
         Cursor meetingCursor = context.getContentResolver().query(uri, null, null, null, null);
         MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(meetingCursor);
-        cursorWrapper.moveToFirst();
-        long duration = cursorWrapper.getTotalDuration();
-        long startDate = cursorWrapper.getMeetingDate();
-        State state = cursorWrapper.getState();
-        cursorWrapper.close();
-        return new Meeting(context, id, startDate, state, duration);
+        try {
+            if (cursorWrapper.moveToFirst()) {
+
+                long duration = cursorWrapper.getTotalDuration();
+                long startDate = cursorWrapper.getMeetingDate();
+                State state = cursorWrapper.getState();
+                return new Meeting(context, id, startDate, state, duration);
+            } else {
+                Log.v(TAG, "No meeting for id " + id);
+                return null;
+            }
+        } finally {
+            cursorWrapper.close();
+        }
     }
 
     /**

@@ -33,6 +33,7 @@ import android.widget.Chronometer;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.export.MeetingExport;
+import ca.rmen.android.scrumchatter.meeting.Meetings;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog;
 import ca.rmen.android.scrumchatter.util.TextUtils;
@@ -54,6 +55,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
     private View mProgressBarHeader;
     private Chronometer mMeetingChronometer;
     private Meeting mMeeting;
+    private Meetings mMeetings;
 
 
     @Override
@@ -61,6 +63,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
         Log.v(TAG, "onCreate: savedInstanceState = " + savedInstanceState);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.meeting_activity);
+        mMeetings = new Meetings(this);
 
         mBtnStopMeeting = findViewById(R.id.btn_stop_meeting);
         mMeetingChronometer = (Chronometer) findViewById(R.id.tv_meeting_duration);
@@ -88,8 +91,12 @@ public class MeetingActivity extends SherlockFragmentActivity {
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         getSupportMenuInflater().inflate(R.menu.meeting_menu, menu);
+        // Only share finished meetings
         final MenuItem shareItem = menu.findItem(R.id.action_share);
         shareItem.setVisible(mMeeting != null && mMeeting.getState() == State.FINISHED);
+        // Delete a meeting in any state.
+        final MenuItem deleteItem = menu.findItem(R.id.action_delete);
+        deleteItem.setVisible(mMeeting != null);
         return true;
     }
 
@@ -112,6 +119,9 @@ public class MeetingActivity extends SherlockFragmentActivity {
                     }
                 };
                 asyncTask.execute();
+                return true;
+            case R.id.action_delete:
+                mMeetings.delete(mMeeting);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -165,7 +175,13 @@ public class MeetingActivity extends SherlockFragmentActivity {
      * Update UI components based on the meeting state.
      */
     private void onMeetingChanged() {
-        Log.v(TAG, "onMeetingStateChanged: meetingState = " + mMeeting.getState());
+        Log.v(TAG, "onMeetingStateChanged: meeting = " + mMeeting);
+        if (mMeeting == null) {
+            Log.v(TAG, "No more meeting, quitting this activity");
+            finish();
+            return;
+        }
+        Log.v(TAG, "meetingState = " + mMeeting.getState());
         // Show the "stop meeting" button if the meeting is not finished.
         mBtnStopMeeting.setVisibility(mMeeting.getState() == State.NOT_STARTED || mMeeting.getState() == State.IN_PROGRESS ? View.VISIBLE : View.INVISIBLE);
         // Only enable the "stop meeting" button if the meeting is in progress.
