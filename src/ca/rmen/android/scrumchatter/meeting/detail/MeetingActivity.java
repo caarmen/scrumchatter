@@ -19,7 +19,6 @@
 package ca.rmen.android.scrumchatter.meeting.detail;
 
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.database.ContentObserver;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -54,6 +53,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
     private View mProgressBarHeader;
     private Chronometer mMeetingChronometer;
     private Meeting mMeeting;
+    private boolean mIsObserverRegistered = false;
 
 
     @Override
@@ -68,21 +68,28 @@ public class MeetingActivity extends SherlockFragmentActivity {
 
         mBtnStopMeeting.setOnClickListener(mOnClickListener);
 
-        Intent intent = getIntent();
-        loadMeeting(intent);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override
     protected void onPause() {
-        getContentResolver().unregisterContentObserver(mMeetingObserver);
+        Log.v(TAG, "onPause");
+        mLoadMeetingAsyncTask.cancel(true);
+        mMeetingObserverAsyncTask.cancel(true);
+        mStartMeetingAsyncTask.cancel(true);
+        mStopMeetingAsyncTask.cancel(true);
+        unregisterObserver();
         super.onPause();
     }
 
     @Override
     protected void onResume() {
+        Log.v(TAG, "onResume");
         super.onResume();
-        if (mMeeting != null) getContentResolver().registerContentObserver(mMeeting.getUri(), false, mMeetingObserver);
+        mLoadMeetingAsyncTask.execute();
+        if (mMeeting != null) {
+            registerObserver();
+        }
     }
 
     @Override
@@ -118,47 +125,24 @@ public class MeetingActivity extends SherlockFragmentActivity {
         }
     }
 
-    /**
-     * Extract the meeting id from the intent and load the meeting data into the
-     * activity.
-     */
-    private void loadMeeting(final Intent intent) {
-        Log.v(TAG, "loadMeeting " + intent);
-
-        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-
-            @Override
-            protected Void doInBackground(Void... params) {
-                long meetingId = intent.getLongExtra(EXTRA_MEETING_ID, -1);
-                if (meetingId == -1) mMeeting = Meeting.createNewMeeting(MeetingActivity.this);
-                else
-                    mMeeting = Meeting.read(MeetingActivity.this, meetingId);
+    private void registerObserver() {
+        Log.v(TAG, "registerObserver: registered=" + mIsObserverRegistered);
+        synchronized (mMeetingObserver) {
+            if (!mIsObserverRegistered) {
                 getContentResolver().registerContentObserver(mMeeting.getUri(), false, mMeetingObserver);
-                return null;
+                mIsObserverRegistered = true;
             }
+        }
+    }
 
-            @Override
-            protected void onPostExecute(Void result) {
-                if (mMeeting.getState() == State.IN_PROGRESS) {
-                    // If the meeting is in progress, show the Chronometer.
-                    long timeSinceMeetingStartedMillis = System.currentTimeMillis() - mMeeting.getStartDate();
-                    mMeetingChronometer.setBase(SystemClock.elapsedRealtime() - timeSinceMeetingStartedMillis);
-                    mMeetingChronometer.start();
-                } else if (mMeeting.getState() == State.FINISHED) {
-                    // For finished meetings, show the duration we retrieved
-                    // from the
-                    // db.
-                    mMeetingChronometer.setText(DateUtils.formatElapsedTime(mMeeting.getDuration()));
-                }
-                getSupportActionBar().setTitle(TextUtils.formatDateTime(MeetingActivity.this, mMeeting.getStartDate()));
-                onMeetingChanged();
-
-                // Load the list of team members.
-                MeetingFragment fragment = (MeetingFragment) getSupportFragmentManager().findFragmentById(R.id.meeting_fragment);
-                fragment.loadMeeting(mMeeting.getId(), mMeeting.getState(), mOnClickListener);
+    private void unregisterObserver() {
+        Log.v(TAG, "unregisterObserver: registered=" + mIsObserverRegistered);
+        synchronized (mMeetingObserver) {
+            if (mIsObserverRegistered) {
+                getContentResolver().unregisterContentObserver(mMeetingObserver);
+                mIsObserverRegistered = false;
             }
-        };
-        task.execute();
+        }
     }
 
     /**
@@ -184,52 +168,46 @@ public class MeetingActivity extends SherlockFragmentActivity {
      * Start the meeting. Set the state to in-progress, start the chronometer,
      * and show the "stop meeting" button.
      */
-    private void startMeeting() {
-        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+    private AsyncTask<Void, Void, Void> mStartMeetingAsyncTask = new AsyncTask<Void, Void, Void>() {
 
-            @Override
-            protected Void doInBackground(Void... params) {
-                mMeeting.start();
-                return null;
-            }
+        @Override
+        protected Void doInBackground(Void... params) {
+            mMeeting.start();
+            return null;
+        }
 
-            @Override
-            protected void onPostExecute(Void params) {
-                mBtnStopMeeting.setVisibility(View.VISIBLE);
-                getSupportActionBar().setTitle(TextUtils.formatDateTime(MeetingActivity.this, mMeeting.getStartDate()));
-                mMeetingChronometer.setBase(SystemClock.elapsedRealtime());
-                mMeetingChronometer.start();
-            }
-        };
-        task.execute();
-    }
+        @Override
+        protected void onPostExecute(Void params) {
+            mBtnStopMeeting.setVisibility(View.VISIBLE);
+            getSupportActionBar().setTitle(TextUtils.formatDateTime(MeetingActivity.this, mMeeting.getStartDate()));
+            mMeetingChronometer.setBase(SystemClock.elapsedRealtime());
+            mMeetingChronometer.start();
+        }
+    };
 
     /**
      * Stop the meeting. Set the state to finished, stop the chronometer, hide
      * the "stop meeting" button, persist the meeting duration, and stop the
      * chronometers for all team members who are still talking.
      */
-    private void stopMeeting() {
-        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+    private AsyncTask<Void, Void, Void> mStopMeetingAsyncTask = new AsyncTask<Void, Void, Void>() {
 
-            @Override
-            protected Void doInBackground(Void... params) {
-                mMeeting.stop();
-                return null;
-            }
+        @Override
+        protected Void doInBackground(Void... params) {
+            mMeeting.stop();
+            return null;
+        }
 
-            @Override
-            protected void onPostExecute(Void result) {
-                mBtnStopMeeting.setVisibility(View.INVISIBLE);
-                mMeetingChronometer.stop();
-                // Reload the list of team members.
-                MeetingFragment fragment = (MeetingFragment) getSupportFragmentManager().findFragmentById(R.id.meeting_fragment);
-                fragment.loadMeeting(mMeeting.getId(), State.FINISHED, mOnClickListener);
-                supportInvalidateOptionsMenu();
-            }
-        };
-        task.execute();
-    }
+        @Override
+        protected void onPostExecute(Void result) {
+            mBtnStopMeeting.setVisibility(View.INVISIBLE);
+            mMeetingChronometer.stop();
+            // Reload the list of team members.
+            MeetingFragment fragment = (MeetingFragment) getSupportFragmentManager().findFragmentById(R.id.meeting_fragment);
+            fragment.loadMeeting(mMeeting.getId(), State.FINISHED, mOnClickListener);
+            supportInvalidateOptionsMenu();
+        }
+    };
 
     /**
      * Switch a member from the talking to non-talking state:
@@ -255,6 +233,43 @@ public class MeetingActivity extends SherlockFragmentActivity {
         task.execute();
     };
 
+    private AsyncTask<Void, Void, Void> mLoadMeetingAsyncTask = new AsyncTask<Void, Void, Void>() {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            long meetingId = getIntent().getLongExtra(EXTRA_MEETING_ID, -1);
+            if (meetingId == -1) mMeeting = Meeting.createNewMeeting(MeetingActivity.this);
+            else
+                mMeeting = Meeting.read(MeetingActivity.this, meetingId);
+            registerObserver();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            if (isFinishing()) {
+                Log.v(TAG, "Finishing, will not continue to load meeting.");
+                return;
+            }
+            if (mMeeting.getState() == State.IN_PROGRESS) {
+                // If the meeting is in progress, show the Chronometer.
+                long timeSinceMeetingStartedMillis = System.currentTimeMillis() - mMeeting.getStartDate();
+                mMeetingChronometer.setBase(SystemClock.elapsedRealtime() - timeSinceMeetingStartedMillis);
+                mMeetingChronometer.start();
+            } else if (mMeeting.getState() == State.FINISHED) {
+                // For finished meetings, show the duration we retrieved
+                // from the
+                // db.
+                mMeetingChronometer.setText(DateUtils.formatElapsedTime(mMeeting.getDuration()));
+            }
+            getSupportActionBar().setTitle(TextUtils.formatDateTime(MeetingActivity.this, mMeeting.getStartDate()));
+            onMeetingChanged();
+
+            // Load the list of team members.
+            MeetingFragment fragment = (MeetingFragment) getSupportFragmentManager().findFragmentById(R.id.meeting_fragment);
+            fragment.loadMeeting(mMeeting.getId(), mMeeting.getState(), mOnClickListener);
+        }
+    };
 
     private final OnClickListener mOnClickListener = new OnClickListener() {
 
@@ -263,7 +278,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
             switch (v.getId()) {
             // Start or stop the team member talking
                 case R.id.btn_start_stop_member:
-                    if (mMeeting.getState() != State.IN_PROGRESS) startMeeting();
+                    if (mMeeting.getState() != State.IN_PROGRESS) mStartMeetingAsyncTask.execute();
                     long memberId = (Long) v.getTag();
                     toggleTalkingMember(memberId);
                     break;
@@ -277,7 +292,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
                                 // member.
                                 public void onClick(DialogInterface dialog, int which) {
                                     if (which == DialogInterface.BUTTON_POSITIVE) {
-                                        stopMeeting();
+                                        mStopMeetingAsyncTask.execute();
                                     }
                                 }
                             });
@@ -297,23 +312,23 @@ public class MeetingActivity extends SherlockFragmentActivity {
         public void onChange(boolean selfChange) {
             Log.v(TAG, "MeetingObserver onChange, selfChange: " + selfChange);
             super.onChange(selfChange);
-            // In a background thread, reread the meeting.
-            // In the UI thread, update the Views.
-            AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+            mMeetingObserverAsyncTask.execute();
+        }
 
-                @Override
-                protected Void doInBackground(Void... params) {
-                    mMeeting = Meeting.read(MeetingActivity.this, mMeeting.getId());
-                    return null;
-                }
+    };
+    // In a background thread, reread the meeting.
+    // In the UI thread, update the Views.
+    private AsyncTask<Void, Void, Void> mMeetingObserverAsyncTask = new AsyncTask<Void, Void, Void>() {
 
-                @Override
-                protected void onPostExecute(Void params) {
-                    onMeetingChanged();
-                }
+        @Override
+        protected Void doInBackground(Void... params) {
+            mMeeting = Meeting.read(MeetingActivity.this, mMeeting.getId());
+            return null;
+        }
 
-            };
-            task.execute();
+        @Override
+        protected void onPostExecute(Void params) {
+            onMeetingChanged();
         }
 
     };
