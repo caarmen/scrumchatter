@@ -24,14 +24,17 @@ import android.graphics.drawable.AnimationDrawable;
 import android.os.SystemClock;
 import android.support.v4.widget.CursorAdapter;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.Chronometer;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
@@ -41,6 +44,7 @@ import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
  * for that meeting.
  */
 class MeetingCursorAdapter extends CursorAdapter {
+    private static final String TAG = Constants.TAG + "/" + MeetingCursorAdapter.class.getSimpleName();
     private final OnClickListener mOnClickListener;
     private final int mColorChronoActive;
     private final int mColorChronoInactive;
@@ -53,6 +57,7 @@ class MeetingCursorAdapter extends CursorAdapter {
      */
     MeetingCursorAdapter(Context context, OnClickListener onClickListener) {
         super(context, null, false);
+        Log.v(TAG, "Constructor");
         mOnClickListener = onClickListener;
         mColorChronoActive = context.getResources().getColor(R.color.chrono_active);
         mColorChronoInactive = context.getResources().getColor(R.color.chrono_inactive);
@@ -68,7 +73,6 @@ class MeetingCursorAdapter extends CursorAdapter {
     public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = layoutInflater.inflate(R.layout.meeting_member_list_item, null);
-        fillView(view, cursor);
         return view;
     }
 
@@ -95,7 +99,7 @@ class MeetingCursorAdapter extends CursorAdapter {
         TextView tvName = (TextView) view.findViewById(R.id.tv_name);
         Chronometer chronometer = (Chronometer) view.findViewById(R.id.tv_duration);
         ImageButton btnStartStop = (ImageButton) view.findViewById(R.id.btn_start_stop_member);
-        ImageView ivChatterFace = (ImageView) view.findViewById(R.id.iv_chatter_face);
+        final ImageView ivChatterFace = (ImageView) view.findViewById(R.id.iv_chatter_face);
         final AnimationDrawable animChatterFace = (AnimationDrawable) ivChatterFace.getDrawable();
 
         // Set up the member's name
@@ -125,19 +129,56 @@ class MeetingCursorAdapter extends CursorAdapter {
             chronometer.setBase(SystemClock.elapsedRealtime() - hasBeenTalkingFor);
             chronometer.start();
             chronometer.setTextColor(mColorChronoActive);
-            if (ivChatterFace.getVisibility() != View.VISIBLE) {
-                ivChatterFace.setVisibility(View.VISIBLE);
-            }
-            if (!animChatterFace.isRunning()) animChatterFace.start();
+            startAnimation(ivChatterFace);
         } else {
             chronometer.stop();
             chronometer.setText(DateUtils.formatElapsedTime(duration));
             chronometer.setTextColor(duration > 0 ? mColorChronoInactive : mColorChronoNotStarted);
-            ivChatterFace.setVisibility(View.INVISIBLE);
+            stopAnimation(ivChatterFace);
         }
 
         // Set the member id as a tag, so when the OnClickListener receives the
         // click action, it knows for which member the user clicked.
         btnStartStop.setTag(memberId);
+    }
+
+    /**
+     * Show the imageView and start its animation drawable.
+     */
+    private void startAnimation(final ImageView imageView) {
+        if (imageView.getVisibility() != View.VISIBLE) {
+            Log.v(TAG, "startAnimation");
+            imageView.setVisibility(View.VISIBLE);
+            final AnimationDrawable animationDrawable = (AnimationDrawable) imageView.getDrawable();
+            // On some devices, directly calling start() on the animation does not work.
+            // We have to wait until the ImageView is visible before starting the animation.
+            imageView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    if (!animationDrawable.isRunning()) {
+                        imageView.post(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                animationDrawable.setVisible(true, true);
+                            }
+                        });
+                    }
+                    imageView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                }
+            });
+        }
+    }
+
+    /**
+     * Stop the animation drawable on this imageView and hide the imageView.
+     */
+    private void stopAnimation(final ImageView imageView) {
+        if (imageView.getVisibility() == View.VISIBLE) {
+            Log.v(TAG, "stopAnimation");
+            imageView.setVisibility(View.INVISIBLE);
+            final AnimationDrawable animationDrawable = (AnimationDrawable) imageView.getDrawable();
+            animationDrawable.setVisible(false, false);
+        }
     }
 }
