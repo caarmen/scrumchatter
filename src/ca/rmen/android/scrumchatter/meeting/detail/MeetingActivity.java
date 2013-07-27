@@ -74,6 +74,18 @@ public class MeetingActivity extends SherlockFragmentActivity {
     }
 
     @Override
+    public void onAttachedToWindow() {
+        Log.v(TAG, "onAttachedToWindow");
+        super.onAttachedToWindow();
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        Log.v(TAG, "onWindowFocusChanged: hasFocus = " + hasFocus);
+        super.onWindowFocusChanged(hasFocus);
+    }
+
+    @Override
     protected void onPause() {
         Log.v(TAG, "onPause");
         getContentResolver().unregisterContentObserver(mMeetingObserver);
