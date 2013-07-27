@@ -57,8 +57,6 @@
 
     <style name="ActionBarTabStyle.Scrum_chatter" parent="@style/Widget.Sherlock.ActionBar.TabView">
         <item name="android:background">@drawable/tab_indicator_ab_scrum_chatter</item>
-            <item name="android:layout_width">0dip</item>
-    <item name="android:layout_weight">1</item>
     </style>
 	
     <style name="DropDownNav.Scrum_chatter" parent="@style/Widget.Sherlock.Spinner.DropDown.ActionBar">
