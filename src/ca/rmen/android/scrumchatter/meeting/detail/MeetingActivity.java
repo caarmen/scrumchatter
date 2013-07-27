@@ -154,6 +154,10 @@ public class MeetingActivity extends SherlockFragmentActivity {
 
         @Override
         protected void onPostExecute(Meeting result) {
+            if (result == null) {
+                Log.w(TAG, "Could not load meeting, are you a monkey?");
+                return;
+            }
             mMeeting = result;
             getContentResolver().registerContentObserver(mMeeting.getUri(), false, mMeetingObserver);
             if (mMeeting.getState() == State.IN_PROGRESS) {
@@ -180,7 +184,8 @@ public class MeetingActivity extends SherlockFragmentActivity {
      * Update UI components based on the meeting state.
      */
     private void onMeetingChanged() {
-        Log.v(TAG, "onMeetingStateChanged: meeting = " + mMeeting);
+        Log.v(TAG, "onMeetingChanged: meeting = " + mMeeting);
+        supportInvalidateOptionsMenu();
         if (mMeeting == null) {
             Log.v(TAG, "No more meeting, quitting this activity");
             finish();
@@ -198,7 +203,6 @@ public class MeetingActivity extends SherlockFragmentActivity {
         } else {
             mProgressBarHeader.setVisibility(View.INVISIBLE);
         }
-        supportInvalidateOptionsMenu();
     }
 
     /**
