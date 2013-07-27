@@ -111,13 +111,13 @@ public class MeetingActivity extends SherlockFragmentActivity {
                 return true;
             case R.id.action_share:
                 // Export the meeting in a background thread.
-                AsyncTask<Void, Void, Boolean> asyncTask = new AsyncTask<Void, Void, Boolean>() {
+                AsyncTask<Long, Void, Boolean> asyncTask = new AsyncTask<Long, Void, Boolean>() {
 
                     @Override
-                    protected Boolean doInBackground(Void... params) {
+                    protected Boolean doInBackground(Long... meetingId) {
                         if (isFinishing()) return false;
                         MeetingExport export = new MeetingExport(MeetingActivity.this);
-                        return export.exportMeeting(mMeeting.getId());
+                        return export.exportMeeting(meetingId[0]);
                     }
 
                     @Override
@@ -126,7 +126,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
                     }
 
                 };
-                asyncTask.execute();
+                asyncTask.execute(mMeeting.getId());
                 return true;
             case R.id.action_delete:
                 mMeetings.delete(mMeeting);
@@ -188,6 +188,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
         supportInvalidateOptionsMenu();
         if (mMeeting == null) {
             Log.v(TAG, "No more meeting, quitting this activity");
+            mBtnStopMeeting.setVisibility(View.INVISIBLE);
             finish();
             return;
         }
@@ -210,11 +211,11 @@ public class MeetingActivity extends SherlockFragmentActivity {
      * and show the "stop meeting" button.
      */
     private void startMeeting() {
-        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+        AsyncTask<Meeting, Void, Void> task = new AsyncTask<Meeting, Void, Void>() {
 
             @Override
-            protected Void doInBackground(Void... params) {
-                mMeeting.start();
+            protected Void doInBackground(Meeting... meeting) {
+                meeting[0].start();
                 return null;
             }
 
@@ -226,7 +227,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
                 mMeetingChronometer.start();
             }
         };
-        task.execute();
+        task.execute(mMeeting);
     }
 
     /**
@@ -235,15 +236,15 @@ public class MeetingActivity extends SherlockFragmentActivity {
      * chronometers for all team members who are still talking.
      */
     private void stopMeeting() {
-        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+        AsyncTask<Meeting, Void, Void> task = new AsyncTask<Meeting, Void, Void>() {
 
             @Override
-            protected Void doInBackground(Void... params) {
+            protected Void doInBackground(Meeting... meeting) {
                 if (isFinishing()) {
                     cancel(true);
                     return null;
                 }
-                mMeeting.stop();
+                meeting[0].stop();
                 return null;
             }
 
@@ -257,7 +258,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
                 supportInvalidateOptionsMenu();
             }
         };
-        task.execute();
+        task.execute(mMeeting);
     }
 
     /**
@@ -273,15 +274,15 @@ public class MeetingActivity extends SherlockFragmentActivity {
      */
     private void toggleTalkingMember(final long memberId) {
         Log.v(TAG, "toggleTalkingMember " + memberId);
-        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+        AsyncTask<Meeting, Void, Void> task = new AsyncTask<Meeting, Void, Void>() {
 
             @Override
-            protected Void doInBackground(Void... params) {
-                mMeeting.toggleTalkingMember(memberId);
+            protected Void doInBackground(Meeting... meeting) {
+                meeting[0].toggleTalkingMember(memberId);
                 return null;
             }
         };
-        task.execute();
+        task.execute(mMeeting);
     };
 
 
@@ -328,11 +329,11 @@ public class MeetingActivity extends SherlockFragmentActivity {
             super.onChange(selfChange);
             // In a background thread, reread the meeting.
             // In the UI thread, update the Views.
-            AsyncTask<Void, Void, Meeting> task = new AsyncTask<Void, Void, Meeting>() {
+            AsyncTask<Long, Void, Meeting> task = new AsyncTask<Long, Void, Meeting>() {
 
                 @Override
-                protected Meeting doInBackground(Void... params) {
-                    return Meeting.read(MeetingActivity.this, mMeeting.getId());
+                protected Meeting doInBackground(Long... meetingId) {
+                    return Meeting.read(MeetingActivity.this, meetingId[0]);
                 }
 
                 @Override
@@ -342,7 +343,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
                 }
 
             };
-            task.execute();
+            task.execute(mMeeting.getId());
         }
 
     };
