@@ -24,8 +24,10 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
+import ca.rmen.android.scrumchatter.export.MeetingExport;
 import ca.rmen.android.scrumchatter.meeting.detail.Meeting;
 import ca.rmen.android.scrumchatter.meeting.detail.MeetingActivity;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
@@ -108,6 +110,28 @@ public class Meetings {
                         }
                     }
                 });
+    }
+
+    /**
+     * Read the data for the given meeting, then show an intent chooser to export this data as text.
+     */
+    public void export(long meetingId) {
+        // Export the meeting in a background thread.
+        AsyncTask<Long, Void, Boolean> asyncTask = new AsyncTask<Long, Void, Boolean>() {
+
+            @Override
+            protected Boolean doInBackground(Long... meetingId) {
+                MeetingExport export = new MeetingExport(mContext);
+                return export.exportMeeting(meetingId[0]);
+            }
+
+            @Override
+            protected void onPostExecute(Boolean result) {
+                if (!result) Toast.makeText(mContext, R.string.error_sharing_meeting, Toast.LENGTH_LONG).show();
+            }
+
+        };
+        asyncTask.execute(meetingId);
     }
 
 }

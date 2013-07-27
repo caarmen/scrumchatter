@@ -29,10 +29,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Chronometer;
-import android.widget.Toast;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
-import ca.rmen.android.scrumchatter.export.MeetingExport;
 import ca.rmen.android.scrumchatter.meeting.Meetings;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog;
@@ -110,23 +108,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
                 NavUtils.navigateUpFromSameTask(this);
                 return true;
             case R.id.action_share:
-                // Export the meeting in a background thread.
-                AsyncTask<Long, Void, Boolean> asyncTask = new AsyncTask<Long, Void, Boolean>() {
-
-                    @Override
-                    protected Boolean doInBackground(Long... meetingId) {
-                        if (isFinishing()) return false;
-                        MeetingExport export = new MeetingExport(MeetingActivity.this);
-                        return export.exportMeeting(meetingId[0]);
-                    }
-
-                    @Override
-                    protected void onPostExecute(Boolean result) {
-                        if (!result) Toast.makeText(MeetingActivity.this, R.string.error_sharing_meeting, Toast.LENGTH_LONG).show();
-                    }
-
-                };
-                asyncTask.execute(mMeeting.getId());
+                mMeetings.export(mMeeting.getId());
                 return true;
             case R.id.action_delete:
                 mMeetings.delete(mMeeting);
@@ -240,10 +222,6 @@ public class MeetingActivity extends SherlockFragmentActivity {
 
             @Override
             protected Void doInBackground(Meeting... meeting) {
-                if (isFinishing()) {
-                    cancel(true);
-                    return null;
-                }
                 meeting[0].stop();
                 return null;
             }
