@@ -85,7 +85,7 @@ public class Meetings {
      * Shows a confirmation dialog, then deletes the given meeting if the user presses OK.
      */
     public void delete(final Meeting meeting) {
-        Log.v(TAG, "delete meeting");
+        Log.v(TAG, "delete meeting: " + meeting);
         // Let's ask him if he's sure first.
         ScrumChatterDialog.showDialog(mContext, mContext.getString(R.string.action_delete_meeting),
                 mContext.getString(R.string.dialog_message_delete_meeting_confirm, TextUtils.formatDateTime(mContext, meeting.getStartDate())),

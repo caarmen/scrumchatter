@@ -19,7 +19,6 @@
 package ca.rmen.android.scrumchatter.meeting.detail;
 
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.database.ContentObserver;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -30,6 +29,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Chronometer;
+import android.widget.Toast;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.export.MeetingExport;
@@ -71,19 +71,21 @@ public class MeetingActivity extends SherlockFragmentActivity {
 
         mBtnStopMeeting.setOnClickListener(mOnClickListener);
 
-        Intent intent = getIntent();
-        loadMeeting(intent);
+        mLoadMeetingAsyncTask.execute();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override
     protected void onPause() {
+        Log.v(TAG, "onPause");
         getContentResolver().unregisterContentObserver(mMeetingObserver);
+        mLoadMeetingAsyncTask.cancel(true);
         super.onPause();
     }
 
     @Override
     protected void onResume() {
+        Log.v(TAG, "onResume");
         super.onResume();
         if (mMeeting != null) getContentResolver().registerContentObserver(mMeeting.getUri(), false, mMeetingObserver);
     }
@@ -109,14 +111,20 @@ public class MeetingActivity extends SherlockFragmentActivity {
                 return true;
             case R.id.action_share:
                 // Export the meeting in a background thread.
-                AsyncTask<Void, Void, Void> asyncTask = new AsyncTask<Void, Void, Void>() {
+                AsyncTask<Void, Void, Boolean> asyncTask = new AsyncTask<Void, Void, Boolean>() {
 
                     @Override
-                    protected Void doInBackground(Void... params) {
+                    protected Boolean doInBackground(Void... params) {
+                        if (isFinishing()) return false;
                         MeetingExport export = new MeetingExport(MeetingActivity.this);
-                        export.exportMeeting(mMeeting.getId());
-                        return null;
+                        return export.exportMeeting(mMeeting.getId());
                     }
+
+                    @Override
+                    protected void onPostExecute(Boolean result) {
+                        if (!result) Toast.makeText(MeetingActivity.this, R.string.error_sharing_meeting, Toast.LENGTH_LONG).show();
+                    }
+
                 };
                 asyncTask.execute();
                 return true;
@@ -132,44 +140,41 @@ public class MeetingActivity extends SherlockFragmentActivity {
      * Extract the meeting id from the intent and load the meeting data into the
      * activity.
      */
-    private void loadMeeting(final Intent intent) {
-        Log.v(TAG, "loadMeeting " + intent);
+    AsyncTask<Void, Void, Meeting> mLoadMeetingAsyncTask = new AsyncTask<Void, Void, Meeting>() {
 
-        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+        @Override
+        protected Meeting doInBackground(Void... params) {
+            long meetingId = getIntent().getLongExtra(EXTRA_MEETING_ID, -1);
+            final Meeting meeting;
+            if (meetingId == -1) meeting = Meeting.createNewMeeting(MeetingActivity.this);
+            else
+                meeting = Meeting.read(MeetingActivity.this, meetingId);
+            return meeting;
+        }
 
-            @Override
-            protected Void doInBackground(Void... params) {
-                long meetingId = intent.getLongExtra(EXTRA_MEETING_ID, -1);
-                if (meetingId == -1) mMeeting = Meeting.createNewMeeting(MeetingActivity.this);
-                else
-                    mMeeting = Meeting.read(MeetingActivity.this, meetingId);
-                getContentResolver().registerContentObserver(mMeeting.getUri(), false, mMeetingObserver);
-                return null;
+        @Override
+        protected void onPostExecute(Meeting result) {
+            mMeeting = result;
+            getContentResolver().registerContentObserver(mMeeting.getUri(), false, mMeetingObserver);
+            if (mMeeting.getState() == State.IN_PROGRESS) {
+                // If the meeting is in progress, show the Chronometer.
+                long timeSinceMeetingStartedMillis = System.currentTimeMillis() - mMeeting.getStartDate();
+                mMeetingChronometer.setBase(SystemClock.elapsedRealtime() - timeSinceMeetingStartedMillis);
+                mMeetingChronometer.start();
+            } else if (mMeeting.getState() == State.FINISHED) {
+                // For finished meetings, show the duration we retrieved
+                // from the
+                // db.
+                mMeetingChronometer.setText(DateUtils.formatElapsedTime(mMeeting.getDuration()));
             }
+            getSupportActionBar().setTitle(TextUtils.formatDateTime(MeetingActivity.this, mMeeting.getStartDate()));
+            onMeetingChanged();
 
-            @Override
-            protected void onPostExecute(Void result) {
-                if (mMeeting.getState() == State.IN_PROGRESS) {
-                    // If the meeting is in progress, show the Chronometer.
-                    long timeSinceMeetingStartedMillis = System.currentTimeMillis() - mMeeting.getStartDate();
-                    mMeetingChronometer.setBase(SystemClock.elapsedRealtime() - timeSinceMeetingStartedMillis);
-                    mMeetingChronometer.start();
-                } else if (mMeeting.getState() == State.FINISHED) {
-                    // For finished meetings, show the duration we retrieved
-                    // from the
-                    // db.
-                    mMeetingChronometer.setText(DateUtils.formatElapsedTime(mMeeting.getDuration()));
-                }
-                getSupportActionBar().setTitle(TextUtils.formatDateTime(MeetingActivity.this, mMeeting.getStartDate()));
-                onMeetingChanged();
-
-                // Load the list of team members.
-                MeetingFragment fragment = (MeetingFragment) getSupportFragmentManager().findFragmentById(R.id.meeting_fragment);
-                fragment.loadMeeting(mMeeting.getId(), mMeeting.getState(), mOnClickListener);
-            }
-        };
-        task.execute();
-    }
+            // Load the list of team members.
+            MeetingFragment fragment = (MeetingFragment) getSupportFragmentManager().findFragmentById(R.id.meeting_fragment);
+            fragment.loadMeeting(mMeeting.getId(), mMeeting.getState(), mOnClickListener);
+        }
+    };
 
     /**
      * Update UI components based on the meeting state.
@@ -230,6 +235,10 @@ public class MeetingActivity extends SherlockFragmentActivity {
 
             @Override
             protected Void doInBackground(Void... params) {
+                if (isFinishing()) {
+                    cancel(true);
+                    return null;
+                }
                 mMeeting.stop();
                 return null;
             }
@@ -315,16 +324,16 @@ public class MeetingActivity extends SherlockFragmentActivity {
             super.onChange(selfChange);
             // In a background thread, reread the meeting.
             // In the UI thread, update the Views.
-            AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+            AsyncTask<Void, Void, Meeting> task = new AsyncTask<Void, Void, Meeting>() {
 
                 @Override
-                protected Void doInBackground(Void... params) {
-                    mMeeting = Meeting.read(MeetingActivity.this, mMeeting.getId());
-                    return null;
+                protected Meeting doInBackground(Void... params) {
+                    return Meeting.read(MeetingActivity.this, mMeeting.getId());
                 }
 
                 @Override
-                protected void onPostExecute(Void params) {
+                protected void onPostExecute(Meeting meeting) {
+                    mMeeting = meeting;
                     onMeetingChanged();
                 }
 
