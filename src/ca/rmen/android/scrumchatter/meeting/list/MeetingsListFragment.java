@@ -25,6 +25,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -75,7 +76,8 @@ public class MeetingsListFragment extends SherlockListFragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        mMeetings = new Meetings(activity);
+        // No way around this cast to FragmentActivity
+        mMeetings = new Meetings((FragmentActivity) activity);
         mPrefs = PreferenceManager.getDefaultSharedPreferences(activity);
         mPrefs.registerOnSharedPreferenceChangeListener(mPrefsListener);
         mTeamId = mPrefs.getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);

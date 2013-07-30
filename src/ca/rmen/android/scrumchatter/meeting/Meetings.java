@@ -18,11 +18,11 @@
  */
 package ca.rmen.android.scrumchatter.meeting;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.widget.Toast;
 import ca.rmen.android.scrumchatter.Constants;
@@ -32,6 +32,7 @@ import ca.rmen.android.scrumchatter.meeting.detail.Meeting;
 import ca.rmen.android.scrumchatter.meeting.detail.MeetingActivity;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog;
+import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment;
 import ca.rmen.android.scrumchatter.util.TextUtils;
 
 /**
@@ -39,10 +40,10 @@ import ca.rmen.android.scrumchatter.util.TextUtils;
  */
 public class Meetings {
     private static final String TAG = Constants.TAG + "/" + Meetings.class.getSimpleName();
-    private final Context mContext;
+    private final FragmentActivity mActivity;
 
-    public Meetings(Context context) {
-        mContext = context;
+    public Meetings(FragmentActivity activity) {
+        mActivity = activity;
     }
 
     /**
@@ -55,7 +56,7 @@ public class Meetings {
 
             @Override
             protected Boolean doInBackground(Void... params) {
-                Cursor c = mContext.getContentResolver().query(MemberColumns.CONTENT_URI, new String[] { "count(*)" },
+                Cursor c = mActivity.getContentResolver().query(MemberColumns.CONTENT_URI, new String[] { "count(*)" },
                         MemberColumns.TEAM_ID + "=? AND " + MemberColumns.DELETED + "= 0", new String[] { String.valueOf(teamId) }, null);
                 try {
                     c.moveToFirst();
@@ -69,11 +70,12 @@ public class Meetings {
             @Override
             protected void onPostExecute(Boolean result) {
                 if (result) {
-                    Intent intent = new Intent(mContext, MeetingActivity.class);
-                    mContext.startActivity(intent);
+                    Intent intent = new Intent(mActivity, MeetingActivity.class);
+                    mActivity.startActivity(intent);
                 } else {
-                    ScrumChatterDialog.showInfoDialog(mContext, R.string.dialog_error_title_one_member_required,
+                    ScrumChatterDialogFragment.showInfoDialog(mActivity, R.string.dialog_error_title_one_member_required,
                             R.string.dialog_error_message_one_member_required);
+
                 }
             }
 
@@ -89,8 +91,8 @@ public class Meetings {
     public void delete(final Meeting meeting) {
         Log.v(TAG, "delete meeting: " + meeting);
         // Let's ask him if he's sure first.
-        ScrumChatterDialog.showDialog(mContext, mContext.getString(R.string.action_delete_meeting),
-                mContext.getString(R.string.dialog_message_delete_meeting_confirm, TextUtils.formatDateTime(mContext, meeting.getStartDate())),
+        ScrumChatterDialog.showDialog(mActivity, mActivity.getString(R.string.action_delete_meeting),
+                mActivity.getString(R.string.dialog_message_delete_meeting_confirm, TextUtils.formatDateTime(mActivity, meeting.getStartDate())),
                 new DialogInterface.OnClickListener() {
                     // The user clicked ok. Let's delete the
                     // meeting.
@@ -121,13 +123,13 @@ public class Meetings {
 
             @Override
             protected Boolean doInBackground(Long... meetingId) {
-                MeetingExport export = new MeetingExport(mContext);
+                MeetingExport export = new MeetingExport(mActivity);
                 return export.exportMeeting(meetingId[0]);
             }
 
             @Override
             protected void onPostExecute(Boolean result) {
-                if (!result) Toast.makeText(mContext, R.string.error_sharing_meeting, Toast.LENGTH_LONG).show();
+                if (!result) Toast.makeText(mActivity, R.string.error_sharing_meeting, Toast.LENGTH_LONG).show();
             }
 
         };
