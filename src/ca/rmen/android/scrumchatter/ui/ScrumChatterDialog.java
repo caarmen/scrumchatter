@@ -161,23 +161,6 @@ public class ScrumChatterDialog {
     }
 
     /**
-     * @return a dialog with the given title and message, and just one OK button.
-     */
-    public static AlertDialog showInfoDialog(Context context, int titleId, int messageId) {
-        context = new ContextThemeWrapper(context, R.style.dialogStyle);
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(titleId).setMessage(messageId).setNeutralButton(android.R.string.ok, null);
-        // Show the dialog (we have to do this before we can modify its views).
-        AlertDialog dialog = builder.create();
-        dialog.getContext().setTheme(R.style.dialogStyle);
-        dialog.show();
-
-        uglyHackReplaceBlueHoloBackground(context, (ViewGroup) dialog.getWindow().getDecorView());
-        return dialog;
-    }
-
-    /**
      * @param title Optional. The title of the dialog.
      * @param message Optional. The message of the dialog.
      * @param customView Optional. A custom view for the dialog.

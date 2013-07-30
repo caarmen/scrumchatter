@@ -88,9 +88,8 @@ public class ScrumChatterDialogFragment extends DialogFragment {
         return result;
     }
 
-    public ScrumChatterDialogFragment() {
 
-    }
+    public ScrumChatterDialogFragment() {}
 
 
     @Override
