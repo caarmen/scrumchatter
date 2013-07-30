@@ -50,8 +50,14 @@ import ca.rmen.android.scrumchatter.R;
 public class ScrumChatterDialogFragment extends DialogFragment {
 
     private static final String TAG = Constants.TAG + "/" + ScrumChatterDialogFragment.class.getSimpleName();
-    private static final String EXTRA_TITLE_ID = "title_id";
-    private static final String EXTRA_MESSAGE_ID = "message_id";
+    private static final String EXTRA_TITLE = "title";
+    private static final String EXTRA_MESSAGE = "message";
+    private static final String EXTRA_DIALOG_TYPE = "dialog_type";
+
+    private static enum DialogType {
+        INFO, INPUT, CHOICE, CONFIRM
+    };
+
     private static int sHoloBlueLightColorId = -1;
     private static int sHoloBlueDarkColorId = -1;
     private static int sHoloPurpleColorId = -1;
@@ -79,9 +85,10 @@ public class ScrumChatterDialogFragment extends DialogFragment {
      * @return a dialog with the given title and message, and just one OK button.
      */
     public static ScrumChatterDialogFragment showInfoDialog(FragmentActivity activity, int titleId, int messageId) {
-        Bundle arguments = new Bundle(2);
-        arguments.putInt(EXTRA_TITLE_ID, titleId);
-        arguments.putInt(EXTRA_MESSAGE_ID, messageId);
+        Bundle arguments = new Bundle(3);
+        arguments.putString(EXTRA_TITLE, activity.getString(titleId));
+        arguments.putString(EXTRA_MESSAGE, activity.getString(messageId));
+        arguments.putSerializable(EXTRA_DIALOG_TYPE, DialogType.INFO);
         ScrumChatterDialogFragment result = new ScrumChatterDialogFragment();
         result.setArguments(arguments);
         result.show(activity.getSupportFragmentManager(), TAG);
@@ -95,9 +102,19 @@ public class ScrumChatterDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Log.v(TAG, "onCreateDialog: savedInstanceState = " + savedInstanceState);
+        DialogType dialogType = (DialogType) getArguments().getSerializable(EXTRA_DIALOG_TYPE);
+        switch (dialogType) {
+            case INFO:
+                return createInfoDialog();
+            default:
+                throw new IllegalArgumentException("Dialog type not specified");
+        }
+    }
+
+    private Dialog createInfoDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         Bundle arguments = getArguments();
-        builder.setTitle(arguments.getInt(EXTRA_TITLE_ID)).setMessage(arguments.getInt(EXTRA_MESSAGE_ID)).setNeutralButton(android.R.string.ok, null);
+        builder.setTitle(arguments.getString(EXTRA_TITLE)).setMessage(arguments.getString(EXTRA_MESSAGE)).setNeutralButton(android.R.string.ok, null);
         // Show the dialog (we have to do this before we can modify its views).
         final AlertDialog dialog = builder.create();
         dialog.getContext().setTheme(R.style.dialogStyle);
