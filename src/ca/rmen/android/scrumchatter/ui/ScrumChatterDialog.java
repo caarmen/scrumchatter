@@ -26,7 +26,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnShowListener;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -38,7 +37,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 
@@ -128,11 +126,6 @@ public class ScrumChatterDialog {
         return showDialog(context, context.getString(titleId), null, null, context.getResources().getStringArray(choicesArrayId), selectedItem, itemListener);
     }
 
-    public static AlertDialog showChoiceDialog(Context context, int titleId, CharSequence[] choices, int selectedItem,
-            DialogInterface.OnClickListener itemListener) {
-        return showDialog(context, context.getString(titleId), null, null, choices, selectedItem, itemListener);
-    }
-
     public static AlertDialog showDialog(Context context, String title, String message, DialogInterface.OnClickListener positiveListener) {
         return showDialog(context, title, message, null, null, -1, positiveListener);
     }
@@ -180,12 +173,6 @@ public class ScrumChatterDialog {
         AlertDialog dialog = builder.create();
         dialog.getContext().setTheme(R.style.dialogStyle);
 
-        // For 3.x+, update the dialog elements which couldn't be updated cleanly with the theme:
-        // The list items.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            ListView listView = dialog.getListView();
-            if (listView != null) listView.setSelector(R.drawable.selector);
-        }
         OnShowListener showListener = new OnShowListener() {
 
             @Override

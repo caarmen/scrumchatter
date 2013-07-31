@@ -20,7 +20,6 @@ package ca.rmen.android.scrumchatter.team;
 
 import android.content.ContentValues;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -60,7 +59,7 @@ public class Teams {
     }
 
     /**
-     * Show a dialog with the list of teams. Upon selecting a team, update the shared preference for the current team.
+     * Show a dialog with the list of teams.
      * 
      * @param team the current team being used.
      */
@@ -100,55 +99,52 @@ public class Teams {
              */
             @Override
             protected void onPostExecute(Void result) {
-                if (mTeamNames != null && mTeamNames.length >= 1) {
-                    OnClickListener itemListener = new OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                            // The user clicked on the "new team" item.
-                            if (which == mTeamNames.length - 1) {
-                                createTeam();
-                            }
-                            // The user selected an existing team.  Update the shared preference for this team, in the background.
-                            else {
-                                final CharSequence teamName = mTeamNames[which];
-                                AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-
-                                    @Override
-                                    protected Void doInBackground(Void... params) {
-                                        Cursor c = mActivity.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { TeamColumns._ID },
-                                                TeamColumns.TEAM_NAME + " = ?", new String[] { String.valueOf(teamName) }, null);
-                                        if (c != null) {
-                                            try {
-                                                c.moveToFirst();
-                                                if (c.getCount() == 1) {
-                                                    int teamId = c.getInt(0);
-                                                    PreferenceManager.getDefaultSharedPreferences(mActivity).edit().putInt(Constants.PREF_TEAM_ID, teamId)
-                                                            .commit();
-                                                } else {
-                                                    Log.wtf(TAG, "Found " + c.getCount() + " teams for " + teamName);
-                                                }
-
-                                            } finally {
-                                                c.close();
-                                            }
-                                        }
-                                        return null;
-                                    }
-                                };
-                                task.execute();
-                            }
-                        }
-                    };
-                    ScrumChatterDialog.showChoiceDialog(mActivity, R.string.dialog_message_switch_team, mTeamNames, mSelectedTeam, itemListener);
-
-                } else {
+                if (mTeamNames != null && mTeamNames.length >= 1) ScrumChatterDialogFragment.showChoiceDialog(mActivity,
+                        mActivity.getString(R.string.dialog_message_switch_team), mTeamNames, mSelectedTeam, R.id.action_team_switch);
+                else
                     Log.wtf(TAG, "No existing teams found");
-                }
             }
 
         };
         task.execute();
+    }
+
+    /**
+     * Upon selecting a team, update the shared preference for the selected team.
+     */
+    public void switchTeam(CharSequence[] teamNames, int selectedTeam) {
+        // The user clicked on the "new team" item.
+        if (selectedTeam == teamNames.length - 1) {
+            createTeam();
+        }
+        // The user selected an existing team.  Update the shared preference for this team, in the background.
+        else {
+            final CharSequence teamName = teamNames[selectedTeam];
+            AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+
+                @Override
+                protected Void doInBackground(Void... params) {
+                    Cursor c = mActivity.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { TeamColumns._ID }, TeamColumns.TEAM_NAME + " = ?",
+                            new String[] { String.valueOf(teamName) }, null);
+                    if (c != null) {
+                        try {
+                            c.moveToFirst();
+                            if (c.getCount() == 1) {
+                                int teamId = c.getInt(0);
+                                PreferenceManager.getDefaultSharedPreferences(mActivity).edit().putInt(Constants.PREF_TEAM_ID, teamId).commit();
+                            } else {
+                                Log.wtf(TAG, "Found " + c.getCount() + " teams for " + teamName);
+                            }
+
+                        } finally {
+                            c.close();
+                        }
+                    }
+                    return null;
+                }
+            };
+            task.execute();
+        }
     }
 
     /**

@@ -23,11 +23,13 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnShowListener;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.ViewGroup;
+import android.widget.ListView;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 
@@ -43,6 +45,8 @@ public class ScrumChatterDialogFragment extends DialogFragment {
     private static final String EXTRA_MESSAGE = "message";
     private static final String EXTRA_DIALOG_TYPE = "dialog_type";
     private static final String EXTRA_ACTION_ID = "action_id";
+    private static final String EXTRA_CHOICES = "choices";
+    private static final String EXTRA_SELECTED_ITEM = "selected_item";
     private static final String EXTRA_EXTRAS = "extras";
 
     private static enum DialogType {
@@ -62,7 +66,7 @@ public class ScrumChatterDialogFragment extends DialogFragment {
     }
 
     public interface ScrumChatterDialogItemListener {
-        void onItemSelected(int actionId, int which);
+        void onItemSelected(int actionId, CharSequence[] choices, int which);
     }
 
 
@@ -81,12 +85,25 @@ public class ScrumChatterDialogFragment extends DialogFragment {
     }
 
     public static ScrumChatterDialogFragment showConfirmDialog(FragmentActivity activity, String title, String message, int actionId, Bundle extras) {
-        Bundle arguments = new Bundle(3);
+        Bundle arguments = new Bundle(4);
         arguments.putString(EXTRA_TITLE, title);
         arguments.putString(EXTRA_MESSAGE, message);
         arguments.putSerializable(EXTRA_DIALOG_TYPE, DialogType.CONFIRM);
         arguments.putInt(EXTRA_ACTION_ID, actionId);
         if (extras != null) arguments.putBundle(EXTRA_EXTRAS, extras);
+        ScrumChatterDialogFragment result = new ScrumChatterDialogFragment();
+        result.setArguments(arguments);
+        result.show(activity.getSupportFragmentManager(), TAG);
+        return result;
+    }
+
+    public static ScrumChatterDialogFragment showChoiceDialog(FragmentActivity activity, String title, CharSequence[] items, int selectedItem, int actionId) {
+        Bundle arguments = new Bundle(3);
+        arguments.putString(EXTRA_TITLE, title);
+        arguments.putSerializable(EXTRA_DIALOG_TYPE, DialogType.CHOICE);
+        arguments.putInt(EXTRA_ACTION_ID, actionId);
+        arguments.putCharSequenceArray(EXTRA_CHOICES, items);
+        arguments.putInt(EXTRA_SELECTED_ITEM, selectedItem);
         ScrumChatterDialogFragment result = new ScrumChatterDialogFragment();
         result.setArguments(arguments);
         result.show(activity.getSupportFragmentManager(), TAG);
@@ -106,6 +123,8 @@ public class ScrumChatterDialogFragment extends DialogFragment {
                 return createInfoDialog();
             case CONFIRM:
                 return createConfirmDialog();
+            case CHOICE:
+                return createChoiceDialog();
             default:
                 throw new IllegalArgumentException("Dialog type not specified");
         }
@@ -143,12 +162,45 @@ public class ScrumChatterDialogFragment extends DialogFragment {
 
     }
 
-    private void styleDialog(final Dialog dialog) {
+    private Dialog createChoiceDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        Bundle arguments = getArguments();
+        builder.setTitle(arguments.getString(EXTRA_TITLE));
+        final int actionId = arguments.getInt(EXTRA_ACTION_ID);
+        int selectedItem = arguments.getInt(EXTRA_SELECTED_ITEM);
+        final CharSequence[] choices = arguments.getCharSequenceArray(EXTRA_CHOICES);
+        OnClickListener listener = null;
+        if (getActivity() instanceof ScrumChatterDialogItemListener) {
+            listener = new OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                    ((ScrumChatterDialogItemListener) getActivity()).onItemSelected(actionId, choices, which);
+                }
+            };
+        }
+        if (selectedItem >= 0) builder.setSingleChoiceItems(choices, selectedItem, listener);
+        else
+            builder.setItems(choices, listener);
+
+        final AlertDialog dialog = builder.create();
+        styleDialog(dialog);
+        return dialog;
+
+    }
+
+    private void styleDialog(final AlertDialog dialog) {
         dialog.getContext().setTheme(R.style.dialogStyle);
         dialog.setOnShowListener(new OnShowListener() {
 
             @Override
             public void onShow(DialogInterface dialogInterface) {
+                // For 3.x+, update the dialog elements which couldn't be updated cleanly with the theme:
+                // The list items.
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                    ListView listView = dialog.getListView();
+                    if (listView != null) listView.setSelector(R.drawable.selector);
+                }
                 DialogStyleHacks.uglyHackReplaceBlueHoloBackground(getActivity(), (ViewGroup) dialog.getWindow().getDecorView());
 
             }
