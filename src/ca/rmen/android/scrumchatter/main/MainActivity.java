@@ -49,6 +49,7 @@ import ca.rmen.android.scrumchatter.export.FileExport;
 import ca.rmen.android.scrumchatter.export.MeetingsExport;
 import ca.rmen.android.scrumchatter.meeting.Meetings;
 import ca.rmen.android.scrumchatter.meeting.list.MeetingsListFragment;
+import ca.rmen.android.scrumchatter.member.list.Members;
 import ca.rmen.android.scrumchatter.member.list.MembersListFragment;
 import ca.rmen.android.scrumchatter.provider.DBImport;
 import ca.rmen.android.scrumchatter.provider.TeamColumns;
@@ -85,6 +86,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
 
     private Teams mTeams = new Teams(this);
     private Meetings mMeetings = new Meetings(this);
+    private Members mMembers = new Members(this);
     private Team mTeam = null;
     private int mTeamCount = 0;
 
@@ -361,6 +363,9 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
         if (actionId == R.id.action_delete_meeting) {
             long meetingId = extras.getLong(Meetings.EXTRA_MEETING_ID);
             mMeetings.delete(meetingId);
+        } else if (actionId == R.id.btn_delete) {
+            long memberId = extras.getLong(Members.EXTRA_MEMBER_ID);
+            mMembers.deleteMember(memberId);
         }
     }
 

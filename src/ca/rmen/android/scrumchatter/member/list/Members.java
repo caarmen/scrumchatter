@@ -19,11 +19,12 @@
 package ca.rmen.android.scrumchatter.member.list;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.EditText;
@@ -32,13 +33,15 @@ import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog.InputValidator;
+import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment;
 
 /**
  * Provides both UI and DB logic regarding the management of members: creating, and deleting members for now.
  */
-class Members {
+public class Members {
     private static final String TAG = Constants.TAG + "/" + Members.class.getSimpleName();
-    private final Context mContext;
+    public static final String EXTRA_MEMBER_ID = "member_id";
+    private final FragmentActivity mActivity;
 
     static class Member {
         private final long id;
@@ -50,8 +53,8 @@ class Members {
         }
     };
 
-    Members(Context context) {
-        mContext = context;
+    public Members(FragmentActivity activity) {
+        mActivity = activity;
     }
 
     /**
@@ -62,7 +65,7 @@ class Members {
      */
     void createMember(final int teamId) {
         Log.v(TAG, "createMember, teamId = " + teamId);
-        final EditText editText = new EditText(mContext);
+        final EditText editText = new EditText(mActivity);
 
         // Prevent the user from creating multiple team members with the same name.
         InputValidator validator = new MemberNameValidator(teamId);
@@ -86,7 +89,7 @@ class Members {
                                 values.put(MemberColumns.NAME, memberName);
                                 values.put(MemberColumns.TEAM_ID, teamId);
                                 values.put(MemberColumns.DELETED, 0);
-                                mContext.getContentResolver().insert(MemberColumns.CONTENT_URI, values);
+                                mActivity.getContentResolver().insert(MemberColumns.CONTENT_URI, values);
                                 return null;
                             }
                         };
@@ -96,43 +99,40 @@ class Members {
             }
 
         };
-        ScrumChatterDialog.showEditTextDialog(mContext, R.string.action_new_member, R.string.hint_new_member, editText, onClickListener, validator);
+        ScrumChatterDialog.showEditTextDialog(mActivity, R.string.action_new_member, R.string.hint_new_member, editText, onClickListener, validator);
 
     }
 
 
     /**
-     * Shows a confirmation dialog to the user. Upon pressing OK, the given member is deleted.
+     * Shows a confirmation dialog to the user, to delete a member.
      */
-    void deleteMember(final Member member) {
+    void confirmDeleteMember(final Member member) {
+        // Let's ask him if he's sure.
+        Bundle extras = new Bundle(1);
+        extras.putLong(EXTRA_MEMBER_ID, member.id);
+        ScrumChatterDialogFragment.showConfirmDialog(mActivity, mActivity.getString(R.string.action_delete_member),
+                mActivity.getString(R.string.dialog_message_delete_member_confirm, member.name), R.id.btn_delete, extras);
+    }
 
-        DialogInterface.OnClickListener onClickListener = new DialogInterface.OnClickListener() {
+    /**
+     * Marks a member as deleted.
+     */
+    public void deleteMember(final long memberId) {
 
-            // The user has confirmed to delete the
-            // member.
-            public void onClick(DialogInterface dialog, int which) {
-                if (which == DialogInterface.BUTTON_POSITIVE) {
+        // Delete the member in a background thread
+        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
 
-                    // Delete the member in a background thread
-                    AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-
-                        @Override
-                        protected Void doInBackground(Void... params) {
-                            Uri uri = Uri.withAppendedPath(MemberColumns.CONTENT_URI, String.valueOf(member.id));
-                            ContentValues values = new ContentValues(1);
-                            values.put(MemberColumns.DELETED, 1);
-                            mContext.getContentResolver().update(uri, values, null, null);
-                            return null;
-                        }
-                    };
-                    task.execute();
-                }
+            @Override
+            protected Void doInBackground(Void... params) {
+                Uri uri = Uri.withAppendedPath(MemberColumns.CONTENT_URI, String.valueOf(memberId));
+                ContentValues values = new ContentValues(1);
+                values.put(MemberColumns.DELETED, 1);
+                mActivity.getContentResolver().update(uri, values, null, null);
+                return null;
             }
         };
-
-        // Let's ask him if he's sure.
-        ScrumChatterDialog.showDialog(mContext, mContext.getString(R.string.action_delete_member),
-                mContext.getString(R.string.dialog_message_delete_member_confirm, member.name), onClickListener);
+        task.execute();
     }
 
 
@@ -151,7 +151,7 @@ class Members {
         @Override
         public String getError(CharSequence input) {
             // Query for a member with this name.
-            Cursor existingMemberCountCursor = mContext.getContentResolver().query(MemberColumns.CONTENT_URI, new String[] { "count(*)" },
+            Cursor existingMemberCountCursor = mActivity.getContentResolver().query(MemberColumns.CONTENT_URI, new String[] { "count(*)" },
                     MemberColumns.NAME + "=? AND " + MemberColumns.TEAM_ID + "=?", new String[] { String.valueOf(input), String.valueOf(mTeamId) }, null);
 
             // Now Check if the team member exists.
@@ -159,7 +159,7 @@ class Members {
                 if (existingMemberCountCursor.moveToFirst()) {
                     int existingMemberCount = existingMemberCountCursor.getInt(0);
                     existingMemberCountCursor.close();
-                    if (existingMemberCount > 0) return mContext.getString(R.string.error_member_exists, input);
+                    if (existingMemberCount > 0) return mActivity.getString(R.string.error_member_exists, input);
                 }
             }
             return null;

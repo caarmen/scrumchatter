@@ -137,10 +137,6 @@ public class ScrumChatterDialog {
         return showDialog(context, title, message, null, null, -1, positiveListener);
     }
 
-    public static AlertDialog showDialog(Context context, int titleId, int messageId, DialogInterface.OnClickListener positiveListener) {
-        return showDialog(context, titleId, messageId, null, positiveListener);
-    }
-
     private static AlertDialog showDialog(Context context, int titleId, int messageId, View customView, DialogInterface.OnClickListener positiveListener) {
         String title = titleId > 0 ? context.getString(titleId) : null;
         String message = messageId > 0 ? context.getString(messageId) : null;

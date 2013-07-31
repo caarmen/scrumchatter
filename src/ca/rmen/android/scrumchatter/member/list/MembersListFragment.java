@@ -27,6 +27,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -85,7 +86,7 @@ public class MembersListFragment extends SherlockListFragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        mMembers = new Members(activity);
+        mMembers = new Members((FragmentActivity) activity);
         mPrefs = PreferenceManager.getDefaultSharedPreferences(activity);
         mPrefs.registerOnSharedPreferenceChangeListener(mPrefsListener);
         mTeamId = mPrefs.getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
@@ -154,7 +155,7 @@ public class MembersListFragment extends SherlockListFragment {
                 case R.id.btn_delete:
                     if (v.getTag() instanceof Member) {
                         final Member member = (Member) v.getTag();
-                        mMembers.deleteMember(member);
+                        mMembers.confirmDeleteMember(member);
                     }
                     break;
                 case R.id.tv_name:
