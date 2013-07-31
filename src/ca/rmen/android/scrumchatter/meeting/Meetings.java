@@ -18,10 +18,10 @@
  */
 package ca.rmen.android.scrumchatter.meeting;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.widget.Toast;
@@ -31,7 +31,6 @@ import ca.rmen.android.scrumchatter.export.MeetingExport;
 import ca.rmen.android.scrumchatter.meeting.detail.Meeting;
 import ca.rmen.android.scrumchatter.meeting.detail.MeetingActivity;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
-import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment;
 import ca.rmen.android.scrumchatter.util.TextUtils;
 
@@ -40,6 +39,7 @@ import ca.rmen.android.scrumchatter.util.TextUtils;
  */
 public class Meetings {
     private static final String TAG = Constants.TAG + "/" + Meetings.class.getSimpleName();
+    public static final String EXTRA_MEETING_ID = "meeting_id";
     private final FragmentActivity mActivity;
 
     public Meetings(FragmentActivity activity) {
@@ -86,32 +86,35 @@ public class Meetings {
     }
 
     /**
-     * Shows a confirmation dialog, then deletes the given meeting if the user presses OK.
+     * Shows a confirmation dialog to delete the given meeting.
      */
-    public void delete(final Meeting meeting) {
+    public void confirmDelete(final Meeting meeting) {
         Log.v(TAG, "delete meeting: " + meeting);
         // Let's ask him if he's sure first.
-        ScrumChatterDialog.showDialog(mActivity, mActivity.getString(R.string.action_delete_meeting),
+        Bundle extras = new Bundle(1);
+        extras.putLong(EXTRA_MEETING_ID, meeting.getId());
+        ScrumChatterDialogFragment.showConfirmDialog(mActivity, mActivity.getString(R.string.action_delete_meeting),
                 mActivity.getString(R.string.dialog_message_delete_meeting_confirm, TextUtils.formatDateTime(mActivity, meeting.getStartDate())),
-                new DialogInterface.OnClickListener() {
-                    // The user clicked ok. Let's delete the
-                    // meeting.
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (which == DialogInterface.BUTTON_POSITIVE) {
-                            // Delete the meeting in a background
-                            // thread.
-                            AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+                R.id.action_delete_meeting, extras);
+    }
 
-                                @Override
-                                protected Void doInBackground(Void... params) {
-                                    meeting.delete();
-                                    return null;
-                                }
-                            };
-                            task.execute();
-                        }
-                    }
-                });
+    /**
+     * Deletes the given meeting from the DB.
+     */
+    public void delete(final long meetingId) {
+        // Delete the meeting in a background
+        // thread.
+        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(Void... params) {
+                Meeting meeting = Meeting.read(mActivity, meetingId);
+                meeting.delete();
+                return null;
+            }
+        };
+        task.execute();
+
     }
 
     /**

@@ -34,6 +34,7 @@ import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.meeting.Meetings;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog;
+import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment.ScrumChatterDialogButtonListener;
 import ca.rmen.android.scrumchatter.util.TextUtils;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -44,11 +45,10 @@ import com.actionbarsherlock.view.MenuItem;
  * Displays attributes of a meeting as well as the team members participating in
  * this meeting.
  */
-public class MeetingActivity extends SherlockFragmentActivity {
+public class MeetingActivity extends SherlockFragmentActivity implements ScrumChatterDialogButtonListener {
 
     private static final String TAG = Constants.TAG + "/" + MeetingActivity.class.getSimpleName();
 
-    public static final String EXTRA_MEETING_ID = MeetingActivity.class.getPackage().getName() + ".meeting_id";
     private View mBtnStopMeeting;
     private View mProgressBarHeader;
     private Chronometer mMeetingChronometer;
@@ -101,13 +101,27 @@ public class MeetingActivity extends SherlockFragmentActivity {
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        Log.v(TAG, "onSaveInstanceState: outState = " + outState);
+        super.onSaveInstanceState(outState);
+        if (mMeeting != null) outState.putLong(Meetings.EXTRA_MEETING_ID, mMeeting.getId());
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        Log.v(TAG, "onRestoreInstanceState: savedInstanceState = " + savedInstanceState);
+        super.onRestoreInstanceState(savedInstanceState);
+        getIntent().putExtra(Meetings.EXTRA_MEETING_ID, savedInstanceState.getLong(Meetings.EXTRA_MEETING_ID));
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         getSupportMenuInflater().inflate(R.menu.meeting_menu, menu);
         // Only share finished meetings
         final MenuItem shareItem = menu.findItem(R.id.action_share);
         shareItem.setVisible(mMeeting != null && mMeeting.getState() == State.FINISHED);
         // Delete a meeting in any state.
-        final MenuItem deleteItem = menu.findItem(R.id.action_delete);
+        final MenuItem deleteItem = menu.findItem(R.id.action_delete_meeting);
         deleteItem.setVisible(mMeeting != null);
         return true;
     }
@@ -122,11 +136,20 @@ public class MeetingActivity extends SherlockFragmentActivity {
             case R.id.action_share:
                 mMeetings.export(mMeeting.getId());
                 return true;
-            case R.id.action_delete:
-                mMeetings.delete(mMeeting);
+            case R.id.action_delete_meeting:
+                mMeetings.confirmDelete(mMeeting);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onOkClicked(int actionId, Bundle extras) {
+        Log.v(TAG, "onClicked: actionId = " + actionId + ", extras = " + extras);
+        if (actionId == R.id.action_delete_meeting) {
+            long meetingId = extras.getLong(Meetings.EXTRA_MEETING_ID);
+            mMeetings.delete(meetingId);
         }
     }
 
@@ -138,7 +161,7 @@ public class MeetingActivity extends SherlockFragmentActivity {
 
         @Override
         protected Meeting doInBackground(Void... params) {
-            long meetingId = getIntent().getLongExtra(EXTRA_MEETING_ID, -1);
+            long meetingId = getIntent().getLongExtra(Meetings.EXTRA_MEETING_ID, -1);
             final Meeting meeting;
             if (meetingId == -1) meeting = Meeting.createNewMeeting(MeetingActivity.this);
             else

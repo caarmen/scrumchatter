@@ -113,7 +113,7 @@ public class MeetingsListFragment extends SherlockListFragment {
         // The user clicked on the meeting. Let's go to the
         // details of that meeting.
         Intent intent = new Intent(getActivity(), MeetingActivity.class);
-        intent.putExtra(MeetingActivity.EXTRA_MEETING_ID, id);
+        intent.putExtra(Meetings.EXTRA_MEETING_ID, id);
         startActivity(intent);
     }
 
@@ -154,7 +154,7 @@ public class MeetingsListFragment extends SherlockListFragment {
             switch (v.getId()) {
             // The user wants to delete a meeting
                 case R.id.btn_delete:
-                    mMeetings.delete(meeting);
+                    mMeetings.confirmDelete(meeting);
                     break;
                 default:
                     break;

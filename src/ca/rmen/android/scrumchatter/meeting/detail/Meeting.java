@@ -60,7 +60,7 @@ public class Meeting {
     /**
      * Read an existing meeting from the DB.
      */
-    static Meeting read(Context context, long id) {
+    public static Meeting read(Context context, long id) {
         // Read the meeting attributes from the DB 
         Uri uri = Uri.withAppendedPath(MeetingColumns.CONTENT_URI, String.valueOf(id));
         Cursor meetingCursor = context.getContentResolver().query(uri, null, null, null, null);

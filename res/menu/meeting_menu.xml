@@ -28,7 +28,7 @@
     </item>
 
     <item
-        android:id="@+id/action_delete"
+        android:id="@+id/action_delete_meeting"
         android:icon="@drawable/ic_action_delete_light"
         android:showAsAction="never"
         android:title="@string/action_delete_meeting"

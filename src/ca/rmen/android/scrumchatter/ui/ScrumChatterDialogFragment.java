@@ -21,6 +21,7 @@ package ca.rmen.android.scrumchatter.ui;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnShowListener;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -41,6 +42,8 @@ public class ScrumChatterDialogFragment extends DialogFragment {
     private static final String EXTRA_TITLE = "title";
     private static final String EXTRA_MESSAGE = "message";
     private static final String EXTRA_DIALOG_TYPE = "dialog_type";
+    private static final String EXTRA_ACTION_ID = "action_id";
+    private static final String EXTRA_EXTRAS = "extras";
 
     private static enum DialogType {
         INFO, INPUT, CHOICE, CONFIRM
@@ -55,11 +58,11 @@ public class ScrumChatterDialogFragment extends DialogFragment {
     };
 
     public interface ScrumChatterDialogButtonListener {
-        void onOkClicked();
+        void onOkClicked(int actionId, Bundle extras);
     }
 
     public interface ScrumChatterDialogItemListener {
-        void onItemSelected(int which);
+        void onItemSelected(int actionId, int which);
     }
 
 
@@ -77,6 +80,19 @@ public class ScrumChatterDialogFragment extends DialogFragment {
         return result;
     }
 
+    public static ScrumChatterDialogFragment showConfirmDialog(FragmentActivity activity, String title, String message, int actionId, Bundle extras) {
+        Bundle arguments = new Bundle(3);
+        arguments.putString(EXTRA_TITLE, title);
+        arguments.putString(EXTRA_MESSAGE, message);
+        arguments.putSerializable(EXTRA_DIALOG_TYPE, DialogType.CONFIRM);
+        arguments.putInt(EXTRA_ACTION_ID, actionId);
+        arguments.putBundle(EXTRA_EXTRAS, extras);
+        ScrumChatterDialogFragment result = new ScrumChatterDialogFragment();
+        result.setArguments(arguments);
+        result.show(activity.getSupportFragmentManager(), TAG);
+        return result;
+    }
+
 
     public ScrumChatterDialogFragment() {}
 
@@ -88,6 +104,8 @@ public class ScrumChatterDialogFragment extends DialogFragment {
         switch (dialogType) {
             case INFO:
                 return createInfoDialog();
+            case CONFIRM:
+                return createConfirmDialog();
             default:
                 throw new IllegalArgumentException("Dialog type not specified");
         }
@@ -97,8 +115,35 @@ public class ScrumChatterDialogFragment extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         Bundle arguments = getArguments();
         builder.setTitle(arguments.getString(EXTRA_TITLE)).setMessage(arguments.getString(EXTRA_MESSAGE)).setNeutralButton(android.R.string.ok, null);
-        // Show the dialog (we have to do this before we can modify its views).
         final AlertDialog dialog = builder.create();
+        styleDialog(dialog);
+        return dialog;
+    }
+
+    private Dialog createConfirmDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        Bundle arguments = getArguments();
+        builder.setTitle(arguments.getString(EXTRA_TITLE)).setMessage(arguments.getString(EXTRA_MESSAGE));
+        final int actionId = arguments.getInt(EXTRA_ACTION_ID);
+        final Bundle extras = arguments.getBundle(EXTRA_EXTRAS);
+        OnClickListener positiveListener = null;
+        if (getActivity() instanceof ScrumChatterDialogButtonListener) {
+            positiveListener = new OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    ((ScrumChatterDialogButtonListener) getActivity()).onOkClicked(actionId, extras);
+                }
+            };
+        }
+        builder.setNegativeButton(android.R.string.cancel, null);
+        builder.setPositiveButton(android.R.string.ok, positiveListener);
+        final AlertDialog dialog = builder.create();
+        styleDialog(dialog);
+        return dialog;
+
+    }
+
+    private void styleDialog(final Dialog dialog) {
         dialog.getContext().setTheme(R.style.dialogStyle);
         dialog.setOnShowListener(new OnShowListener() {
 
@@ -108,7 +153,7 @@ public class ScrumChatterDialogFragment extends DialogFragment {
 
             }
         });
-        return dialog;
+
     }
 
 
