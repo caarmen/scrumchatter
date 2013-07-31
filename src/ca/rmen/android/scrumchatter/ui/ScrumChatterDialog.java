@@ -25,18 +25,10 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnShowListener;
-import android.os.AsyncTask;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.EditText;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 
@@ -49,87 +41,8 @@ public class ScrumChatterDialog {
 
     private static final String TAG = Constants.TAG + "/" + ScrumChatterDialog.class.getSimpleName();
 
-    public interface InputValidator {
-        /**
-         * @param input the text entered by the user.
-         * @return an error string if the input has a problem, null if the input is valid.
-         */
-        String getError(CharSequence input);
-    };
-
-    /**
-     * @param input an EditText for user input
-     * @param validator will be called with each text event on the edit text, to validate the user's input.
-     */
-    public static AlertDialog showEditTextDialog(Context context, int titleId, int hintId, final EditText input,
-            DialogInterface.OnClickListener positiveListener, final InputValidator validator) {
-        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
-
-        final AlertDialog dialog = showDialog(context, titleId, 0, input, positiveListener);
-        input.setHint(hintId);
-        // Show the keyboard when the EditText gains focus.
-        input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-                }
-            }
-        });
-        // Validate the text as the user types.
-        input.addTextChangedListener(new TextWatcher() {
-
-            @Override
-            public void afterTextChanged(Editable s) {}
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                validateMemberName();
-            }
-
-            private void validateMemberName() {
-                // Start off with everything a-ok.
-                input.setError(null);
-                final Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                okButton.setEnabled(true);
-
-                // Search for an error in background thread, update the dialog in the UI thread.
-                AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>() {
-
-                    /**
-                     * @return an error String if the input is invalid.
-                     */
-                    @Override
-                    protected String doInBackground(Void... params) {
-                        return validator.getError(input.getText().toString().trim());
-                    }
-
-                    @Override
-                    protected void onPostExecute(String error) {
-                        // If the input is invalid, highlight the error
-                        // and disable the OK button.
-                        if (!TextUtils.isEmpty(error)) {
-                            input.setError(error);
-                            okButton.setEnabled(false);
-                        }
-                    }
-                };
-                task.execute();
-            }
-        });
-        return dialog;
-    }
-
     public static AlertDialog showDialog(Context context, String title, String message, DialogInterface.OnClickListener positiveListener) {
         return showDialog(context, title, message, null, null, -1, positiveListener);
-    }
-
-    private static AlertDialog showDialog(Context context, int titleId, int messageId, View customView, DialogInterface.OnClickListener positiveListener) {
-        String title = titleId > 0 ? context.getString(titleId) : null;
-        String message = messageId > 0 ? context.getString(messageId) : null;
-        return showDialog(context, title, message, customView, null, -1, positiveListener);
     }
 
     /**

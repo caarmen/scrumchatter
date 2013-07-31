@@ -49,6 +49,10 @@ import ca.rmen.android.scrumchatter.R;
  * dialogs with EditTexts, and not a clean way to manage clicks on the dialog buttons. Started out trying to copy the resources used for dialogs, one-by-one,
  * from the core android framework, but that was more pain than the approach I decided to take in this class.
  */
+/**
+ * @author calvarez
+ * 
+ */
 public class ScrumChatterDialogFragment extends DialogFragment {
 
     private static final String TAG = Constants.TAG + "/" + ScrumChatterDialogFragment.class.getSimpleName();
@@ -131,13 +135,17 @@ public class ScrumChatterDialogFragment extends DialogFragment {
         return result;
     }
 
-    public static ScrumChatterDialogFragment showInputDialog(FragmentActivity activity, String title, String inputHint, Class<?> inputValidatorClass,
-            int actionId, Bundle extras) {
-        Bundle arguments = new Bundle(5);
+    /**
+     * @param validatorClass will be called with each text event on the edit text, to validate the user's input.
+     */
+    public static ScrumChatterDialogFragment showInputDialog(FragmentActivity activity, String title, String inputHint, String prefilledText,
+            Class<?> inputValidatorClass, int actionId, Bundle extras) {
+        Bundle arguments = new Bundle(6);
         arguments.putString(EXTRA_TITLE, title);
         arguments.putSerializable(EXTRA_DIALOG_TYPE, DialogType.INPUT);
         arguments.putString(EXTRA_INPUT_HINT, inputHint);
         arguments.putInt(EXTRA_ACTION_ID, actionId);
+        arguments.putString(EXTRA_ENTERED_TEXT, prefilledText);
         if (inputValidatorClass != null) arguments.putSerializable(EXTRA_INPUT_VALIDATOR_CLASS, inputValidatorClass);
         arguments.putBundle(EXTRA_EXTRAS, extras);
         ScrumChatterDialogFragment result = new ScrumChatterDialogFragment();
@@ -181,6 +189,7 @@ public class ScrumChatterDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Log.v(TAG, "onCreateDialog: savedInstanceState = " + savedInstanceState);
+        if (savedInstanceState != null) mEnteredText = savedInstanceState.getString(EXTRA_ENTERED_TEXT);
         DialogType dialogType = (DialogType) getArguments().getSerializable(EXTRA_DIALOG_TYPE);
         switch (dialogType) {
             case INFO:
@@ -256,17 +265,21 @@ public class ScrumChatterDialogFragment extends DialogFragment {
     }
 
     private Dialog createInputDialog() {
+        Log.v(TAG, "createInputDialog");
         Bundle arguments = getArguments();
         final int actionId = arguments.getInt(EXTRA_ACTION_ID);
         final EditText input = new EditText(getActivity());
         final Bundle extras = arguments.getBundle(EXTRA_EXTRAS);
         final Class<?> inputValidatorClass = (Class<?>) arguments.getSerializable(EXTRA_INPUT_VALIDATOR_CLASS);
+        final String prefilledText = arguments.getString(EXTRA_ENTERED_TEXT);
+        final Context context = getActivity().getApplicationContext();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(arguments.getString(EXTRA_TITLE));
         builder.setView(input);
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
         input.setHint(arguments.getString(EXTRA_INPUT_HINT));
+        input.setText(prefilledText);
         if (!TextUtils.isEmpty(mEnteredText)) input.setText(mEnteredText);
 
         OnClickListener listener = null;
@@ -293,7 +306,7 @@ public class ScrumChatterDialogFragment extends DialogFragment {
         });
         try {
             final InputValidator validator = inputValidatorClass == null ? null : (InputValidator) inputValidatorClass.newInstance();
-            final Context context = getActivity().getApplicationContext();
+            Log.v(TAG, "input validator = " + validator);
             // Validate the text as the user types.
             input.addTextChangedListener(new TextWatcher() {
 
@@ -306,46 +319,57 @@ public class ScrumChatterDialogFragment extends DialogFragment {
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
                     mEnteredText = input.getText().toString();
-                    if (validator != null) validateMemberName();
+                    if (validator != null) validateText(context, dialog, input, validator, actionId, extras);
                 }
+            });
+            dialog.getContext().setTheme(R.style.dialogStyle);
+            dialog.setOnShowListener(new OnShowListener() {
 
-                private void validateMemberName() {
-                    // Start off with everything a-ok.
-                    input.setError(null);
-                    final Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                    okButton.setEnabled(true);
-
-                    // Search for an error in background thread, update the dialog in the UI thread.
-                    AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>() {
-
-                        /**
-                         * @return an error String if the input is invalid.
-                         */
-                        @Override
-                        protected String doInBackground(Void... params) {
-                            return validator.getError(context, actionId, input.getText().toString().trim(), extras);
-                        }
-
-                        @Override
-                        protected void onPostExecute(String error) {
-                            // If the input is invalid, highlight the error
-                            // and disable the OK button.
-                            if (!TextUtils.isEmpty(error)) {
-                                input.setError(error);
-                                okButton.setEnabled(false);
-                            }
-                        }
-                    };
-                    task.execute();
+                @Override
+                public void onShow(DialogInterface dialogInterface) {
+                    Log.v(TAG, "onShow");
+                    DialogStyleHacks.uglyHackReplaceBlueHoloBackground(getActivity(), (ViewGroup) dialog.getWindow().getDecorView());
+                    validateText(context, dialog, input, validator, actionId, extras);
                 }
             });
         } catch (Exception e) {
             Log.e(TAG, "Could not instantiate validator " + inputValidatorClass + ": " + e.getMessage(), e);
         }
 
-
-        styleDialog(dialog);
         return dialog;
+    }
+
+    private static void validateText(final Context context, AlertDialog dialog, final EditText input, final InputValidator validator, final int actionId,
+            final Bundle extras) {
+        Log.v(TAG, "validateText: input = " + input.getText().toString() + ", actionId = " + actionId + ", extras = " + extras);
+        // Start off with everything a-ok.
+        input.setError(null);
+        final Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        okButton.setEnabled(true);
+
+        // Search for an error in background thread, update the dialog in the UI thread.
+        AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>() {
+
+            /**
+             * @return an error String if the input is invalid.
+             */
+            @Override
+            protected String doInBackground(Void... params) {
+                return validator.getError(context, actionId, input.getText().toString().trim(), extras);
+            }
+
+            @Override
+            protected void onPostExecute(String error) {
+                // If the input is invalid, highlight the error
+                // and disable the OK button.
+                if (!TextUtils.isEmpty(error)) {
+                    input.setError(error);
+                    okButton.setEnabled(false);
+                }
+            }
+        };
+        task.execute();
+
     }
 
     private void styleDialog(final AlertDialog dialog) {

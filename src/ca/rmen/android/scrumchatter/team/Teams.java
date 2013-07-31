@@ -19,7 +19,7 @@
 package ca.rmen.android.scrumchatter.team;
 
 import android.content.ContentValues;
-import android.content.DialogInterface;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -28,12 +28,9 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.EditText;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.provider.TeamColumns;
-import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog;
-import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog.InputValidator;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment;
 
 /**
@@ -43,6 +40,7 @@ public class Teams {
     private static final String TAG = Constants.TAG + "/" + Teams.class.getSimpleName();
     public static final String EXTRA_TEAM_URI = "team_uri";
     public static final String EXTRA_TEAM_ID = "team_id";
+    public static final String EXTRA_TEAM_NAME = "team_name";
     private final FragmentActivity mActivity;
 
     public static class Team {
@@ -116,7 +114,7 @@ public class Teams {
     public void switchTeam(CharSequence[] teamNames, int selectedTeam) {
         // The user clicked on the "new team" item.
         if (selectedTeam == teamNames.length - 1) {
-            createTeam();
+            promptCreateTeam();
         }
         // The user selected an existing team.  Update the shared preference for this team, in the background.
         else {
@@ -151,77 +149,63 @@ public class Teams {
     /**
      * Show a dialog with a text input for the new team name. Validate that the team doesn't already exist. Upon pressing "OK", create the team.
      */
-    private void createTeam() {
-        TeamNameValidator validator = new TeamNameValidator(null);
-        final EditText editText = new EditText(mActivity);
-        DialogInterface.OnClickListener onClickListener = new DialogInterface.OnClickListener() {
+    private void promptCreateTeam() {
+        ScrumChatterDialogFragment.showInputDialog(mActivity, mActivity.getString(R.string.action_new_team), mActivity.getString(R.string.hint_team_name),
+                null, TeamNameValidator.class, R.id.action_team, null);
+    }
 
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (which == DialogInterface.BUTTON_POSITIVE) {
+    public void createTeam(final String teamName) {
+        // Ignore an empty name.
+        if (!TextUtils.isEmpty(teamName)) {
+            // Create the new team in a background thread.
+            AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
 
-                    final String teamName = editText.getText().toString().trim();
-
-                    // Ignore an empty name.
-                    if (!TextUtils.isEmpty(teamName)) {
-                        // Create the new team in a background thread.
-                        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-
-                            @Override
-                            protected Void doInBackground(Void... params) {
-                                ContentValues values = new ContentValues(1);
-                                values.put(TeamColumns.TEAM_NAME, teamName);
-                                Uri newTeamUri = mActivity.getContentResolver().insert(TeamColumns.CONTENT_URI, values);
-                                int newTeamId = Integer.valueOf(newTeamUri.getLastPathSegment());
-                                PreferenceManager.getDefaultSharedPreferences(mActivity).edit().putInt(Constants.PREF_TEAM_ID, newTeamId).commit();
-                                return null;
-                            }
-                        };
-                        task.execute();
-                    }
+                @Override
+                protected Void doInBackground(Void... params) {
+                    ContentValues values = new ContentValues(1);
+                    values.put(TeamColumns.TEAM_NAME, teamName);
+                    Uri newTeamUri = mActivity.getContentResolver().insert(TeamColumns.CONTENT_URI, values);
+                    int newTeamId = Integer.valueOf(newTeamUri.getLastPathSegment());
+                    PreferenceManager.getDefaultSharedPreferences(mActivity).edit().putInt(Constants.PREF_TEAM_ID, newTeamId).commit();
+                    return null;
                 }
-            }
-        };
-        ScrumChatterDialog.showEditTextDialog(mActivity, R.string.action_new_team, R.string.hint_team_name, editText, onClickListener, validator);
+            };
+            task.execute();
+        }
+
     }
 
     /**
      * Retrieve the currently selected team. Show a dialog with a text input to rename this team. Validate that the new name doesn't correspond to any other
      * existing team. Upon pressing ok, rename the current team.
      */
-    public void renameTeam(final Team team) {
+    public void promptRenameTeam(final Team team) {
         if (team != null) {
             // Show a dialog to input a new team name for the current team.
-            TeamNameValidator validator = new TeamNameValidator(team.teamName);
-            final EditText editText = new EditText(mActivity);
-            DialogInterface.OnClickListener onClickListener = new DialogInterface.OnClickListener() {
+            Bundle extras = new Bundle(1);
+            extras.putParcelable(EXTRA_TEAM_URI, team.teamUri);
+            extras.putString(EXTRA_TEAM_NAME, team.teamName);
+            ScrumChatterDialogFragment.showInputDialog(mActivity, mActivity.getString(R.string.action_team_rename),
+                    mActivity.getString(R.string.hint_team_name), team.teamName, TeamNameValidator.class, R.id.action_team_rename, extras);
+        }
+    }
+
+    public void renameTeam(final Uri teamUri, final String teamName) {
+
+        // Ignore an empty name.
+        if (!TextUtils.isEmpty(teamName)) {
+            // Rename the team in a background thread.
+            AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
 
                 @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    if (which == DialogInterface.BUTTON_POSITIVE) {
-
-                        final String teamName = editText.getText().toString().trim();
-
-                        // Ignore an empty name.
-                        if (!TextUtils.isEmpty(teamName)) {
-                            // Rename the team in a background thread.
-                            AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-
-                                @Override
-                                protected Void doInBackground(Void... params) {
-                                    ContentValues values = new ContentValues(1);
-                                    values.put(TeamColumns.TEAM_NAME, teamName);
-                                    mActivity.getContentResolver().update(team.teamUri, values, null, null);
-                                    return null;
-                                }
-                            };
-                            task.execute();
-                        }
-                    }
+                protected Void doInBackground(Void... params) {
+                    ContentValues values = new ContentValues(1);
+                    values.put(TeamColumns.TEAM_NAME, teamName);
+                    mActivity.getContentResolver().update(teamUri, values, null, null);
+                    return null;
                 }
             };
-            editText.setText(team.teamName);
-            ScrumChatterDialog.showEditTextDialog(mActivity, R.string.action_team_rename, R.string.hint_team_name, editText, onClickListener, validator);
+            task.execute();
         }
     }
 
@@ -330,24 +314,21 @@ public class Teams {
     /**
      * Returns an error if the user entered the name of an existing team. To prevent renaming or creating multiple teams with the same name.
      */
-    private class TeamNameValidator implements InputValidator {
-        private final String mTeamName;
+    public static class TeamNameValidator implements ScrumChatterDialogFragment.InputValidator {
 
-        /**
-         * @param teamName optional. If given, we won't show an error for renaming a team to its current name.
-         */
-        TeamNameValidator(String teamName) {
-            mTeamName = teamName;
-        }
+        public TeamNameValidator() {}
 
         @Override
-        public String getError(CharSequence input) {
+        public String getError(Context context, int actionId, CharSequence input, Bundle extras) {
+            // teamName is optional. If given, we won't show an error for renaming a team to its current name.
+            String teamName = extras == null ? null : extras.getString(Teams.EXTRA_TEAM_NAME);
+
             // In the case of changing a team name, mTeamName will not be null, and we won't show an error if the name the user enters is the same as the existing team.
             // In the case of adding a new team, mTeamName will be null.
-            if (!TextUtils.isEmpty(mTeamName) && !TextUtils.isEmpty(input) && mTeamName.equals(input.toString())) return null;
+            if (!TextUtils.isEmpty(teamName) && !TextUtils.isEmpty(input) && teamName.equals(input.toString())) return null;
 
             // Query for a team with this name.
-            Cursor cursor = mActivity.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { "count(*)" }, TeamColumns.TEAM_NAME + "=?",
+            Cursor cursor = context.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { "count(*)" }, TeamColumns.TEAM_NAME + "=?",
                     new String[] { String.valueOf(input) }, null);
 
             // Now Check if the team member exists.
@@ -355,12 +336,11 @@ public class Teams {
                 if (cursor.moveToFirst()) {
                     int existingTeamCount = cursor.getInt(0);
                     cursor.close();
-                    if (existingTeamCount > 0) return mActivity.getString(R.string.error_team_exists, input);
+                    if (existingTeamCount > 0) return context.getString(R.string.error_team_exists, input);
                 }
             }
             return null;
         }
-
     }
 
 }
