@@ -24,6 +24,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
@@ -41,6 +42,7 @@ import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment;
  */
 public class Teams {
     private static final String TAG = Constants.TAG + "/" + Teams.class.getSimpleName();
+    public static final String EXTRA_TEAM_URI = "team_id";
     private final FragmentActivity mActivity;
 
     public static class Team {
@@ -227,9 +229,9 @@ public class Teams {
     }
 
     /**
-     * Shows a confirmation dialog to the user. Upon pressing OK, the current team is deleted.
+     * Shows a confirmation dialog to the user to delete a team.
      */
-    public void deleteTeam(final Team team) {
+    public void confirmDeleteTeam(final Team team) {
 
         AsyncTask<Void, Void, Integer> task = new AsyncTask<Void, Void, Integer>() {
 
@@ -246,32 +248,32 @@ public class Teams {
                 }
                 // Delete this team
                 else if (team != null) {
-                    DialogInterface.OnClickListener onClickListener = new DialogInterface.OnClickListener() {
-
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            if (which == DialogInterface.BUTTON_POSITIVE) {
-                                AsyncTask<Void, Void, Void> deleteTask = new AsyncTask<Void, Void, Void>() {
-                                    @Override
-                                    protected Void doInBackground(Void... params) {
-                                        // delete this team
-                                        mActivity.getContentResolver().delete(team.teamUri, null, null);
-                                        // pick another current team
-                                        selectFirstTeam();
-                                        return null;
-                                    }
-
-                                };
-                                deleteTask.execute();
-                            }
-                        }
-                    };
-                    ScrumChatterDialog.showDialog(mActivity, mActivity.getString(R.string.action_team_delete),
-                            mActivity.getString(R.string.dialog_message_delete_team_confirm, team.teamName), onClickListener);
+                    Bundle extras = new Bundle(1);
+                    extras.putParcelable(EXTRA_TEAM_URI, team.teamUri);
+                    ScrumChatterDialogFragment.showConfirmDialog(mActivity, mActivity.getString(R.string.action_team_delete),
+                            mActivity.getString(R.string.dialog_message_delete_team_confirm, team.teamName), R.id.action_team_delete, extras);
                 }
             }
         };
         task.execute();
+    }
+
+    /**
+     * Deletes the team and all its members from the DB.
+     */
+    public void deleteTeam(final Uri teamUri) {
+        AsyncTask<Void, Void, Void> deleteTask = new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                // delete this team
+                mActivity.getContentResolver().delete(teamUri, null, null);
+                // pick another current team
+                selectFirstTeam();
+                return null;
+            }
+
+        };
+        deleteTask.execute();
     }
 
     /**

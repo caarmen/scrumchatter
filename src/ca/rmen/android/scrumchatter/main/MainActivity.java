@@ -186,7 +186,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
                 mTeams.renameTeam(mTeam);
                 return true;
             case R.id.action_team_delete:
-                mTeams.deleteTeam(mTeam);
+                mTeams.confirmDeleteTeam(mTeam);
                 return true;
             case R.id.action_import:
                 Intent importIntent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -366,6 +366,9 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
         } else if (actionId == R.id.btn_delete) {
             long memberId = extras.getLong(Members.EXTRA_MEMBER_ID);
             mMembers.deleteMember(memberId);
+        } else if (actionId == R.id.action_team_delete) {
+            Uri teamUri = extras.getParcelable(Teams.EXTRA_TEAM_URI);
+            mTeams.deleteTeam(teamUri);
         }
     }
 
