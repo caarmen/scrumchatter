@@ -18,7 +18,6 @@
  */
 package ca.rmen.android.scrumchatter.meeting.detail;
 
-import android.content.DialogInterface;
 import android.database.ContentObserver;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -33,7 +32,7 @@ import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.meeting.Meetings;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
-import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog;
+import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment.ScrumChatterDialogButtonListener;
 import ca.rmen.android.scrumchatter.util.TextUtils;
 
@@ -148,8 +147,11 @@ public class MeetingActivity extends SherlockFragmentActivity implements ScrumCh
     public void onOkClicked(int actionId, Bundle extras) {
         Log.v(TAG, "onClicked: actionId = " + actionId + ", extras = " + extras);
         if (actionId == R.id.action_delete_meeting) {
-            long meetingId = extras.getLong(Meetings.EXTRA_MEETING_ID);
-            mMeetings.delete(meetingId);
+            mMeetings.delete(mMeeting.getId());
+        } else if (actionId == R.id.btn_stop_meeting) {
+            // The user has confirmed to delete the
+            // member.
+            stopMeeting();
         }
     }
 
@@ -313,17 +315,8 @@ public class MeetingActivity extends SherlockFragmentActivity implements ScrumCh
                 // Stop the whole meeting.
                 case R.id.btn_stop_meeting:
                     // Let's ask him if he's sure.
-                    ScrumChatterDialog.showDialog(MeetingActivity.this, R.string.action_stop_meeting, R.string.dialog_confirm,
-                            new DialogInterface.OnClickListener() {
-
-                                // The user has confirmed to delete the
-                                // member.
-                                public void onClick(DialogInterface dialog, int which) {
-                                    if (which == DialogInterface.BUTTON_POSITIVE) {
-                                        stopMeeting();
-                                    }
-                                }
-                            });
+                    ScrumChatterDialogFragment.showConfirmDialog(MeetingActivity.this, getString(R.string.action_stop_meeting),
+                            getString(R.string.dialog_confirm), R.id.btn_stop_meeting, null);
                     break;
                 default:
                     break;

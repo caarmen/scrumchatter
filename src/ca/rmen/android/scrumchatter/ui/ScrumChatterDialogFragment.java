@@ -86,7 +86,7 @@ public class ScrumChatterDialogFragment extends DialogFragment {
         arguments.putString(EXTRA_MESSAGE, message);
         arguments.putSerializable(EXTRA_DIALOG_TYPE, DialogType.CONFIRM);
         arguments.putInt(EXTRA_ACTION_ID, actionId);
-        arguments.putBundle(EXTRA_EXTRAS, extras);
+        if (extras != null) arguments.putBundle(EXTRA_EXTRAS, extras);
         ScrumChatterDialogFragment result = new ScrumChatterDialogFragment();
         result.setArguments(arguments);
         result.show(activity.getSupportFragmentManager(), TAG);
