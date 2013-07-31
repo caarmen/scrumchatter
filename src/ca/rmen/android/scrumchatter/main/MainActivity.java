@@ -57,6 +57,7 @@ import ca.rmen.android.scrumchatter.provider.TeamColumns;
 import ca.rmen.android.scrumchatter.team.Teams;
 import ca.rmen.android.scrumchatter.team.Teams.Team;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog;
+import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment.ScrumChatterDialogButtonListener;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment.ScrumChatterDialogItemListener;
 
@@ -197,17 +198,8 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
                 return true;
             case R.id.action_share:
                 // Build a chooser dialog for the file format.
-                ScrumChatterDialog.showChoiceDialog(this, R.string.export_choice_title, R.array.export_choices, -1, new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String[] exportChoices = getResources().getStringArray(R.array.export_choices);
-                        FileExport fileExport = null;
-                        if (getString(R.string.export_format_excel).equals(exportChoices[which])) fileExport = new MeetingsExport(MainActivity.this);
-                        else if (getString(R.string.export_format_db).equals(exportChoices[which])) fileExport = new DBExport(MainActivity.this);
-                        shareFile(fileExport);
-                    }
-                });
+                ScrumChatterDialogFragment.showChoiceDialog(this, getString(R.string.export_choice_title), getResources()
+                        .getStringArray(R.array.export_choices), -1, R.id.action_share);
                 return true;
             case R.id.action_about:
                 Intent intent = new Intent(this, AboutActivity.class);
@@ -379,6 +371,11 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
         Log.v(TAG, "onItemSelected: actionId = " + actionId + ", choices = " + Arrays.toString(choices) + ", which = " + which);
         if (actionId == R.id.action_team_switch) {
             mTeams.switchTeam(choices, which);
+        } else if (actionId == R.id.action_share) {
+            FileExport fileExport = null;
+            if (getString(R.string.export_format_excel).equals(choices[which])) fileExport = new MeetingsExport(MainActivity.this);
+            else if (getString(R.string.export_format_db).equals(choices[which])) fileExport = new DBExport(MainActivity.this);
+            shareFile(fileExport);
         }
     }
 
