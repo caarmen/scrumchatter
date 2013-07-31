@@ -41,7 +41,8 @@ import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment;
  */
 public class Teams {
     private static final String TAG = Constants.TAG + "/" + Teams.class.getSimpleName();
-    public static final String EXTRA_TEAM_URI = "team_id";
+    public static final String EXTRA_TEAM_URI = "team_uri";
+    public static final String EXTRA_TEAM_ID = "team_id";
     private final FragmentActivity mActivity;
 
     public static class Team {

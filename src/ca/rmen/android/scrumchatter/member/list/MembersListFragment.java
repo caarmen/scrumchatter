@@ -109,7 +109,7 @@ public class MembersListFragment extends SherlockListFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Create a new team member
         if (item.getItemId() == R.id.action_new_member) {
-            mMembers.createMember(mTeamId);
+            mMembers.promptCreateMember(mTeamId);
             return true;
         }
         return false;

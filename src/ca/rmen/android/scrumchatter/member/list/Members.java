@@ -19,7 +19,7 @@
 package ca.rmen.android.scrumchatter.member.list;
 
 import android.content.ContentValues;
-import android.content.DialogInterface;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -27,12 +27,10 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.EditText;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
-import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog;
-import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog.InputValidator;
+import ca.rmen.android.scrumchatter.team.Teams;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment;
 
 /**
@@ -63,46 +61,36 @@ public class Members {
      * 
      * @param teamId the id of the team in which the member should be added
      */
-    void createMember(final int teamId) {
+    void promptCreateMember(final int teamId) {
         Log.v(TAG, "createMember, teamId = " + teamId);
-        final EditText editText = new EditText(mActivity);
-
-        // Prevent the user from creating multiple team members with the same name.
-        InputValidator validator = new MemberNameValidator(teamId);
-
-        DialogInterface.OnClickListener onClickListener = new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (which == DialogInterface.BUTTON_POSITIVE) {
-
-                    final String memberName = editText.getText().toString().trim();
-
-                    // Ignore an empty name.
-                    if (!TextUtils.isEmpty(memberName)) {
-                        // Create the new member in a background thread.
-                        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-
-                            @Override
-                            protected Void doInBackground(Void... params) {
-                                ContentValues values = new ContentValues(2);
-                                values.put(MemberColumns.NAME, memberName);
-                                values.put(MemberColumns.TEAM_ID, teamId);
-                                values.put(MemberColumns.DELETED, 0);
-                                mActivity.getContentResolver().insert(MemberColumns.CONTENT_URI, values);
-                                return null;
-                            }
-                        };
-                        task.execute();
-                    }
-                }
-            }
-
-        };
-        ScrumChatterDialog.showEditTextDialog(mActivity, R.string.action_new_member, R.string.hint_new_member, editText, onClickListener, validator);
-
+        Bundle extras = new Bundle(1);
+        extras.putLong(Teams.EXTRA_TEAM_ID, teamId);
+        ScrumChatterDialogFragment.showInputDialog(mActivity, mActivity.getString(R.string.action_new_member), mActivity.getString(R.string.hint_new_member),
+                MemberNameValidator.class, R.id.action_new_member, extras);
     }
 
+    /**
+     * Adds a member with the given name to the given team, in the DB.
+     */
+    public void createMember(final long teamId, final String memberName) {
+        // Ignore an empty name.
+        if (!TextUtils.isEmpty(memberName)) {
+            // Create the new member in a background thread.
+            AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+
+                @Override
+                protected Void doInBackground(Void... params) {
+                    ContentValues values = new ContentValues(2);
+                    values.put(MemberColumns.NAME, memberName);
+                    values.put(MemberColumns.TEAM_ID, teamId);
+                    values.put(MemberColumns.DELETED, 0);
+                    mActivity.getContentResolver().insert(MemberColumns.CONTENT_URI, values);
+                    return null;
+                }
+            };
+            task.execute();
+        }
+    }
 
     /**
      * Shows a confirmation dialog to the user, to delete a member.
@@ -140,26 +128,23 @@ public class Members {
      * Returns an error if the user entered the name of another member in the given team. To prevent creating multiple members with the same name in the same
      * team.
      */
-    private class MemberNameValidator implements InputValidator {
+    public static class MemberNameValidator implements ScrumChatterDialogFragment.InputValidator {
 
-        private final int mTeamId;
-
-        private MemberNameValidator(int teamId) {
-            mTeamId = teamId;
-        }
+        public MemberNameValidator() {}
 
         @Override
-        public String getError(CharSequence input) {
+        public String getError(Context context, int actionid, CharSequence input, Bundle extras) {
+            long teamId = extras.getLong(Teams.EXTRA_TEAM_ID);
             // Query for a member with this name.
-            Cursor existingMemberCountCursor = mActivity.getContentResolver().query(MemberColumns.CONTENT_URI, new String[] { "count(*)" },
-                    MemberColumns.NAME + "=? AND " + MemberColumns.TEAM_ID + "=?", new String[] { String.valueOf(input), String.valueOf(mTeamId) }, null);
+            Cursor existingMemberCountCursor = context.getContentResolver().query(MemberColumns.CONTENT_URI, new String[] { "count(*)" },
+                    MemberColumns.NAME + "=? AND " + MemberColumns.TEAM_ID + "=?", new String[] { String.valueOf(input), String.valueOf(teamId) }, null);
 
             // Now Check if the team member exists.
             if (existingMemberCountCursor != null) {
                 if (existingMemberCountCursor.moveToFirst()) {
                     int existingMemberCount = existingMemberCountCursor.getInt(0);
                     existingMemberCountCursor.close();
-                    if (existingMemberCount > 0) return mActivity.getString(R.string.error_member_exists, input);
+                    if (existingMemberCount > 0) return context.getString(R.string.error_member_exists, input);
                 }
             }
             return null;
