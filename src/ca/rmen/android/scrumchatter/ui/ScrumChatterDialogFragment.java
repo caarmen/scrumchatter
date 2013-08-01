@@ -18,6 +18,8 @@
  */
 package ca.rmen.android.scrumchatter.ui;
 
+import java.util.Arrays;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -100,6 +102,7 @@ public class ScrumChatterDialogFragment extends DialogFragment {
      * @return a dialog with the given title and message, and just one OK button.
      */
     public static ScrumChatterDialogFragment showInfoDialog(FragmentActivity activity, int titleId, int messageId) {
+        Log.v(TAG, "showInfoDialog");
         Bundle arguments = new Bundle(3);
         arguments.putString(EXTRA_TITLE, activity.getString(titleId));
         arguments.putString(EXTRA_MESSAGE, activity.getString(messageId));
@@ -107,6 +110,7 @@ public class ScrumChatterDialogFragment extends DialogFragment {
     }
 
     public static ScrumChatterDialogFragment showConfirmDialog(FragmentActivity activity, String title, String message, int actionId, Bundle extras) {
+        Log.v(TAG, "showConfirmDialog: title = " + title + ", message = " + message + ", actionId = " + actionId + ", extras = " + extras);
         Bundle arguments = new Bundle(4);
         arguments.putString(EXTRA_TITLE, title);
         arguments.putString(EXTRA_MESSAGE, message);
@@ -116,6 +120,8 @@ public class ScrumChatterDialogFragment extends DialogFragment {
     }
 
     public static ScrumChatterDialogFragment showChoiceDialog(FragmentActivity activity, String title, CharSequence[] items, int selectedItem, int actionId) {
+        Log.v(TAG, "showChoiceDialog: title = " + title + ", actionId = " + actionId + ", items =" + Arrays.toString(items) + ", selectedItem = "
+                + selectedItem);
         Bundle arguments = new Bundle(5);
         arguments.putString(EXTRA_TITLE, title);
         arguments.putInt(EXTRA_ACTION_ID, actionId);
@@ -129,6 +135,7 @@ public class ScrumChatterDialogFragment extends DialogFragment {
      */
     public static ScrumChatterDialogFragment showInputDialog(FragmentActivity activity, String title, String inputHint, String prefilledText,
             Class<?> inputValidatorClass, int actionId, Bundle extras) {
+        Log.v(TAG, "showInputDialog: title = " + title + ", prefilledText =  " + prefilledText + ", actionId = " + actionId + ", extras = " + extras);
         Bundle arguments = new Bundle(6);
         arguments.putString(EXTRA_TITLE, title);
         arguments.putString(EXTRA_INPUT_HINT, inputHint);
@@ -139,21 +146,28 @@ public class ScrumChatterDialogFragment extends DialogFragment {
         return showDialog(activity, arguments, DialogType.INPUT, String.valueOf(actionId));
     }
 
-    public static ScrumChatterDialogFragment showProgressDialog(FragmentActivity activity, String message) {
+    public static ScrumChatterDialogFragment showProgressDialog(FragmentActivity activity, String message, String tag) {
+        Log.v(TAG, "showProgressDialog: message = " + message);
         Bundle arguments = new Bundle(2);
         arguments.putString(EXTRA_MESSAGE, message);
-        return showDialog(activity, arguments, DialogType.PROGRESS, null);
+        arguments.putSerializable(EXTRA_DIALOG_TYPE, DialogType.PROGRESS);
+        ScrumChatterDialogFragment result = new ScrumChatterDialogFragment();
+        result.setArguments(arguments);
+        result.show(activity.getSupportFragmentManager(), tag);
+        return result;
     }
 
     private static ScrumChatterDialogFragment showDialog(FragmentActivity activity, Bundle arguments, DialogType dialogType, String tagAppend) {
         ScrumChatterDialogFragment result = new ScrumChatterDialogFragment();
         arguments.putSerializable(EXTRA_DIALOG_TYPE, dialogType);
         result.setArguments(arguments);
-        result.show(activity.getSupportFragmentManager(), TAG + dialogType + tagAppend);
+        result.show(activity.getSupportFragmentManager(), ScrumChatterDialogFragment.class.getSimpleName() + dialogType + tagAppend);
         return result;
     }
 
-    public ScrumChatterDialogFragment() {}
+    public ScrumChatterDialogFragment() {
+        super();
+    }
 
 
     @Override
@@ -185,10 +199,17 @@ public class ScrumChatterDialogFragment extends DialogFragment {
     }
 
     @Override
+    public void dismiss() {
+        super.dismiss();
+        Log.v(TAG, "dismiss");
+    }
+
+    @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Log.v(TAG, "onCreateDialog: savedInstanceState = " + savedInstanceState);
         if (savedInstanceState != null) mEnteredText = savedInstanceState.getString(EXTRA_ENTERED_TEXT);
         DialogType dialogType = (DialogType) getArguments().getSerializable(EXTRA_DIALOG_TYPE);
+        Log.v(TAG, "onCreateDialog: dialogType  " + dialogType);
         switch (dialogType) {
             case INFO:
                 return createInfoDialog();

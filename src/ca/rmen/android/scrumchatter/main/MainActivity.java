@@ -24,7 +24,10 @@ import java.util.Locale;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.ContentObserver;
@@ -73,7 +76,10 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
 
     private static final String TAG = Constants.TAG + "/" + MainActivity.class.getSimpleName();
     private static final String EXTRA_IMPORT_URI = "import_uri";
+    private static final String EXTRA_IMPORT_RESULT = "import_result";
+    private static final String ACTION_IMPORT_COMPLETE = "action_import_complete";
     private static final int ACTIVITY_REQUEST_CODE_IMPORT = 1;
+    private static final String PROGRESS_DIALOG_FRAGMENT_TAG = "progress_dialog_fragment_tag";
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a {@link android.support.v4.app.FragmentPagerAdapter} derivative, which
@@ -147,8 +153,9 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
         super.onResume();
         getContentResolver().registerContentObserver(TeamColumns.CONTENT_URI, true, mContentObserver);
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(mSharedPrefsListener);
+        IntentFilter filter = new IntentFilter(ACTION_IMPORT_COMPLETE);
+        registerReceiver(mBroadcastReceiver, filter);
     }
-
 
 
     @Override
@@ -158,7 +165,10 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
         Intent intent = getIntent();
         if (intent != null && intent.getExtras() != null) {
             Uri importUri = getIntent().getExtras().getParcelable(EXTRA_IMPORT_URI);
-            if (importUri != null) importDB(importUri);
+            if (importUri != null) {
+                getIntent().removeExtra(EXTRA_IMPORT_URI);
+                importDB(importUri);
+            }
         }
     }
 
@@ -167,6 +177,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
         Log.v(TAG, "onPause");
         PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(mSharedPrefsListener);
         getContentResolver().unregisterContentObserver(mContentObserver);
+        unregisterReceiver(mBroadcastReceiver);
         super.onPause();
     }
 
@@ -343,35 +354,33 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
             mTeams.deleteTeam(teamUri);
         } else if (actionId == R.id.action_import) {
             final Uri uri = extras.getParcelable(EXTRA_IMPORT_URI);
-            AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>() {
+            AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
 
                 private String mDialogTag;
+                private ScrumChatterDialogFragment mDialog;
 
                 @Override
                 protected void onPreExecute() {
-                    ScrumChatterDialogFragment dialog = ScrumChatterDialogFragment.showProgressDialog(MainActivity.this,
-                            getString(R.string.progress_dialog_message));
-                    mDialogTag = dialog.getTag();
+                    mDialog = ScrumChatterDialogFragment.showProgressDialog(MainActivity.this, getString(R.string.progress_dialog_message),
+                            PROGRESS_DIALOG_FRAGMENT_TAG);
+                    mDialogTag = mDialog.getTag();
                     Log.v(TAG, "dialog tag is " + mDialogTag);
                 }
 
                 @Override
-                protected Boolean doInBackground(Void... params) {
+                protected Void doInBackground(Void... params) {
+                    boolean result = false;
                     try {
                         Log.v(TAG, "Importing db from " + uri);
                         DBImport.importDB(MainActivity.this, uri);
+                        result = true;
                     } catch (Exception e) {
                         Log.e(TAG, "Error importing db: " + e.getMessage(), e);
-                        return false;
                     }
-                    return true;
-                }
-
-                @Override
-                protected void onPostExecute(Boolean result) {
-                    ScrumChatterDialogFragment dialogFragment = (ScrumChatterDialogFragment) getSupportFragmentManager().findFragmentByTag(mDialogTag);
-                    if (dialogFragment != null) dialogFragment.dismiss();
-                    Toast.makeText(MainActivity.this, result ? R.string.import_result_success : R.string.import_result_failed, Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(ACTION_IMPORT_COMPLETE);
+                    intent.putExtra(EXTRA_IMPORT_RESULT, result);
+                    sendBroadcast(intent);
+                    return null;
                 }
             };
             task.execute();
@@ -458,6 +467,24 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
             onTeamChanged();
+        }
+    };
+
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.v(TAG, "onReceive: intent = " + intent);
+            if (ACTION_IMPORT_COMPLETE.equals(intent.getAction())) {
+                Boolean result = intent.getExtras().getBoolean(EXTRA_IMPORT_RESULT);
+                ScrumChatterDialogFragment dialogFragment = (ScrumChatterDialogFragment) getSupportFragmentManager().findFragmentByTag(
+                        PROGRESS_DIALOG_FRAGMENT_TAG);
+                Log.v(TAG, "DialogFragment with tag " + dialogFragment);
+                if (dialogFragment != null) dialogFragment.dismiss();
+                Toast.makeText(MainActivity.this, result ? R.string.import_result_success : R.string.import_result_failed, Toast.LENGTH_SHORT).show();
+            }
+
+
         }
     };
 
