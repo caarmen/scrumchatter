@@ -100,8 +100,6 @@ class MeetingCursorAdapter extends CursorAdapter {
         Chronometer chronometer = (Chronometer) view.findViewById(R.id.tv_duration);
         ImageButton btnStartStop = (ImageButton) view.findViewById(R.id.btn_start_stop_member);
         final ImageView ivChatterFace = (ImageView) view.findViewById(R.id.iv_chatter_face);
-        final AnimationDrawable animChatterFace = (AnimationDrawable) ivChatterFace.getDrawable();
-
         // Set up the member's name
         tvName.setText(memberName);
 

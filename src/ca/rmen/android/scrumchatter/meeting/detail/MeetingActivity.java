@@ -159,7 +159,7 @@ public class MeetingActivity extends SherlockFragmentActivity implements ScrumCh
      * Extract the meeting id from the intent and load the meeting data into the
      * activity.
      */
-    AsyncTask<Void, Void, Meeting> mLoadMeetingAsyncTask = new AsyncTask<Void, Void, Meeting>() {
+    private AsyncTask<Void, Void, Meeting> mLoadMeetingAsyncTask = new AsyncTask<Void, Void, Meeting>() {
 
         @Override
         protected Meeting doInBackground(Void... params) {

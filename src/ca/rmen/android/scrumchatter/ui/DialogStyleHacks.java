@@ -40,7 +40,7 @@ import ca.rmen.android.scrumchatter.R;
  * dialogs with EditTexts, and not a clean way to manage clicks on the dialog buttons. Started out trying to copy the resources used for dialogs, one-by-one,
  * from the core android framework, but that was more pain than the approach I decided to take in this class.
  */
-public class DialogStyleHacks {
+class DialogStyleHacks {
 
     private static final String TAG = Constants.TAG + "/" + DialogStyleHacks.class.getSimpleName();
     private static int sHoloBlueLightColorId = -1;

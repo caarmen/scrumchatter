@@ -42,7 +42,7 @@ public class Teams {
     private static final String TAG = Constants.TAG + "/" + Teams.class.getSimpleName();
     public static final String EXTRA_TEAM_URI = "team_uri";
     public static final String EXTRA_TEAM_ID = "team_id";
-    public static final String EXTRA_TEAM_NAME = "team_name";
+    private static final String EXTRA_TEAM_NAME = "team_name";
     private final FragmentActivity mActivity;
 
     public static class Team {
@@ -316,7 +316,7 @@ public class Teams {
     /**
      * Returns an error if the user entered the name of an existing team. To prevent renaming or creating multiple teams with the same name.
      */
-    public static class TeamNameValidator implements InputValidator {
+    public static class TeamNameValidator implements InputValidator { // NO_UCD (use private)
 
         public TeamNameValidator() {}
 

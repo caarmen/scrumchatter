@@ -130,7 +130,7 @@ public class Members {
      * Returns an error if the user entered the name of another member in the given team. To prevent creating multiple members with the same name in the same
      * team.
      */
-    public static class MemberNameValidator implements InputValidator {
+    public static class MemberNameValidator implements InputValidator { // NO_UCD (use private)
 
         public MemberNameValidator() {}
 
