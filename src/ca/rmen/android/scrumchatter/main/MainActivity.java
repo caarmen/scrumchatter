@@ -59,8 +59,8 @@ import ca.rmen.android.scrumchatter.team.Teams;
 import ca.rmen.android.scrumchatter.team.Teams.Team;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment.ScrumChatterDialogButtonListener;
-import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment.ScrumChatterDialogInputListener;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment.ScrumChatterDialogItemListener;
+import ca.rmen.android.scrumchatter.ui.ScrumChatterInputDialogFragment.ScrumChatterDialogInputListener;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;

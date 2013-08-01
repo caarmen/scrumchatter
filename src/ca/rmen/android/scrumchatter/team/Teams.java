@@ -32,6 +32,8 @@ import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.provider.TeamColumns;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment;
+import ca.rmen.android.scrumchatter.ui.ScrumChatterInputDialogFragment;
+import ca.rmen.android.scrumchatter.ui.ScrumChatterInputDialogFragment.InputValidator;
 
 /**
  * Provides both UI and DB logic regarding the management of teams: renaming, choosing, creating, and deleting teams.
@@ -150,7 +152,7 @@ public class Teams {
      * Show a dialog with a text input for the new team name. Validate that the team doesn't already exist. Upon pressing "OK", create the team.
      */
     private void promptCreateTeam() {
-        ScrumChatterDialogFragment.showInputDialog(mActivity, mActivity.getString(R.string.action_new_team), mActivity.getString(R.string.hint_team_name),
+        ScrumChatterInputDialogFragment.showInputDialog(mActivity, mActivity.getString(R.string.action_new_team), mActivity.getString(R.string.hint_team_name),
                 null, TeamNameValidator.class, R.id.action_team, null);
     }
 
@@ -185,7 +187,7 @@ public class Teams {
             Bundle extras = new Bundle(1);
             extras.putParcelable(EXTRA_TEAM_URI, team.teamUri);
             extras.putString(EXTRA_TEAM_NAME, team.teamName);
-            ScrumChatterDialogFragment.showInputDialog(mActivity, mActivity.getString(R.string.action_team_rename),
+            ScrumChatterInputDialogFragment.showInputDialog(mActivity, mActivity.getString(R.string.action_team_rename),
                     mActivity.getString(R.string.hint_team_name), team.teamName, TeamNameValidator.class, R.id.action_team_rename, extras);
         }
     }
@@ -314,7 +316,7 @@ public class Teams {
     /**
      * Returns an error if the user entered the name of an existing team. To prevent renaming or creating multiple teams with the same name.
      */
-    public static class TeamNameValidator implements ScrumChatterDialogFragment.InputValidator {
+    public static class TeamNameValidator implements InputValidator {
 
         public TeamNameValidator() {}
 
