@@ -323,7 +323,7 @@ public class Teams {
             // teamName is optional. If given, we won't show an error for renaming a team to its current name.
             String teamName = extras == null ? null : extras.getString(Teams.EXTRA_TEAM_NAME);
 
-            // In the case of changing a team name, mTeamName will not be null, and we won't show an error if the name the user enters is the same as the existing team.
+            // In the case of changing a team name, teamName will not be null, and we won't show an error if the name the user enters is the same as the existing team.
             // In the case of adding a new team, mTeamName will be null.
             if (!TextUtils.isEmpty(teamName) && !TextUtils.isEmpty(input) && teamName.equals(input.toString())) return null;
 

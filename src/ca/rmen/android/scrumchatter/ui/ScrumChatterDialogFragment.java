@@ -201,7 +201,7 @@ public class ScrumChatterDialogFragment extends DialogFragment {
             case INPUT:
                 return createInputDialog();
             default:
-                throw new IllegalArgumentException("Dialog type not specified");
+                throw new IllegalArgumentException("Dialog type not specified or unkown: " + dialogType);
         }
     }
 

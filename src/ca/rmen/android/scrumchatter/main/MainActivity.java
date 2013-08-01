@@ -24,8 +24,6 @@ import java.util.Locale;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -56,7 +54,6 @@ import ca.rmen.android.scrumchatter.provider.DBImport;
 import ca.rmen.android.scrumchatter.provider.TeamColumns;
 import ca.rmen.android.scrumchatter.team.Teams;
 import ca.rmen.android.scrumchatter.team.Teams.Team;
-import ca.rmen.android.scrumchatter.ui.ScrumChatterDialog;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment.ScrumChatterDialogButtonListener;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment.ScrumChatterDialogInputListener;
@@ -75,6 +72,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
         ScrumChatterDialogInputListener { // NO_UCD (use default)
 
     private static final String TAG = Constants.TAG + "/" + MainActivity.class.getSimpleName();
+    private static final String EXTRA_IMPORT_URI = "import_uri";
     private static final int ACTIVITY_REQUEST_CODE_IMPORT = 1;
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -149,6 +147,19 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
         super.onResume();
         getContentResolver().registerContentObserver(TeamColumns.CONTENT_URI, true, mContentObserver);
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(mSharedPrefsListener);
+    }
+
+
+
+    @Override
+    protected void onResumeFragments() {
+        Log.v(TAG, "onResumeFragments: intent = " + getIntent());
+        super.onResumeFragments();
+        Intent intent = getIntent();
+        if (intent != null && intent.getExtras() != null) {
+            Uri importUri = getIntent().getExtras().getParcelable(EXTRA_IMPORT_URI);
+            if (importUri != null) importDB(importUri);
+        }
     }
 
     @Override
@@ -226,8 +237,9 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        Log.v(TAG, "onActivityResult: requestCode = " + requestCode + ", resultCode = " + resultCode + ", intent = " + intent);
         if (requestCode == ACTIVITY_REQUEST_CODE_IMPORT && resultCode == Activity.RESULT_OK) {
-            if (intent.getData() == null) {
+            if (intent == null || intent.getData() == null) {
                 Toast.makeText(this, R.string.import_result_no_file, Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -241,7 +253,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
                 Toast.makeText(this, getString(R.string.import_result_file_does_not_exist, file.getName()), Toast.LENGTH_SHORT).show();
                 return;
             }
-            importDB(Uri.fromFile(file));
+            getIntent().putExtra(EXTRA_IMPORT_URI, Uri.fromFile(file));
         } else {
             super.onActivityResult(requestCode, resultCode, intent);
         }
@@ -252,46 +264,10 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
      * Import the given database file. This will replace the current database.
      */
     private void importDB(final Uri uri) {
-        ScrumChatterDialog.showDialog(this, getString(R.string.import_confirm_title), getString(R.string.import_confirm_message, uri.getEncodedPath()),
-                new OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (which == DialogInterface.BUTTON_POSITIVE) {
-                            AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>() {
-                                private ProgressDialog mProgressDialog;
-
-                                @Override
-                                protected void onPreExecute() {
-                                    mProgressDialog = ProgressDialog.show(MainActivity.this, null, getString(R.string.progress_dialog_message), true);
-                                }
-
-                                @Override
-                                protected Boolean doInBackground(Void... params) {
-                                    try {
-                                        Log.v(TAG, "Importing db from " + uri);
-                                        DBImport.importDB(MainActivity.this, uri);
-                                    } catch (Exception e) {
-                                        Log.e(TAG, "Error importing db: " + e.getMessage(), e);
-                                        return false;
-                                    }
-                                    return true;
-                                }
-
-                                @Override
-                                protected void onPostExecute(Boolean result) {
-                                    mProgressDialog.cancel();
-                                    Toast.makeText(MainActivity.this, result ? R.string.import_result_success : R.string.import_result_failed,
-                                            Toast.LENGTH_SHORT).show();
-                                }
-
-
-                            };
-                            task.execute();
-                        }
-                    }
-                });
-
+        Bundle extras = new Bundle(1);
+        extras.putParcelable(EXTRA_IMPORT_URI, uri);
+        ScrumChatterDialogFragment.showConfirmDialog(this, getString(R.string.import_confirm_title),
+                getString(R.string.import_confirm_message, uri.getEncodedPath()), R.id.action_import, extras);
     }
 
     /**
@@ -365,8 +341,38 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
         } else if (actionId == R.id.action_team_delete) {
             Uri teamUri = extras.getParcelable(Teams.EXTRA_TEAM_URI);
             mTeams.deleteTeam(teamUri);
+        } else if (actionId == R.id.action_import) {
+            final Uri uri = extras.getParcelable(EXTRA_IMPORT_URI);
+            AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>() {
+                private ProgressDialog mProgressDialog;
+
+                @Override
+                protected void onPreExecute() {
+                    mProgressDialog = ProgressDialog.show(MainActivity.this, null, getString(R.string.progress_dialog_message), true);
+                }
+
+                @Override
+                protected Boolean doInBackground(Void... params) {
+                    try {
+                        Log.v(TAG, "Importing db from " + uri);
+                        DBImport.importDB(MainActivity.this, uri);
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error importing db: " + e.getMessage(), e);
+                        return false;
+                    }
+                    return true;
+                }
+
+                @Override
+                protected void onPostExecute(Boolean result) {
+                    mProgressDialog.cancel();
+                    Toast.makeText(MainActivity.this, result ? R.string.import_result_success : R.string.import_result_failed, Toast.LENGTH_SHORT).show();
+                }
+            };
+            task.execute();
         }
     }
+
 
     @Override
     public void onItemSelected(int actionId, CharSequence[] choices, int which) {
