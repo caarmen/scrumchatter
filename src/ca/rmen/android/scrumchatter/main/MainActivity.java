@@ -344,11 +344,15 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
         } else if (actionId == R.id.action_import) {
             final Uri uri = extras.getParcelable(EXTRA_IMPORT_URI);
             AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>() {
-                private ProgressDialog mProgressDialog;
+
+                private String mDialogTag;
 
                 @Override
                 protected void onPreExecute() {
-                    mProgressDialog = ProgressDialog.show(MainActivity.this, null, getString(R.string.progress_dialog_message), true);
+                    ScrumChatterDialogFragment dialog = ScrumChatterDialogFragment.showProgressDialog(MainActivity.this,
+                            getString(R.string.progress_dialog_message));
+                    mDialogTag = dialog.getTag();
+                    Log.v(TAG, "dialog tag is " + mDialogTag);
                 }
 
                 @Override
@@ -365,7 +369,8 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
 
                 @Override
                 protected void onPostExecute(Boolean result) {
-                    mProgressDialog.cancel();
+                    ScrumChatterDialogFragment dialogFragment = (ScrumChatterDialogFragment) getSupportFragmentManager().findFragmentByTag(mDialogTag);
+                    if (dialogFragment != null) dialogFragment.dismiss();
                     Toast.makeText(MainActivity.this, result ? R.string.import_result_success : R.string.import_result_failed, Toast.LENGTH_SHORT).show();
                 }
             };

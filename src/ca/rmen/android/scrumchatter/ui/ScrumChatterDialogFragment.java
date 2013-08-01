@@ -20,6 +20,7 @@ package ca.rmen.android.scrumchatter.ui;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -71,7 +72,7 @@ public class ScrumChatterDialogFragment extends DialogFragment {
     private String mEnteredText;
 
     private static enum DialogType {
-        INFO, INPUT, CHOICE, CONFIRM
+        INFO, INPUT, CHOICE, CONFIRM, PROGRESS
     };
 
     public interface InputValidator {
@@ -102,37 +103,25 @@ public class ScrumChatterDialogFragment extends DialogFragment {
         Bundle arguments = new Bundle(3);
         arguments.putString(EXTRA_TITLE, activity.getString(titleId));
         arguments.putString(EXTRA_MESSAGE, activity.getString(messageId));
-        arguments.putSerializable(EXTRA_DIALOG_TYPE, DialogType.INFO);
-        ScrumChatterDialogFragment result = new ScrumChatterDialogFragment();
-        result.setArguments(arguments);
-        result.show(activity.getSupportFragmentManager(), TAG);
-        return result;
+        return showDialog(activity, arguments, DialogType.INFO, null);
     }
 
     public static ScrumChatterDialogFragment showConfirmDialog(FragmentActivity activity, String title, String message, int actionId, Bundle extras) {
         Bundle arguments = new Bundle(4);
         arguments.putString(EXTRA_TITLE, title);
         arguments.putString(EXTRA_MESSAGE, message);
-        arguments.putSerializable(EXTRA_DIALOG_TYPE, DialogType.CONFIRM);
         arguments.putInt(EXTRA_ACTION_ID, actionId);
         if (extras != null) arguments.putBundle(EXTRA_EXTRAS, extras);
-        ScrumChatterDialogFragment result = new ScrumChatterDialogFragment();
-        result.setArguments(arguments);
-        result.show(activity.getSupportFragmentManager(), TAG);
-        return result;
+        return showDialog(activity, arguments, DialogType.CONFIRM, String.valueOf(actionId));
     }
 
     public static ScrumChatterDialogFragment showChoiceDialog(FragmentActivity activity, String title, CharSequence[] items, int selectedItem, int actionId) {
         Bundle arguments = new Bundle(5);
         arguments.putString(EXTRA_TITLE, title);
-        arguments.putSerializable(EXTRA_DIALOG_TYPE, DialogType.CHOICE);
         arguments.putInt(EXTRA_ACTION_ID, actionId);
         arguments.putCharSequenceArray(EXTRA_CHOICES, items);
         arguments.putInt(EXTRA_SELECTED_ITEM, selectedItem);
-        ScrumChatterDialogFragment result = new ScrumChatterDialogFragment();
-        result.setArguments(arguments);
-        result.show(activity.getSupportFragmentManager(), TAG);
-        return result;
+        return showDialog(activity, arguments, DialogType.CHOICE, String.valueOf(actionId));
     }
 
     /**
@@ -142,18 +131,27 @@ public class ScrumChatterDialogFragment extends DialogFragment {
             Class<?> inputValidatorClass, int actionId, Bundle extras) {
         Bundle arguments = new Bundle(6);
         arguments.putString(EXTRA_TITLE, title);
-        arguments.putSerializable(EXTRA_DIALOG_TYPE, DialogType.INPUT);
         arguments.putString(EXTRA_INPUT_HINT, inputHint);
         arguments.putInt(EXTRA_ACTION_ID, actionId);
         arguments.putString(EXTRA_ENTERED_TEXT, prefilledText);
         if (inputValidatorClass != null) arguments.putSerializable(EXTRA_INPUT_VALIDATOR_CLASS, inputValidatorClass);
         arguments.putBundle(EXTRA_EXTRAS, extras);
-        ScrumChatterDialogFragment result = new ScrumChatterDialogFragment();
-        result.setArguments(arguments);
-        result.show(activity.getSupportFragmentManager(), TAG);
-        return result;
+        return showDialog(activity, arguments, DialogType.INPUT, String.valueOf(actionId));
     }
 
+    public static ScrumChatterDialogFragment showProgressDialog(FragmentActivity activity, String message) {
+        Bundle arguments = new Bundle(2);
+        arguments.putString(EXTRA_MESSAGE, message);
+        return showDialog(activity, arguments, DialogType.PROGRESS, null);
+    }
+
+    private static ScrumChatterDialogFragment showDialog(FragmentActivity activity, Bundle arguments, DialogType dialogType, String tagAppend) {
+        ScrumChatterDialogFragment result = new ScrumChatterDialogFragment();
+        arguments.putSerializable(EXTRA_DIALOG_TYPE, dialogType);
+        result.setArguments(arguments);
+        result.show(activity.getSupportFragmentManager(), TAG + dialogType + tagAppend);
+        return result;
+    }
 
     public ScrumChatterDialogFragment() {}
 
@@ -200,6 +198,8 @@ public class ScrumChatterDialogFragment extends DialogFragment {
                 return createChoiceDialog();
             case INPUT:
                 return createInputDialog();
+            case PROGRESS:
+                return createProgressDialog();
             default:
                 throw new IllegalArgumentException("Dialog type not specified or unkown: " + dialogType);
         }
@@ -370,6 +370,16 @@ public class ScrumChatterDialogFragment extends DialogFragment {
         };
         task.execute();
 
+    }
+
+    private Dialog createProgressDialog() {
+        ProgressDialog dialog = new ProgressDialog(getActivity());
+        Bundle arguments = getArguments();
+        dialog.setMessage(arguments.getString(EXTRA_MESSAGE));
+        dialog.setIndeterminate(true);
+        dialog.setCancelable(false);
+        styleDialog(dialog);
+        return dialog;
     }
 
     private void styleDialog(final AlertDialog dialog) {
