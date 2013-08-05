@@ -27,7 +27,6 @@ import android.content.DialogInterface.OnShowListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -45,16 +44,12 @@ import ca.rmen.android.scrumchatter.R;
 /**
  * A dialog fragment with an EditText for user text input.
  */
-public class ScrumChatterInputDialogFragment extends DialogFragment {
+public class ScrumChatterInputDialogFragment extends DialogFragment { // NO_UCD (use default)
 
     private static final String TAG = Constants.TAG + "/" + ScrumChatterInputDialogFragment.class.getSimpleName();
-    private static final String EXTRA_TITLE = "title";
-    private static final String EXTRA_ACTION_ID = "action_id";
-    private static final String EXTRA_INPUT_HINT = "input_hint";
-    private static final String EXTRA_INPUT_VALIDATOR_CLASS = "input_validator_class";
-    private static final String EXTRA_EXTRAS = "extras";
-
-    private static final String EXTRA_ENTERED_TEXT = "entered_text";
+    static final String EXTRA_INPUT_HINT = "input_hint";
+    static final String EXTRA_INPUT_VALIDATOR_CLASS = "input_validator_class";
+    static final String EXTRA_ENTERED_TEXT = "entered_text";
 
     private String mEnteredText;
 
@@ -63,7 +58,7 @@ public class ScrumChatterInputDialogFragment extends DialogFragment {
          * @param input the text entered by the user.
          * @return an error string if the input has a problem, null if the input is valid.
          */
-        String getError(Context context, int actionId, CharSequence input, Bundle extras);
+        String getError(Context context, CharSequence input, Bundle extras);
     };
 
     public interface ScrumChatterDialogInputListener {
@@ -71,77 +66,55 @@ public class ScrumChatterInputDialogFragment extends DialogFragment {
     }
 
 
-
-    /**
-     * @param validatorClass will be called with each text event on the edit text, to validate the user's input.
-     */
-    public static ScrumChatterInputDialogFragment showInputDialog(FragmentActivity activity, String title, String inputHint, String prefilledText,
-            Class<?> inputValidatorClass, int actionId, Bundle extras) {
-        Log.v(TAG, "showInputDialog: title = " + title + ", prefilledText =  " + prefilledText + ", actionId = " + actionId + ", extras = " + extras);
-        Bundle arguments = new Bundle(6);
-        arguments.putString(EXTRA_TITLE, title);
-        arguments.putString(EXTRA_INPUT_HINT, inputHint);
-        arguments.putInt(EXTRA_ACTION_ID, actionId);
-        arguments.putString(EXTRA_ENTERED_TEXT, prefilledText);
-        if (inputValidatorClass != null) arguments.putSerializable(EXTRA_INPUT_VALIDATOR_CLASS, inputValidatorClass);
-        arguments.putBundle(EXTRA_EXTRAS, extras);
-        ScrumChatterInputDialogFragment result = new ScrumChatterInputDialogFragment();
-        result.setArguments(arguments);
-        result.show(activity.getSupportFragmentManager(), ScrumChatterInputDialogFragment.class.getSimpleName());
-        return result;
-    }
-
     public ScrumChatterInputDialogFragment() {
         super();
     }
-
 
     @Override
     public void onActivityCreated(Bundle bundle) {
         Log.v(TAG, "onActivityCreated: bundle = " + bundle);
         super.onActivityCreated(bundle);
-        if (bundle != null) mEnteredText = bundle.getString(EXTRA_ENTERED_TEXT);
+        if (bundle != null) mEnteredText = bundle.getString(ScrumChatterInputDialogFragment.EXTRA_ENTERED_TEXT);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.v(TAG, "onCreate: savedInstanceState = " + savedInstanceState);
         super.onCreate(savedInstanceState);
-        if (savedInstanceState != null) mEnteredText = savedInstanceState.getString(EXTRA_ENTERED_TEXT);
+        if (savedInstanceState != null) mEnteredText = savedInstanceState.getString(ScrumChatterInputDialogFragment.EXTRA_ENTERED_TEXT);
     }
 
     @Override
     public void onSaveInstanceState(Bundle bundle) {
         Log.v(TAG, "onSaveInstanceState: bundle = " + bundle);
         super.onSaveInstanceState(bundle);
-        bundle.putString(EXTRA_ENTERED_TEXT, mEnteredText);
+        bundle.putString(ScrumChatterInputDialogFragment.EXTRA_ENTERED_TEXT, mEnteredText);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.v(TAG, "onCreateView: savedInstanceState = " + savedInstanceState);
-        if (savedInstanceState != null) mEnteredText = savedInstanceState.getString(EXTRA_ENTERED_TEXT);
+        if (savedInstanceState != null) mEnteredText = savedInstanceState.getString(ScrumChatterInputDialogFragment.EXTRA_ENTERED_TEXT);
         return super.onCreateView(inflater, container, savedInstanceState);
     }
-
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Log.v(TAG, "onCreateDialog: savedInstanceState = " + savedInstanceState);
-        if (savedInstanceState != null) mEnteredText = savedInstanceState.getString(EXTRA_ENTERED_TEXT);
+        if (savedInstanceState != null) mEnteredText = savedInstanceState.getString(ScrumChatterInputDialogFragment.EXTRA_ENTERED_TEXT);
         Bundle arguments = getArguments();
-        final int actionId = arguments.getInt(EXTRA_ACTION_ID);
+        final int actionId = arguments.getInt(ScrumChatterDialogFragment.EXTRA_ACTION_ID);
         final EditText input = new EditText(getActivity());
-        final Bundle extras = arguments.getBundle(EXTRA_EXTRAS);
-        final Class<?> inputValidatorClass = (Class<?>) arguments.getSerializable(EXTRA_INPUT_VALIDATOR_CLASS);
-        final String prefilledText = arguments.getString(EXTRA_ENTERED_TEXT);
+        final Bundle extras = arguments.getBundle(ScrumChatterDialogFragment.EXTRA_EXTRAS);
+        final Class<?> inputValidatorClass = (Class<?>) arguments.getSerializable(ScrumChatterInputDialogFragment.EXTRA_INPUT_VALIDATOR_CLASS);
+        final String prefilledText = arguments.getString(ScrumChatterInputDialogFragment.EXTRA_ENTERED_TEXT);
         final Context context = getActivity().getApplicationContext();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(arguments.getString(EXTRA_TITLE));
+        builder.setTitle(arguments.getString(ScrumChatterDialogFragment.EXTRA_TITLE));
         builder.setView(input);
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
-        input.setHint(arguments.getString(EXTRA_INPUT_HINT));
+        input.setHint(arguments.getString(ScrumChatterInputDialogFragment.EXTRA_INPUT_HINT));
         input.setText(prefilledText);
         if (!TextUtils.isEmpty(mEnteredText)) input.setText(mEnteredText);
 
@@ -202,11 +175,14 @@ public class ScrumChatterInputDialogFragment extends DialogFragment {
         return dialog;
     }
 
-    private static void validateText(final Context context, AlertDialog dialog, final EditText input, final InputValidator validator, final int actionId,
+    /**
+     * Invoke the input validator in a background thread. If the validator returns an error, the given edit text will be updated with the error in a tooltip.
+     */
+    private static void validateText(final Context context, AlertDialog dialog, final EditText editText, final InputValidator validator, final int actionId,
             final Bundle extras) {
-        Log.v(TAG, "validateText: input = " + input.getText().toString() + ", actionId = " + actionId + ", extras = " + extras);
+        Log.v(TAG, "validateText: input = " + editText.getText().toString() + ", actionId = " + actionId + ", extras = " + extras);
         // Start off with everything a-ok.
-        input.setError(null);
+        editText.setError(null);
         final Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
         okButton.setEnabled(true);
 
@@ -218,7 +194,7 @@ public class ScrumChatterInputDialogFragment extends DialogFragment {
              */
             @Override
             protected String doInBackground(Void... params) {
-                return validator.getError(context, actionId, input.getText().toString().trim(), extras);
+                return validator.getError(context, editText.getText().toString().trim(), extras);
             }
 
             @Override
@@ -226,7 +202,7 @@ public class ScrumChatterInputDialogFragment extends DialogFragment {
                 // If the input is invalid, highlight the error
                 // and disable the OK button.
                 if (!TextUtils.isEmpty(error)) {
-                    input.setError(error);
+                    editText.setError(error);
                     okButton.setEnabled(false);
                 }
             }

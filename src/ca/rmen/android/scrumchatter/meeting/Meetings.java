@@ -31,7 +31,7 @@ import ca.rmen.android.scrumchatter.export.MeetingExport;
 import ca.rmen.android.scrumchatter.meeting.detail.Meeting;
 import ca.rmen.android.scrumchatter.meeting.detail.MeetingActivity;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
-import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment;
+import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragmentFactory;
 import ca.rmen.android.scrumchatter.util.TextUtils;
 
 /**
@@ -73,7 +73,7 @@ public class Meetings {
                     Intent intent = new Intent(mActivity, MeetingActivity.class);
                     mActivity.startActivity(intent);
                 } else {
-                    ScrumChatterDialogFragment.showInfoDialog(mActivity, R.string.dialog_error_title_one_member_required,
+                    ScrumChatterDialogFragmentFactory.showInfoDialog(mActivity, R.string.dialog_error_title_one_member_required,
                             R.string.dialog_error_message_one_member_required);
 
                 }
@@ -93,7 +93,7 @@ public class Meetings {
         // Let's ask him if he's sure first.
         Bundle extras = new Bundle(1);
         extras.putLong(EXTRA_MEETING_ID, meeting.getId());
-        ScrumChatterDialogFragment.showConfirmDialog(mActivity, mActivity.getString(R.string.action_delete_meeting),
+        ScrumChatterDialogFragmentFactory.showConfirmDialog(mActivity, mActivity.getString(R.string.action_delete_meeting),
                 mActivity.getString(R.string.dialog_message_delete_meeting_confirm, TextUtils.formatDateTime(mActivity, meeting.getStartDate())),
                 R.id.action_delete_meeting, extras);
     }

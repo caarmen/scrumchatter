@@ -32,8 +32,8 @@ import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.meeting.Meetings;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
-import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment.ScrumChatterDialogButtonListener;
+import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragmentFactory;
 import ca.rmen.android.scrumchatter.util.TextUtils;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -315,7 +315,7 @@ public class MeetingActivity extends SherlockFragmentActivity implements ScrumCh
                 // Stop the whole meeting.
                 case R.id.btn_stop_meeting:
                     // Let's ask him if he's sure.
-                    ScrumChatterDialogFragment.showConfirmDialog(MeetingActivity.this, getString(R.string.action_stop_meeting),
+                    ScrumChatterDialogFragmentFactory.showConfirmDialog(MeetingActivity.this, getString(R.string.action_stop_meeting),
                             getString(R.string.dialog_confirm), R.id.btn_stop_meeting, null);
                     break;
                 default:

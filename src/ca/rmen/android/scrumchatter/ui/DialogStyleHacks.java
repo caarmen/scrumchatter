@@ -21,7 +21,10 @@ package ca.rmen.android.scrumchatter.ui;
 import java.lang.reflect.Field;
 
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnShowListener;
 import android.graphics.NinePatch;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -32,6 +35,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckedTextView;
 import android.widget.ImageView;
+import android.widget.ListView;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 
@@ -49,6 +53,25 @@ class DialogStyleHacks {
     private static Field sNinePatchSourceField = null;
     private static Field sNinePatchField = null;
 
+    /**
+     * @param dialog apply our custom theme to the given dialog, once the dialog is visible.
+     */
+    static void styleDialog(final Context context, final AlertDialog dialog) {
+        dialog.getContext().setTheme(R.style.dialogStyle);
+        dialog.setOnShowListener(new OnShowListener() {
+
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                // For 3.x+, update the dialog elements which couldn't be updated cleanly with the theme:
+                // The list items.
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                    ListView listView = dialog.getListView();
+                    if (listView != null) listView.setSelector(R.drawable.selector);
+                }
+                DialogStyleHacks.uglyHackReplaceBlueHoloBackground(context, (ViewGroup) dialog.getWindow().getDecorView());
+            }
+        });
+    }
 
     /**
      * Iterate through the whole view tree and replace the holo blue element(s) with our holo color.

@@ -60,6 +60,7 @@ import ca.rmen.android.scrumchatter.team.Teams.Team;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment.ScrumChatterDialogButtonListener;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment.ScrumChatterDialogItemListener;
+import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragmentFactory;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterInputDialogFragment.ScrumChatterDialogInputListener;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -222,8 +223,8 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
                 return true;
             case R.id.action_share:
                 // Build a chooser dialog for the file format.
-                ScrumChatterDialogFragment.showChoiceDialog(this, getString(R.string.export_choice_title), getResources()
-                        .getStringArray(R.array.export_choices), -1, R.id.action_share);
+                ScrumChatterDialogFragmentFactory.showChoiceDialog(this, getString(R.string.export_choice_title),
+                        getResources().getStringArray(R.array.export_choices), -1, R.id.action_share);
                 return true;
             case R.id.action_about:
                 Intent intent = new Intent(this, AboutActivity.class);
@@ -277,7 +278,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
     private void importDB(final Uri uri) {
         Bundle extras = new Bundle(1);
         extras.putParcelable(EXTRA_IMPORT_URI, uri);
-        ScrumChatterDialogFragment.showConfirmDialog(this, getString(R.string.import_confirm_title),
+        ScrumChatterDialogFragmentFactory.showConfirmDialog(this, getString(R.string.import_confirm_title),
                 getString(R.string.import_confirm_message, uri.getEncodedPath()), R.id.action_import, extras);
     }
 
@@ -361,7 +362,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
 
                 @Override
                 protected void onPreExecute() {
-                    mDialog = ScrumChatterDialogFragment.showProgressDialog(MainActivity.this, getString(R.string.progress_dialog_message),
+                    mDialog = ScrumChatterDialogFragmentFactory.showProgressDialog(MainActivity.this, getString(R.string.progress_dialog_message),
                             PROGRESS_DIALOG_FRAGMENT_TAG);
                     mDialogTag = mDialog.getTag();
                     Log.v(TAG, "dialog tag is " + mDialogTag);

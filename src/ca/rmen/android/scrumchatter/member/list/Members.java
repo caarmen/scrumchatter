@@ -31,8 +31,7 @@ import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.team.Teams;
-import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment;
-import ca.rmen.android.scrumchatter.ui.ScrumChatterInputDialogFragment;
+import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragmentFactory;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterInputDialogFragment.InputValidator;
 
 /**
@@ -67,7 +66,7 @@ public class Members {
         Log.v(TAG, "createMember, teamId = " + teamId);
         Bundle extras = new Bundle(1);
         extras.putLong(Teams.EXTRA_TEAM_ID, teamId);
-        ScrumChatterInputDialogFragment.showInputDialog(mActivity, mActivity.getString(R.string.action_new_member),
+        ScrumChatterDialogFragmentFactory.showInputDialog(mActivity, mActivity.getString(R.string.action_new_member),
                 mActivity.getString(R.string.hint_new_member), null, MemberNameValidator.class, R.id.action_new_member, extras);
     }
 
@@ -101,7 +100,7 @@ public class Members {
         // Let's ask him if he's sure.
         Bundle extras = new Bundle(1);
         extras.putLong(EXTRA_MEMBER_ID, member.id);
-        ScrumChatterDialogFragment.showConfirmDialog(mActivity, mActivity.getString(R.string.action_delete_member),
+        ScrumChatterDialogFragmentFactory.showConfirmDialog(mActivity, mActivity.getString(R.string.action_delete_member),
                 mActivity.getString(R.string.dialog_message_delete_member_confirm, member.name), R.id.btn_delete, extras);
     }
 
@@ -135,7 +134,7 @@ public class Members {
         public MemberNameValidator() {}
 
         @Override
-        public String getError(Context context, int actionid, CharSequence input, Bundle extras) {
+        public String getError(Context context, CharSequence input, Bundle extras) {
             long teamId = extras.getLong(Teams.EXTRA_TEAM_ID);
             // Query for a member with this name.
             Cursor existingMemberCountCursor = context.getContentResolver().query(MemberColumns.CONTENT_URI, new String[] { "count(*)" },

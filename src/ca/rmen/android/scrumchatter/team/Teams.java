@@ -31,8 +31,7 @@ import android.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.provider.TeamColumns;
-import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment;
-import ca.rmen.android.scrumchatter.ui.ScrumChatterInputDialogFragment;
+import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragmentFactory;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterInputDialogFragment.InputValidator;
 
 /**
@@ -100,7 +99,7 @@ public class Teams {
              */
             @Override
             protected void onPostExecute(Void result) {
-                if (mTeamNames != null && mTeamNames.length >= 1) ScrumChatterDialogFragment.showChoiceDialog(mActivity,
+                if (mTeamNames != null && mTeamNames.length >= 1) ScrumChatterDialogFragmentFactory.showChoiceDialog(mActivity,
                         mActivity.getString(R.string.dialog_message_switch_team), mTeamNames, mSelectedTeam, R.id.action_team_switch);
                 else
                     Log.wtf(TAG, "No existing teams found");
@@ -152,8 +151,8 @@ public class Teams {
      * Show a dialog with a text input for the new team name. Validate that the team doesn't already exist. Upon pressing "OK", create the team.
      */
     private void promptCreateTeam() {
-        ScrumChatterInputDialogFragment.showInputDialog(mActivity, mActivity.getString(R.string.action_new_team), mActivity.getString(R.string.hint_team_name),
-                null, TeamNameValidator.class, R.id.action_team, null);
+        ScrumChatterDialogFragmentFactory.showInputDialog(mActivity, mActivity.getString(R.string.action_new_team),
+                mActivity.getString(R.string.hint_team_name), null, TeamNameValidator.class, R.id.action_team, null);
     }
 
     public void createTeam(final String teamName) {
@@ -187,7 +186,7 @@ public class Teams {
             Bundle extras = new Bundle(1);
             extras.putParcelable(EXTRA_TEAM_URI, team.teamUri);
             extras.putString(EXTRA_TEAM_NAME, team.teamName);
-            ScrumChatterInputDialogFragment.showInputDialog(mActivity, mActivity.getString(R.string.action_team_rename),
+            ScrumChatterDialogFragmentFactory.showInputDialog(mActivity, mActivity.getString(R.string.action_team_rename),
                     mActivity.getString(R.string.hint_team_name), team.teamName, TeamNameValidator.class, R.id.action_team_rename, extras);
         }
     }
@@ -227,13 +226,13 @@ public class Teams {
             protected void onPostExecute(Integer teamCount) {
                 // We need at least one team in the app.
                 if (teamCount <= 1) {
-                    ScrumChatterDialogFragment.showInfoDialog(mActivity, R.string.action_team_delete, R.string.dialog_error_one_team_required);
+                    ScrumChatterDialogFragmentFactory.showInfoDialog(mActivity, R.string.action_team_delete, R.string.dialog_error_one_team_required);
                 }
                 // Delete this team
                 else if (team != null) {
                     Bundle extras = new Bundle(1);
                     extras.putParcelable(EXTRA_TEAM_URI, team.teamUri);
-                    ScrumChatterDialogFragment.showConfirmDialog(mActivity, mActivity.getString(R.string.action_team_delete),
+                    ScrumChatterDialogFragmentFactory.showConfirmDialog(mActivity, mActivity.getString(R.string.action_team_delete),
                             mActivity.getString(R.string.dialog_message_delete_team_confirm, team.teamName), R.id.action_team_delete, extras);
                 }
             }
@@ -321,7 +320,7 @@ public class Teams {
         public TeamNameValidator() {}
 
         @Override
-        public String getError(Context context, int actionId, CharSequence input, Bundle extras) {
+        public String getError(Context context, CharSequence input, Bundle extras) {
             // teamName is optional. If given, we won't show an error for renaming a team to its current name.
             String teamName = extras == null ? null : extras.getString(Teams.EXTRA_TEAM_NAME);
 
