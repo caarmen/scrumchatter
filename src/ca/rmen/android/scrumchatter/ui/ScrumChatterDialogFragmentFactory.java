@@ -25,17 +25,25 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
-import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment.DialogType;
-import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment.ScrumChatterDialogButtonListener;
-import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment.ScrumChatterDialogItemListener;
+import ca.rmen.android.scrumchatter.ui.ScrumChatterChoiceDialogFragment.ScrumChatterDialogItemListener;
+import ca.rmen.android.scrumchatter.ui.ScrumChatterConfirmDialogFragment.ScrumChatterDialogButtonListener;
 
 /**
- * Create different types of dialog fragments (information, choice, confirmation, progress).
+ * Create different types of dialog fragments (edit text input, information, choice, confirmation, progress).
  * The dialogs created by this class are not only created but also shown in the activity given to the creation methods.
  */
 public class ScrumChatterDialogFragmentFactory extends DialogFragment {
 
     private static final String TAG = Constants.TAG + "/" + ScrumChatterDialogFragmentFactory.class.getSimpleName();
+    static final String EXTRA_TITLE = "title";
+    static final String EXTRA_MESSAGE = "message";
+    static final String EXTRA_ACTION_ID = "action_id";
+    static final String EXTRA_CHOICES = "choices";
+    static final String EXTRA_SELECTED_ITEM = "selected_item";
+    static final String EXTRA_EXTRAS = "extras";
+    static final String EXTRA_INPUT_HINT = "input_hint";
+    static final String EXTRA_INPUT_VALIDATOR_CLASS = "input_validator_class";
+    static final String EXTRA_ENTERED_TEXT = "entered_text";
 
     /**
      * @param validatorClass will be called with each text event on the edit text, to validate the user's input.
@@ -44,12 +52,12 @@ public class ScrumChatterDialogFragmentFactory extends DialogFragment {
             Class<?> inputValidatorClass, int actionId, Bundle extras) {
         Log.v(TAG, "showInputDialog: title = " + title + ", prefilledText =  " + prefilledText + ", actionId = " + actionId + ", extras = " + extras);
         Bundle arguments = new Bundle(6);
-        arguments.putString(ScrumChatterDialogFragment.EXTRA_TITLE, title);
-        arguments.putString(ScrumChatterInputDialogFragment.EXTRA_INPUT_HINT, inputHint);
-        arguments.putInt(ScrumChatterDialogFragment.EXTRA_ACTION_ID, actionId);
-        arguments.putString(ScrumChatterInputDialogFragment.EXTRA_ENTERED_TEXT, prefilledText);
-        if (inputValidatorClass != null) arguments.putSerializable(ScrumChatterInputDialogFragment.EXTRA_INPUT_VALIDATOR_CLASS, inputValidatorClass);
-        arguments.putBundle(ScrumChatterDialogFragment.EXTRA_EXTRAS, extras);
+        arguments.putString(EXTRA_TITLE, title);
+        arguments.putString(EXTRA_INPUT_HINT, inputHint);
+        arguments.putInt(EXTRA_ACTION_ID, actionId);
+        arguments.putString(EXTRA_ENTERED_TEXT, prefilledText);
+        if (inputValidatorClass != null) arguments.putSerializable(EXTRA_INPUT_VALIDATOR_CLASS, inputValidatorClass);
+        arguments.putBundle(EXTRA_EXTRAS, extras);
         ScrumChatterInputDialogFragment result = new ScrumChatterInputDialogFragment();
         result.setArguments(arguments);
         result.show(activity.getSupportFragmentManager(), ScrumChatterInputDialogFragment.class.getSimpleName());
@@ -59,12 +67,15 @@ public class ScrumChatterDialogFragmentFactory extends DialogFragment {
     /**
      * @return a visible dialog fragment with the given title and message, and just one OK button.
      */
-    public static ScrumChatterDialogFragment showInfoDialog(FragmentActivity activity, int titleId, int messageId) {
+    public static ScrumChatterInfoDialogFragment showInfoDialog(FragmentActivity activity, int titleId, int messageId) {
         Log.v(TAG, "showInfoDialog");
         Bundle arguments = new Bundle(3);
-        arguments.putString(ScrumChatterDialogFragment.EXTRA_TITLE, activity.getString(titleId));
-        arguments.putString(ScrumChatterDialogFragment.EXTRA_MESSAGE, activity.getString(messageId));
-        return showDialog(activity, arguments, DialogType.INFO);
+        arguments.putString(EXTRA_TITLE, activity.getString(titleId));
+        arguments.putString(EXTRA_MESSAGE, activity.getString(messageId));
+        ScrumChatterInfoDialogFragment result = new ScrumChatterInfoDialogFragment();
+        result.setArguments(arguments);
+        result.show(activity.getSupportFragmentManager(), ScrumChatterInfoDialogFragment.class.getSimpleName());
+        return result;
     }
 
     /**
@@ -72,14 +83,17 @@ public class ScrumChatterDialogFragmentFactory extends DialogFragment {
      *         {@link ScrumChatterDialogButtonListener}, the actionId and extras parameter will be provided in
      *         the {@link ScrumChatterDialogButtonListener#onOkClicked(int, Bundle)} callback on the activity, when the user clicks on the ok button.
      */
-    public static ScrumChatterDialogFragment showConfirmDialog(FragmentActivity activity, String title, String message, int actionId, Bundle extras) {
+    public static ScrumChatterConfirmDialogFragment showConfirmDialog(FragmentActivity activity, String title, String message, int actionId, Bundle extras) {
         Log.v(TAG, "showConfirmDialog: title = " + title + ", message = " + message + ", actionId = " + actionId + ", extras = " + extras);
+        ScrumChatterConfirmDialogFragment result = new ScrumChatterConfirmDialogFragment();
         Bundle arguments = new Bundle(4);
-        arguments.putString(ScrumChatterDialogFragment.EXTRA_TITLE, title);
-        arguments.putString(ScrumChatterDialogFragment.EXTRA_MESSAGE, message);
-        arguments.putInt(ScrumChatterDialogFragment.EXTRA_ACTION_ID, actionId);
-        if (extras != null) arguments.putBundle(ScrumChatterDialogFragment.EXTRA_EXTRAS, extras);
-        return showDialog(activity, arguments, DialogType.CONFIRM);
+        arguments.putString(EXTRA_TITLE, title);
+        arguments.putString(EXTRA_MESSAGE, message);
+        arguments.putInt(EXTRA_ACTION_ID, actionId);
+        if (extras != null) arguments.putBundle(EXTRA_EXTRAS, extras);
+        result.setArguments(arguments);
+        result.show(activity.getSupportFragmentManager(), ScrumChatterConfirmDialogFragment.class.getSimpleName());
+        return result;
     }
 
     /**
@@ -88,42 +102,32 @@ public class ScrumChatterDialogFragmentFactory extends DialogFragment {
      *         {@link ScrumChatterDialogItemListener#onItemSelected(int, CharSequence[], int)} callback on the activity, when the user selects an item.
      * @param selectedItem if greater than zero, then the given item at that index will be pre-selected in the list.
      */
-    public static ScrumChatterDialogFragment showChoiceDialog(FragmentActivity activity, String title, CharSequence[] items, int selectedItem, int actionId) {
+    public static ScrumChatterChoiceDialogFragment showChoiceDialog(FragmentActivity activity, String title, CharSequence[] items, int selectedItem,
+            int actionId) {
         Log.v(TAG, "showChoiceDialog: title = " + title + ", actionId = " + actionId + ", items =" + Arrays.toString(items) + ", selectedItem = "
                 + selectedItem);
+        ScrumChatterChoiceDialogFragment result = new ScrumChatterChoiceDialogFragment();
         Bundle arguments = new Bundle(5);
-        arguments.putString(ScrumChatterDialogFragment.EXTRA_TITLE, title);
-        arguments.putInt(ScrumChatterDialogFragment.EXTRA_ACTION_ID, actionId);
-        arguments.putCharSequenceArray(ScrumChatterDialogFragment.EXTRA_CHOICES, items);
-        arguments.putInt(ScrumChatterDialogFragment.EXTRA_SELECTED_ITEM, selectedItem);
-        return showDialog(activity, arguments, DialogType.CHOICE);
+        arguments.putString(EXTRA_TITLE, title);
+        arguments.putInt(EXTRA_ACTION_ID, actionId);
+        arguments.putCharSequenceArray(EXTRA_CHOICES, items);
+        arguments.putInt(EXTRA_SELECTED_ITEM, selectedItem);
+        result.setArguments(arguments);
+        result.show(activity.getSupportFragmentManager(), ScrumChatterChoiceDialogFragment.class.getSimpleName());
+        return result;
     }
 
     /**
      * @return a visible dialog fragment with the given message.
      * @param tag should be used by the calling activity, when the background task is complete, to find the fragment and dismiss it.
      */
-    public static ScrumChatterDialogFragment showProgressDialog(FragmentActivity activity, String message, String tag) {
+    public static ScrumChatterProgressDialogFragment showProgressDialog(FragmentActivity activity, String message, String tag) {
         Log.v(TAG, "showProgressDialog: message = " + message);
         Bundle arguments = new Bundle(2);
-        arguments.putString(ScrumChatterDialogFragment.EXTRA_MESSAGE, message);
-        arguments.putSerializable(ScrumChatterDialogFragment.EXTRA_DIALOG_TYPE, DialogType.PROGRESS);
-        ScrumChatterDialogFragment result = new ScrumChatterDialogFragment();
+        arguments.putString(EXTRA_MESSAGE, message);
+        ScrumChatterProgressDialogFragment result = new ScrumChatterProgressDialogFragment();
         result.setArguments(arguments);
         result.show(activity.getSupportFragmentManager(), tag);
-        return result;
-    }
-
-    /**
-     * @return a visible dialog fragment.
-     * @param arguments will be set on the dialog fragment and will be retrieved in onCreateDialog to create the actual dialog.
-     * @param dialogType will be used on onCreateDialog to determine what time of AlertDialog to create.
-     */
-    private static ScrumChatterDialogFragment showDialog(FragmentActivity activity, Bundle arguments, DialogType dialogType) {
-        ScrumChatterDialogFragment result = new ScrumChatterDialogFragment();
-        arguments.putSerializable(ScrumChatterDialogFragment.EXTRA_DIALOG_TYPE, dialogType);
-        result.setArguments(arguments);
-        result.show(activity.getSupportFragmentManager(), ScrumChatterDialogFragment.class.getSimpleName());
         return result;
     }
 

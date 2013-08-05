@@ -57,11 +57,11 @@ import ca.rmen.android.scrumchatter.provider.DBImport;
 import ca.rmen.android.scrumchatter.provider.TeamColumns;
 import ca.rmen.android.scrumchatter.team.Teams;
 import ca.rmen.android.scrumchatter.team.Teams.Team;
-import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment;
-import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment.ScrumChatterDialogButtonListener;
-import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragment.ScrumChatterDialogItemListener;
+import ca.rmen.android.scrumchatter.ui.ScrumChatterChoiceDialogFragment.ScrumChatterDialogItemListener;
+import ca.rmen.android.scrumchatter.ui.ScrumChatterConfirmDialogFragment.ScrumChatterDialogButtonListener;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragmentFactory;
 import ca.rmen.android.scrumchatter.ui.ScrumChatterInputDialogFragment.ScrumChatterDialogInputListener;
+import ca.rmen.android.scrumchatter.ui.ScrumChatterProgressDialogFragment;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -358,7 +358,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
             AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
 
                 private String mDialogTag;
-                private ScrumChatterDialogFragment mDialog;
+                private ScrumChatterProgressDialogFragment mDialog;
 
                 @Override
                 protected void onPreExecute() {
@@ -478,17 +478,12 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
             Log.v(TAG, "onReceive: intent = " + intent);
             if (ACTION_IMPORT_COMPLETE.equals(intent.getAction())) {
                 Boolean result = intent.getExtras().getBoolean(EXTRA_IMPORT_RESULT);
-                ScrumChatterDialogFragment dialogFragment = (ScrumChatterDialogFragment) getSupportFragmentManager().findFragmentByTag(
+                ScrumChatterProgressDialogFragment dialogFragment = (ScrumChatterProgressDialogFragment) getSupportFragmentManager().findFragmentByTag(
                         PROGRESS_DIALOG_FRAGMENT_TAG);
                 Log.v(TAG, "DialogFragment with tag " + dialogFragment);
                 if (dialogFragment != null) dialogFragment.dismiss();
                 Toast.makeText(MainActivity.this, result ? R.string.import_result_success : R.string.import_result_failed, Toast.LENGTH_SHORT).show();
             }
-
-
         }
     };
-
-
-
 }
