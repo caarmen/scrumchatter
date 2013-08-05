@@ -26,7 +26,7 @@ import android.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
 
 /**
- * Implements different types of dialog fragments (information, choice, confirmation, progress).
+ * Implements a dialog fragment with a ProgressDialog with a message.
  */
 public class ScrumChatterProgressDialogFragment extends DialogFragment {
 
