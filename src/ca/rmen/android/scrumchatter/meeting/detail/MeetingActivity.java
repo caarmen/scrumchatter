@@ -30,10 +30,10 @@ import android.view.View.OnClickListener;
 import android.widget.Chronometer;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
+import ca.rmen.android.scrumchatter.dialog.ScrumChatterDialogFragmentFactory;
+import ca.rmen.android.scrumchatter.dialog.ScrumChatterConfirmDialogFragment.ScrumChatterDialogButtonListener;
 import ca.rmen.android.scrumchatter.meeting.Meetings;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
-import ca.rmen.android.scrumchatter.ui.ScrumChatterConfirmDialogFragment.ScrumChatterDialogButtonListener;
-import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragmentFactory;
 import ca.rmen.android.scrumchatter.util.TextUtils;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;

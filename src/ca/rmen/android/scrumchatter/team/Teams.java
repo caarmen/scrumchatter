@@ -30,9 +30,9 @@ import android.text.TextUtils;
 import android.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
+import ca.rmen.android.scrumchatter.dialog.ScrumChatterDialogFragmentFactory;
+import ca.rmen.android.scrumchatter.dialog.ScrumChatterInputDialogFragment.InputValidator;
 import ca.rmen.android.scrumchatter.provider.TeamColumns;
-import ca.rmen.android.scrumchatter.ui.ScrumChatterDialogFragmentFactory;
-import ca.rmen.android.scrumchatter.ui.ScrumChatterInputDialogFragment.InputValidator;
 
 /**
  * Provides both UI and DB logic regarding the management of teams: renaming, choosing, creating, and deleting teams.

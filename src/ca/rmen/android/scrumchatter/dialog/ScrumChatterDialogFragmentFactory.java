@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
  */
-package ca.rmen.android.scrumchatter.ui;
+package ca.rmen.android.scrumchatter.dialog;
 
 import java.util.Arrays;
 
@@ -25,8 +25,8 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
-import ca.rmen.android.scrumchatter.ui.ScrumChatterChoiceDialogFragment.ScrumChatterDialogItemListener;
-import ca.rmen.android.scrumchatter.ui.ScrumChatterConfirmDialogFragment.ScrumChatterDialogButtonListener;
+import ca.rmen.android.scrumchatter.dialog.ScrumChatterChoiceDialogFragment.ScrumChatterDialogItemListener;
+import ca.rmen.android.scrumchatter.dialog.ScrumChatterConfirmDialogFragment.ScrumChatterDialogButtonListener;
 
 /**
  * Create different types of dialog fragments (edit text input, information, choice, confirmation, progress).

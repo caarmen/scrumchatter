@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
  */
-package ca.rmen.android.scrumchatter.ui;
+package ca.rmen.android.scrumchatter.dialog;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -30,7 +30,7 @@ import ca.rmen.android.scrumchatter.Constants;
 /**
  * A dialog fragment with a list of choices.
  */
-public class ScrumChatterChoiceDialogFragment extends DialogFragment {
+public class ScrumChatterChoiceDialogFragment extends DialogFragment { // NO_UCD (use default)
 
     private static final String TAG = Constants.TAG + "/" + ScrumChatterChoiceDialogFragment.class.getSimpleName();
 

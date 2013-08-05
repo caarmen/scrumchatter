@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
  */
-package ca.rmen.android.scrumchatter.ui;
+package ca.rmen.android.scrumchatter.dialog;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -28,7 +28,7 @@ import ca.rmen.android.scrumchatter.Constants;
 /**
  * Shows a dialog with a title, message, and a single button to dismiss the dialog.
  */
-public class ScrumChatterInfoDialogFragment extends DialogFragment {
+public class ScrumChatterInfoDialogFragment extends DialogFragment { // NO_UCD (use default)
 
     private static final String TAG = Constants.TAG + "/" + ScrumChatterInfoDialogFragment.class.getSimpleName();
 
