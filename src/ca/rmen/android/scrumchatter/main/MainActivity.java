@@ -147,16 +147,12 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
         if (intent != null) {
             if (Intent.ACTION_VIEW.equals(intent.getAction())) importDB(intent.getData());
         }
-    }
 
-    @Override
-    protected void onResume() {
-        Log.v(TAG, "onResume");
-        super.onResume();
         getContentResolver().registerContentObserver(TeamColumns.CONTENT_URI, true, mContentObserver);
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(mSharedPrefsListener);
         IntentFilter filter = new IntentFilter(ACTION_IMPORT_COMPLETE);
-        registerReceiver(mBroadcastReceiver, filter);
+        filter.addAction(ACTION_EXPORT_COMPLETE);
+        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mBroadcastReceiver, filter);
     }
 
     @Override
@@ -178,12 +174,12 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
     }
 
     @Override
-    protected void onPause() {
-        Log.v(TAG, "onPause");
+    protected void onDestroy() {
+        Log.v(TAG, "onDestroy");
         PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(mSharedPrefsListener);
         getContentResolver().unregisterContentObserver(mContentObserver);
-        unregisterReceiver(mBroadcastReceiver);
-        super.onPause();
+        LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(mBroadcastReceiver);
+        super.onDestroy();
     }
 
     @Override
@@ -304,8 +300,10 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
             @Override
             protected Void doInBackground(Void... params) {
                 boolean result = fileExport.export();
-                Intent intent = new Intent(ACTION_EXPORT_COMPLETE).putExtra(EXTRA_EXPORT_RESULT, result);
-                LocalBroadcastManager.getInstance(MainActivity.this).sendBroadcast(intent);
+                Intent intent = new Intent(ACTION_EXPORT_COMPLETE);
+                intent.putExtra(EXTRA_EXPORT_RESULT, result);
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+                Log.v(TAG, "broadcast " + intent);
                 return null;
             }
 
@@ -386,7 +384,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
                     // won't be visible any more. The new activity will receive the broadcast and update
                     // the UI.
                     Intent intent = new Intent(ACTION_IMPORT_COMPLETE).putExtra(EXTRA_IMPORT_RESULT, result);
-                    LocalBroadcastManager.getInstance(MainActivity.this).sendBroadcast(intent);
+                    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
                     return null;
                 }
             };
