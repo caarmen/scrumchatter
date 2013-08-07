@@ -30,8 +30,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
-import ca.rmen.android.scrumchatter.dialog.ScrumChatterDialogFragmentFactory;
-import ca.rmen.android.scrumchatter.dialog.ScrumChatterInputDialogFragment.InputValidator;
+import ca.rmen.android.scrumchatter.dialog.DialogFragmentFactory;
+import ca.rmen.android.scrumchatter.dialog.InputDialogFragment.InputValidator;
 import ca.rmen.android.scrumchatter.provider.TeamColumns;
 
 /**
@@ -99,7 +99,7 @@ public class Teams {
              */
             @Override
             protected void onPostExecute(Void result) {
-                if (mTeamNames != null && mTeamNames.length >= 1) ScrumChatterDialogFragmentFactory.showChoiceDialog(mActivity,
+                if (mTeamNames != null && mTeamNames.length >= 1) DialogFragmentFactory.showChoiceDialog(mActivity,
                         mActivity.getString(R.string.dialog_message_switch_team), mTeamNames, mSelectedTeam, R.id.action_team_switch);
                 else
                     Log.wtf(TAG, "No existing teams found");
@@ -151,7 +151,7 @@ public class Teams {
      * Show a dialog with a text input for the new team name. Validate that the team doesn't already exist. Upon pressing "OK", create the team.
      */
     private void promptCreateTeam() {
-        ScrumChatterDialogFragmentFactory.showInputDialog(mActivity, mActivity.getString(R.string.action_new_team),
+        DialogFragmentFactory.showInputDialog(mActivity, mActivity.getString(R.string.action_new_team),
                 mActivity.getString(R.string.hint_team_name), null, TeamNameValidator.class, R.id.action_team, null);
     }
 
@@ -186,7 +186,7 @@ public class Teams {
             Bundle extras = new Bundle(1);
             extras.putParcelable(EXTRA_TEAM_URI, team.teamUri);
             extras.putString(EXTRA_TEAM_NAME, team.teamName);
-            ScrumChatterDialogFragmentFactory.showInputDialog(mActivity, mActivity.getString(R.string.action_team_rename),
+            DialogFragmentFactory.showInputDialog(mActivity, mActivity.getString(R.string.action_team_rename),
                     mActivity.getString(R.string.hint_team_name), team.teamName, TeamNameValidator.class, R.id.action_team_rename, extras);
         }
     }
@@ -226,13 +226,13 @@ public class Teams {
             protected void onPostExecute(Integer teamCount) {
                 // We need at least one team in the app.
                 if (teamCount <= 1) {
-                    ScrumChatterDialogFragmentFactory.showInfoDialog(mActivity, R.string.action_team_delete, R.string.dialog_error_one_team_required);
+                    DialogFragmentFactory.showInfoDialog(mActivity, R.string.action_team_delete, R.string.dialog_error_one_team_required);
                 }
                 // Delete this team
                 else if (team != null) {
                     Bundle extras = new Bundle(1);
                     extras.putParcelable(EXTRA_TEAM_URI, team.teamUri);
-                    ScrumChatterDialogFragmentFactory.showConfirmDialog(mActivity, mActivity.getString(R.string.action_team_delete),
+                    DialogFragmentFactory.showConfirmDialog(mActivity, mActivity.getString(R.string.action_team_delete),
                             mActivity.getString(R.string.dialog_message_delete_team_confirm, team.teamName), R.id.action_team_delete, extras);
                 }
             }

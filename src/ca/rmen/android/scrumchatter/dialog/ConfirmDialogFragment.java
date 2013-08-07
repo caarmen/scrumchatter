@@ -30,18 +30,18 @@ import ca.rmen.android.scrumchatter.Constants;
 /**
  * A dialog fragment with a title, message, ok and cancel buttons.
  */
-public class ScrumChatterConfirmDialogFragment extends DialogFragment { // NO_UCD (use default)
+public class ConfirmDialogFragment extends DialogFragment { // NO_UCD (use default)
 
-    private static final String TAG = Constants.TAG + "/" + ScrumChatterConfirmDialogFragment.class.getSimpleName();
+    private static final String TAG = Constants.TAG + "/" + ConfirmDialogFragment.class.getSimpleName();
 
     /**
      * An activity which contains a confirmation dialog fragment should implement this interface to be notified if the user clicks ok on the dialog.
      */
-    public interface ScrumChatterDialogButtonListener {
+    public interface DialogButtonListener {
         void onOkClicked(int actionId, Bundle extras);
     }
 
-    public ScrumChatterConfirmDialogFragment() {
+    public ConfirmDialogFragment() {
         super();
     }
 
@@ -54,16 +54,15 @@ public class ScrumChatterConfirmDialogFragment extends DialogFragment { // NO_UC
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         Bundle arguments = getArguments();
-        builder.setTitle(arguments.getString(ScrumChatterDialogFragmentFactory.EXTRA_TITLE)).setMessage(
-                arguments.getString(ScrumChatterDialogFragmentFactory.EXTRA_MESSAGE));
-        final int actionId = arguments.getInt(ScrumChatterDialogFragmentFactory.EXTRA_ACTION_ID);
-        final Bundle extras = arguments.getBundle(ScrumChatterDialogFragmentFactory.EXTRA_EXTRAS);
+        builder.setTitle(arguments.getString(DialogFragmentFactory.EXTRA_TITLE)).setMessage(arguments.getString(DialogFragmentFactory.EXTRA_MESSAGE));
+        final int actionId = arguments.getInt(DialogFragmentFactory.EXTRA_ACTION_ID);
+        final Bundle extras = arguments.getBundle(DialogFragmentFactory.EXTRA_EXTRAS);
         OnClickListener positiveListener = null;
-        if (getActivity() instanceof ScrumChatterDialogButtonListener) {
+        if (getActivity() instanceof DialogButtonListener) {
             positiveListener = new OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    ((ScrumChatterDialogButtonListener) getActivity()).onOkClicked(actionId, extras);
+                    ((DialogButtonListener) getActivity()).onOkClicked(actionId, extras);
                 }
             };
         }

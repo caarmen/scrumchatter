@@ -28,11 +28,11 @@ import ca.rmen.android.scrumchatter.Constants;
 /**
  * Shows a dialog with a title, message, and a single button to dismiss the dialog.
  */
-public class ScrumChatterInfoDialogFragment extends DialogFragment { // NO_UCD (use default)
+public class InfoDialogFragment extends DialogFragment { // NO_UCD (use default)
 
-    private static final String TAG = Constants.TAG + "/" + ScrumChatterInfoDialogFragment.class.getSimpleName();
+    private static final String TAG = Constants.TAG + "/" + InfoDialogFragment.class.getSimpleName();
 
-    public ScrumChatterInfoDialogFragment() {
+    public InfoDialogFragment() {
         super();
     }
 
@@ -44,8 +44,8 @@ public class ScrumChatterInfoDialogFragment extends DialogFragment { // NO_UCD (
         Log.v(TAG, "onCreateDialog: savedInstanceState = " + savedInstanceState);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         Bundle arguments = getArguments();
-        builder.setTitle(arguments.getString(ScrumChatterDialogFragmentFactory.EXTRA_TITLE))
-                .setMessage(arguments.getString(ScrumChatterDialogFragmentFactory.EXTRA_MESSAGE)).setNeutralButton(android.R.string.ok, null);
+        builder.setTitle(arguments.getString(DialogFragmentFactory.EXTRA_TITLE))
+                .setMessage(arguments.getString(DialogFragmentFactory.EXTRA_MESSAGE)).setNeutralButton(android.R.string.ok, null);
         final AlertDialog dialog = builder.create();
         DialogStyleHacks.styleDialog(getActivity(), dialog);
         return dialog;

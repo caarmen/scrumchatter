@@ -30,18 +30,18 @@ import ca.rmen.android.scrumchatter.Constants;
 /**
  * A dialog fragment with a list of choices.
  */
-public class ScrumChatterChoiceDialogFragment extends DialogFragment { // NO_UCD (use default)
+public class ChoiceDialogFragment extends DialogFragment { // NO_UCD (use default)
 
-    private static final String TAG = Constants.TAG + "/" + ScrumChatterChoiceDialogFragment.class.getSimpleName();
+    private static final String TAG = Constants.TAG + "/" + ChoiceDialogFragment.class.getSimpleName();
 
     /**
      * An activity which contains a choice dialog fragment should implement this interface.
      */
-    public interface ScrumChatterDialogItemListener {
+    public interface DialogItemListener {
         void onItemSelected(int actionId, CharSequence[] choices, int which);
     }
 
-    public ScrumChatterChoiceDialogFragment() {
+    public ChoiceDialogFragment() {
         super();
     }
 
@@ -53,17 +53,17 @@ public class ScrumChatterChoiceDialogFragment extends DialogFragment { // NO_UCD
         Log.v(TAG, "onCreateDialog: savedInstanceState = " + savedInstanceState);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         Bundle arguments = getArguments();
-        builder.setTitle(arguments.getString(ScrumChatterDialogFragmentFactory.EXTRA_TITLE));
-        final int actionId = arguments.getInt(ScrumChatterDialogFragmentFactory.EXTRA_ACTION_ID);
-        int selectedItem = arguments.getInt(ScrumChatterDialogFragmentFactory.EXTRA_SELECTED_ITEM);
-        final CharSequence[] choices = arguments.getCharSequenceArray(ScrumChatterDialogFragmentFactory.EXTRA_CHOICES);
+        builder.setTitle(arguments.getString(DialogFragmentFactory.EXTRA_TITLE));
+        final int actionId = arguments.getInt(DialogFragmentFactory.EXTRA_ACTION_ID);
+        int selectedItem = arguments.getInt(DialogFragmentFactory.EXTRA_SELECTED_ITEM);
+        final CharSequence[] choices = arguments.getCharSequenceArray(DialogFragmentFactory.EXTRA_CHOICES);
         OnClickListener listener = null;
-        if (getActivity() instanceof ScrumChatterDialogItemListener) {
+        if (getActivity() instanceof DialogItemListener) {
             listener = new OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.dismiss();
-                    ((ScrumChatterDialogItemListener) getActivity()).onItemSelected(actionId, choices, which);
+                    ((DialogItemListener) getActivity()).onItemSelected(actionId, choices, which);
                 }
             };
         }

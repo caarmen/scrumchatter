@@ -28,11 +28,11 @@ import ca.rmen.android.scrumchatter.Constants;
 /**
  * Implements a dialog fragment with a ProgressDialog with a message.
  */
-public class ScrumChatterProgressDialogFragment extends DialogFragment {
+public class ProgressDialogFragment extends DialogFragment {
 
-    private static final String TAG = Constants.TAG + "/" + ScrumChatterProgressDialogFragment.class.getSimpleName();
+    private static final String TAG = Constants.TAG + "/" + ProgressDialogFragment.class.getSimpleName();
 
-    public ScrumChatterProgressDialogFragment() {
+    public ProgressDialogFragment() {
         super();
     }
 
@@ -44,7 +44,7 @@ public class ScrumChatterProgressDialogFragment extends DialogFragment {
         Log.v(TAG, "onCreateDialog: savedInstanceState = " + savedInstanceState);
         ProgressDialog dialog = new ProgressDialog(getActivity());
         Bundle arguments = getArguments();
-        dialog.setMessage(arguments.getString(ScrumChatterDialogFragmentFactory.EXTRA_MESSAGE));
+        dialog.setMessage(arguments.getString(DialogFragmentFactory.EXTRA_MESSAGE));
         dialog.setIndeterminate(true);
         dialog.setCancelable(false);
         DialogStyleHacks.styleDialog(getActivity(), dialog);

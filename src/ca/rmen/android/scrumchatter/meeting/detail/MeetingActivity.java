@@ -30,8 +30,8 @@ import android.view.View.OnClickListener;
 import android.widget.Chronometer;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
-import ca.rmen.android.scrumchatter.dialog.ScrumChatterDialogFragmentFactory;
-import ca.rmen.android.scrumchatter.dialog.ScrumChatterConfirmDialogFragment.ScrumChatterDialogButtonListener;
+import ca.rmen.android.scrumchatter.dialog.ConfirmDialogFragment.DialogButtonListener;
+import ca.rmen.android.scrumchatter.dialog.DialogFragmentFactory;
 import ca.rmen.android.scrumchatter.meeting.Meetings;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.util.TextUtils;
@@ -44,7 +44,7 @@ import com.actionbarsherlock.view.MenuItem;
  * Displays attributes of a meeting as well as the team members participating in
  * this meeting.
  */
-public class MeetingActivity extends SherlockFragmentActivity implements ScrumChatterDialogButtonListener {
+public class MeetingActivity extends SherlockFragmentActivity implements DialogButtonListener {
 
     private static final String TAG = Constants.TAG + "/" + MeetingActivity.class.getSimpleName();
 
@@ -143,16 +143,18 @@ public class MeetingActivity extends SherlockFragmentActivity implements ScrumCh
         }
     }
 
+    /**
+     * The user tapped on the OK button of a confirmation dialog. Execute the action requested by the user.
+     * 
+     * @param actionId the action id which was provided to the {@link DialogFragmentFactory} when creating the dialog.
+     * @param extras any extras which were provided to the {@link DialogFragmentFactory} when creating the dialog.
+     * @see ca.rmen.android.scrumchatter.dialog.ConfirmDialogFragment.DialogButtonListener#onOkClicked(int, android.os.Bundle)
+     */
     @Override
     public void onOkClicked(int actionId, Bundle extras) {
         Log.v(TAG, "onClicked: actionId = " + actionId + ", extras = " + extras);
-        if (actionId == R.id.action_delete_meeting) {
-            mMeetings.delete(mMeeting.getId());
-        } else if (actionId == R.id.btn_stop_meeting) {
-            // The user has confirmed to delete the
-            // member.
-            stopMeeting();
-        }
+        if (actionId == R.id.action_delete_meeting) mMeetings.delete(mMeeting.getId());
+        else if (actionId == R.id.btn_stop_meeting) stopMeeting();
     }
 
     /**
@@ -315,8 +317,8 @@ public class MeetingActivity extends SherlockFragmentActivity implements ScrumCh
                 // Stop the whole meeting.
                 case R.id.btn_stop_meeting:
                     // Let's ask him if he's sure.
-                    ScrumChatterDialogFragmentFactory.showConfirmDialog(MeetingActivity.this, getString(R.string.action_stop_meeting),
-                            getString(R.string.dialog_confirm), R.id.btn_stop_meeting, null);
+                    DialogFragmentFactory.showConfirmDialog(MeetingActivity.this, getString(R.string.action_stop_meeting), getString(R.string.dialog_confirm),
+                            R.id.btn_stop_meeting, null);
                     break;
                 default:
                     break;

@@ -32,7 +32,6 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -44,9 +43,9 @@ import ca.rmen.android.scrumchatter.R;
 /**
  * A dialog fragment with an EditText for user text input.
  */
-public class ScrumChatterInputDialogFragment extends DialogFragment { // NO_UCD (use default)
+public class InputDialogFragment extends DialogFragment { // NO_UCD (use default)
 
-    private static final String TAG = Constants.TAG + "/" + ScrumChatterInputDialogFragment.class.getSimpleName();
+    private static final String TAG = Constants.TAG + "/" + InputDialogFragment.class.getSimpleName();
 
     private String mEnteredText;
 
@@ -61,70 +60,43 @@ public class ScrumChatterInputDialogFragment extends DialogFragment { // NO_UCD 
     /**
      * The activity owning this dialog fragment should implement this interface to be notified when the user submits entered text.
      */
-    public interface ScrumChatterDialogInputListener {
+    public interface DialogInputListener {
         void onInputEntered(int actionId, String input, Bundle extras);
     }
 
 
-    public ScrumChatterInputDialogFragment() {
+    public InputDialogFragment() {
         super();
-    }
-
-    @Override
-    public void onActivityCreated(Bundle bundle) {
-        Log.v(TAG, "onActivityCreated: bundle = " + bundle);
-        super.onActivityCreated(bundle);
-        if (bundle != null) mEnteredText = bundle.getString(ScrumChatterDialogFragmentFactory.EXTRA_ENTERED_TEXT);
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        Log.v(TAG, "onCreate: savedInstanceState = " + savedInstanceState);
-        super.onCreate(savedInstanceState);
-        if (savedInstanceState != null) mEnteredText = savedInstanceState.getString(ScrumChatterDialogFragmentFactory.EXTRA_ENTERED_TEXT);
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle bundle) {
-        Log.v(TAG, "onSaveInstanceState: bundle = " + bundle);
-        super.onSaveInstanceState(bundle);
-        bundle.putString(ScrumChatterDialogFragmentFactory.EXTRA_ENTERED_TEXT, mEnteredText);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.v(TAG, "onCreateView: savedInstanceState = " + savedInstanceState);
-        if (savedInstanceState != null) mEnteredText = savedInstanceState.getString(ScrumChatterDialogFragmentFactory.EXTRA_ENTERED_TEXT);
-        return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Log.v(TAG, "onCreateDialog: savedInstanceState = " + savedInstanceState);
-        if (savedInstanceState != null) mEnteredText = savedInstanceState.getString(ScrumChatterDialogFragmentFactory.EXTRA_ENTERED_TEXT);
+        if (savedInstanceState != null) mEnteredText = savedInstanceState.getString(DialogFragmentFactory.EXTRA_ENTERED_TEXT);
         Bundle arguments = getArguments();
-        final int actionId = arguments.getInt(ScrumChatterDialogFragmentFactory.EXTRA_ACTION_ID);
+        final int actionId = arguments.getInt(DialogFragmentFactory.EXTRA_ACTION_ID);
         final EditText input = new EditText(getActivity());
-        final Bundle extras = arguments.getBundle(ScrumChatterDialogFragmentFactory.EXTRA_EXTRAS);
-        final Class<?> inputValidatorClass = (Class<?>) arguments.getSerializable(ScrumChatterDialogFragmentFactory.EXTRA_INPUT_VALIDATOR_CLASS);
-        final String prefilledText = arguments.getString(ScrumChatterDialogFragmentFactory.EXTRA_ENTERED_TEXT);
+        final Bundle extras = arguments.getBundle(DialogFragmentFactory.EXTRA_EXTRAS);
+        final Class<?> inputValidatorClass = (Class<?>) arguments.getSerializable(DialogFragmentFactory.EXTRA_INPUT_VALIDATOR_CLASS);
+        final String prefilledText = arguments.getString(DialogFragmentFactory.EXTRA_ENTERED_TEXT);
         final Context context = getActivity().getApplicationContext();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(arguments.getString(ScrumChatterDialogFragmentFactory.EXTRA_TITLE));
+        builder.setTitle(arguments.getString(DialogFragmentFactory.EXTRA_TITLE));
         builder.setView(input);
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
-        input.setHint(arguments.getString(ScrumChatterDialogFragmentFactory.EXTRA_INPUT_HINT));
+        input.setHint(arguments.getString(DialogFragmentFactory.EXTRA_INPUT_HINT));
         input.setText(prefilledText);
         if (!TextUtils.isEmpty(mEnteredText)) input.setText(mEnteredText);
 
+        // Notify the activity of the click on the OK button.
         OnClickListener listener = null;
-        if ((getActivity() instanceof ScrumChatterDialogInputListener)) {
+        if ((getActivity() instanceof DialogInputListener)) {
             listener = new OnClickListener() {
 
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    ((ScrumChatterDialogInputListener) getActivity()).onInputEntered(actionId, input.getText().toString(), extras);
+                    ((DialogInputListener) getActivity()).onInputEntered(actionId, input.getText().toString(), extras);
                 }
             };
         }

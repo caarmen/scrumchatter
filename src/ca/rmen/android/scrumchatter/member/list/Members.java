@@ -29,8 +29,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
-import ca.rmen.android.scrumchatter.dialog.ScrumChatterDialogFragmentFactory;
-import ca.rmen.android.scrumchatter.dialog.ScrumChatterInputDialogFragment.InputValidator;
+import ca.rmen.android.scrumchatter.dialog.DialogFragmentFactory;
+import ca.rmen.android.scrumchatter.dialog.InputDialogFragment.InputValidator;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.team.Teams;
 
@@ -66,7 +66,7 @@ public class Members {
         Log.v(TAG, "createMember, teamId = " + teamId);
         Bundle extras = new Bundle(1);
         extras.putLong(Teams.EXTRA_TEAM_ID, teamId);
-        ScrumChatterDialogFragmentFactory.showInputDialog(mActivity, mActivity.getString(R.string.action_new_member),
+        DialogFragmentFactory.showInputDialog(mActivity, mActivity.getString(R.string.action_new_member),
                 mActivity.getString(R.string.hint_new_member), null, MemberNameValidator.class, R.id.action_new_member, extras);
     }
 
@@ -100,7 +100,7 @@ public class Members {
         // Let's ask him if he's sure.
         Bundle extras = new Bundle(1);
         extras.putLong(EXTRA_MEMBER_ID, member.id);
-        ScrumChatterDialogFragmentFactory.showConfirmDialog(mActivity, mActivity.getString(R.string.action_delete_member),
+        DialogFragmentFactory.showConfirmDialog(mActivity, mActivity.getString(R.string.action_delete_member),
                 mActivity.getString(R.string.dialog_message_delete_member_confirm, member.name), R.id.btn_delete, extras);
     }
 
