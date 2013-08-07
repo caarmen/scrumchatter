@@ -177,6 +177,7 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
         protected void onPostExecute(Meeting result) {
             if (result == null) {
                 Log.w(TAG, "Could not load meeting, are you a monkey?");
+                finish();
                 return;
             }
             mMeeting = result;

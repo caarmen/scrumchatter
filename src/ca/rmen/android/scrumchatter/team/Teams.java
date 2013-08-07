@@ -18,6 +18,8 @@
  */
 package ca.rmen.android.scrumchatter.team;
 
+import java.util.Arrays;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -52,6 +54,12 @@ public class Teams {
             this.teamUri = teamUri;
             this.teamName = teamName;
         }
+
+        @Override
+        public String toString() {
+            return "Team [teamUri=" + teamUri + ", teamName=" + teamName + "]";
+        }
+
     };
 
     public Teams(FragmentActivity activity) {
@@ -64,6 +72,7 @@ public class Teams {
      * @param team the current team being used.
      */
     public void selectTeam(final Team team) {
+        Log.v(TAG, "selectTeam " + team);
         AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
             CharSequence[] mTeamNames = null;
             int mSelectedTeam = -1;
@@ -113,6 +122,7 @@ public class Teams {
      * Upon selecting a team, update the shared preference for the selected team.
      */
     public void switchTeam(CharSequence[] teamNames, int selectedTeam) {
+        Log.v(TAG, "switchTeam " + Arrays.toString(teamNames) + ", selectedTeam = " + selectedTeam);
         // The user clicked on the "new team" item.
         if (selectedTeam == teamNames.length - 1) {
             promptCreateTeam();
@@ -151,11 +161,13 @@ public class Teams {
      * Show a dialog with a text input for the new team name. Validate that the team doesn't already exist. Upon pressing "OK", create the team.
      */
     private void promptCreateTeam() {
-        DialogFragmentFactory.showInputDialog(mActivity, mActivity.getString(R.string.action_new_team),
-                mActivity.getString(R.string.hint_team_name), null, TeamNameValidator.class, R.id.action_team, null);
+        Log.v(TAG, "promptCreateTeam");
+        DialogFragmentFactory.showInputDialog(mActivity, mActivity.getString(R.string.action_new_team), mActivity.getString(R.string.hint_team_name), null,
+                TeamNameValidator.class, R.id.action_team, null);
     }
 
     public void createTeam(final String teamName) {
+        Log.v(TAG, "createTeam, name=" + teamName);
         // Ignore an empty name.
         if (!TextUtils.isEmpty(teamName)) {
             // Create the new team in a background thread.
@@ -181,17 +193,19 @@ public class Teams {
      * existing team. Upon pressing ok, rename the current team.
      */
     public void promptRenameTeam(final Team team) {
+        Log.v(TAG, "promptRenameTeam, team=" + team);
         if (team != null) {
             // Show a dialog to input a new team name for the current team.
             Bundle extras = new Bundle(1);
             extras.putParcelable(EXTRA_TEAM_URI, team.teamUri);
             extras.putString(EXTRA_TEAM_NAME, team.teamName);
-            DialogFragmentFactory.showInputDialog(mActivity, mActivity.getString(R.string.action_team_rename),
-                    mActivity.getString(R.string.hint_team_name), team.teamName, TeamNameValidator.class, R.id.action_team_rename, extras);
+            DialogFragmentFactory.showInputDialog(mActivity, mActivity.getString(R.string.action_team_rename), mActivity.getString(R.string.hint_team_name),
+                    team.teamName, TeamNameValidator.class, R.id.action_team_rename, extras);
         }
     }
 
     public void renameTeam(final Uri teamUri, final String teamName) {
+        Log.v(TAG, "renameTeam, uri = " + teamUri + ", name = " + teamName);
 
         // Ignore an empty name.
         if (!TextUtils.isEmpty(teamName)) {
@@ -214,6 +228,7 @@ public class Teams {
      * Shows a confirmation dialog to the user to delete a team.
      */
     public void confirmDeleteTeam(final Team team) {
+        Log.v(TAG, "confirmDeleteTeam, team = " + team);
 
         AsyncTask<Void, Void, Integer> task = new AsyncTask<Void, Void, Integer>() {
 
@@ -244,6 +259,7 @@ public class Teams {
      * Deletes the team and all its members from the DB.
      */
     public void deleteTeam(final Uri teamUri) {
+        Log.v(TAG, "deleteTeam, uri = " + teamUri);
         AsyncTask<Void, Void, Void> deleteTask = new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
@@ -262,6 +278,7 @@ public class Teams {
      * Select the first team in our DB.
      */
     public void selectFirstTeam() {
+        Log.v(TAG, "selectFirstTeam");
         Cursor c = mActivity.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { TeamColumns._ID }, null, null, null);
         if (c != null) {
             try {

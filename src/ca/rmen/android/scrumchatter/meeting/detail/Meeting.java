@@ -61,6 +61,7 @@ public class Meeting {
      * Read an existing meeting from the DB.
      */
     public static Meeting read(Context context, long id) {
+        Log.v(TAG, "read meeting with id " + id);
         // Read the meeting attributes from the DB 
         Uri uri = Uri.withAppendedPath(MeetingColumns.CONTENT_URI, String.valueOf(id));
         Cursor meetingCursor = context.getContentResolver().query(uri, null, null, null, null);
@@ -169,6 +170,7 @@ public class Meeting {
      * the duration for these team members.
      */
     private void shutEverybodyUp() {
+        Log.v(TAG, "shutEverybodyUp");
         // Query all team members who are still talking in this meeting.
         Uri uri = Uri.withAppendedPath(MeetingMemberColumns.CONTENT_URI, String.valueOf(mId));
         Cursor cursor = mContext.getContentResolver().query(uri,
@@ -251,6 +253,7 @@ public class Meeting {
      * Delete this meeting from the DB
      */
     public void delete() {
+        Log.v(TAG, "delete " + this);
         mContext.getContentResolver().delete(mUri, null, null);
     }
 
@@ -258,6 +261,7 @@ public class Meeting {
      * Update this meeting in the DB.
      */
     private void save() {
+        Log.v(TAG, "save " + this);
         ContentValues values = new ContentValues(3);
         values.put(MeetingColumns.STATE, mState.ordinal());
         values.put(MeetingColumns.MEETING_DATE, mStartDate);

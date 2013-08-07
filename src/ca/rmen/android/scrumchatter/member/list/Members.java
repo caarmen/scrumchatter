@@ -66,14 +66,15 @@ public class Members {
         Log.v(TAG, "createMember, teamId = " + teamId);
         Bundle extras = new Bundle(1);
         extras.putLong(Teams.EXTRA_TEAM_ID, teamId);
-        DialogFragmentFactory.showInputDialog(mActivity, mActivity.getString(R.string.action_new_member),
-                mActivity.getString(R.string.hint_new_member), null, MemberNameValidator.class, R.id.action_new_member, extras);
+        DialogFragmentFactory.showInputDialog(mActivity, mActivity.getString(R.string.action_new_member), mActivity.getString(R.string.hint_new_member), null,
+                MemberNameValidator.class, R.id.action_new_member, extras);
     }
 
     /**
      * Adds a member with the given name to the given team, in the DB.
      */
     public void createMember(final long teamId, final String memberName) {
+        Log.v(TAG, "createMember, teamId=" + teamId + ", memberName=" + memberName);
         // Ignore an empty name.
         if (!TextUtils.isEmpty(memberName)) {
             // Create the new member in a background thread.
@@ -97,6 +98,7 @@ public class Members {
      * Shows a confirmation dialog to the user, to delete a member.
      */
     void confirmDeleteMember(final Member member) {
+        Log.v(TAG, "confirm delete member " + member);
         // Let's ask him if he's sure.
         Bundle extras = new Bundle(1);
         extras.putLong(EXTRA_MEMBER_ID, member.id);
@@ -108,6 +110,7 @@ public class Members {
      * Marks a member as deleted.
      */
     public void deleteMember(final long memberId) {
+        Log.v(TAG, "delete member " + memberId);
 
         // Delete the member in a background thread
         AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {

@@ -89,7 +89,7 @@ public class Meetings {
      * Shows a confirmation dialog to delete the given meeting.
      */
     public void confirmDelete(final Meeting meeting) {
-        Log.v(TAG, "delete meeting: " + meeting);
+        Log.v(TAG, "confirm delete meeting: " + meeting);
         // Let's ask him if he's sure first.
         Bundle extras = new Bundle(1);
         extras.putLong(EXTRA_MEETING_ID, meeting.getId());
@@ -102,13 +102,17 @@ public class Meetings {
      * Deletes the given meeting from the DB.
      */
     public void delete(final long meetingId) {
-        // Delete the meeting in a background
-        // thread.
+        Log.v(TAG, "delete meeting " + meetingId);
+        // Delete the meeting in a background thread.
         AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
 
             @Override
             protected Void doInBackground(Void... params) {
                 Meeting meeting = Meeting.read(mActivity, meetingId);
+                if (meeting == null) {
+                    Log.v(TAG, "Tried to delete non-existing meeting " + meetingId);
+                    return null;
+                }
                 meeting.delete();
                 return null;
             }
@@ -121,6 +125,7 @@ public class Meetings {
      * Read the data for the given meeting, then show an intent chooser to export this data as text.
      */
     public void export(long meetingId) {
+        Log.v(TAG, "export meeting " + meetingId);
         // Export the meeting in a background thread.
         AsyncTask<Long, Void, Boolean> asyncTask = new AsyncTask<Long, Void, Boolean>() {
 
