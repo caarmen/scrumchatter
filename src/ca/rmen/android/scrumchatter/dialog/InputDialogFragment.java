@@ -147,6 +147,13 @@ public class InputDialogFragment extends DialogFragment { // NO_UCD (use default
         return dialog;
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle bundle) {
+        Log.v(TAG, "onSaveInstanceState: bundle = " + bundle);
+        bundle.putString(DialogFragmentFactory.EXTRA_ENTERED_TEXT, mEnteredText);
+        super.onSaveInstanceState(bundle);
+    }
+
     /**
      * Invoke the input validator in a background thread. If the validator returns an error, the given edit text will be updated with the error in a tooltip.
      */
