@@ -33,6 +33,7 @@ import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.dialog.ConfirmDialogFragment.DialogButtonListener;
 import ca.rmen.android.scrumchatter.dialog.DialogFragmentFactory;
 import ca.rmen.android.scrumchatter.meeting.Meetings;
+import ca.rmen.android.scrumchatter.meeting.detail.MeetingLoaderFragment.MeetingLoaderListener;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.util.TextUtils;
 
@@ -44,9 +45,12 @@ import com.actionbarsherlock.view.MenuItem;
  * Displays attributes of a meeting as well as the team members participating in
  * this meeting.
  */
-public class MeetingActivity extends SherlockFragmentActivity implements DialogButtonListener {
+public class MeetingActivity extends SherlockFragmentActivity implements DialogButtonListener, MeetingLoaderListener {
 
     private static final String TAG = Constants.TAG + "/" + MeetingActivity.class.getSimpleName();
+
+    private static final String LOADER_FRAGMENT_TAG = "loader_fragment";
+    private MeetingLoaderFragment mMeetingLoaderFragment;
 
     private View mBtnStopMeeting;
     private View mProgressBarHeader;
@@ -68,8 +72,13 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
 
         mBtnStopMeeting.setOnClickListener(mOnClickListener);
 
-        mLoadMeetingAsyncTask.execute();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        mMeetingLoaderFragment = (MeetingLoaderFragment) getSupportFragmentManager().findFragmentByTag(LOADER_FRAGMENT_TAG);
+        if (mMeetingLoaderFragment == null) {
+            mMeetingLoaderFragment = new MeetingLoaderFragment();
+            mMeetingLoaderFragment.setRetainInstance(true);
+            getSupportFragmentManager().beginTransaction().add(mMeetingLoaderFragment, LOADER_FRAGMENT_TAG).commit();
+        }
     }
 
     @Override
@@ -88,7 +97,6 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
     protected void onPause() {
         Log.v(TAG, "onPause");
         getContentResolver().unregisterContentObserver(mMeetingObserver);
-        mLoadMeetingAsyncTask.cancel(true);
         super.onPause();
     }
 
@@ -97,20 +105,6 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
         Log.v(TAG, "onResume");
         super.onResume();
         if (mMeeting != null) getContentResolver().registerContentObserver(mMeeting.getUri(), false, mMeetingObserver);
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        Log.v(TAG, "onSaveInstanceState: outState = " + outState);
-        super.onSaveInstanceState(outState);
-        if (mMeeting != null) outState.putLong(Meetings.EXTRA_MEETING_ID, mMeeting.getId());
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        Log.v(TAG, "onRestoreInstanceState: savedInstanceState = " + savedInstanceState);
-        super.onRestoreInstanceState(savedInstanceState);
-        getIntent().putExtra(Meetings.EXTRA_MEETING_ID, savedInstanceState.getLong(Meetings.EXTRA_MEETING_ID));
     }
 
     @Override
@@ -157,50 +151,36 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
         else if (actionId == R.id.btn_stop_meeting) stopMeeting();
     }
 
-    /**
-     * Extract the meeting id from the intent and load the meeting data into the
-     * activity.
-     */
-    private AsyncTask<Void, Void, Meeting> mLoadMeetingAsyncTask = new AsyncTask<Void, Void, Meeting>() {
 
-        @Override
-        protected Meeting doInBackground(Void... params) {
-            long meetingId = getIntent().getLongExtra(Meetings.EXTRA_MEETING_ID, -1);
-            final Meeting meeting;
-            if (meetingId == -1) meeting = Meeting.createNewMeeting(MeetingActivity.this);
-            else
-                meeting = Meeting.read(MeetingActivity.this, meetingId);
-            return meeting;
+    @Override
+    public void onMeetingLoaded(Meeting result) {
+        Log.v(TAG, "onMeetingLoaded: result =" + result);
+        if (result == null) {
+            Log.w(TAG, "Could not load meeting, are you a monkey?");
+            finish();
+            return;
         }
-
-        @Override
-        protected void onPostExecute(Meeting result) {
-            if (result == null) {
-                Log.w(TAG, "Could not load meeting, are you a monkey?");
-                finish();
-                return;
-            }
-            mMeeting = result;
-            getContentResolver().registerContentObserver(mMeeting.getUri(), false, mMeetingObserver);
-            if (mMeeting.getState() == State.IN_PROGRESS) {
-                // If the meeting is in progress, show the Chronometer.
-                long timeSinceMeetingStartedMillis = System.currentTimeMillis() - mMeeting.getStartDate();
-                mMeetingChronometer.setBase(SystemClock.elapsedRealtime() - timeSinceMeetingStartedMillis);
-                mMeetingChronometer.start();
-            } else if (mMeeting.getState() == State.FINISHED) {
-                // For finished meetings, show the duration we retrieved
-                // from the
-                // db.
-                mMeetingChronometer.setText(DateUtils.formatElapsedTime(mMeeting.getDuration()));
-            }
-            getSupportActionBar().setTitle(TextUtils.formatDateTime(MeetingActivity.this, mMeeting.getStartDate()));
-            onMeetingChanged();
-
-            // Load the list of team members.
-            MeetingFragment fragment = (MeetingFragment) getSupportFragmentManager().findFragmentById(R.id.meeting_fragment);
-            fragment.loadMeeting(mMeeting.getId(), mMeeting.getState(), mOnClickListener);
+        mMeeting = result;
+        getContentResolver().registerContentObserver(mMeeting.getUri(), false, mMeetingObserver);
+        if (mMeeting.getState() == State.IN_PROGRESS) {
+            // If the meeting is in progress, show the Chronometer.
+            long timeSinceMeetingStartedMillis = System.currentTimeMillis() - mMeeting.getStartDate();
+            mMeetingChronometer.setBase(SystemClock.elapsedRealtime() - timeSinceMeetingStartedMillis);
+            mMeetingChronometer.start();
+        } else if (mMeeting.getState() == State.FINISHED) {
+            // For finished meetings, show the duration we retrieved
+            // from the
+            // db.
+            mMeetingChronometer.setText(DateUtils.formatElapsedTime(mMeeting.getDuration()));
         }
-    };
+        getSupportActionBar().setTitle(TextUtils.formatDateTime(MeetingActivity.this, mMeeting.getStartDate()));
+        onMeetingChanged();
+
+        // Load the list of team members.
+        MeetingFragment fragment = (MeetingFragment) getSupportFragmentManager().findFragmentById(R.id.meeting_fragment);
+        fragment.loadMeeting(mMeeting.getId(), mMeeting.getState(), mOnClickListener);
+    }
+
 
     /**
      * Update UI components based on the meeting state.
