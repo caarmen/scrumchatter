@@ -347,6 +347,7 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
 
         @Override
         public Meeting loadInBackground() {
+            Log.v(TAG, "loadInBackground");
             final Meeting meeting;
             if (mMeetingId == -1) meeting = Meeting.createNewMeeting(getContext());
             else
