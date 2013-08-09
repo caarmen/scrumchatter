@@ -20,12 +20,15 @@ package ca.rmen.android.scrumchatter.dialog;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import ca.rmen.android.scrumchatter.Constants;
+import ca.rmen.android.scrumchatter.R;
 
 /**
  * A dialog fragment with a list of choices.
@@ -51,7 +54,8 @@ public class ChoiceDialogFragment extends DialogFragment { // NO_UCD (use defaul
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Log.v(TAG, "onCreateDialog: savedInstanceState = " + savedInstanceState);
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        Context context = new ContextThemeWrapper(getActivity(), R.style.dialogStyle);
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
         Bundle arguments = getArguments();
         builder.setTitle(arguments.getString(DialogFragmentFactory.EXTRA_TITLE));
         final int actionId = arguments.getInt(DialogFragmentFactory.EXTRA_ACTION_ID);

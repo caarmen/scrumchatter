@@ -20,10 +20,13 @@ package ca.rmen.android.scrumchatter.dialog;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import ca.rmen.android.scrumchatter.Constants;
+import ca.rmen.android.scrumchatter.R;
 
 /**
  * Shows a dialog with a title, message, and a single button to dismiss the dialog.
@@ -42,10 +45,11 @@ public class InfoDialogFragment extends DialogFragment { // NO_UCD (use default)
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Log.v(TAG, "onCreateDialog: savedInstanceState = " + savedInstanceState);
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        Context context = new ContextThemeWrapper(getActivity(), R.style.dialogStyle);
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
         Bundle arguments = getArguments();
-        builder.setTitle(arguments.getString(DialogFragmentFactory.EXTRA_TITLE))
-                .setMessage(arguments.getString(DialogFragmentFactory.EXTRA_MESSAGE)).setNeutralButton(android.R.string.ok, null);
+        builder.setTitle(arguments.getString(DialogFragmentFactory.EXTRA_TITLE)).setMessage(arguments.getString(DialogFragmentFactory.EXTRA_MESSAGE))
+                .setNeutralButton(android.R.string.ok, null);
         final AlertDialog dialog = builder.create();
         DialogStyleHacks.styleDialog(getActivity(), dialog);
         return dialog;

@@ -22,6 +22,7 @@ import java.lang.reflect.Field;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnShowListener;
@@ -68,7 +69,7 @@ class DialogStyleHacks {
                     ListView listView = dialog.getListView();
                     if (listView != null) listView.setSelector(R.drawable.selector);
                 }
-                DialogStyleHacks.uglyHackReplaceBlueHoloBackground(context, (ViewGroup) dialog.getWindow().getDecorView());
+                DialogStyleHacks.uglyHackReplaceBlueHoloBackground(context, (ViewGroup) dialog.getWindow().getDecorView(), dialog);
             }
         });
     }
@@ -79,12 +80,12 @@ class DialogStyleHacks {
      * For 3.x, the horizontal divider is a nine patch image "divider_strong_holo".
      * For 4.x, the horizontal divider is a holo color.
      */
-    static void uglyHackReplaceBlueHoloBackground(Context context, ViewGroup viewGroup) {
+    static void uglyHackReplaceBlueHoloBackground(Context context, ViewGroup viewGroup, AlertDialog dialog) {
         int childCount = viewGroup.getChildCount();
         for (int i = 0; i < childCount; i++) {
             View child = viewGroup.getChildAt(i);
             if (child instanceof ViewGroup) {
-                uglyHackReplaceBlueHoloBackground(context, (ViewGroup) child);
+                uglyHackReplaceBlueHoloBackground(context, (ViewGroup) child, dialog);
             }
             // 2.x and 3.x: replace the nine patch
             else if (child instanceof ImageView) {
@@ -94,7 +95,8 @@ class DialogStyleHacks {
                     if (isHoloBlueNinePatch((NinePatchDrawable) drawable)) {
                         imageView.setImageResource(R.drawable.divider_strong_scrum_chatter);
                         // On 2.x, in a dialog with a list, the divider is hidden.  Let's show it.
-                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) imageView.setVisibility(View.VISIBLE);
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB && !(dialog instanceof ProgressDialog))
+                            imageView.setVisibility(View.VISIBLE);
                     }
                 }
             }

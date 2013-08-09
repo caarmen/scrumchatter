@@ -293,10 +293,10 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
     /**
      * Loads the meeting for the given meeting id. If the meeting id is -1, a new meeting is created.
      */
-    public static class MeetingLoaderTask extends AsyncTaskLoader<Meeting> {
+    private static class MeetingLoaderTask extends AsyncTaskLoader<Meeting> {
         private long mMeetingId;
 
-        public MeetingLoaderTask(Context context, long meetingId) {
+        private MeetingLoaderTask(Context context, long meetingId) {
             super(context);
             mMeetingId = meetingId;
         }

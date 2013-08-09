@@ -32,6 +32,7 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -79,9 +80,9 @@ public class InputDialogFragment extends DialogFragment { // NO_UCD (use default
         final Bundle extras = arguments.getBundle(DialogFragmentFactory.EXTRA_EXTRAS);
         final Class<?> inputValidatorClass = (Class<?>) arguments.getSerializable(DialogFragmentFactory.EXTRA_INPUT_VALIDATOR_CLASS);
         final String prefilledText = arguments.getString(DialogFragmentFactory.EXTRA_ENTERED_TEXT);
-        final Context context = getActivity().getApplicationContext();
+        final Context context = new ContextThemeWrapper(getActivity(), R.style.dialogStyle);
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(arguments.getString(DialogFragmentFactory.EXTRA_TITLE));
         builder.setView(input);
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
@@ -136,7 +137,7 @@ public class InputDialogFragment extends DialogFragment { // NO_UCD (use default
                 @Override
                 public void onShow(DialogInterface dialogInterface) {
                     Log.v(TAG, "onShow");
-                    DialogStyleHacks.uglyHackReplaceBlueHoloBackground(getActivity(), (ViewGroup) dialog.getWindow().getDecorView());
+                    DialogStyleHacks.uglyHackReplaceBlueHoloBackground(getActivity(), (ViewGroup) dialog.getWindow().getDecorView(), dialog);
                     validateText(context, dialog, input, validator, actionId, extras);
                 }
             });
