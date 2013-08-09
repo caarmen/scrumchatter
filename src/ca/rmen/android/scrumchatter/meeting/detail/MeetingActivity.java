@@ -18,11 +18,15 @@
  */
 package ca.rmen.android.scrumchatter.meeting.detail;
 
+import android.content.Context;
 import android.database.ContentObserver;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.app.NavUtils;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
@@ -33,7 +37,6 @@ import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.dialog.ConfirmDialogFragment.DialogButtonListener;
 import ca.rmen.android.scrumchatter.dialog.DialogFragmentFactory;
 import ca.rmen.android.scrumchatter.meeting.Meetings;
-import ca.rmen.android.scrumchatter.meeting.detail.MeetingLoaderFragment.MeetingLoaderListener;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.util.TextUtils;
 
@@ -45,12 +48,11 @@ import com.actionbarsherlock.view.MenuItem;
  * Displays attributes of a meeting as well as the team members participating in
  * this meeting.
  */
-public class MeetingActivity extends SherlockFragmentActivity implements DialogButtonListener, MeetingLoaderListener {
+public class MeetingActivity extends SherlockFragmentActivity implements DialogButtonListener/*, MeetingLoaderListener*/{
 
     private static final String TAG = Constants.TAG + "/" + MeetingActivity.class.getSimpleName();
 
-    private static final String LOADER_FRAGMENT_TAG = "loader_fragment";
-    private MeetingLoaderFragment mMeetingLoaderFragment;
+    private static final int LOADER_ID = MeetingLoaderTask.class.hashCode();
 
     private View mBtnStopMeeting;
     private View mProgressBarHeader;
@@ -73,12 +75,10 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
         mBtnStopMeeting.setOnClickListener(mOnClickListener);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        mMeetingLoaderFragment = (MeetingLoaderFragment) getSupportFragmentManager().findFragmentByTag(LOADER_FRAGMENT_TAG);
-        if (mMeetingLoaderFragment == null) {
-            mMeetingLoaderFragment = new MeetingLoaderFragment();
-            mMeetingLoaderFragment.setRetainInstance(true);
-            getSupportFragmentManager().beginTransaction().add(mMeetingLoaderFragment, LOADER_FRAGMENT_TAG).commit();
-        }
+        Bundle args = new Bundle(1);
+        long meetingId = getIntent().getLongExtra(Meetings.EXTRA_MEETING_ID, -1);
+        args.putLong(Meetings.EXTRA_MEETING_ID, meetingId);
+        getSupportLoaderManager().initLoader(LOADER_ID, args, mLoaderCallbacks);
     }
 
     @Override
@@ -152,7 +152,6 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
     }
 
 
-    @Override
     public void onMeetingLoaded(Meeting result) {
         Log.v(TAG, "onMeetingLoaded: result =" + result);
         if (result == null) {
@@ -333,6 +332,50 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
 
             };
             task.execute(mMeeting.getId());
+        }
+
+    };
+
+    public static class MeetingLoaderTask extends AsyncTaskLoader<Meeting> {
+
+        private long mMeetingId;
+
+        public MeetingLoaderTask(Context context, long meetingId) {
+            super(context);
+            mMeetingId = meetingId;
+        }
+
+        @Override
+        public Meeting loadInBackground() {
+            final Meeting meeting;
+            if (mMeetingId == -1) meeting = Meeting.createNewMeeting(getContext());
+            else
+                meeting = Meeting.read(getContext(), mMeetingId);
+            return meeting;
+        }
+
+    };
+
+    private LoaderCallbacks<Meeting> mLoaderCallbacks = new LoaderCallbacks<Meeting>() {
+
+        @Override
+        public Loader<Meeting> onCreateLoader(int id, Bundle args) {
+            long meetingId = args.getLong(Meetings.EXTRA_MEETING_ID, -1);
+            Log.v(TAG, "onCreateLoader, meetingId = " + meetingId);
+            MeetingLoaderTask loaderTask = new MeetingLoaderTask(MeetingActivity.this, meetingId);
+            loaderTask.forceLoad();
+            return loaderTask;
+        }
+
+        @Override
+        public void onLoadFinished(Loader<Meeting> loaderTask, Meeting meeting) {
+            Log.v(TAG, "onLoadFinished, meeting = " + meeting);
+            onMeetingLoaded(meeting);
+        }
+
+        @Override
+        public void onLoaderReset(Loader<Meeting> meeting) {
+            Log.v(TAG, "onLoaderReset: meeting = " + meeting);
         }
 
     };
