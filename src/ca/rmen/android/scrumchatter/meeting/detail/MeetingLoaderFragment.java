@@ -32,7 +32,8 @@ import ca.rmen.android.scrumchatter.meeting.Meetings;
 public class MeetingLoaderFragment extends Fragment { // NO_UCD (use default)
 
     private static final String TAG = Constants.TAG + "/" + MeetingLoaderFragment.class.getSimpleName();
-    private Meeting mMeeting = null;
+    private MeetingLoaderTask mLoadMeetingTask;
+    private long mMeetingId = -1;
 
     interface MeetingLoaderListener {
         void onMeetingLoaded(Meeting meeting);
@@ -48,24 +49,21 @@ public class MeetingLoaderFragment extends Fragment { // NO_UCD (use default)
         Log.v(TAG, "onActivityCreated: activity = " + getActivity());
         // If we already loaded the meeting, return it
         final FragmentActivity activity = getActivity();
-        if (mMeeting != null) {
-            if (activity instanceof MeetingLoaderListener) ((MeetingLoaderListener) activity).onMeetingLoaded(mMeeting);
+        if (mLoadMeetingTask != null && mLoadMeetingTask.getStatus() != AsyncTask.Status.FINISHED) {
+            Log.v(TAG, "Already loading meeting.  Ignoring");
             return;
         }
         // If we're not already loading a meeting, load it
-        if (mLoadMeetingTask.getStatus() == AsyncTask.Status.PENDING) {
-            final long meetingId = activity.getIntent().getLongExtra(Meetings.EXTRA_MEETING_ID, -1);
-            mLoadMeetingTask.execute(meetingId);
-        } else {
-            Log.v(TAG, "Already loading meeting. Ignoring.");
-        }
+        mLoadMeetingTask = new MeetingLoaderTask();
+        if (mMeetingId == -1) mMeetingId = activity.getIntent().getLongExtra(Meetings.EXTRA_MEETING_ID, -1);
+        mLoadMeetingTask.execute(mMeetingId);
     }
 
     /**
      * Extract the meeting id from the intent and load the meeting data into the
      * activity.
      */
-    private AsyncTask<Long, Void, Meeting> mLoadMeetingTask = new AsyncTask<Long, Void, Meeting>() {
+    private class MeetingLoaderTask extends AsyncTask<Long, Void, Meeting> {
 
         @Override
         protected Meeting doInBackground(Long... params) {
@@ -82,7 +80,7 @@ public class MeetingLoaderFragment extends Fragment { // NO_UCD (use default)
 
         @Override
         protected void onPostExecute(Meeting result) {
-            mMeeting = result;
+            mMeetingId = result.getId();
             FragmentActivity activity = getActivity();
             if (activity instanceof MeetingLoaderListener) ((MeetingLoaderListener) activity).onMeetingLoaded(result);
         }
