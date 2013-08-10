@@ -163,7 +163,9 @@ public class ScrumChatterProvider extends ContentProvider {
         }
         if (rowId != -1 && !db.inTransaction()) notifyChange(uri);
 
-        return uri.buildUpon().appendEncodedPath(String.valueOf(rowId)).build();
+        Uri result = uri.buildUpon().appendEncodedPath(String.valueOf(rowId)).build();
+        Log.v(TAG, "Created row with uri " + result);
+        return result;
     }
 
     @Override
