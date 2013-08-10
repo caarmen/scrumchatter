@@ -109,6 +109,7 @@ public class MeetingsListFragment extends SherlockListFragment {
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
+        Log.v(TAG, "onListItemClick, position=" + position + ", id" + id);
         super.onListItemClick(l, v, position, id);
         // The user clicked on the meeting. Let's go to the
         // details of that meeting.
@@ -150,6 +151,7 @@ public class MeetingsListFragment extends SherlockListFragment {
 
         @Override
         public void onClick(View v) {
+            Log.v(TAG, "onClick: view = " + v);
             final Meeting meeting = (Meeting) v.getTag();
             switch (v.getId()) {
             // The user wants to delete a meeting
