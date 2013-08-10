@@ -156,6 +156,12 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
     }
 
     @Override
+    protected void onResume() {
+        Log.v(TAG, "onResume");
+        super.onResume();
+    }
+
+    @Override
     protected void onResumeFragments() {
         Log.v(TAG, "onResumeFragments: intent = " + getIntent());
         super.onResumeFragments();
