@@ -19,12 +19,16 @@
 package ca.rmen.android.scrumchatter.provider;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 import android.content.ContentProvider;
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.ContentValues;
+import android.content.OperationApplicationException;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteCursor;
@@ -131,14 +135,15 @@ public class ScrumChatterProvider extends ContentProvider {
     public Uri insert(Uri uri, ContentValues values) {
         Log.d(TAG, "insert uri=" + uri + " values=" + values);
         final String table = uri.getLastPathSegment();
-        final long rowId = mScrumChatterDatabase.getWritableDatabase().insert(table, null, values);
+        SQLiteDatabase db = mScrumChatterDatabase.getWritableDatabase();
+        final long rowId = db.insert(table, null, values);
         // When we insert a row into the meeting table, we have to add
         // all existing members to this meeting. To do this, we create
         // one row for each member into the meeting_member table for this team.
         if (table.equals(MeetingColumns.TABLE_NAME)) {
             int teamId = values.getAsInteger(MeetingColumns.TEAM_ID);
-            Cursor members = mScrumChatterDatabase.getReadableDatabase().query(MemberColumns.TABLE_NAME, new String[] { MemberColumns._ID },
-                    MemberColumns.TEAM_ID + "=? AND " + MemberColumns.DELETED + "=0 ", new String[] { String.valueOf(teamId) }, null, null, null);
+            Cursor members = db.query(MemberColumns.TABLE_NAME, new String[] { MemberColumns._ID }, MemberColumns.TEAM_ID + "=? AND " + MemberColumns.DELETED
+                    + "=0 ", new String[] { String.valueOf(teamId) }, null, null, null);
             if (members != null) {
                 ContentValues[] newMeetingMembers = new ContentValues[members.getCount()];
                 if (members.moveToFirst()) {
@@ -156,7 +161,7 @@ public class ScrumChatterProvider extends ContentProvider {
                 members.close();
             }
         }
-        if (rowId != -1) notifyChange(uri, table);
+        if (rowId != -1 && !db.inTransaction()) notifyChange(uri);
 
         return uri.buildUpon().appendEncodedPath(String.valueOf(rowId)).build();
     }
@@ -179,7 +184,7 @@ public class ScrumChatterProvider extends ContentProvider {
         } finally {
             db.endTransaction();
         }
-        if (res != 0) notifyChange(uri, table);
+        if (res != 0 && !db.inTransaction()) notifyChange(uri);
 
         return res;
     }
@@ -188,8 +193,9 @@ public class ScrumChatterProvider extends ContentProvider {
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         StatementParams params = getStatementParams(uri, selection);
         Log.d(TAG, "update uri=" + uri + " values=" + values + " selection=" + selection + ", selectionArgs = " + Arrays.toString(selectionArgs));
-        final int res = mScrumChatterDatabase.getWritableDatabase().update(params.table, values, params.selection, selectionArgs);
-        if (res != 0) notifyChange(uri, params.table);
+        SQLiteDatabase db = mScrumChatterDatabase.getWritableDatabase();
+        final int res = db.update(params.table, values, params.selection, selectionArgs);
+        if (res != 0 && !db.inTransaction()) notifyChange(uri);
         return res;
     }
 
@@ -197,8 +203,9 @@ public class ScrumChatterProvider extends ContentProvider {
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         Log.d(TAG, "delete uri=" + uri + " selection=" + selection);
         StatementParams params = getStatementParams(uri, selection);
-        final int res = mScrumChatterDatabase.getWritableDatabase().delete(params.table, params.selection, selectionArgs);
-        if (res != 0) notifyChange(uri, params.table);
+        SQLiteDatabase db = mScrumChatterDatabase.getWritableDatabase();
+        final int res = db.delete(params.table, params.selection, selectionArgs);
+        if (res != 0 && !db.inTransaction()) notifyChange(uri);
         return res;
     }
 
@@ -225,6 +232,33 @@ public class ScrumChatterProvider extends ContentProvider {
     }
 
     /**
+     * Perform all operations in a single transaction and notify all relevant URIs at the end. The {@link MemberStatsColumns#CONTENT_URI} uri is always notified
+     * for a successful transaction.
+     * 
+     * @see android.content.ContentProvider#applyBatch(java.util.ArrayList)
+     */
+    @Override
+    public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations) throws OperationApplicationException {
+        Log.v(TAG, "applyBatch: " + operations);
+        Set<Uri> urisToNotify = new HashSet<Uri>();
+        for (ContentProviderOperation operation : operations)
+            urisToNotify.add(operation.getUri());
+        urisToNotify.add(MemberStatsColumns.CONTENT_URI);
+        Log.v(TAG, "applyBatch: will notify these uris after persisting: " + urisToNotify);
+        SQLiteDatabase db = mScrumChatterDatabase.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            ContentProviderResult[] result = super.applyBatch(operations);
+            db.setTransactionSuccessful();
+            for (Uri uri : urisToNotify)
+                notifyChange(uri);
+            return result;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    /**
      * Log the query of the given cursor.
      * 
      * @param cursor
@@ -241,9 +275,9 @@ public class ScrumChatterProvider extends ContentProvider {
         }
     }
 
-    private void notifyChange(Uri uri, String table) {
+    private void notifyChange(Uri uri) {
         String notify = uri.getQueryParameter(QUERY_NOTIFY);
-        Log.v(TAG, "notifyChange: uri = " + uri + ", table = " + table + ", notify = " + notify);
+        Log.v(TAG, "notifyChange: uri = " + uri + ", notify = " + notify);
         if (notify == null || "true".equals(notify)) {
             // Notify the uri which changed.
             Set<Uri> urisToNotify = new HashSet<Uri>();
@@ -255,19 +289,19 @@ public class ScrumChatterProvider extends ContentProvider {
 
             // Notify other uris if they depend on the given uri which just
             // changed.
-
+            int matchedId = URI_MATCHER.match(uri);
             // If a member changed, notify the the meeting_member uri.
-            if (table.equals(MemberColumns.TABLE_NAME)) {
+            if (matchedId == URI_TYPE_MEMBER_ID || matchedId == URI_TYPE_MEMBER) {
                 urisToNotify.add(MeetingMemberColumns.CONTENT_URI);
             }
             // If a meeting changed, notify the meeting_member uri, including
             // the meeting id in the uri to notify,
             // if the given uri is for a specific meeting.
-            else if (table.equals(MeetingColumns.TABLE_NAME)) {
+            else if (matchedId == URI_TYPE_MEETING_ID || matchedId == URI_TYPE_MEETING) {
                 Uri meetingMemberUriToNotify = MeetingMemberColumns.CONTENT_URI;
                 // A specific meeting changed, notify meeting_member for that
                 // meeting.
-                if (URI_MATCHER.match(uri) == URI_TYPE_MEETING_ID) {
+                if (matchedId == URI_TYPE_MEETING_ID) {
                     String meetingId = uri.getLastPathSegment();
                     meetingMemberUriToNotify = meetingMemberUriToNotify.buildUpon().appendPath(meetingId).build();
                 }
