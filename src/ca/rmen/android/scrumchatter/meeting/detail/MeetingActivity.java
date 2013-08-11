@@ -166,9 +166,12 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
         supportInvalidateOptionsMenu();
         if (mMeeting == null) {
             Log.v(TAG, "No more meeting, quitting this activity: finishing=" + isFinishing());
-            getSupportLoaderManager().destroyLoader(LOADER_ID);
-            mBtnStopMeeting.setVisibility(View.INVISIBLE);
-            finish();
+            if (!isFinishing()) {
+                getSupportLoaderManager().destroyLoader(LOADER_ID);
+                mBtnStopMeeting.setVisibility(View.INVISIBLE);
+                getContentResolver().unregisterContentObserver(mMeetingObserver);
+                finish();
+            }
             return;
         }
         Log.v(TAG, "meetingState = " + mMeeting.getState());
