@@ -115,6 +115,7 @@ public class MeetingsListFragment extends SherlockListFragment {
         // details of that meeting.
         Intent intent = new Intent(getActivity(), MeetingActivity.class);
         intent.putExtra(Meetings.EXTRA_MEETING_ID, id);
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
     }
 

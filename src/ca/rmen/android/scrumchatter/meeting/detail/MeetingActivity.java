@@ -18,8 +18,6 @@
  */
 package ca.rmen.android.scrumchatter.meeting.detail;
 
-import java.util.Random;
-
 import android.content.Context;
 import android.database.ContentObserver;
 import android.os.AsyncTask;
@@ -68,7 +66,7 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        TAG = Constants.TAG + "/" + MeetingActivity.class.getSimpleName() + "/" + new Random().nextInt(100);
+        if (TAG == null) TAG = Constants.TAG + "/" + MeetingActivity.class.getSimpleName() + "/" + System.currentTimeMillis();
         Log.v(TAG, "onCreate: savedInstanceState = " + savedInstanceState + ", intent = " + getIntent() + ", intent flags = " + getIntent().getFlags());
         setContentView(R.layout.meeting_activity);
         mMeetings = new Meetings(this);
@@ -103,7 +101,6 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
             Log.v(TAG, "register observer " + mMeetingObserver);
             getContentResolver().registerContentObserver(mMeeting.getUri(), false, mMeetingObserver);
         }
-
     }
 
     @Override
@@ -123,7 +120,7 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Log.v(TAG, "onOptionsItemSelected: item = " + item.getItemId() + ": " + item.getTitle());
-        if (isFinishing() || mMeeting == null) {
+        if (isFinishing()) {
             Log.v(TAG, "User clicked on a menu item while the activity is finishing.  Surely a monkey is involved");
             return true;
         }
@@ -168,7 +165,7 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
         Log.v(TAG, "onMeetingChanged: meeting = " + mMeeting);
         supportInvalidateOptionsMenu();
         if (mMeeting == null) {
-            Log.v(TAG, "No more meeting, quitting this activity");
+            Log.v(TAG, "No more meeting, quitting this activity: finishing=" + isFinishing() + ",isDestroyed=" + isDestroyed());
             getSupportLoaderManager().destroyLoader(LOADER_ID);
             mBtnStopMeeting.setVisibility(View.INVISIBLE);
             finish();
@@ -381,7 +378,7 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
                 Log.w(TAG, "Could not load meeting, are you a monkey?");
                 return;
             }
-            Log.v(TAG, "register observer " + mMeetingObserver);
+            Log.v(TAG, "register observer " + mMeetingObserver + "isFinishing: " + isFinishing() + ", isDestroyed:" + isDestroyed());
             getContentResolver().registerContentObserver(mMeeting.getUri(), false, mMeetingObserver);
 
             // Load the list of team members.
@@ -392,6 +389,8 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
         @Override
         public void onLoaderReset(Loader<Meeting> meeting) {
             Log.v(TAG, "onLoaderReset: meeting = " + meeting);
+            mMeeting = null;
+            onMeetingChanged();
         }
     };
 }

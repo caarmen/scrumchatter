@@ -71,6 +71,7 @@ public class Meetings {
             protected void onPostExecute(Boolean result) {
                 if (result) {
                     Intent intent = new Intent(mActivity, MeetingActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     mActivity.startActivity(intent);
                 } else {
                     DialogFragmentFactory.showInfoDialog(mActivity, R.string.dialog_error_title_one_member_required,
