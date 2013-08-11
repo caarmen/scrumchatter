@@ -165,7 +165,7 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
         Log.v(TAG, "onMeetingChanged: meeting = " + mMeeting);
         supportInvalidateOptionsMenu();
         if (mMeeting == null) {
-            Log.v(TAG, "No more meeting, quitting this activity: finishing=" + isFinishing() + ",isDestroyed=" + isDestroyed());
+            Log.v(TAG, "No more meeting, quitting this activity: finishing=" + isFinishing());
             getSupportLoaderManager().destroyLoader(LOADER_ID);
             mBtnStopMeeting.setVisibility(View.INVISIBLE);
             finish();
@@ -378,7 +378,7 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
                 Log.w(TAG, "Could not load meeting, are you a monkey?");
                 return;
             }
-            Log.v(TAG, "register observer " + mMeetingObserver + "isFinishing: " + isFinishing() + ", isDestroyed:" + isDestroyed());
+            Log.v(TAG, "register observer " + mMeetingObserver + "isFinishing: " + isFinishing());
             getContentResolver().registerContentObserver(mMeeting.getUri(), false, mMeetingObserver);
 
             // Load the list of team members.
