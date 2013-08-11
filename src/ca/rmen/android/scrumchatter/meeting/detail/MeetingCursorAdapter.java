@@ -151,6 +151,7 @@ class MeetingCursorAdapter extends CursorAdapter {
             // On some devices, directly calling start() on the animation does not work.
             // We have to wait until the ImageView is visible before starting the animation.
             imageView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public void onGlobalLayout() {
                     if (!animationDrawable.isRunning()) {
