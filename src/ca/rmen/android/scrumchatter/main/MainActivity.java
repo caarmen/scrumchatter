@@ -289,6 +289,16 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
     }
 
 
+    @Override
+    public void onBackPressed() {
+        Log.v(TAG, "onBackPressed");
+        if (ActivityManager.isUserAMonkey()) {
+            Log.v(TAG, "Sorry, monkeys must stay in the cage");
+            return;
+        }
+        super.onBackPressed();
+    }
+
     /**
      * Import the given database file. This will replace the current database.
      */
