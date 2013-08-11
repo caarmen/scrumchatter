@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Locale;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -214,6 +215,14 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_team_switch:
+                // When running monkey tests, we should load a DB with enough members and some meetings, 
+                // before running the tests.  If the monkey tries to switch teams, and creates a new team, 
+                // it will require many random clicks before he creates a member, and therefore many random 
+                // clicks before he is able to create meetings.  So, we force the monkey to stay within the existing team.
+                if (ActivityManager.isUserAMonkey()) {
+                    Log.v(TAG, "Sorry, monkeys are not allowed to switch teams");
+                    return true;
+                }
                 mTeams.selectTeam(mTeam);
                 return true;
             case R.id.action_team_rename:

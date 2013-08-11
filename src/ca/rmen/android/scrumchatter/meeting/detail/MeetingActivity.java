@@ -18,10 +18,13 @@
  */
 package ca.rmen.android.scrumchatter.meeting.detail;
 
+import java.util.Random;
+
 import android.content.Context;
 import android.database.ContentObserver;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.app.NavUtils;
@@ -50,7 +53,7 @@ import com.actionbarsherlock.view.MenuItem;
  */
 public class MeetingActivity extends SherlockFragmentActivity implements DialogButtonListener {
 
-    private static final String TAG = Constants.TAG + "/" + MeetingActivity.class.getSimpleName();
+    private String TAG;
 
     private static final int LOADER_ID = MeetingLoaderTask.class.hashCode();
 
@@ -59,12 +62,14 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
     private Chronometer mMeetingChronometer;
     private Meeting mMeeting;
     private Meetings mMeetings;
+    private MeetingObserver mMeetingObserver;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.v(TAG, "onCreate: savedInstanceState = " + savedInstanceState);
         super.onCreate(savedInstanceState);
+        TAG = Constants.TAG + "/" + MeetingActivity.class.getSimpleName() + "/" + new Random().nextInt(100);
+        Log.v(TAG, "onCreate: savedInstanceState = " + savedInstanceState + ", intent = " + getIntent() + ", intent flags = " + getIntent().getFlags());
         setContentView(R.layout.meeting_activity);
         mMeetings = new Meetings(this);
 
@@ -79,11 +84,13 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
         long meetingId = getIntent().getLongExtra(Meetings.EXTRA_MEETING_ID, -1);
         args.putLong(Meetings.EXTRA_MEETING_ID, meetingId);
         getSupportLoaderManager().initLoader(LOADER_ID, args, mLoaderCallbacks);
+        mMeetingObserver = new MeetingObserver(new Handler());
     }
 
     @Override
     protected void onPause() {
         Log.v(TAG, "onPause");
+        Log.v(TAG, "unregister observer " + mMeetingObserver);
         getContentResolver().unregisterContentObserver(mMeetingObserver);
         super.onPause();
     }
@@ -92,11 +99,17 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
     protected void onResume() {
         Log.v(TAG, "onResume");
         super.onResume();
-        if (mMeeting != null) getContentResolver().registerContentObserver(mMeeting.getUri(), false, mMeetingObserver);
+        if (mMeeting != null) {
+            Log.v(TAG, "register observer " + mMeetingObserver);
+            getContentResolver().registerContentObserver(mMeeting.getUri(), false, mMeetingObserver);
+        }
+
     }
 
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
+        Log.v(TAG, "onCreateOptionsMenu: mMeeting =" + mMeeting);
+
         getSupportMenuInflater().inflate(R.menu.meeting_menu, menu);
         // Only share finished meetings
         final MenuItem shareItem = menu.findItem(R.id.action_share);
@@ -109,6 +122,11 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Log.v(TAG, "onOptionsItemSelected: item = " + item.getItemId() + ": " + item.getTitle());
+        if (isFinishing() || mMeeting == null) {
+            Log.v(TAG, "User clicked on a menu item while the activity is finishing.  Surely a monkey is involved");
+            return true;
+        }
         switch (item.getItemId()) {
         // Respond to the action bar's Up/Home button
             case android.R.id.home:
@@ -135,6 +153,10 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
     @Override
     public void onOkClicked(int actionId, Bundle extras) {
         Log.v(TAG, "onClicked: actionId = " + actionId + ", extras = " + extras);
+        if (isFinishing()) {
+            Log.v(TAG, "Ignoring on click because this activity is closing.  You're either very quick or a monkey.");
+            return;
+        }
         if (actionId == R.id.action_delete_meeting) mMeetings.delete(mMeeting.getId());
         else if (actionId == R.id.btn_stop_meeting) stopMeeting();
     }
@@ -147,6 +169,7 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
         supportInvalidateOptionsMenu();
         if (mMeeting == null) {
             Log.v(TAG, "No more meeting, quitting this activity");
+            getSupportLoaderManager().destroyLoader(LOADER_ID);
             mBtnStopMeeting.setVisibility(View.INVISIBLE);
             finish();
             return;
@@ -156,12 +179,21 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
         mBtnStopMeeting.setVisibility(mMeeting.getState() == State.NOT_STARTED || mMeeting.getState() == State.IN_PROGRESS ? View.VISIBLE : View.INVISIBLE);
         // Only enable the "stop meeting" button if the meeting is in progress.
         mBtnStopMeeting.setEnabled(mMeeting.getState() == State.IN_PROGRESS);
+        getSupportActionBar().setTitle(TextUtils.formatDateTime(MeetingActivity.this, mMeeting.getStartDate()));
 
-        // Blink the chronometer when the meeting is in progress
+        // Show the horizontal progress bar for in progress meetings
+        mProgressBarHeader.setVisibility(mMeeting.getState() == State.IN_PROGRESS ? View.VISIBLE : View.INVISIBLE);
+
+        // Update the chronometer
         if (mMeeting.getState() == State.IN_PROGRESS) {
-            mProgressBarHeader.setVisibility(View.VISIBLE);
-        } else {
-            mProgressBarHeader.setVisibility(View.INVISIBLE);
+            // If the meeting is in progress, show the Chronometer.
+            long timeSinceMeetingStartedMillis = System.currentTimeMillis() - mMeeting.getStartDate();
+            mMeetingChronometer.setBase(SystemClock.elapsedRealtime() - timeSinceMeetingStartedMillis);
+            mMeetingChronometer.start();
+        } else if (mMeeting.getState() == State.FINISHED) {
+            // For finished meetings, show the duration we retrieved from the db.
+            mMeetingChronometer.stop();
+            mMeetingChronometer.setText(DateUtils.formatElapsedTime(mMeeting.getDuration()));
         }
     }
 
@@ -170,19 +202,10 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
      */
     private void startMeeting() {
         AsyncTask<Meeting, Void, Void> task = new AsyncTask<Meeting, Void, Void>() {
-
             @Override
             protected Void doInBackground(Meeting... meeting) {
                 meeting[0].start();
                 return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void params) {
-                mBtnStopMeeting.setVisibility(View.VISIBLE);
-                getSupportActionBar().setTitle(TextUtils.formatDateTime(MeetingActivity.this, mMeeting.getStartDate()));
-                mMeetingChronometer.setBase(SystemClock.elapsedRealtime());
-                mMeetingChronometer.start();
             }
         };
         task.execute(mMeeting);
@@ -203,12 +226,9 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
 
             @Override
             protected void onPostExecute(Void result) {
-                mBtnStopMeeting.setVisibility(View.INVISIBLE);
-                mMeetingChronometer.stop();
                 // Reload the list of team members.
                 MeetingFragment fragment = (MeetingFragment) getSupportFragmentManager().findFragmentById(R.id.meeting_fragment);
                 fragment.loadMeeting(mMeeting.getId(), State.FINISHED, mOnClickListener);
-                supportInvalidateOptionsMenu();
             }
         };
         task.execute(mMeeting);
@@ -241,6 +261,11 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
 
         @Override
         public void onClick(View v) {
+            Log.v(TAG, "onClick, view: " + v);
+            if (isFinishing()) {
+                Log.v(TAG, "Ignoring on click because this activity is closing.  You're either very quick or a monkey.");
+                return;
+            }
             switch (v.getId()) {
             // Start or stop the team member talking
                 case R.id.btn_start_stop_member:
@@ -260,14 +285,22 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
         }
     };
 
-    private ContentObserver mMeetingObserver = new ContentObserver(null) {
+    private class MeetingObserver extends ContentObserver {
+
+        private final String TAG;
+
+        public MeetingObserver(Handler handler) {
+            super(handler);
+            TAG = MeetingActivity.this.TAG + "/" + MeetingObserver.class.getSimpleName();
+            Log.v(TAG, "Constructor");
+        }
 
         /**
          * Called when a meeting changes.
          */
         @Override
         public void onChange(boolean selfChange) {
-            Log.v(TAG, "MeetingObserver onChange, selfChange: " + selfChange);
+            Log.v(TAG, "MeetingObserver onChange, selfChange: " + selfChange + ", mMeeting = " + mMeeting);
             super.onChange(selfChange);
             // In a background thread, reread the meeting.
             // In the UI thread, update the Views.
@@ -288,6 +321,11 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
             task.execute(mMeeting.getId());
         }
 
+        @Override
+        public String toString() {
+            return TAG;
+        }
+
     };
 
     /**
@@ -295,6 +333,8 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
      */
     private static class MeetingLoaderTask extends AsyncTaskLoader<Meeting> {
         private long mMeetingId;
+
+        private static final String TAG = Constants.TAG + "/" + MeetingLoaderTask.class.getSimpleName();
 
         private MeetingLoaderTask(Context context, long meetingId) {
             super(context);
@@ -335,24 +375,14 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
         @Override
         public void onLoadFinished(Loader<Meeting> loaderTask, Meeting meeting) {
             Log.v(TAG, "onLoadFinished, meeting = " + meeting);
+            mMeeting = meeting;
+            onMeetingChanged();
             if (meeting == null) {
                 Log.w(TAG, "Could not load meeting, are you a monkey?");
-                finish();
                 return;
             }
-            mMeeting = meeting;
+            Log.v(TAG, "register observer " + mMeetingObserver);
             getContentResolver().registerContentObserver(mMeeting.getUri(), false, mMeetingObserver);
-            if (mMeeting.getState() == State.IN_PROGRESS) {
-                // If the meeting is in progress, show the Chronometer.
-                long timeSinceMeetingStartedMillis = System.currentTimeMillis() - mMeeting.getStartDate();
-                mMeetingChronometer.setBase(SystemClock.elapsedRealtime() - timeSinceMeetingStartedMillis);
-                mMeetingChronometer.start();
-            } else if (mMeeting.getState() == State.FINISHED) {
-                // For finished meetings, show the duration we retrieved from the db.
-                mMeetingChronometer.setText(DateUtils.formatElapsedTime(mMeeting.getDuration()));
-            }
-            getSupportActionBar().setTitle(TextUtils.formatDateTime(MeetingActivity.this, mMeeting.getStartDate()));
-            onMeetingChanged();
 
             // Load the list of team members.
             MeetingFragment fragment = (MeetingFragment) getSupportFragmentManager().findFragmentById(R.id.meeting_fragment);
