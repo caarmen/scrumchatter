@@ -75,6 +75,7 @@ public class DBImport {
             PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(Constants.PREF_TEAM_ID, teamId);
         }
         c.close();
+        dbImport.close();
     }
 
     private static void buildInsertOperations(SQLiteDatabase dbImport, Uri uri, String table, ArrayList<ContentProviderOperation> operations) {
