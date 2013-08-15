@@ -19,8 +19,6 @@
 -->
 <resources>
 
-    <string name="app_name">Scrum Chatter</string>
-    <string name="app_version">1.0.14</string>
     <string name="title_section_meetings">Réunions</string>
     <string name="title_section_team">Équipe</string>
     <string name="action_share">Partager</string>
