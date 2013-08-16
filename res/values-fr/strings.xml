@@ -70,10 +70,10 @@
     <string name="export_message_body">Veuillez trouver le rapport Scrum Chatter ci-joint.</string>
     <string name="export_error">Impossible de créer le rapport Scrum Chatter.  Veuillez vérifier que la carte SD est disponible.</string>
     <string name="loading">Chargement&#8230;</string>
-    <string name="empty_list_meetings">Vous n\'avez crée aucune réunion.</string>
-    <string name="empty_list_members">Vous n\'avez aucun membre d\'équipe.</string>
+    <string name="empty_list_meetings">Aucune réunion.</string>
+    <string name="empty_list_members">Aucun membre d\'équipe.</string>
     <string name="progress_dialog_message">Veuillez patienter&#8230;</string>
-    <string name="dialog_confirm">Êtes-vous sûr?</string>
+    <string name="dialog_confirm">Êtes-vous sûr(e)?</string>
     <string name="import_confirm_title">Importer une base de données</string>
     <string name="import_confirm_message">Supprimer toutes les données et les remplacer par %s?</string>
     <string name="import_result_success">Importation réussie</string>
@@ -81,7 +81,7 @@
     <string name="import_result_no_file">Aucun fichier sélectionner à importer</string>
     <string name="import_result_file_does_not_exist">%s n\'existe pas.  Impossible de l\'importer.</string>
     <string name="about">À propos</string>
-    <string name="about_author">De Carmen Alvarez</string>
+    <string name="about_author">Par Carmen Alvarez</string>
     <string name="about_version">v</string>
     <string name="about_source_text">Code source sur GitHub:</string>
     <string name="about_source_link">https://github.com/caarmen/scrumchatter</string>
