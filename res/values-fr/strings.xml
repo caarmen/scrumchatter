@@ -56,9 +56,9 @@
     <string name="action_start">Démarrer</string>
     <string name="chatter_face_label">Chatter face</string>
     <string name="meeting_header_total_duration">Durée de la réunion :</string>
-    <string name="meeting_state_not_started">Pas commencé</string>
+    <string name="meeting_state_not_started">Pas commencée</string>
     <string name="meeting_state_in_progress">En cours</string>
-    <string name="meeting_state_finished">Terminé</string>
+    <string name="meeting_state_finished">Terminée</string>
     <string name="export_choice_title">Sélectionner le format à partager</string>
     <string name="export_format_excel">Excel</string>
     <string name="export_format_db">Base de données</string>
