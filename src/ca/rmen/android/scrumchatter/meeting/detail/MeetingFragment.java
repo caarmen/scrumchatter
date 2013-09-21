@@ -105,6 +105,12 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
             protected State doInBackground(Long... params) {
                 long meetingId = params[0];
                 Log.v(TAG, "doInBackground: meetingId = " + meetingId);
+
+                Context context = getActivity();
+                if (context == null) {
+                    Log.w(TAG, "No longer attached to activity: can't load meeting");
+                    return State.FINISHED;
+                }
                 Meeting meeting = Meeting.read(getActivity(), meetingId);
                 if (meeting == null) {
                     Log.v(TAG, "Meeting was deleted");
@@ -116,10 +122,16 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
             @Override
             protected void onPostExecute(State state) {
                 Log.v(TAG, "onPostExecute: state = " + state);
+                // Don't do anything if the activity has been closed in the meantime
+                Context context = getActivity();
+                if (context == null) {
+                    Log.w(TAG, "No longer attached to the activity: can't load meeting members");
+                    return;
+                }
                 Bundle bundle = new Bundle(1);
                 bundle.putInt(EXTRA_MEETING_STATE, state.ordinal());
                 if (mAdapter == null) {
-                    mAdapter = new MeetingCursorAdapter(getActivity(), mOnClickListener);
+                    mAdapter = new MeetingCursorAdapter(context, mOnClickListener);
                     getLoaderManager().initLoader(LOADER_ID, bundle, mLoaderCallbacks);
                 } else {
                     getLoaderManager().restartLoader(LOADER_ID, bundle, mLoaderCallbacks);
@@ -128,7 +140,6 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
         };
         task.execute(mMeetingId);
     }
-
 
     private LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
 
@@ -208,7 +219,15 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
                 @Override
                 protected Void doInBackground(Long... meetingId) {
                     Context context = getActivity();
+                    if (context == null) {
+                        Log.w(TAG, "No longer attached to activity, ignoring toggle talking member");
+                        return null;
+                    }
                     Meeting meeting = Meeting.read(context, meetingId[0]);
+                    if (meeting == null) {
+                        Log.w(TAG, "Meeting " + meetingId[0] + " has been deleted, ignoring toggle talking member");
+                        return null;
+                    }
                     if (meeting.getState() != State.IN_PROGRESS) meeting.start();
                     meeting.toggleTalkingMember(memberId);
                     return null;
