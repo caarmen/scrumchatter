@@ -18,9 +18,13 @@
  */
 package ca.rmen.android.scrumchatter.meeting.detail;
 
+import android.content.Context;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -47,42 +51,84 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
 
     private static final int LOADER_ID = 0;
     private static final String EXTRA_MEETING_STATE = MeetingFragment.class.getPackage().getName() + ".meeting_state";
+    private static final String EXTRA_MEETING_ID = MeetingFragment.class.getPackage().getName() + ".meeting_id";
     private long mMeetingId;
 
     private MeetingCursorAdapter mAdapter;
+    private final MeetingObserver mMeetingObserver;
 
     public MeetingFragment() {
         super();
+        Log.v(TAG, "Constructor");
         mMeetingId = -1;
+        mMeetingObserver = new MeetingObserver(new Handler());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.v(TAG, "onCreateView");
+        Log.v(TAG, "onCreateView: savedInstanceState = " + savedInstanceState);
         View view = inflater.inflate(R.layout.meeting_fragment, null);
+        if (savedInstanceState != null) {
+            mMeetingId = savedInstanceState.getLong(EXTRA_MEETING_ID);
+            Uri uri = Uri.withAppendedPath(MeetingColumns.CONTENT_URI, String.valueOf(mMeetingId));
+            getActivity().getContentResolver().registerContentObserver(uri, false, mMeetingObserver);
+        }
         return view;
     }
 
-    /**
-     * Set up this fragment to load the data for a particular meeting.
-     * 
-     * @param meetingId
-     * @param onClickListener
-     *            This will be forwarded to the adapter, so clicks on views in
-     *            the list will be managed by this listener.
-     */
-    void loadMeeting(long meetingId, State state, OnClickListener onClickListener) {
-        Log.v(TAG, "loadMeeting");
-        mMeetingId = meetingId;
-        Bundle bundle = new Bundle(1);
-        bundle.putInt(EXTRA_MEETING_STATE, state.ordinal());
-        if (mAdapter == null) {
-            mAdapter = new MeetingCursorAdapter(getActivity(), onClickListener);
-            getLoaderManager().initLoader(LOADER_ID, bundle, mLoaderCallbacks);
-        } else {
-            getLoaderManager().restartLoader(LOADER_ID, bundle, mLoaderCallbacks);
-        }
+    @Override
+    public void onDestroyView() {
+        Log.v(TAG, "onDestroyView");
+        getActivity().getContentResolver().unregisterContentObserver(mMeetingObserver);
+        super.onDestroyView();
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        Log.v(TAG, "onSaveInstanceState: outState = " + outState);
+        super.onSaveInstanceState(outState);
+        outState.putLong(EXTRA_MEETING_ID, mMeetingId);
+    }
+
+    void loadMeeting(long meetingId) {
+        Log.v(TAG, "loadMeeting: current meeting id = " + mMeetingId + ", new meeting id = " + meetingId);
+        if (meetingId != mMeetingId) {
+            mMeetingId = meetingId;
+            Uri uri = Uri.withAppendedPath(MeetingColumns.CONTENT_URI, String.valueOf(mMeetingId));
+            getActivity().getContentResolver().unregisterContentObserver(mMeetingObserver);
+            getActivity().getContentResolver().registerContentObserver(uri, false, mMeetingObserver);
+        }
+
+        AsyncTask<Long, Void, State> task = new AsyncTask<Long, Void, MeetingColumns.State>() {
+
+            @Override
+            protected State doInBackground(Long... params) {
+                long meetingId = params[0];
+                Log.v(TAG, "doInBackground: meetingId = " + meetingId);
+                Context context = getActivity();
+                if (context != null) {
+                    Meeting meeting = Meeting.read(getActivity(), meetingId);
+                    return meeting.getState();
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(State state) {
+                Log.v(TAG, "onPostExecute: state = " + state);
+                Bundle bundle = new Bundle(1);
+                bundle.putInt(EXTRA_MEETING_STATE, state.ordinal());
+                if (mAdapter == null) {
+                    mAdapter = new MeetingCursorAdapter(getActivity(), mOnClickListener);
+                    getLoaderManager().initLoader(LOADER_ID, bundle, mLoaderCallbacks);
+                } else {
+                    getLoaderManager().restartLoader(LOADER_ID, bundle, mLoaderCallbacks);
+                }
+            }
+        };
+        task.execute(mMeetingId);
+    }
+
 
     private LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
 
@@ -118,6 +164,69 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
         public void onLoaderReset(Loader<Cursor> loader) {
             Log.v(TAG, "onLoaderReset");
             mAdapter.changeCursor(null);
+        }
+    };
+
+    private class MeetingObserver extends ContentObserver {
+
+        private final String TAG = MeetingFragment.TAG + "/" + MeetingObserver.class.getSimpleName();
+
+        public MeetingObserver(Handler handler) {
+            super(handler);
+            Log.v(TAG, "Constructor");
+        }
+
+        /**
+         * Called when a meeting changes. Reload the list of members for this meeting.
+         */
+        @Override
+        public void onChange(boolean selfChange) {
+            Log.v(TAG, "MeetingObserver onChange, selfChange: " + selfChange + ", mMeeting = " + mMeetingId);
+            super.onChange(selfChange);
+            loadMeeting(mMeetingId);
+        }
+    };
+
+    /**
+     * Manage clicks on items inside the meeting fragment.
+     */
+    private final OnClickListener mOnClickListener = new OnClickListener() {
+
+        /**
+         * Switch a member from the talking to non-talking state:
+         * 
+         * If they were talking, they will no longer be talking, and their button will go back to a "start" button.
+         * 
+         * If they were not talking, they will start talking, and their button will be a "stop" button.
+         * 
+         * @param memberId
+         */
+        private void toggleTalkingMember(final long memberId) {
+            Log.v(TAG, "toggleTalkingMember " + memberId);
+            AsyncTask<Long, Void, Void> task = new AsyncTask<Long, Void, Void>() {
+
+                @Override
+                protected Void doInBackground(Long... meetingId) {
+                    Context context = getActivity();
+                    Meeting meeting = Meeting.read(context, meetingId[0]);
+                    if (meeting.getState() != State.IN_PROGRESS) meeting.start();
+                    meeting.toggleTalkingMember(memberId);
+                    return null;
+                }
+            };
+            task.execute(mMeetingId);
+        };
+
+        @Override
+        public void onClick(View v) {
+            Log.v(TAG, "onClick, view: " + v);
+            switch (v.getId()) {
+            // Start or stop the team member talking
+                case R.id.btn_start_stop_member:
+                    long memberId = (Long) v.getTag();
+                    toggleTalkingMember(memberId);
+                    break;
+            }
         }
     };
 }

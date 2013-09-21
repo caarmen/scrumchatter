@@ -198,20 +198,6 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
     }
 
     /**
-     * Start the meeting. Set the state to in-progress, start the chronometer, and show the "stop meeting" button.
-     */
-    private void startMeeting() {
-        AsyncTask<Meeting, Void, Void> task = new AsyncTask<Meeting, Void, Void>() {
-            @Override
-            protected Void doInBackground(Meeting... meeting) {
-                meeting[0].start();
-                return null;
-            }
-        };
-        task.execute(mMeeting);
-    }
-
-    /**
      * Stop the meeting. Set the state to finished, stop the chronometer, hide the "stop meeting" button, persist the meeting duration, and stop the
      * chronometers for all team members who are still talking.
      */
@@ -223,38 +209,10 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
                 meeting[0].stop();
                 return null;
             }
-
-            @Override
-            protected void onPostExecute(Void result) {
-                // Reload the list of team members.
-                MeetingFragment fragment = (MeetingFragment) getSupportFragmentManager().findFragmentById(R.id.meeting_fragment);
-                fragment.loadMeeting(mMeeting.getId(), State.FINISHED, mOnClickListener);
-            }
         };
         task.execute(mMeeting);
     }
 
-    /**
-     * Switch a member from the talking to non-talking state:
-     * 
-     * If they were talking, they will no longer be talking, and their button will go back to a "start" button.
-     * 
-     * If they were not talking, they will start talking, and their button will be a "stop" button.
-     * 
-     * @param memberId
-     */
-    private void toggleTalkingMember(final long memberId) {
-        Log.v(TAG, "toggleTalkingMember " + memberId);
-        AsyncTask<Meeting, Void, Void> task = new AsyncTask<Meeting, Void, Void>() {
-
-            @Override
-            protected Void doInBackground(Meeting... meeting) {
-                meeting[0].toggleTalkingMember(memberId);
-                return null;
-            }
-        };
-        task.execute(mMeeting);
-    };
 
 
     private final OnClickListener mOnClickListener = new OnClickListener() {
@@ -267,13 +225,7 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
                 return;
             }
             switch (v.getId()) {
-            // Start or stop the team member talking
-                case R.id.btn_start_stop_member:
-                    if (mMeeting.getState() != State.IN_PROGRESS) startMeeting();
-                    long memberId = (Long) v.getTag();
-                    toggleTalkingMember(memberId);
-                    break;
-                // Stop the whole meeting.
+            // Stop the whole meeting.
                 case R.id.btn_stop_meeting:
                     // Let's ask him if he's sure.
                     DialogFragmentFactory.showConfirmDialog(MeetingActivity.this, getString(R.string.action_stop_meeting), getString(R.string.dialog_confirm),
@@ -302,23 +254,9 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
         public void onChange(boolean selfChange) {
             Log.v(TAG, "MeetingObserver onChange, selfChange: " + selfChange + ", mMeeting = " + mMeeting);
             super.onChange(selfChange);
-            // In a background thread, reread the meeting.
-            // In the UI thread, update the Views.
-            AsyncTask<Long, Void, Meeting> task = new AsyncTask<Long, Void, Meeting>() {
-
-                @Override
-                protected Meeting doInBackground(Long... meetingId) {
-                    return Meeting.read(MeetingActivity.this, meetingId[0]);
-                }
-
-                @Override
-                protected void onPostExecute(Meeting meeting) {
-                    mMeeting = meeting;
-                    onMeetingChanged();
-                }
-
-            };
-            task.execute(mMeeting.getId());
+            Bundle args = new Bundle(1);
+            args.putLong(Meetings.EXTRA_MEETING_ID, mMeeting.getId());
+            getSupportLoaderManager().restartLoader(LOADER_ID, args, mLoaderCallbacks);
         }
 
         @Override
@@ -386,7 +324,7 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
 
             // Load the list of team members.
             MeetingFragment fragment = (MeetingFragment) getSupportFragmentManager().findFragmentById(R.id.meeting_fragment);
-            fragment.loadMeeting(mMeeting.getId(), mMeeting.getState(), mOnClickListener);
+            fragment.loadMeeting(mMeeting.getId());
         }
 
         @Override
