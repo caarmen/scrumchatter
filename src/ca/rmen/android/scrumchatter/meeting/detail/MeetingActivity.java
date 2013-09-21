@@ -99,6 +99,7 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
         super.onResume();
         if (mMeeting != null) {
             Log.v(TAG, "register observer " + mMeetingObserver);
+            getContentResolver().unregisterContentObserver(mMeetingObserver);
             getContentResolver().registerContentObserver(mMeeting.getUri(), false, mMeetingObserver);
         }
     }
@@ -149,7 +150,7 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
      */
     @Override
     public void onOkClicked(int actionId, Bundle extras) {
-        Log.v(TAG, "onClicked: actionId = " + actionId + ", extras = " + extras);
+        Log.v(TAG, "onOkClicked: actionId = " + actionId + ", extras = " + extras);
         if (isFinishing()) {
             Log.v(TAG, "Ignoring on click because this activity is closing.  You're either very quick or a monkey.");
             return;
@@ -254,6 +255,10 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
         public void onChange(boolean selfChange) {
             Log.v(TAG, "MeetingObserver onChange, selfChange: " + selfChange + ", mMeeting = " + mMeeting);
             super.onChange(selfChange);
+            if (isFinishing()) {
+                Log.v(TAG, "Ignoring DB change because this activity is closing.  You're either very quick or a monkey.");
+                return;
+            }
             Bundle args = new Bundle(1);
             args.putLong(Meetings.EXTRA_MEETING_ID, mMeeting.getId());
             getSupportLoaderManager().restartLoader(LOADER_ID, args, mLoaderCallbacks);
@@ -286,6 +291,7 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
             if (mMeetingId == -1) meeting = Meeting.createNewMeeting(getContext());
             else
                 meeting = Meeting.read(getContext(), mMeetingId);
+            Log.v(TAG, "loaded meeting " + meeting);
             return meeting;
         }
     };
@@ -320,6 +326,7 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
                 return;
             }
             Log.v(TAG, "register observer " + mMeetingObserver + "isFinishing: " + isFinishing());
+            getContentResolver().unregisterContentObserver(mMeetingObserver);
             getContentResolver().registerContentObserver(mMeeting.getUri(), false, mMeetingObserver);
 
             // Load the list of team members.
