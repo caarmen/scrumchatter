@@ -105,12 +105,12 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
             protected State doInBackground(Long... params) {
                 long meetingId = params[0];
                 Log.v(TAG, "doInBackground: meetingId = " + meetingId);
-                Context context = getActivity();
-                if (context != null) {
-                    Meeting meeting = Meeting.read(getActivity(), meetingId);
-                    return meeting.getState();
+                Meeting meeting = Meeting.read(getActivity(), meetingId);
+                if (meeting == null) {
+                    Log.v(TAG, "Meeting was deleted");
+                    return State.FINISHED;
                 }
-                return null;
+                return meeting.getState();
             }
 
             @Override
@@ -181,7 +181,7 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
          */
         @Override
         public void onChange(boolean selfChange) {
-            Log.v(TAG, "MeetingObserver onChange, selfChange: " + selfChange + ", mMeeting = " + mMeetingId);
+            Log.v(TAG, "MeetingObserver onChange, selfChange: " + selfChange + ", mMeetingId = " + mMeetingId);
             super.onChange(selfChange);
             loadMeeting(mMeetingId);
         }
