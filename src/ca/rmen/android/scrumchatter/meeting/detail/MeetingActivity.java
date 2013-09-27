@@ -24,6 +24,7 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
@@ -44,6 +45,7 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
     private static final int LOADER_ID = MeetingLoaderTask.class.hashCode();
     private MeetingPagerAdapter mMeetingPagerAdapter;
     private ViewPager mViewPager;
+    private long mMeetingId = -1;
 
 
 
@@ -54,11 +56,24 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
         Log.v(TAG, "onCreate: savedInstanceState = " + savedInstanceState + ", intent = " + getIntent() + ", intent flags = " + getIntent().getFlags());
         setContentView(R.layout.meeting_activity);
         mViewPager = (ViewPager) findViewById(R.id.pager);
+        mViewPager.setOnPageChangeListener(mOnPageChangeListener);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        long originalMeetingId = getIntent().getLongExtra(Meetings.EXTRA_MEETING_ID, -1);
+        if (savedInstanceState != null) mMeetingId = savedInstanceState.getLong(Meetings.EXTRA_MEETING_ID);
+        else
+            mMeetingId = originalMeetingId;
         Bundle args = new Bundle(1);
-        long meetingId = getIntent().getLongExtra(Meetings.EXTRA_MEETING_ID, -1);
-        args.putLong(Meetings.EXTRA_MEETING_ID, meetingId);
-        getSupportLoaderManager().initLoader(LOADER_ID, args, mLoaderCallbacks);
+        args.putLong(Meetings.EXTRA_MEETING_ID, mMeetingId);
+        if (mMeetingId != originalMeetingId) getSupportLoaderManager().restartLoader(LOADER_ID, args, mLoaderCallbacks);
+        else
+            getSupportLoaderManager().initLoader(LOADER_ID, args, mLoaderCallbacks);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        Log.v(TAG, "onSaveInstanceState, outState = " + outState + ", meetingId = " + mMeetingId);
+        outState.putLong(Meetings.EXTRA_MEETING_ID, mMeetingId);
+        super.onSaveInstanceState(outState);
     }
 
     /**
@@ -144,5 +159,19 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
         public void onLoaderReset(Loader<Meeting> meeting) {
             Log.v(TAG, "onLoaderReset: meeting = " + meeting);
         }
+    };
+    private OnPageChangeListener mOnPageChangeListener = new OnPageChangeListener() {
+
+        @Override
+        public void onPageSelected(int position) {
+            Log.v(TAG, "onPageSelected, position = " + position);
+            mMeetingId = mMeetingPagerAdapter.getMeetingIdAt(position);
+        }
+
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+
+        @Override
+        public void onPageScrollStateChanged(int state) {}
     };
 }

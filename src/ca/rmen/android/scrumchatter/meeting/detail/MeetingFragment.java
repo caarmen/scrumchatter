@@ -61,7 +61,6 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
 
     private static final String TAG = Constants.TAG + "/" + MeetingFragment.class.getSimpleName();
 
-    public static final String EXTRA_MEETING_ID = MeetingFragment.class.getPackage().getName() + ".meeting_id";
     private static final String EXTRA_MEETING_STATE = MeetingFragment.class.getPackage().getName() + ".meeting_state";
     private static final int LOADER_ID = 0;
 
@@ -95,7 +94,7 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
         mProgressBarHeader = view.findViewById(R.id.header_progress_bar);
         mBtnStopMeeting.setOnClickListener(mOnClickListener);
 
-        long meetingId = getArguments().getLong(EXTRA_MEETING_ID);
+        long meetingId = getArguments().getLong(Meetings.EXTRA_MEETING_ID);
         Uri uri = Uri.withAppendedPath(MeetingColumns.CONTENT_URI, String.valueOf(meetingId));
         getActivity().getContentResolver().registerContentObserver(uri, false, mMeetingObserver);
         loadMeeting(meetingId);

@@ -29,6 +29,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
+import ca.rmen.android.scrumchatter.meeting.Meetings;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
 
 /**
@@ -54,7 +55,7 @@ class MeetingPagerAdapter extends FragmentStatePagerAdapter {
         Log.v(TAG, "getItem at position " + position + ": meetingId = " + mMeetingIds.get(position));
         MeetingFragment fragment = new MeetingFragment();
         Bundle args = new Bundle(1);
-        args.putLong(MeetingFragment.EXTRA_MEETING_ID, mMeetingIds.get(position));
+        args.putLong(Meetings.EXTRA_MEETING_ID, mMeetingIds.get(position));
         fragment.setArguments(args);
         return fragment;
     }
@@ -62,6 +63,10 @@ class MeetingPagerAdapter extends FragmentStatePagerAdapter {
     int getPositionForMeetingId(long meetingId) {
         Log.v(TAG, "getPositionForMeetingId " + meetingId + ": " + mMeetingIds.indexOf(meetingId));
         return mMeetingIds.indexOf(meetingId);
+    }
+
+    long getMeetingIdAt(int position) {
+        return mMeetingIds.get(position);
     }
 
     @Override
