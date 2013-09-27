@@ -46,7 +46,6 @@ import ca.rmen.android.scrumchatter.provider.MeetingColumns;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
-import ca.rmen.android.scrumchatter.util.TextUtils;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -59,7 +58,7 @@ import com.actionbarsherlock.view.MenuItem;
  */
 public class MeetingFragment extends SherlockListFragment { // NO_UCD (use default)
 
-    private static final String TAG = Constants.TAG + "/" + MeetingFragment.class.getSimpleName();
+    private final String TAG = Constants.TAG + "/" + MeetingFragment.class.getSimpleName() + "/" + System.currentTimeMillis();
 
     private static final String EXTRA_MEETING_STATE = MeetingFragment.class.getPackage().getName() + ".meeting_state";
     private static final int LOADER_ID = 0;
@@ -104,10 +103,8 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
     @Override
     public void onDestroyView() {
         Log.v(TAG, "onDestroyView");
-        if (mMeeting != null) {
-            Log.v(TAG, "unregister observer " + mMeetingObserver);
-            getActivity().getContentResolver().unregisterContentObserver(mMeetingObserver);
-        }
+        Log.v(TAG, "unregister observer " + mMeetingObserver);
+        getActivity().getContentResolver().unregisterContentObserver(mMeetingObserver);
         super.onDestroyView();
     }
 
@@ -209,7 +206,6 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
                         : View.INVISIBLE);
                 // Only enable the "stop meeting" button if the meeting is in progress.
                 mBtnStopMeeting.setEnabled(mMeeting.getState() == State.IN_PROGRESS);
-                activity.getSupportActionBar().setTitle(TextUtils.formatDateTime(activity, mMeeting.getStartDate()));
 
                 // Show the horizontal progress bar for in progress meetings
                 mProgressBarHeader.setVisibility(mMeeting.getState() == State.IN_PROGRESS ? View.VISIBLE : View.INVISIBLE);
@@ -321,7 +317,7 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
      */
     private class MeetingObserver extends ContentObserver {
 
-        private final String TAG = MeetingFragment.TAG + "/" + MeetingObserver.class.getSimpleName();
+        private final String TAG = MeetingFragment.this.TAG + "/" + MeetingObserver.class.getSimpleName();
 
         public MeetingObserver(Handler handler) {
             super(handler);

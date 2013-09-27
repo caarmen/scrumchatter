@@ -31,6 +31,7 @@ import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.dialog.ConfirmDialogFragment.DialogButtonListener;
 import ca.rmen.android.scrumchatter.dialog.DialogFragmentFactory;
 import ca.rmen.android.scrumchatter.meeting.Meetings;
+import ca.rmen.android.scrumchatter.util.TextUtils;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 
@@ -90,7 +91,9 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
             Log.v(TAG, "Ignoring on click because this activity is closing.  You're either very quick or a monkey.");
             return;
         }
-        MeetingFragment fragment = (MeetingFragment) mMeetingPagerAdapter.getItem(mViewPager.getCurrentItem());
+        // Not intuitive: instantiateItem will actually return an existing Fragment, whereas getItem() will instantiate a new Fragment.
+        // We want to retrieve the existing fragment.
+        MeetingFragment fragment = (MeetingFragment) mMeetingPagerAdapter.instantiateItem(mViewPager, mViewPager.getCurrentItem());
         if (actionId == R.id.action_delete_meeting) {
             getSupportLoaderManager().destroyLoader(LOADER_ID);
             fragment.deleteMeeting();
@@ -149,6 +152,7 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
                 Log.w(TAG, "Could not load meeting, are you a monkey?");
                 return;
             }
+            getSupportActionBar().setTitle(TextUtils.formatDateTime(MeetingActivity.this, meeting.getStartDate()));
             mMeetingPagerAdapter = new MeetingPagerAdapter(MeetingActivity.this, getSupportFragmentManager());
             mViewPager.setAdapter(mMeetingPagerAdapter);
             int position = mMeetingPagerAdapter.getPositionForMeetingId(meeting.getId());
@@ -165,7 +169,13 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
         @Override
         public void onPageSelected(int position) {
             Log.v(TAG, "onPageSelected, position = " + position);
-            mMeetingId = mMeetingPagerAdapter.getMeetingIdAt(position);
+            long meetingId = mMeetingPagerAdapter.getMeetingIdAt(position);
+            if (mMeetingId != meetingId) {
+                mMeetingId = meetingId;
+                Bundle args = new Bundle(1);
+                args.putLong(Meetings.EXTRA_MEETING_ID, mMeetingId);
+                getSupportLoaderManager().restartLoader(LOADER_ID, args, mLoaderCallbacks);
+            }
         }
 
         @Override
