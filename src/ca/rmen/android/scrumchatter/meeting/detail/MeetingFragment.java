@@ -18,6 +18,7 @@
  */
 package ca.rmen.android.scrumchatter.meeting.detail;
 
+import android.app.Activity;
 import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -25,22 +26,34 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.app.NavUtils;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Chronometer;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
+import ca.rmen.android.scrumchatter.dialog.DialogFragmentFactory;
+import ca.rmen.android.scrumchatter.meeting.Meetings;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
+import ca.rmen.android.scrumchatter.util.TextUtils;
 
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.app.SherlockListFragment;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 
 /**
  * Displays the list of members participating in a particular meeting.
@@ -52,25 +65,40 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
     private static final int LOADER_ID = 0;
     private static final String EXTRA_MEETING_STATE = MeetingFragment.class.getPackage().getName() + ".meeting_state";
     private static final String EXTRA_MEETING_ID = MeetingFragment.class.getPackage().getName() + ".meeting_id";
-    private long mMeetingId;
 
     private MeetingCursorAdapter mAdapter;
     private final MeetingObserver mMeetingObserver;
+    private View mBtnStopMeeting;
+    private View mProgressBarHeader;
+    private Chronometer mMeetingChronometer;
+    private Meeting mMeeting;
+    private Meetings mMeetings;
 
     public MeetingFragment() {
         super();
         Log.v(TAG, "Constructor");
-        mMeetingId = -1;
+        setHasOptionsMenu(true);
         mMeetingObserver = new MeetingObserver(new Handler());
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        mMeetings = new Meetings((FragmentActivity) activity);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.v(TAG, "onCreateView: savedInstanceState = " + savedInstanceState);
         View view = inflater.inflate(R.layout.meeting_fragment, null);
+        mBtnStopMeeting = view.findViewById(R.id.btn_stop_meeting);
+        mMeetingChronometer = (Chronometer) view.findViewById(R.id.tv_meeting_duration);
+        mProgressBarHeader = view.findViewById(R.id.header_progress_bar);
+
+        mBtnStopMeeting.setOnClickListener(mOnClickListener);
         if (savedInstanceState != null) {
-            mMeetingId = savedInstanceState.getLong(EXTRA_MEETING_ID);
-            Uri uri = Uri.withAppendedPath(MeetingColumns.CONTENT_URI, String.valueOf(mMeetingId));
+            long meetingId = savedInstanceState.getLong(EXTRA_MEETING_ID);
+            Uri uri = Uri.withAppendedPath(MeetingColumns.CONTENT_URI, String.valueOf(meetingId));
             getActivity().getContentResolver().registerContentObserver(uri, false, mMeetingObserver);
         }
         return view;
@@ -79,7 +107,11 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
     @Override
     public void onDestroyView() {
         Log.v(TAG, "onDestroyView");
-        getActivity().getContentResolver().unregisterContentObserver(mMeetingObserver);
+        if (mMeeting != null) {
+            Log.v(TAG, "register observer " + mMeetingObserver);
+            getActivity().getContentResolver().unregisterContentObserver(mMeetingObserver);
+            getActivity().getContentResolver().registerContentObserver(mMeeting.getUri(), false, mMeetingObserver);
+        }
         super.onDestroyView();
     }
 
@@ -87,58 +119,152 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
     public void onSaveInstanceState(Bundle outState) {
         Log.v(TAG, "onSaveInstanceState: outState = " + outState);
         super.onSaveInstanceState(outState);
-        outState.putLong(EXTRA_MEETING_ID, mMeetingId);
+        if (mMeeting != null) outState.putLong(EXTRA_MEETING_ID, mMeeting.getId());
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        Log.v(TAG, "onCreateOptionsMenu: mMeeting =" + mMeeting);
+
+        inflater.inflate(R.menu.meeting_menu, menu);
+        // Only share finished meetings
+        final MenuItem shareItem = menu.findItem(R.id.action_share);
+        shareItem.setVisible(mMeeting != null && mMeeting.getState() == State.FINISHED);
+        // Delete a meeting in any state.
+        final MenuItem deleteItem = menu.findItem(R.id.action_delete_meeting);
+        deleteItem.setVisible(mMeeting != null);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Log.v(TAG, "onOptionsItemSelected: item = " + item.getItemId() + ": " + item.getTitle());
+        if (getActivity().isFinishing()) {
+            Log.v(TAG, "User clicked on a menu item while the activity is finishing.  Surely a monkey is involved");
+            return true;
+        }
+        switch (item.getItemId()) {
+        // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(getActivity());
+                return true;
+            case R.id.action_share:
+                mMeetings.export(mMeeting.getId());
+                return true;
+            case R.id.action_delete_meeting:
+                mMeetings.confirmDelete(mMeeting);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+
     void loadMeeting(long meetingId) {
-        Log.v(TAG, "loadMeeting: current meeting id = " + mMeetingId + ", new meeting id = " + meetingId);
-        if (meetingId != mMeetingId) {
-            mMeetingId = meetingId;
-            Uri uri = Uri.withAppendedPath(MeetingColumns.CONTENT_URI, String.valueOf(mMeetingId));
+        Log.v(TAG, "loadMeeting: current meeting = " + mMeeting + ", new meeting id = " + meetingId);
+        if (mMeeting == null || meetingId != mMeeting.getId()) {
+            Uri uri = Uri.withAppendedPath(MeetingColumns.CONTENT_URI, String.valueOf(meetingId));
             getActivity().getContentResolver().unregisterContentObserver(mMeetingObserver);
             getActivity().getContentResolver().registerContentObserver(uri, false, mMeetingObserver);
         }
 
-        AsyncTask<Long, Void, State> task = new AsyncTask<Long, Void, MeetingColumns.State>() {
+        AsyncTask<Long, Void, Meeting> task = new AsyncTask<Long, Void, Meeting>() {
 
             @Override
-            protected State doInBackground(Long... params) {
+            protected Meeting doInBackground(Long... params) {
                 long meetingId = params[0];
                 Log.v(TAG, "doInBackground: meetingId = " + meetingId);
 
                 Context context = getActivity();
                 if (context == null) {
                     Log.w(TAG, "No longer attached to activity: can't load meeting");
-                    return State.FINISHED;
+                    return null;
                 }
                 Meeting meeting = Meeting.read(getActivity(), meetingId);
-                if (meeting == null) {
-                    Log.v(TAG, "Meeting was deleted");
-                    return State.FINISHED;
-                }
-                return meeting.getState();
+                return meeting;
             }
 
             @Override
-            protected void onPostExecute(State state) {
-                Log.v(TAG, "onPostExecute: state = " + state);
+            protected void onPostExecute(Meeting meeting) {
+                Log.v(TAG, "onPostExecute: meeting = " + meeting);
                 // Don't do anything if the activity has been closed in the meantime
-                Context context = getActivity();
-                if (context == null) {
+                SherlockFragmentActivity activity = (SherlockFragmentActivity) getActivity();
+                if (activity == null) {
                     Log.w(TAG, "No longer attached to the activity: can't load meeting members");
                     return;
                 }
+                mMeeting = meeting;
+                if (mMeeting == null) {
+                    Log.v(TAG, "No more meeting, quitting this activity: finishing=" + activity.isFinishing());
+                    if (!activity.isFinishing()) {
+                        activity.getSupportLoaderManager().destroyLoader(LOADER_ID);
+                        mBtnStopMeeting.setVisibility(View.INVISIBLE);
+                        activity.getContentResolver().unregisterContentObserver(mMeetingObserver);
+                        activity.finish();
+                    }
+                    return;
+                }
                 Bundle bundle = new Bundle(1);
-                bundle.putInt(EXTRA_MEETING_STATE, state.ordinal());
+                bundle.putInt(EXTRA_MEETING_STATE, mMeeting.getState().ordinal());
                 if (mAdapter == null) {
-                    mAdapter = new MeetingCursorAdapter(context, mOnClickListener);
+                    mAdapter = new MeetingCursorAdapter(activity, mOnClickListener);
                     getLoaderManager().initLoader(LOADER_ID, bundle, mLoaderCallbacks);
                 } else {
                     getLoaderManager().restartLoader(LOADER_ID, bundle, mLoaderCallbacks);
                 }
+                activity.supportInvalidateOptionsMenu();
+                Log.v(TAG, "meetingState = " + mMeeting.getState());
+                // Show the "stop meeting" button if the meeting is not finished.
+                mBtnStopMeeting.setVisibility(mMeeting.getState() == State.NOT_STARTED || mMeeting.getState() == State.IN_PROGRESS ? View.VISIBLE
+                        : View.INVISIBLE);
+                // Only enable the "stop meeting" button if the meeting is in progress.
+                mBtnStopMeeting.setEnabled(mMeeting.getState() == State.IN_PROGRESS);
+                activity.getSupportActionBar().setTitle(TextUtils.formatDateTime(activity, mMeeting.getStartDate()));
+
+                // Show the horizontal progress bar for in progress meetings
+                mProgressBarHeader.setVisibility(mMeeting.getState() == State.IN_PROGRESS ? View.VISIBLE : View.INVISIBLE);
+
+                // Update the chronometer
+                if (mMeeting.getState() == State.IN_PROGRESS) {
+                    // If the meeting is in progress, show the Chronometer.
+                    long timeSinceMeetingStartedMillis = System.currentTimeMillis() - mMeeting.getStartDate();
+                    mMeetingChronometer.setBase(SystemClock.elapsedRealtime() - timeSinceMeetingStartedMillis);
+                    mMeetingChronometer.start();
+                } else if (mMeeting.getState() == State.FINISHED) {
+                    // For finished meetings, show the duration we retrieved from the db.
+                    mMeetingChronometer.stop();
+                    mMeetingChronometer.setText(DateUtils.formatElapsedTime(mMeeting.getDuration()));
+                }
             }
         };
-        task.execute(mMeetingId);
+        task.execute(meetingId);
+    }
+
+    /**
+     * Stop the meeting. Set the state to finished, stop the chronometer, hide the "stop meeting" button, persist the meeting duration, and stop the
+     * chronometers for all team members who are still talking.
+     */
+    void stopMeeting() {
+        AsyncTask<Meeting, Void, Void> task = new AsyncTask<Meeting, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(Meeting... meeting) {
+                meeting[0].stop();
+                return null;
+            }
+        };
+        task.execute(mMeeting);
+    }
+
+    void deleteMeeting() {
+        AsyncTask<Meeting, Void, Void> task = new AsyncTask<Meeting, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(Meeting... meeting) {
+                meeting[0].delete();
+                return null;
+            }
+        };
+        task.execute(mMeeting);
     }
 
     private LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
@@ -156,7 +282,7 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
             String[] projection = new String[] { MeetingMemberColumns._ID, MemberColumns.NAME, MeetingMemberColumns.DURATION, MeetingColumns.STATE,
                     MeetingMemberColumns.TALK_START_TIME };
 
-            Uri uri = Uri.withAppendedPath(MeetingMemberColumns.CONTENT_URI, String.valueOf(mMeetingId));
+            Uri uri = Uri.withAppendedPath(MeetingMemberColumns.CONTENT_URI, String.valueOf(mMeeting.getId()));
             CursorLoader loader = new CursorLoader(getActivity(), uri, projection, selection, null, orderBy);
             return loader;
         }
@@ -192,9 +318,9 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
          */
         @Override
         public void onChange(boolean selfChange) {
-            Log.v(TAG, "MeetingObserver onChange, selfChange: " + selfChange + ", mMeetingId = " + mMeetingId);
+            Log.v(TAG, "MeetingObserver onChange, selfChange: " + selfChange + ", mMeeting = " + mMeeting);
             super.onChange(selfChange);
-            loadMeeting(mMeetingId);
+            loadMeeting(mMeeting.getId());
         }
     };
 
@@ -214,26 +340,16 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
          */
         private void toggleTalkingMember(final long memberId) {
             Log.v(TAG, "toggleTalkingMember " + memberId);
-            AsyncTask<Long, Void, Void> task = new AsyncTask<Long, Void, Void>() {
+            AsyncTask<Meeting, Void, Void> task = new AsyncTask<Meeting, Void, Void>() {
 
                 @Override
-                protected Void doInBackground(Long... meetingId) {
-                    Context context = getActivity();
-                    if (context == null) {
-                        Log.w(TAG, "No longer attached to activity, ignoring toggle talking member");
-                        return null;
-                    }
-                    Meeting meeting = Meeting.read(context, meetingId[0]);
-                    if (meeting == null) {
-                        Log.w(TAG, "Meeting " + meetingId[0] + " has been deleted, ignoring toggle talking member");
-                        return null;
-                    }
-                    if (meeting.getState() != State.IN_PROGRESS) meeting.start();
-                    meeting.toggleTalkingMember(memberId);
+                protected Void doInBackground(Meeting... meeting) {
+                    if (meeting[0].getState() != State.IN_PROGRESS) meeting[0].start();
+                    meeting[0].toggleTalkingMember(memberId);
                     return null;
                 }
             };
-            task.execute(mMeetingId);
+            task.execute(mMeeting);
         };
 
         @Override
@@ -244,6 +360,12 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
                 case R.id.btn_start_stop_member:
                     long memberId = (Long) v.getTag();
                     toggleTalkingMember(memberId);
+                    break;
+                // Stop the whole meeting.
+                case R.id.btn_stop_meeting:
+                    // Let's ask him if he's sure.
+                    DialogFragmentFactory.showConfirmDialog(getActivity(), getString(R.string.action_stop_meeting), getString(R.string.dialog_confirm),
+                            R.id.btn_stop_meeting, null);
                     break;
             }
         }

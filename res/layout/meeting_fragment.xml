@@ -18,11 +18,61 @@
   along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_height="match_parent"
     android:layout_width="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
 
-    <include
-        layout="@layout/list_content" />
+    <RelativeLayout
+        android:id="@+id/meeting_header"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@color/light_gray"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin" >
+
+        <TextView
+            style="@style/listHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/list_inner_horizontal_margin"
+            android:text="@string/meeting_header_total_duration" />
+
+        <Chronometer
+            android:id="@+id/tv_meeting_duration"
+            android:layout_width="70dp"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/btn_stop_meeting"
+            android:textStyle="bold"
+            android:color="@color/selected_header" />
+
+        <ImageButton
+            android:id="@id/btn_stop_meeting"
+            style="@style/listItemButton"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="@dimen/list_inner_horizontal_margin"
+            android:contentDescription="@string/action_stop_meeting"
+            android:src="@drawable/ic_action_stop"
+            android:visibility="invisible" />
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/selected_header" />
+
+    <ProgressBar
+        android:id="@+id/header_progress_bar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="-6dp"
+        android:layout_marginTop="-7dp"
+        android:indeterminate="true"
+        android:visibility="invisible" />
+
+    <include layout="@layout/list_content" />
 
 </LinearLayout>
