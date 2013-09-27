@@ -194,11 +194,12 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
                     return;
                 }
                 // Load the meeting member list
-                mMeeting = meeting;
-                if (mMeeting == null) {
+                if (meeting == null) {
                     Log.w(TAG, "Meeting was deleted, cannot load meeting");
+                    activity.getContentResolver().unregisterContentObserver(mMeetingObserver);
                     return;
                 }
+                mMeeting = meeting;
                 Bundle bundle = new Bundle(1);
                 bundle.putInt(EXTRA_MEETING_STATE, mMeeting.getState().ordinal());
                 if (mAdapter == null) {
