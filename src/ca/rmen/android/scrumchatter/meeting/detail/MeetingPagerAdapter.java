@@ -43,7 +43,7 @@ class MeetingPagerAdapter extends FragmentStatePagerAdapter {
         super(fm);
         Log.v(TAG, "Constructor");
         Cursor cursor = context.getContentResolver().query(MeetingColumns.CONTENT_URI, new String[] { String.valueOf(MeetingColumns._ID) }, null, null,
-                MeetingColumns.MEETING_DATE);
+                MeetingColumns.MEETING_DATE + " DESC");
         while (cursor.moveToNext())
             mMeetingIds.add(cursor.getLong(0));
         cursor.close();
@@ -51,7 +51,7 @@ class MeetingPagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        Log.v(TAG, "getItem at position " + position);
+        Log.v(TAG, "getItem at position " + position + ": meetingId = " + mMeetingIds.get(position));
         MeetingFragment fragment = new MeetingFragment();
         Bundle args = new Bundle(1);
         args.putLong(MeetingFragment.EXTRA_MEETING_ID, mMeetingIds.get(position));
@@ -60,12 +60,12 @@ class MeetingPagerAdapter extends FragmentStatePagerAdapter {
     }
 
     int getPositionForMeetingId(long meetingId) {
+        Log.v(TAG, "getPositionForMeetingId " + meetingId + ": " + mMeetingIds.indexOf(meetingId));
         return mMeetingIds.indexOf(meetingId);
     }
 
     @Override
     public int getCount() {
-        Log.v(TAG, "getCount");
         return mMeetingIds.size();
     }
 

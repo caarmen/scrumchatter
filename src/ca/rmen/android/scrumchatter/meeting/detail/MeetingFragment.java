@@ -305,7 +305,7 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
             Log.v(TAG, "onLoadFinished");
             if (getListAdapter() == null) {
                 setListAdapter(mAdapter);
-                getActivity().findViewById(R.id.progressContainer).setVisibility(View.GONE);
+                getView().findViewById(R.id.progressContainer).setVisibility(View.GONE);
             }
             mAdapter.changeCursor(cursor);
         }

@@ -53,9 +53,7 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
         if (TAG == null) TAG = Constants.TAG + "/" + MeetingActivity.class.getSimpleName() + "/" + System.currentTimeMillis();
         Log.v(TAG, "onCreate: savedInstanceState = " + savedInstanceState + ", intent = " + getIntent() + ", intent flags = " + getIntent().getFlags());
         setContentView(R.layout.meeting_activity);
-        mMeetingPagerAdapter = new MeetingPagerAdapter(this, getSupportFragmentManager());
         mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setAdapter(mMeetingPagerAdapter);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Bundle args = new Bundle(1);
         long meetingId = getIntent().getLongExtra(Meetings.EXTRA_MEETING_ID, -1);
