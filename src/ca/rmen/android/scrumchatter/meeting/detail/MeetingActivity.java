@@ -19,6 +19,7 @@
 package ca.rmen.android.scrumchatter.meeting.detail;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
@@ -146,17 +147,29 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
          * Update the UI for the given meeting.
          */
         @Override
-        public void onLoadFinished(Loader<Meeting> loaderTask, Meeting meeting) {
+        public void onLoadFinished(Loader<Meeting> loaderTask, final Meeting meeting) {
             Log.v(TAG, "onLoadFinished, meeting = " + meeting);
             if (meeting == null) {
                 Log.w(TAG, "Could not load meeting, are you a monkey?");
                 return;
             }
             getSupportActionBar().setTitle(TextUtils.formatDateTime(MeetingActivity.this, meeting.getStartDate()));
-            mMeetingPagerAdapter = new MeetingPagerAdapter(MeetingActivity.this, getSupportFragmentManager());
-            mViewPager.setAdapter(mMeetingPagerAdapter);
-            int position = mMeetingPagerAdapter.getPositionForMeetingId(meeting.getId());
-            mViewPager.setCurrentItem(position);
+            new AsyncTask<Void, Void, MeetingPagerAdapter>() {
+
+                @Override
+                protected MeetingPagerAdapter doInBackground(Void... params) {
+                    return new MeetingPagerAdapter(MeetingActivity.this, getSupportFragmentManager());
+                }
+
+                @Override
+                protected void onPostExecute(MeetingPagerAdapter result) {
+                    mMeetingPagerAdapter = result;
+                    mViewPager.setAdapter(mMeetingPagerAdapter);
+                    int position = mMeetingPagerAdapter.getPositionForMeetingId(meeting.getId());
+                    mViewPager.setCurrentItem(position);
+                }
+
+            }.execute();
         }
 
         @Override
