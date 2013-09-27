@@ -178,6 +178,7 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
                 FragmentActivity activity = getActivity();
                 if (activity == null) {
                     Log.w(TAG, "No longer attached to activity: can't load meeting");
+                    cancel(false);
                     return null;
                 }
                 Meeting meeting = Meeting.read(activity, meetingId);
@@ -353,10 +354,7 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
          * Switch a member from the talking to non-talking state:
          * 
          * If they were talking, they will no longer be talking, and their button will go back to a "start" button.
-         * 
          * If they were not talking, they will start talking, and their button will be a "stop" button.
-         * 
-         * @param memberId
          */
         private void toggleTalkingMember(final long memberId) {
             Log.v(TAG, "toggleTalkingMember " + memberId);
