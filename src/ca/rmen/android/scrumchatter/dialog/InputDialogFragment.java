@@ -27,7 +27,6 @@ import android.content.DialogInterface.OnShowListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -98,10 +97,7 @@ public class InputDialogFragment extends DialogFragment { // NO_UCD (use default
 
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    FragmentActivity activity = getActivity();
-                    if (activity == null) Log.w(TAG, "User clicked on dialog after it was detached from activity. Monkey?");
-                    else
-                        ((DialogInputListener) activity).onInputEntered(actionId, input.getText().toString(), extras);
+                    ((DialogInputListener) getActivity()).onInputEntered(actionId, input.getText().toString(), extras);
                 }
             };
         }

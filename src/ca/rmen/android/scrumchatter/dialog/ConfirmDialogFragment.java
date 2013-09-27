@@ -25,7 +25,6 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import ca.rmen.android.scrumchatter.Constants;
@@ -67,10 +66,7 @@ public class ConfirmDialogFragment extends DialogFragment { // NO_UCD (use defau
             positiveListener = new OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    FragmentActivity activity = getActivity();
-                    if (activity == null) Log.w(TAG, "User clicked on dialog after it was detached from activity. Monkey?");
-                    else
-                        ((DialogButtonListener) activity).onOkClicked(actionId, extras);
+                    ((DialogButtonListener) getActivity()).onOkClicked(actionId, extras);
                 }
             };
         }
