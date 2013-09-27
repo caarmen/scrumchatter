@@ -19,7 +19,6 @@
 package ca.rmen.android.scrumchatter.meeting.detail;
 
 import android.app.Activity;
-import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -94,8 +93,8 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
         mBtnStopMeeting = view.findViewById(R.id.btn_stop_meeting);
         mMeetingChronometer = (Chronometer) view.findViewById(R.id.tv_meeting_duration);
         mProgressBarHeader = view.findViewById(R.id.header_progress_bar);
-
         mBtnStopMeeting.setOnClickListener(mOnClickListener);
+
         if (savedInstanceState != null) {
             long meetingId = savedInstanceState.getLong(EXTRA_MEETING_ID);
             Uri uri = Uri.withAppendedPath(MeetingColumns.CONTENT_URI, String.valueOf(meetingId));
@@ -108,9 +107,8 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
     public void onDestroyView() {
         Log.v(TAG, "onDestroyView");
         if (mMeeting != null) {
-            Log.v(TAG, "register observer " + mMeetingObserver);
+            Log.v(TAG, "unregister observer " + mMeetingObserver);
             getActivity().getContentResolver().unregisterContentObserver(mMeetingObserver);
-            getActivity().getContentResolver().registerContentObserver(mMeeting.getUri(), false, mMeetingObserver);
         }
         super.onDestroyView();
     }
@@ -139,7 +137,7 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
     public boolean onOptionsItemSelected(MenuItem item) {
         Log.v(TAG, "onOptionsItemSelected: item = " + item.getItemId() + ": " + item.getTitle());
         if (getActivity().isFinishing()) {
-            Log.v(TAG, "User clicked on a menu item while the activity is finishing.  Surely a monkey is involved");
+            Log.w(TAG, "User clicked on a menu item while the activity is finishing.  Surely a monkey is involved");
             return true;
         }
         switch (item.getItemId()) {
@@ -159,6 +157,9 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
     }
 
 
+    /**
+     * Read the given meeting in the background. Init or restart the loader for the meeting members. Update the views for the meeting.
+     */
     void loadMeeting(long meetingId) {
         Log.v(TAG, "loadMeeting: current meeting = " + mMeeting + ", new meeting id = " + meetingId);
         if (mMeeting == null || meetingId != mMeeting.getId()) {
@@ -174,12 +175,12 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
                 long meetingId = params[0];
                 Log.v(TAG, "doInBackground: meetingId = " + meetingId);
 
-                Context context = getActivity();
-                if (context == null) {
+                FragmentActivity activity = getActivity();
+                if (activity == null) {
                     Log.w(TAG, "No longer attached to activity: can't load meeting");
                     return null;
                 }
-                Meeting meeting = Meeting.read(getActivity(), meetingId);
+                Meeting meeting = Meeting.read(activity, meetingId);
                 return meeting;
             }
 
@@ -192,15 +193,10 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
                     Log.w(TAG, "No longer attached to the activity: can't load meeting members");
                     return;
                 }
+                // Load the meeting member list
                 mMeeting = meeting;
                 if (mMeeting == null) {
-                    Log.v(TAG, "No more meeting, quitting this activity: finishing=" + activity.isFinishing());
-                    if (!activity.isFinishing()) {
-                        activity.getSupportLoaderManager().destroyLoader(LOADER_ID);
-                        mBtnStopMeeting.setVisibility(View.INVISIBLE);
-                        activity.getContentResolver().unregisterContentObserver(mMeetingObserver);
-                        activity.finish();
-                    }
+                    Log.w(TAG, "Meeting was deleted, cannot load meeting");
                     return;
                 }
                 Bundle bundle = new Bundle(1);
@@ -211,6 +207,8 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
                 } else {
                     getLoaderManager().restartLoader(LOADER_ID, bundle, mLoaderCallbacks);
                 }
+
+                // Update the UI views
                 activity.supportInvalidateOptionsMenu();
                 Log.v(TAG, "meetingState = " + mMeeting.getState());
                 // Show the "stop meeting" button if the meeting is not finished.
@@ -255,18 +253,37 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
         task.execute(mMeeting);
     }
 
+    /**
+     * Delete the current meeting, and close the activity, to return to the list of meetings.
+     */
     void deleteMeeting() {
         AsyncTask<Meeting, Void, Void> task = new AsyncTask<Meeting, Void, Void>() {
+
+            @Override
+            protected void onPreExecute() {
+                mBtnStopMeeting.setVisibility(View.INVISIBLE);
+                getActivity().getContentResolver().unregisterContentObserver(mMeetingObserver);
+            }
 
             @Override
             protected Void doInBackground(Meeting... meeting) {
                 meeting[0].delete();
                 return null;
             }
+
+            @Override
+            protected void onPostExecute(Void params) {
+                // TODO might be better for the activity to finish itself instead.
+                FragmentActivity activity = getActivity();
+                if (activity != null) activity.finish();
+            }
         };
         task.execute(mMeeting);
     }
 
+    /**
+     * Cursor on the MeetingMember table
+     */
     private LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
 
         @Override
@@ -275,6 +292,8 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
             State meetingState = State.values()[bundle.getInt(EXTRA_MEETING_STATE, State.NOT_STARTED.ordinal())];
             String selection = null;
             String orderBy = MemberColumns.NAME + " COLLATE NOCASE";
+            // For finished meetings, show the member who spoke the most first.
+            // For meetings in progress (or not started), sort alphabetically.
             if (meetingState == State.FINISHED) {
                 selection = MeetingMemberColumns.DURATION + ">0";
                 orderBy = MeetingMemberColumns.DURATION + " DESC";
@@ -304,6 +323,9 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
         }
     };
 
+    /**
+     * Observer on the Meeting table. When a meeting changes, we reload the list of members for this meeting.
+     */
     private class MeetingObserver extends ContentObserver {
 
         private final String TAG = MeetingFragment.TAG + "/" + MeetingObserver.class.getSimpleName();
@@ -313,9 +335,6 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
             Log.v(TAG, "Constructor");
         }
 
-        /**
-         * Called when a meeting changes. Reload the list of members for this meeting.
-         */
         @Override
         public void onChange(boolean selfChange) {
             Log.v(TAG, "MeetingObserver onChange, selfChange: " + selfChange + ", mMeeting = " + mMeeting);

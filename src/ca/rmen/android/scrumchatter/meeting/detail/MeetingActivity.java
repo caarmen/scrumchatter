@@ -50,25 +50,11 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
         if (TAG == null) TAG = Constants.TAG + "/" + MeetingActivity.class.getSimpleName() + "/" + System.currentTimeMillis();
         Log.v(TAG, "onCreate: savedInstanceState = " + savedInstanceState + ", intent = " + getIntent() + ", intent flags = " + getIntent().getFlags());
         setContentView(R.layout.meeting_activity);
-
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Bundle args = new Bundle(1);
         long meetingId = getIntent().getLongExtra(Meetings.EXTRA_MEETING_ID, -1);
         args.putLong(Meetings.EXTRA_MEETING_ID, meetingId);
         getSupportLoaderManager().initLoader(LOADER_ID, args, mLoaderCallbacks);
-    }
-
-    @Override
-    protected void onPause() {
-        Log.v(TAG, "onPause");
-        super.onPause();
-    }
-
-    @Override
-    protected void onResume() {
-        Log.v(TAG, "onResume");
-        super.onResume();
     }
 
     /**
@@ -86,8 +72,10 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
             return;
         }
         MeetingFragment fragment = (MeetingFragment) getSupportFragmentManager().findFragmentById(R.id.meeting_fragment);
-        if (actionId == R.id.action_delete_meeting) fragment.deleteMeeting();
-        else if (actionId == R.id.btn_stop_meeting) fragment.stopMeeting();
+        if (actionId == R.id.action_delete_meeting) {
+            getSupportLoaderManager().destroyLoader(LOADER_ID);
+            fragment.deleteMeeting();
+        } else if (actionId == R.id.btn_stop_meeting) fragment.stopMeeting();
     }
 
     /**
