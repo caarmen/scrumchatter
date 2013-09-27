@@ -61,9 +61,9 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
 
     private static final String TAG = Constants.TAG + "/" + MeetingFragment.class.getSimpleName();
 
-    private static final int LOADER_ID = 0;
+    public static final String EXTRA_MEETING_ID = MeetingFragment.class.getPackage().getName() + ".meeting_id";
     private static final String EXTRA_MEETING_STATE = MeetingFragment.class.getPackage().getName() + ".meeting_state";
-    private static final String EXTRA_MEETING_ID = MeetingFragment.class.getPackage().getName() + ".meeting_id";
+    private static final int LOADER_ID = 0;
 
     private MeetingCursorAdapter mAdapter;
     private final MeetingObserver mMeetingObserver;
@@ -95,11 +95,10 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
         mProgressBarHeader = view.findViewById(R.id.header_progress_bar);
         mBtnStopMeeting.setOnClickListener(mOnClickListener);
 
-        if (savedInstanceState != null) {
-            long meetingId = savedInstanceState.getLong(EXTRA_MEETING_ID);
-            Uri uri = Uri.withAppendedPath(MeetingColumns.CONTENT_URI, String.valueOf(meetingId));
-            getActivity().getContentResolver().registerContentObserver(uri, false, mMeetingObserver);
-        }
+        long meetingId = getArguments().getLong(EXTRA_MEETING_ID);
+        Uri uri = Uri.withAppendedPath(MeetingColumns.CONTENT_URI, String.valueOf(meetingId));
+        getActivity().getContentResolver().registerContentObserver(uri, false, mMeetingObserver);
+        loadMeeting(meetingId);
         return view;
     }
 
@@ -111,13 +110,6 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
             getActivity().getContentResolver().unregisterContentObserver(mMeetingObserver);
         }
         super.onDestroyView();
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        Log.v(TAG, "onSaveInstanceState: outState = " + outState);
-        super.onSaveInstanceState(outState);
-        if (mMeeting != null) outState.putLong(EXTRA_MEETING_ID, mMeeting.getId());
     }
 
     @Override
@@ -160,7 +152,7 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
     /**
      * Read the given meeting in the background. Init or restart the loader for the meeting members. Update the views for the meeting.
      */
-    void loadMeeting(long meetingId) {
+    private void loadMeeting(long meetingId) {
         Log.v(TAG, "loadMeeting: current meeting = " + mMeeting + ", new meeting id = " + meetingId);
         if (mMeeting == null || meetingId != mMeeting.getId()) {
             Uri uri = Uri.withAppendedPath(MeetingColumns.CONTENT_URI, String.valueOf(meetingId));

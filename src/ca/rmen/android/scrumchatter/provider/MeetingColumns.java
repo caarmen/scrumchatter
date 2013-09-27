@@ -30,7 +30,7 @@ public class MeetingColumns implements BaseColumns {
     static final String TABLE_NAME = "meeting";
     public static final Uri CONTENT_URI = Uri.parse(ScrumChatterProvider.CONTENT_URI_BASE + "/" + TABLE_NAME);
 
-    static final String _ID = BaseColumns._ID;
+    public static final String _ID = BaseColumns._ID;
 
     public static final String TEAM_ID = "meeting_team_id";
     public static final String MEETING_DATE = "meeting_date";

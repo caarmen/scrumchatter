@@ -23,12 +23,10 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <fragment
-        android:id="@+id/meeting_fragment"
+    <android.support.v4.view.ViewPager
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/pager"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        class="ca.rmen.android.scrumchatter.meeting.detail.MeetingFragment"
-        tools:layout="@layout/meeting_fragment" />
+        android:layout_height="match_parent" />
 
 </LinearLayout>

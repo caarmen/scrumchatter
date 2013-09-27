@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
@@ -41,6 +42,8 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
     private String TAG;
 
     private static final int LOADER_ID = MeetingLoaderTask.class.hashCode();
+    private MeetingPagerAdapter mMeetingPagerAdapter;
+    private ViewPager mViewPager;
 
 
 
@@ -50,6 +53,9 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
         if (TAG == null) TAG = Constants.TAG + "/" + MeetingActivity.class.getSimpleName() + "/" + System.currentTimeMillis();
         Log.v(TAG, "onCreate: savedInstanceState = " + savedInstanceState + ", intent = " + getIntent() + ", intent flags = " + getIntent().getFlags());
         setContentView(R.layout.meeting_activity);
+        mMeetingPagerAdapter = new MeetingPagerAdapter(this, getSupportFragmentManager());
+        mViewPager = (ViewPager) findViewById(R.id.pager);
+        mViewPager.setAdapter(mMeetingPagerAdapter);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Bundle args = new Bundle(1);
         long meetingId = getIntent().getLongExtra(Meetings.EXTRA_MEETING_ID, -1);
@@ -71,7 +77,7 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
             Log.v(TAG, "Ignoring on click because this activity is closing.  You're either very quick or a monkey.");
             return;
         }
-        MeetingFragment fragment = (MeetingFragment) getSupportFragmentManager().findFragmentById(R.id.meeting_fragment);
+        MeetingFragment fragment = (MeetingFragment) mMeetingPagerAdapter.getItem(mViewPager.getCurrentItem());
         if (actionId == R.id.action_delete_meeting) {
             getSupportLoaderManager().destroyLoader(LOADER_ID);
             fragment.deleteMeeting();
@@ -130,9 +136,10 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
                 Log.w(TAG, "Could not load meeting, are you a monkey?");
                 return;
             }
-            // Load the list of team members.
-            MeetingFragment fragment = (MeetingFragment) getSupportFragmentManager().findFragmentById(R.id.meeting_fragment);
-            fragment.loadMeeting(meeting.getId());
+            mMeetingPagerAdapter = new MeetingPagerAdapter(MeetingActivity.this, getSupportFragmentManager());
+            mViewPager.setAdapter(mMeetingPagerAdapter);
+            int position = mMeetingPagerAdapter.getPositionForMeetingId(meeting.getId());
+            mViewPager.setCurrentItem(position);
         }
 
         @Override
