@@ -154,22 +154,26 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
                 return;
             }
             getSupportActionBar().setTitle(TextUtils.formatDateTime(MeetingActivity.this, meeting.getStartDate()));
-            new AsyncTask<Void, Void, MeetingPagerAdapter>() {
+            new AsyncTask<MeetingPagerAdapter, Void, MeetingPagerAdapter>() {
 
                 @Override
-                protected MeetingPagerAdapter doInBackground(Void... params) {
-                    return new MeetingPagerAdapter(MeetingActivity.this, getSupportFragmentManager());
+                protected MeetingPagerAdapter doInBackground(MeetingPagerAdapter... adapter) {
+                    if (adapter[0] == null) return new MeetingPagerAdapter(MeetingActivity.this, getSupportFragmentManager());
+                    else
+                        return adapter[0];
                 }
 
                 @Override
                 protected void onPostExecute(MeetingPagerAdapter result) {
-                    mMeetingPagerAdapter = result;
-                    mViewPager.setAdapter(mMeetingPagerAdapter);
+                    if (mMeetingPagerAdapter != result) {
+                        mMeetingPagerAdapter = result;
+                        mViewPager.setAdapter(mMeetingPagerAdapter);
+                    }
                     int position = mMeetingPagerAdapter.getPositionForMeetingId(meeting.getId());
                     mViewPager.setCurrentItem(position);
                 }
 
-            }.execute();
+            }.execute(mMeetingPagerAdapter);
         }
 
         @Override
