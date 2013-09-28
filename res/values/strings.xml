@@ -20,7 +20,7 @@
 <resources>
 
     <string name="app_name">Scrum Chatter</string>
-    <string name="app_version">1.0.16</string>
+    <string name="app_version">1.0.17</string>
     <string name="title_section_meetings">Meetings</string>
     <string name="title_section_team">Team</string>
     <string name="action_share">Share</string>
