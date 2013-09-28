@@ -194,6 +194,7 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
                     activity.getContentResolver().unregisterContentObserver(mMeetingObserver);
                     return;
                 }
+                boolean thisIsTheFirstTimeWeLoadTheMeeting = (mMeeting == null);
                 mMeeting = meeting;
                 Bundle bundle = new Bundle(1);
                 bundle.putInt(EXTRA_MEETING_STATE, mMeeting.getState().ordinal());
@@ -204,8 +205,13 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
                     getLoaderManager().restartLoader(LOADER_ID, bundle, mLoaderCallbacks);
                 }
 
+                // Update the action bar if we are visible
+                if (getUserVisibleHint()) {
+                    if (thisIsTheFirstTimeWeLoadTheMeeting) setHasOptionsMenu(true);
+                    else
+                        activity.supportInvalidateOptionsMenu();
+                }
                 // Update the UI views
-                if (getUserVisibleHint()) setHasOptionsMenu(true);
                 Log.v(TAG, "meetingState = " + mMeeting.getState());
                 // Show the "stop meeting" button if the meeting is not finished.
                 mBtnStopMeeting.setVisibility(mMeeting.getState() == State.NOT_STARTED || mMeeting.getState() == State.IN_PROGRESS ? View.VISIBLE
