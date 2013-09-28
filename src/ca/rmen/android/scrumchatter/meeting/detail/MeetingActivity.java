@@ -102,13 +102,13 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
     }
 
     @Override
-    public void invalidateOptionsMenu() {
-        Log.v(TAG, "invalidateOptionsMenu");
+    public void supportInvalidateOptionsMenu() {
+        Log.v(TAG, "supportInvalidateOptionsMenu");
         mViewPager.post(new Runnable() {
 
             @Override
             public void run() {
-                MeetingActivity.super.invalidateOptionsMenu();
+                MeetingActivity.super.supportInvalidateOptionsMenu();
 
             }
         });
