@@ -38,7 +38,7 @@ import ca.rmen.android.scrumchatter.provider.MeetingColumns;
 class MeetingPagerAdapter extends FragmentStatePagerAdapter {
     private static final String TAG = Constants.TAG + "/" + MeetingPagerAdapter.class.getSimpleName();
 
-    List<Long> mMeetingIds = new ArrayList<Long>();
+    private List<Long> mMeetingIds = new ArrayList<Long>();
 
     public MeetingPagerAdapter(Context context, FragmentManager fm) {
         super(fm);

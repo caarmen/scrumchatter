@@ -54,7 +54,7 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 
 /**
- * Displays the list of members participating in a particular meeting.
+ * Displays info about a meeting (the duration) as well as the list of members participating in a particular meeting.
  */
 public class MeetingFragment extends SherlockListFragment { // NO_UCD (use default)
 
@@ -86,12 +86,14 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.v(TAG, "onCreateView: savedInstanceState = " + savedInstanceState);
+        // Create our views
         View view = inflater.inflate(R.layout.meeting_fragment, null);
         mBtnStopMeeting = view.findViewById(R.id.btn_stop_meeting);
         mMeetingChronometer = (Chronometer) view.findViewById(R.id.tv_meeting_duration);
         mProgressBarHeader = view.findViewById(R.id.header_progress_bar);
         mBtnStopMeeting.setOnClickListener(mOnClickListener);
 
+        // Load the meeting and register for DB changes on the meeting
         long meetingId = getArguments().getLong(Meetings.EXTRA_MEETING_ID);
         Uri uri = Uri.withAppendedPath(MeetingColumns.CONTENT_URI, String.valueOf(meetingId));
         getActivity().getContentResolver().registerContentObserver(uri, false, mMeetingObserver);
@@ -144,6 +146,9 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
     }
 
 
+    /**
+     * As soon as this fragment is visible and we have loaded the meeting, let's update the action bar icons.
+     */
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         Log.v(TAG, "setUserVisibleHint: " + isVisibleToUser);
@@ -325,7 +330,9 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
     };
 
     /**
-     * Observer on the Meeting table. When a meeting changes, we reload the list of members for this meeting.
+     * Observer on the Meeting table. When a meeting changes, we reload the meeting data itself as well as the
+     * list of members for this meeting. The data on the meeting itself will impact how we display the list
+     * of members.
      */
     private class MeetingObserver extends ContentObserver {
 

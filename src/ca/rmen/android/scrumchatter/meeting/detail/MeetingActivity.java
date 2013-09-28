@@ -37,8 +37,7 @@ import ca.rmen.android.scrumchatter.util.TextUtils;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 
 /**
- * Displays attributes of a meeting. Also contains a {@link MeetingFragment} which displays the list of team members participating in
- * this meeting.
+ * Contains a ViewPager of {@link MeetingFragment}.
  */
 public class MeetingActivity extends SherlockFragmentActivity implements DialogButtonListener {
 
@@ -60,17 +59,26 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setOnPageChangeListener(mOnPageChangeListener);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        // If this is the first time we open the activity, we will use the meeting id provided in the intent.
+        // If we are recreating the activity (because of a device rotation, for example), we will display the meeting that the user 
+        // had previously swiped to, using the ViewPager.
         long originalMeetingId = getIntent().getLongExtra(Meetings.EXTRA_MEETING_ID, -1);
         if (savedInstanceState != null) mMeetingId = savedInstanceState.getLong(Meetings.EXTRA_MEETING_ID);
         else
             mMeetingId = originalMeetingId;
         Bundle args = new Bundle(1);
         args.putLong(Meetings.EXTRA_MEETING_ID, mMeetingId);
-        if (mMeetingId != originalMeetingId) getSupportLoaderManager().restartLoader(LOADER_ID, args, mLoaderCallbacks);
+        // The first time we open the activity, we will initialize the loader
+        if (mMeetingId == originalMeetingId) getSupportLoaderManager().initLoader(LOADER_ID, args, mLoaderCallbacks);
+        // If we had previously swiped to a different meeting, restart the loader with the new meeting id.
         else
-            getSupportLoaderManager().initLoader(LOADER_ID, args, mLoaderCallbacks);
+            getSupportLoaderManager().restartLoader(LOADER_ID, args, mLoaderCallbacks);
     }
 
+    /**
+     * Save the id of the meeting which is currently visible.
+     */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         Log.v(TAG, "onSaveInstanceState, outState = " + outState + ", meetingId = " + mMeetingId);
@@ -92,15 +100,21 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
             Log.v(TAG, "Ignoring on click because this activity is closing.  You're either very quick or a monkey.");
             return;
         }
-        // Not intuitive: instantiateItem will actually return an existing Fragment, whereas getItem() will instantiate a new Fragment.
+        // Not intuitive: instantiateItem will actually return an existing Fragment, whereas getItem() will always instantiate a new Fragment.
         // We want to retrieve the existing fragment.
         MeetingFragment fragment = (MeetingFragment) mMeetingPagerAdapter.instantiateItem(mViewPager, mViewPager.getCurrentItem());
         if (actionId == R.id.action_delete_meeting) {
             getSupportLoaderManager().destroyLoader(LOADER_ID);
             fragment.deleteMeeting();
-        } else if (actionId == R.id.btn_stop_meeting) fragment.stopMeeting();
+        } else if (actionId == R.id.btn_stop_meeting) {
+            fragment.stopMeeting();
+        }
     }
 
+    /**
+     * Workaround for bug where the action icons disappear when rotating the device.
+     * https://code.google.com/p/android/issues/detail?can=2&start=0&num=100&q=&colspec=ID%20Type%20Status%20Owner%20Summary%20Stars&groupby=&sort=&id=29472
+     */
     @Override
     public void supportInvalidateOptionsMenu() {
         Log.v(TAG, "supportInvalidateOptionsMenu");
@@ -109,11 +123,9 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
             @Override
             public void run() {
                 MeetingActivity.super.supportInvalidateOptionsMenu();
-
             }
         });
     }
-
 
     /**
      * Loads the meeting for the given meeting id. If the meeting id is -1, a new meeting is created.
@@ -168,6 +180,9 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
                 return;
             }
             getSupportActionBar().setTitle(TextUtils.formatDateTime(MeetingActivity.this, meeting.getStartDate()));
+            // Create the pager adapter if we haven't already. The pager adapter constructor reads from the DB, so
+            // we need to create it in a background thread.  When it's ready, we'll use it 
+            // with the ViewPager, and open the ViewPager to the correct meeting.
             new AsyncTask<MeetingPagerAdapter, Void, MeetingPagerAdapter>() {
 
                 @Override
@@ -195,6 +210,11 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
             Log.v(TAG, "onLoaderReset: meeting = " + meeting);
         }
     };
+
+    /**
+     * When the user selects a meeting by swiping left or right, we need to load the data
+     * from the meeting, to update the title in the action bar.
+     */
     private OnPageChangeListener mOnPageChangeListener = new OnPageChangeListener() {
 
         @Override
