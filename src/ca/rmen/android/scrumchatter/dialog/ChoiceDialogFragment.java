@@ -25,6 +25,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import ca.rmen.android.scrumchatter.Constants;
@@ -67,7 +68,10 @@ public class ChoiceDialogFragment extends DialogFragment { // NO_UCD (use defaul
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.dismiss();
-                    ((DialogItemListener) getActivity()).onItemSelected(actionId, choices, which);
+                    FragmentActivity activity = getActivity();
+                    if (activity == null) Log.w(TAG, "User clicked on dialog after it was detached from activity. Monkey?");
+                    else
+                        ((DialogItemListener) activity).onItemSelected(actionId, choices, which);
                 }
             };
         }
