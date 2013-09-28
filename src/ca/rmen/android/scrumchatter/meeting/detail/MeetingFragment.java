@@ -74,7 +74,6 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
     public MeetingFragment() {
         super();
         Log.v(TAG, "Constructor");
-        setHasOptionsMenu(true);
         mMeetingObserver = new MeetingObserver(new Handler());
     }
 
@@ -145,6 +144,13 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
     }
 
 
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        Log.v(TAG, "setUserVisibleHint: " + isVisibleToUser);
+        super.setUserVisibleHint(isVisibleToUser);
+        setHasOptionsMenu(isVisibleToUser && mMeeting != null);
+    }
+
     /**
      * Read the given meeting in the background. Init or restart the loader for the meeting members. Update the views for the meeting.
      */
@@ -199,7 +205,7 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
                 }
 
                 // Update the UI views
-                activity.supportInvalidateOptionsMenu();
+                if (getUserVisibleHint()) setHasOptionsMenu(true);
                 Log.v(TAG, "meetingState = " + mMeeting.getState());
                 // Show the "stop meeting" button if the meeting is not finished.
                 mBtnStopMeeting.setVisibility(mMeeting.getState() == State.NOT_STARTED || mMeeting.getState() == State.IN_PROGRESS ? View.VISIBLE

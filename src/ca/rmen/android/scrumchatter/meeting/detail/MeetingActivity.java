@@ -101,6 +101,20 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
         } else if (actionId == R.id.btn_stop_meeting) fragment.stopMeeting();
     }
 
+    @Override
+    public void invalidateOptionsMenu() {
+        Log.v(TAG, "invalidateOptionsMenu");
+        mViewPager.post(new Runnable() {
+
+            @Override
+            public void run() {
+                MeetingActivity.super.invalidateOptionsMenu();
+
+            }
+        });
+    }
+
+
     /**
      * Loads the meeting for the given meeting id. If the meeting id is -1, a new meeting is created.
      */
