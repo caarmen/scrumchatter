@@ -19,6 +19,7 @@
 package ca.rmen.android.scrumchatter.meeting.detail;
 
 import android.app.Activity;
+import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -93,24 +94,18 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
         mMeetingId = getArguments().getLong(Meetings.EXTRA_MEETING_ID);
         if (!TAG.endsWith("" + mMeetingId)) TAG += "/" + mMeetingId;
 
-        return view;
-    }
-
-    @Override
-    public void onStart() {
-        Log.v(TAG, "onStart");
-        super.onStart();
         // Load the meeting and register for DB changes on the meeting
         Uri uri = Uri.withAppendedPath(MeetingColumns.CONTENT_URI, String.valueOf(mMeetingId));
         getActivity().getContentResolver().registerContentObserver(uri, false, mMeetingObserver);
         loadMeeting();
+        return view;
     }
 
     @Override
-    public void onStop() {
-        Log.v(TAG, "onStop");
+    public void onDestroyView() {
+        Log.v(TAG, "onDestroyView");
         getActivity().getContentResolver().unregisterContentObserver(mMeetingObserver);
-        super.onStop();
+        super.onDestroyView();
     }
 
     @Override
@@ -165,11 +160,16 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
      */
     private void loadMeeting() {
         Log.v(TAG, "loadMeeting: current meeting = " + mMeeting);
+        Context context = getActivity();
+        if (context == null) {
+            Log.w(TAG, "loadMeeting called when we are no longer attached to the activity. A monkey might be involved");
+            return;
+        }
         State meetingState = mMeeting == null ? (State) getArguments().getSerializable(Meetings.EXTRA_MEETING_STATE) : mMeeting.getState();
         Bundle bundle = new Bundle(1);
         bundle.putSerializable(Meetings.EXTRA_MEETING_STATE, meetingState);
         if (mAdapter == null) {
-            mAdapter = new MeetingCursorAdapter(getActivity(), mOnClickListener);
+            mAdapter = new MeetingCursorAdapter(context, mOnClickListener);
             getLoaderManager().initLoader((int) mMeetingId, bundle, mLoaderCallbacks);
         } else {
             getLoaderManager().restartLoader((int) mMeetingId, bundle, mLoaderCallbacks);
