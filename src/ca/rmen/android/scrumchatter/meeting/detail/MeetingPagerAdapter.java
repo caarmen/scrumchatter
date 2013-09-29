@@ -40,7 +40,7 @@ import ca.rmen.android.scrumchatter.provider.MeetingCursorWrapper;
 class MeetingPagerAdapter extends FragmentStatePagerAdapter {
     private static final String TAG = Constants.TAG + "/" + MeetingPagerAdapter.class.getSimpleName();
 
-    private final MeetingCursorWrapper mCursor;
+    private MeetingCursorWrapper mCursor;
     private final Context mContext;
     private final MeetingObserver mMeetingObserver;
 
@@ -104,22 +104,30 @@ class MeetingPagerAdapter extends FragmentStatePagerAdapter {
             Log.v(TAG, "Constructor");
         }
 
+        /**
+         * The Meeting table changed. We need to update our cursor and notify about the change.
+         */
         @Override
         public void onChange(boolean selfChange) {
             Log.v(TAG, "MeetingObserver onChange, selfChange: " + selfChange);
             super.onChange(selfChange);
-            new AsyncTask<Void, Void, Void>() {
+            new AsyncTask<Void, Void, MeetingCursorWrapper>() {
 
                 @Override
-                protected Void doInBackground(Void... params) {
-                    mCursor.requery();
-                    mCursor.getCount();
-                    return null;
+                protected MeetingCursorWrapper doInBackground(Void... params) {
+                    Cursor cursor = mContext.getContentResolver().query(MeetingColumns.CONTENT_URI, null, null, null, MeetingColumns.MEETING_DATE + " DESC");
+                    MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(cursor);
+                    cursorWrapper.getCount();
+                    return cursorWrapper;
                 }
 
                 @Override
-                protected void onPostExecute(Void result) {
+                protected void onPostExecute(MeetingCursorWrapper result) {
+                    mCursor.unregisterContentObserver(mMeetingObserver);
+                    mCursor.close();
+                    mCursor = result;
                     notifyDataSetChanged();
+                    mCursor.registerContentObserver(mMeetingObserver);
                 }
 
             }.execute();
