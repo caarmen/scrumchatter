@@ -50,8 +50,9 @@ class MeetingPagerAdapter extends FragmentStatePagerAdapter {
         mContext = context;
         Cursor cursor = context.getContentResolver().query(MeetingColumns.CONTENT_URI, null, null, null, MeetingColumns.MEETING_DATE + " DESC");
         mCursor = new MeetingCursorWrapper(cursor);
+        mCursor.getCount();
         mMeetingObserver = new MeetingObserver(new Handler(Looper.getMainLooper()));
-        context.getContentResolver().registerContentObserver(MeetingColumns.CONTENT_URI, true, mMeetingObserver);
+        mCursor.registerContentObserver(mMeetingObserver);
     }
 
 
@@ -90,7 +91,7 @@ class MeetingPagerAdapter extends FragmentStatePagerAdapter {
 
     void destroy() {
         Log.v(TAG, "destroy");
-        mContext.getContentResolver().unregisterContentObserver(mMeetingObserver);
+        mCursor.unregisterContentObserver(mMeetingObserver);
         mCursor.close();
     }
 
@@ -112,6 +113,7 @@ class MeetingPagerAdapter extends FragmentStatePagerAdapter {
                 @Override
                 protected Void doInBackground(Void... params) {
                     mCursor.requery();
+                    mCursor.getCount();
                     return null;
                 }
 
