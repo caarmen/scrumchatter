@@ -19,8 +19,12 @@
 package ca.rmen.android.scrumchatter.meeting.detail;
 
 import android.content.Context;
+import android.database.ContentObserver;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -36,15 +40,20 @@ import ca.rmen.android.scrumchatter.provider.MeetingCursorWrapper;
 class MeetingPagerAdapter extends FragmentStatePagerAdapter {
     private static final String TAG = Constants.TAG + "/" + MeetingPagerAdapter.class.getSimpleName();
 
-    private MeetingCursorWrapper mCursor;
+    private final MeetingCursorWrapper mCursor;
+    private final Context mContext;
+    private final MeetingObserver mMeetingObserver;
 
     public MeetingPagerAdapter(Context context, FragmentManager fm) {
         super(fm);
         Log.v(TAG, "Constructor");
-        Cursor cursor = context.getContentResolver().query(MeetingColumns.CONTENT_URI, new String[] { MeetingColumns._ID, MeetingColumns.STATE }, null, null,
-                MeetingColumns.MEETING_DATE + " DESC");
+        mContext = context;
+        Cursor cursor = context.getContentResolver().query(MeetingColumns.CONTENT_URI, null, null, null, MeetingColumns.MEETING_DATE + " DESC");
         mCursor = new MeetingCursorWrapper(cursor);
+        mMeetingObserver = new MeetingObserver(new Handler(Looper.getMainLooper()));
+        context.getContentResolver().registerContentObserver(MeetingColumns.CONTENT_URI, true, mMeetingObserver);
     }
+
 
     @Override
     public Fragment getItem(int position) {
@@ -58,24 +67,61 @@ class MeetingPagerAdapter extends FragmentStatePagerAdapter {
         return fragment;
     }
 
-    int getPositionForMeetingId(long meetingId) {
-        Log.v(TAG, "getPositionForMeetingId " + meetingId);
-
-        int position = 0;
-        for (mCursor.moveToFirst(); mCursor.moveToNext(); position++) {
-            if (mCursor.getId() == meetingId) return position;
-        }
-        return -1;
-    }
-
-    long getMeetingIdAt(int position) {
-        mCursor.moveToPosition(position);
-        return mCursor.getId();
-    }
-
     @Override
     public int getCount() {
         return mCursor.getCount();
     }
+
+    int getPositionForMeetingId(long meetingId) {
+        Log.v(TAG, "getPositionForMeetingId " + meetingId);
+
+        if (mCursor.moveToFirst()) {
+            do {
+                if (mCursor.getId() == meetingId) return mCursor.getPosition();
+            } while (mCursor.moveToNext());
+        }
+        return -1;
+    }
+
+    Meeting getMeetingAt(int position) {
+        mCursor.moveToPosition(position);
+        return Meeting.read(mContext, mCursor);
+    }
+
+    void destroy() {
+        Log.v(TAG, "destroy");
+        mContext.getContentResolver().unregisterContentObserver(mMeetingObserver);
+        mCursor.close();
+    }
+
+    private class MeetingObserver extends ContentObserver {
+
+        private final String TAG = MeetingPagerAdapter.TAG + "/" + MeetingObserver.class.getSimpleName();
+
+        public MeetingObserver(Handler handler) {
+            super(handler);
+            Log.v(TAG, "Constructor");
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            Log.v(TAG, "MeetingObserver onChange, selfChange: " + selfChange);
+            super.onChange(selfChange);
+            new AsyncTask<Void, Void, Void>() {
+
+                @Override
+                protected Void doInBackground(Void... params) {
+                    mCursor.requery();
+                    return null;
+                }
+
+                @Override
+                protected void onPostExecute(Void result) {
+                    notifyDataSetChanged();
+                }
+
+            }.execute();
+        }
+    };
 
 }

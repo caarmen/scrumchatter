@@ -208,11 +208,13 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
                     return;
                 }
 
+                // We just finished loading the meeting for the first time.
+                boolean firstLoad = mMeeting == null;
                 mMeeting = meeting;
-                // Update the action bar if we are visible
                 if (getUserVisibleHint()) {
-                    setHasOptionsMenu(true);
-                    activity.supportInvalidateOptionsMenu();
+                    if (firstLoad) setHasOptionsMenu(true);
+                    else
+                        activity.supportInvalidateOptionsMenu();
                 }
                 // Update the UI views
                 Log.v(TAG, "meetingState = " + meeting.getState());

@@ -18,12 +18,8 @@
  */
 package ca.rmen.android.scrumchatter.meeting.detail;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.AsyncTaskLoader;
-import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
@@ -43,12 +39,8 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
 
     private String TAG;
 
-    private static final int LOADER_ID = MeetingLoaderTask.class.hashCode();
     private MeetingPagerAdapter mMeetingPagerAdapter;
     private ViewPager mViewPager;
-    private long mMeetingId = -1;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,16 +56,28 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
         // If we are recreating the activity (because of a device rotation, for example), we will display the meeting that the user 
         // had previously swiped to, using the ViewPager.
         long originalMeetingId = getIntent().getLongExtra(Meetings.EXTRA_MEETING_ID, -1);
-        if (savedInstanceState != null) mMeetingId = savedInstanceState.getLong(Meetings.EXTRA_MEETING_ID);
+        final long meetingId;
+        if (savedInstanceState != null) meetingId = savedInstanceState.getLong(Meetings.EXTRA_MEETING_ID);
         else
-            mMeetingId = originalMeetingId;
+            meetingId = originalMeetingId;
+        Log.v(TAG, "original meeting id " + originalMeetingId + ", saved meeting id " + meetingId);
 
+        // Perform initialization which must be done on a background thread:
+        // Create a new meeting if necessary.
         // Create the pager adapter. The pager adapter constructor reads from the DB, so
         // we need to create it in a background thread.  When it's ready, we'll use it 
         // with the ViewPager, and open the ViewPager to the correct meeting.
         new AsyncTask<Void, Void, MeetingPagerAdapter>() {
+            private long mMeetingId;
+
             @Override
             protected MeetingPagerAdapter doInBackground(Void... param) {
+                if (meetingId < 0) {
+                    Meeting newMeeting = Meeting.createNewMeeting(MeetingActivity.this);
+                    mMeetingId = newMeeting.getId();
+                } else {
+                    mMeetingId = meetingId;
+                }
                 return new MeetingPagerAdapter(MeetingActivity.this, getSupportFragmentManager());
             }
 
@@ -82,17 +86,17 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
                 mMeetingPagerAdapter = result;
                 mViewPager.setAdapter(mMeetingPagerAdapter);
                 int position = mMeetingPagerAdapter.getPositionForMeetingId(mMeetingId);
+                Log.v(TAG, "meeting " + mMeetingId + " is on page " + position);
                 mViewPager.setCurrentItem(position);
             }
-
         }.execute();
-        Bundle args = new Bundle(1);
-        args.putLong(Meetings.EXTRA_MEETING_ID, mMeetingId);
-        // The first time we open the activity, we will initialize the loader
-        if (mMeetingId == originalMeetingId) getSupportLoaderManager().initLoader(LOADER_ID, args, mLoaderCallbacks);
-        // If we had previously swiped to a different meeting, restart the loader with the new meeting id.
-        else
-            getSupportLoaderManager().restartLoader(LOADER_ID, args, mLoaderCallbacks);
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.v(TAG, "onDestroy");
+        super.onDestroy();
+        if (mMeetingPagerAdapter != null) mMeetingPagerAdapter.destroy();
     }
 
     /**
@@ -100,8 +104,11 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
      */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        Log.v(TAG, "onSaveInstanceState, outState = " + outState + ", meetingId = " + mMeetingId);
-        outState.putLong(Meetings.EXTRA_MEETING_ID, mMeetingId);
+        Log.v(TAG, "onSaveInstanceState, outState = " + outState);
+        if (mMeetingPagerAdapter != null) {
+            Meeting meeting = mMeetingPagerAdapter.getMeetingAt(mViewPager.getCurrentItem());
+            outState.putLong(Meetings.EXTRA_MEETING_ID, meeting.getId());
+        }
         super.onSaveInstanceState(outState);
     }
 
@@ -123,7 +130,6 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
         // We want to retrieve the existing fragment.
         MeetingFragment fragment = (MeetingFragment) mMeetingPagerAdapter.instantiateItem(mViewPager, mViewPager.getCurrentItem());
         if (actionId == R.id.action_delete_meeting) {
-            getSupportLoaderManager().destroyLoader(LOADER_ID);
             fragment.deleteMeeting();
         } else if (actionId == R.id.btn_stop_meeting) {
             fragment.stopMeeting();
@@ -147,67 +153,6 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
     }
 
     /**
-     * Loads the meeting for the given meeting id. If the meeting id is -1, a new meeting is created.
-     */
-    private static class MeetingLoaderTask extends AsyncTaskLoader<Meeting> {
-        private long mMeetingId;
-
-        private static final String TAG = Constants.TAG + "/" + MeetingLoaderTask.class.getSimpleName();
-
-        private MeetingLoaderTask(Context context, long meetingId) {
-            super(context);
-            mMeetingId = meetingId;
-        }
-
-        @Override
-        public Meeting loadInBackground() {
-            Log.v(TAG, "loadInBackground");
-            final Meeting meeting;
-            if (mMeetingId == -1) meeting = Meeting.createNewMeeting(getContext());
-            else
-                meeting = Meeting.read(getContext(), mMeetingId);
-            Log.v(TAG, "loaded meeting " + meeting);
-            return meeting;
-        }
-    };
-
-    private LoaderCallbacks<Meeting> mLoaderCallbacks = new LoaderCallbacks<Meeting>() {
-
-        /**
-         * Create a {@link MeetingLoaderTask} which will load the meeting for the meeting id given in the Bundle.
-         * 
-         * @bundle should have the id of the meeting to load, in the extra {@link Meetings#EXTRA_MEETING_ID}. If the id is -1, the loader will create a new
-         *         meeting.
-         */
-        @Override
-        public Loader<Meeting> onCreateLoader(int id, Bundle bundle) {
-            long meetingId = bundle.getLong(Meetings.EXTRA_MEETING_ID, -1);
-            Log.v(TAG, "onCreateLoader, meetingId = " + meetingId);
-            MeetingLoaderTask loaderTask = new MeetingLoaderTask(MeetingActivity.this, meetingId);
-            loaderTask.forceLoad();
-            return loaderTask;
-        }
-
-        /**
-         * Update the UI for the given meeting.
-         */
-        @Override
-        public void onLoadFinished(Loader<Meeting> loaderTask, final Meeting meeting) {
-            Log.v(TAG, "onLoadFinished, meeting = " + meeting);
-            if (meeting == null) {
-                Log.w(TAG, "Could not load meeting, are you a monkey?");
-                return;
-            }
-            getSupportActionBar().setTitle(TextUtils.formatDateTime(MeetingActivity.this, meeting.getStartDate()));
-        }
-
-        @Override
-        public void onLoaderReset(Loader<Meeting> meeting) {
-            Log.v(TAG, "onLoaderReset: meeting = " + meeting);
-        }
-    };
-
-    /**
      * When the user selects a meeting by swiping left or right, we need to load the data
      * from the meeting, to update the title in the action bar.
      */
@@ -216,13 +161,9 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
         @Override
         public void onPageSelected(int position) {
             Log.v(TAG, "onPageSelected, position = " + position);
-            long meetingId = mMeetingPagerAdapter.getMeetingIdAt(position);
-            if (mMeetingId != meetingId) {
-                mMeetingId = meetingId;
-                Bundle args = new Bundle(1);
-                args.putLong(Meetings.EXTRA_MEETING_ID, mMeetingId);
-                getSupportLoaderManager().restartLoader(LOADER_ID, args, mLoaderCallbacks);
-            }
+            Meeting meeting = mMeetingPagerAdapter.getMeetingAt(position);
+            Log.v(TAG, "Selected meeting " + meeting);
+            getSupportActionBar().setTitle(TextUtils.formatDateTime(MeetingActivity.this, meeting.getStartDate()));
         }
 
         @Override
