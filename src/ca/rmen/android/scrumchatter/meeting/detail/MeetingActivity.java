@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
+import android.view.View;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.dialog.ConfirmDialogFragment.DialogButtonListener;
@@ -84,6 +85,7 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
             @Override
             protected void onPostExecute(MeetingPagerAdapter result) {
                 mMeetingPagerAdapter = result;
+                findViewById(R.id.activity_loading).setVisibility(View.GONE);
                 mViewPager.setAdapter(mMeetingPagerAdapter);
                 int position = mMeetingPagerAdapter.getPositionForMeetingId(mMeetingId);
                 Log.v(TAG, "meeting " + mMeetingId + " is on page " + position);
