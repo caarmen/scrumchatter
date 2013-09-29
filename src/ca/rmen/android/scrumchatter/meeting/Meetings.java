@@ -40,6 +40,7 @@ import ca.rmen.android.scrumchatter.util.TextUtils;
 public class Meetings {
     private static final String TAG = Constants.TAG + "/" + Meetings.class.getSimpleName();
     public static final String EXTRA_MEETING_ID = "meeting_id";
+    public static final String EXTRA_MEETING_STATE = "meeting_state";
     private final FragmentActivity mActivity;
 
     public Meetings(FragmentActivity activity) {

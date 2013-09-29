@@ -67,6 +67,25 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
         if (savedInstanceState != null) mMeetingId = savedInstanceState.getLong(Meetings.EXTRA_MEETING_ID);
         else
             mMeetingId = originalMeetingId;
+
+        // Create the pager adapter. The pager adapter constructor reads from the DB, so
+        // we need to create it in a background thread.  When it's ready, we'll use it 
+        // with the ViewPager, and open the ViewPager to the correct meeting.
+        new AsyncTask<Void, Void, MeetingPagerAdapter>() {
+            @Override
+            protected MeetingPagerAdapter doInBackground(Void... param) {
+                return new MeetingPagerAdapter(MeetingActivity.this, getSupportFragmentManager());
+            }
+
+            @Override
+            protected void onPostExecute(MeetingPagerAdapter result) {
+                mMeetingPagerAdapter = result;
+                mViewPager.setAdapter(mMeetingPagerAdapter);
+                int position = mMeetingPagerAdapter.getPositionForMeetingId(mMeetingId);
+                mViewPager.setCurrentItem(position);
+            }
+
+        }.execute();
         Bundle args = new Bundle(1);
         args.putLong(Meetings.EXTRA_MEETING_ID, mMeetingId);
         // The first time we open the activity, we will initialize the loader
@@ -180,29 +199,6 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
                 return;
             }
             getSupportActionBar().setTitle(TextUtils.formatDateTime(MeetingActivity.this, meeting.getStartDate()));
-            // Create the pager adapter if we haven't already. The pager adapter constructor reads from the DB, so
-            // we need to create it in a background thread.  When it's ready, we'll use it 
-            // with the ViewPager, and open the ViewPager to the correct meeting.
-            new AsyncTask<MeetingPagerAdapter, Void, MeetingPagerAdapter>() {
-
-                @Override
-                protected MeetingPagerAdapter doInBackground(MeetingPagerAdapter... adapter) {
-                    if (adapter[0] == null) return new MeetingPagerAdapter(MeetingActivity.this, getSupportFragmentManager());
-                    else
-                        return adapter[0];
-                }
-
-                @Override
-                protected void onPostExecute(MeetingPagerAdapter result) {
-                    if (mMeetingPagerAdapter != result) {
-                        mMeetingPagerAdapter = result;
-                        mViewPager.setAdapter(mMeetingPagerAdapter);
-                    }
-                    int position = mMeetingPagerAdapter.getPositionForMeetingId(meeting.getId());
-                    mViewPager.setCurrentItem(position);
-                }
-
-            }.execute(mMeetingPagerAdapter);
         }
 
         @Override

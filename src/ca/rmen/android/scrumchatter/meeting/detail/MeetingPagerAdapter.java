@@ -18,9 +18,6 @@
  */
 package ca.rmen.android.scrumchatter.meeting.detail;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -31,6 +28,7 @@ import android.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.meeting.Meetings;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
+import ca.rmen.android.scrumchatter.provider.MeetingCursorWrapper;
 
 /**
  * Adapter for the list of meetings
@@ -38,40 +36,46 @@ import ca.rmen.android.scrumchatter.provider.MeetingColumns;
 class MeetingPagerAdapter extends FragmentStatePagerAdapter {
     private static final String TAG = Constants.TAG + "/" + MeetingPagerAdapter.class.getSimpleName();
 
-    private List<Long> mMeetingIds = new ArrayList<Long>();
+    private MeetingCursorWrapper mCursor;
 
     public MeetingPagerAdapter(Context context, FragmentManager fm) {
         super(fm);
         Log.v(TAG, "Constructor");
-        Cursor cursor = context.getContentResolver().query(MeetingColumns.CONTENT_URI, new String[] { String.valueOf(MeetingColumns._ID) }, null, null,
+        Cursor cursor = context.getContentResolver().query(MeetingColumns.CONTENT_URI, new String[] { MeetingColumns._ID, MeetingColumns.STATE }, null, null,
                 MeetingColumns.MEETING_DATE + " DESC");
-        while (cursor.moveToNext())
-            mMeetingIds.add(cursor.getLong(0));
-        cursor.close();
+        mCursor = new MeetingCursorWrapper(cursor);
     }
 
     @Override
     public Fragment getItem(int position) {
-        Log.v(TAG, "getItem at position " + position + ": meetingId = " + mMeetingIds.get(position));
+        Log.v(TAG, "getItem at position " + position);
         MeetingFragment fragment = new MeetingFragment();
         Bundle args = new Bundle(1);
-        args.putLong(Meetings.EXTRA_MEETING_ID, mMeetingIds.get(position));
+        mCursor.moveToPosition(position);
+        args.putLong(Meetings.EXTRA_MEETING_ID, mCursor.getId());
+        args.putSerializable(Meetings.EXTRA_MEETING_STATE, mCursor.getState());
         fragment.setArguments(args);
         return fragment;
     }
 
     int getPositionForMeetingId(long meetingId) {
-        Log.v(TAG, "getPositionForMeetingId " + meetingId + ": " + mMeetingIds.indexOf(meetingId));
-        return mMeetingIds.indexOf(meetingId);
+        Log.v(TAG, "getPositionForMeetingId " + meetingId);
+
+        int position = 0;
+        for (mCursor.moveToFirst(); mCursor.moveToNext(); position++) {
+            if (mCursor.getId() == meetingId) return position;
+        }
+        return -1;
     }
 
     long getMeetingIdAt(int position) {
-        return mMeetingIds.get(position);
+        mCursor.moveToPosition(position);
+        return mCursor.getId();
     }
 
     @Override
     public int getCount() {
-        return mMeetingIds.size();
+        return mCursor.getCount();
     }
 
 }
