@@ -32,7 +32,7 @@
     <LinearLayout
         android:id="@+id/left_drawer"
         android:layout_width="240dp"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_gravity="start"
         android:background="@color/light_gray"
         android:orientation="vertical" >
@@ -58,6 +58,11 @@
             android:cacheColorHint="@color/light_gray"
             android:choiceMode="singleChoice"
             android:dividerHeight="0dp" />
+        
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/selected_header" />
     </LinearLayout>
 
 </android.support.v4.widget.DrawerLayout>
