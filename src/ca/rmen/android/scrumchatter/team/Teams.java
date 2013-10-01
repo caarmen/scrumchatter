@@ -28,7 +28,10 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckedTextView;
 import android.widget.ListView;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
@@ -109,7 +112,19 @@ public class Teams {
             @Override
             protected void onPostExecute(Void result) {
                 if (mTeamNames != null && mTeamNames.length >= 1) {
-                    ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(mActivity, android.R.layout.simple_list_item_single_choice, mTeamNames);
+                    ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(mActivity, android.R.layout.simple_list_item_single_choice, mTeamNames) {
+
+                        @Override
+                        public View getView(int position, View convertView, ViewGroup parent) {
+                            /**
+                             * Hack for Android 2.x: replace the radio button. See {@link DialogStyleHacks}
+                             */
+                            View result = super.getView(position, convertView, parent);
+                            if (result instanceof CheckedTextView) ((CheckedTextView) result).setCheckMarkDrawable(R.drawable.btn_radio_holo_light);
+                            return result;
+                        }
+
+                    };
                     listView.setAdapter(adapter);
                     listView.setItemChecked(mSelectedTeam, true);
                 } else {
