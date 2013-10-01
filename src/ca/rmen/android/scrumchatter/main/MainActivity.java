@@ -499,9 +499,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
     @Override
     public void onItemSelected(int actionId, CharSequence[] choices, int which) {
         Log.v(TAG, "onItemSelected: actionId = " + actionId + ", choices = " + Arrays.toString(choices) + ", which = " + which);
-        if (actionId == R.id.action_team_switch) {
-            mTeams.switchTeam(choices, which);
-        } else if (actionId == R.id.action_share) {
+        if (actionId == R.id.action_share) {
             FileExport fileExport = null;
             if (getString(R.string.export_format_excel).equals(choices[which])) fileExport = new MeetingsExport(MainActivity.this);
             else if (getString(R.string.export_format_db).equals(choices[which])) fileExport = new DBExport(MainActivity.this);
@@ -610,13 +608,21 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
         }
     };
 
+    /**
+     * Select a team the user picked from the left drawer.
+     */
     private ListView.OnItemClickListener mOnItemClickListener = new ListView.OnItemClickListener() {
 
         @Override
-        public void onItemClick(AdapterView parent, View view, int position, long id) {
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             Log.v(TAG, "onItemClick: parent=" + parent + ", position = " + position + ", id = " + id);
 
-            //mTeams.switchTeam(choices, which);
+            CharSequence selectedTeamName = (CharSequence) parent.getItemAtPosition(position);
+            // The user clicked on the "new team" item.
+            if (position == parent.getCount() - 1) mTeams.promptCreateTeam();
+            else
+                mTeams.switchTeam(selectedTeamName);
+            mDrawerLayout.closeDrawers();
         }
     };
 }

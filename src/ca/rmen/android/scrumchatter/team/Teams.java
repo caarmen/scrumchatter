@@ -18,8 +18,6 @@
  */
 package ca.rmen.android.scrumchatter.team;
 
-import java.util.Arrays;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -126,46 +124,38 @@ public class Teams {
     /**
      * Upon selecting a team, update the shared preference for the selected team.
      */
-    public void switchTeam(CharSequence[] teamNames, int selectedTeam) {
-        Log.v(TAG, "switchTeam " + Arrays.toString(teamNames) + ", selectedTeam = " + selectedTeam);
-        // The user clicked on the "new team" item.
-        if (selectedTeam == teamNames.length - 1) {
-            promptCreateTeam();
-        }
-        // The user selected an existing team.  Update the shared preference for this team, in the background.
-        else {
-            final CharSequence teamName = teamNames[selectedTeam];
-            AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+    public void switchTeam(final CharSequence teamName) {
+        Log.v(TAG, "switchTeam " + teamName);
+        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
 
-                @Override
-                protected Void doInBackground(Void... params) {
-                    Cursor c = mActivity.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { TeamColumns._ID }, TeamColumns.TEAM_NAME + " = ?",
-                            new String[] { String.valueOf(teamName) }, null);
-                    if (c != null) {
-                        try {
-                            c.moveToFirst();
-                            if (c.getCount() == 1) {
-                                int teamId = c.getInt(0);
-                                PreferenceManager.getDefaultSharedPreferences(mActivity).edit().putInt(Constants.PREF_TEAM_ID, teamId).commit();
-                            } else {
-                                Log.wtf(TAG, "Found " + c.getCount() + " teams for " + teamName);
-                            }
-
-                        } finally {
-                            c.close();
+            @Override
+            protected Void doInBackground(Void... params) {
+                Cursor c = mActivity.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { TeamColumns._ID }, TeamColumns.TEAM_NAME + " = ?",
+                        new String[] { String.valueOf(teamName) }, null);
+                if (c != null) {
+                    try {
+                        c.moveToFirst();
+                        if (c.getCount() == 1) {
+                            int teamId = c.getInt(0);
+                            PreferenceManager.getDefaultSharedPreferences(mActivity).edit().putInt(Constants.PREF_TEAM_ID, teamId).commit();
+                        } else {
+                            Log.wtf(TAG, "Found " + c.getCount() + " teams for " + teamName);
                         }
+
+                    } finally {
+                        c.close();
                     }
-                    return null;
                 }
-            };
-            task.execute();
-        }
+                return null;
+            }
+        };
+        task.execute();
     }
 
     /**
      * Show a dialog with a text input for the new team name. Validate that the team doesn't already exist. Upon pressing "OK", create the team.
      */
-    private void promptCreateTeam() {
+    public void promptCreateTeam() {
         Log.v(TAG, "promptCreateTeam");
         DialogFragmentFactory.showInputDialog(mActivity, mActivity.getString(R.string.action_new_team), mActivity.getString(R.string.hint_team_name), null,
                 TeamNameValidator.class, R.id.action_team, null);
