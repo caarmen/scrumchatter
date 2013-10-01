@@ -30,6 +30,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.res.Configuration;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -37,14 +38,18 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
@@ -99,6 +104,8 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
+    private DrawerLayout mDrawerLayout;
+    private ActionBarDrawerToggle mDrawerToggle;
 
     private Teams mTeams = new Teams(this);
     private Meetings mMeetings = new Meetings(this);
@@ -119,7 +126,30 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 
+        mDrawerToggle = new ActionBarDrawerToggle(this, /* host Activity */
+        mDrawerLayout, /* DrawerLayout object */
+        R.drawable.ic_drawer, /* nav drawer icon to replace 'Up' caret */
+        R.string.drawer_open, /* "open drawer" description */
+        R.string.drawer_close /* "close drawer" description */
+        ) {
+
+            /** Called when a drawer has settled in a completely closed state. */
+            public void onDrawerClosed(View view) {
+                updateTitle();
+            }
+
+            /** Called when a drawer has settled in a completely open state. */
+            public void onDrawerOpened(View drawerView) {
+                actionBar.setTitle(R.string.dialog_message_switch_team);
+            }
+        };
+
+        // Set the drawer toggle as the DrawerListener
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the app.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -163,6 +193,19 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
     }
 
     @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        mDrawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mDrawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    @Override
     protected void onResume() {
         Log.v(TAG, "onResume");
         super.onResume();
@@ -185,6 +228,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
             }
         }
     }
+
 
     @Override
     protected void onDestroy() {
@@ -220,6 +264,13 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case android.R.id.home:
+                if (mDrawerLayout.isDrawerVisible(GravityCompat.START)) {
+                    mDrawerLayout.closeDrawer(GravityCompat.START);
+                } else {
+                    mDrawerLayout.openDrawer(GravityCompat.START);
+                }
+                return true;
             case R.id.action_team_switch:
                 // When running monkey tests, we should load a DB with enough members and some meetings, 
                 // before running the tests.  If the monkey tries to switch teams, and creates a new team, 
@@ -362,15 +413,20 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
 
             @Override
             protected void onPostExecute(Void result) {
-                // If the user has renamed the default team or added other teams, show the current team name in the title
-                if (mTeamCount > 1 || (mTeam != null && !mTeam.teamName.equals(Constants.DEFAULT_TEAM_NAME))) getSupportActionBar().setTitle(mTeam.teamName);
-                // otherwise the user doesn't care about team management: just show the app title.
-                else
-                    getSupportActionBar().setTitle(R.string.app_name);
+                updateTitle();
                 supportInvalidateOptionsMenu();
             }
         };
         task.execute();
+    }
+
+    private void updateTitle() {
+        // If the user has renamed the default team or added other teams, show the current team name in the title
+        if (mTeamCount > 1 || (mTeam != null && !mTeam.teamName.equals(Constants.DEFAULT_TEAM_NAME))) getSupportActionBar().setTitle(mTeam.teamName);
+        // otherwise the user doesn't care about team management: just show the app title.
+        else
+            getSupportActionBar().setTitle(R.string.app_name);
+
     }
 
     /**

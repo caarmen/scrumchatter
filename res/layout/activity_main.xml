@@ -17,9 +17,29 @@
   You should have received a copy of the GNU General Public License
   along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
 -->
-<android.support.v4.view.ViewPager xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/pager"
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MainActivity" />
+    android:layout_height="match_parent" >
+
+    <android.support.v4.view.ViewPager
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".MainActivity" />
+
+    <LinearLayout
+        android:id="@+id/left_drawer"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:background="#F00" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="hello" />
+    </LinearLayout>
+
+</android.support.v4.widget.DrawerLayout>

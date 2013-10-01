@@ -96,5 +96,8 @@
     <string name="about_credit_holo_style_generator_link">http://android-holo-colors.com/</string>
     <string name="about_credit_app_icon_text">qubodup for the speech bubble icon on openclipart.</string>
     <string name="about_credit_app_icon_link">http://openclipart.org/detail/14322/16x16px-capable-black-and-white-icons-by-qubodup-14322</string>
+    
+    <string name="drawer_open">Open side menu</string>
+    <string name="drawer_close">Close side menu</string>
 
 </resources>
