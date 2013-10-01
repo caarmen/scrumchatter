@@ -67,7 +67,7 @@ public class Teams {
     }
 
     /**
-     * Show a dialog with the list of teams.
+     * Fill the list with the names of existing teams, plus a special item "New Team..." at the end.
      * 
      * @param team the current team being used.
      */
@@ -111,7 +111,7 @@ public class Teams {
                 if (mTeamNames != null && mTeamNames.length >= 1) {
                     ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(mActivity, android.R.layout.simple_list_item_single_choice, mTeamNames);
                     listView.setAdapter(adapter);
-                    listView.setSelection(mSelectedTeam);
+                    listView.setItemChecked(mSelectedTeam, true);
                 } else {
                     Log.wtf(TAG, "No existing teams found");
                 }

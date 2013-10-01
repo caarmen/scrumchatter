@@ -145,6 +145,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
             /** Called when a drawer has settled in a completely closed state. */
             public void onDrawerClosed(View view) {
                 updateTitle();
+                mTeams.populateTeamList(mTeam, mDrawerList);
             }
 
             /** Called when a drawer has settled in a completely open state. */
@@ -276,17 +277,6 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
                 } else {
                     mDrawerLayout.openDrawer(GravityCompat.START);
                 }
-                return true;
-            case R.id.action_team_switch:
-                // When running monkey tests, we should load a DB with enough members and some meetings, 
-                // before running the tests.  If the monkey tries to switch teams, and creates a new team, 
-                // it will require many random clicks before he creates a member, and therefore many random 
-                // clicks before he is able to create meetings.  So, we force the monkey to stay within the existing team.
-                if (ActivityManager.isUserAMonkey()) {
-                    Log.v(TAG, "Sorry, monkeys are not allowed to switch teams");
-                    return true;
-                }
-                //mTeams.selectTeam(mTeam);
                 return true;
             case R.id.action_team_rename:
                 mTeams.promptRenameTeam(mTeam);
@@ -617,7 +607,15 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             Log.v(TAG, "onItemClick: parent=" + parent + ", position = " + position + ", id = " + id);
 
+            // When running monkey tests, we should load a DB with enough members and some meetings, 
+            // before running the tests.  If the monkey tries to switch teams, and creates a new team, 
+            // it will require many random clicks before he creates a member, and therefore many random 
+            // clicks before he is able to create meetings.  So, we force the monkey to stay within the existing team.
             CharSequence selectedTeamName = (CharSequence) parent.getItemAtPosition(position);
+            if (ActivityManager.isUserAMonkey()) {
+                Log.v(TAG, "Sorry, monkeys are not allowed to switch teams");
+                return;
+            }
             // The user clicked on the "new team" item.
             if (position == parent.getCount() - 1) mTeams.promptCreateTeam();
             else

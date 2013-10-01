@@ -23,7 +23,6 @@
     <string name="title_section_team">Équipe</string>
     <string name="action_share">Partager</string>
     <string name="action_team">Équipes</string>
-    <string name="action_team_switch">Changer d\'équipe</string>
     <string name="action_team_rename">Renommer l\'équipe</string>
     <string name="action_team_rename_name">Renommer %s</string>
     <string name="action_team_delete">Supprimer l\'équipe</string>
