@@ -120,7 +120,12 @@ public class Teams {
                              * Hack for Android 2.x: replace the radio button. See {@link DialogStyleHacks}
                              */
                             View result = super.getView(position, convertView, parent);
-                            if (result instanceof CheckedTextView) ((CheckedTextView) result).setCheckMarkDrawable(R.drawable.btn_radio_holo_light);
+                            if (result instanceof CheckedTextView) {
+                                CheckedTextView ctv = (CheckedTextView) result;
+                                if (position == mTeamNames.length - 1) ctv.setCheckMarkDrawable(0);
+                                else
+                                    ctv.setCheckMarkDrawable(R.drawable.btn_radio_holo_light);
+                            }
                             return result;
                         }
 
