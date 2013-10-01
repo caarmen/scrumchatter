@@ -103,4 +103,12 @@
         <item name="android:background">@drawable/btn_default</item>
     </style>
 
+    <style name="sectionHeadingStyle">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:paddingLeft">@dimen/section_heading_horizontal_padding</item>
+        <item name="android:paddingRight">@dimen/section_heading_horizontal_padding</item>
+        <item name="android:paddingTop">@dimen/section_heading_top_padding</item>
+    </style>
+
 </resources>

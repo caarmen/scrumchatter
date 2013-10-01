@@ -52,6 +52,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
@@ -132,8 +133,10 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
         actionBar.setDisplayHomeAsUpEnabled(true);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+        mDrawerList = (ListView) findViewById(R.id.left_drawer_list);
         mDrawerList.setOnItemClickListener(mOnItemClickListener);
+        TextView drawerTitle = (TextView) findViewById(R.id.left_drawer_title);
+        drawerTitle.setText(drawerTitle.getText().toString().toUpperCase(Locale.getDefault()));
 
         mDrawerToggle = new ActionBarDrawerToggle(this, /* host Activity */
         mDrawerLayout, /* DrawerLayout object */
@@ -144,14 +147,11 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
 
             /** Called when a drawer has settled in a completely closed state. */
             public void onDrawerClosed(View view) {
-                updateTitle();
                 mTeams.populateTeamList(mTeam, mDrawerList);
             }
 
             /** Called when a drawer has settled in a completely open state. */
-            public void onDrawerOpened(View drawerView) {
-                actionBar.setTitle(R.string.dialog_message_switch_team);
-            }
+            public void onDrawerOpened(View drawerView) {}
         };
 
         // Set the drawer toggle as the DrawerListener

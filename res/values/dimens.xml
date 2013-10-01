@@ -23,5 +23,7 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="list_inner_horizontal_margin">10dp</dimen>
+    <dimen name="section_heading_horizontal_padding">20dp</dimen>
+    <dimen name="section_heading_top_padding">10dp</dimen>
 
 </resources>
