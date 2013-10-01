@@ -30,6 +30,8 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.dialog.DialogFragmentFactory;
@@ -71,7 +73,7 @@ public class Teams {
      * 
      * @param team the current team being used.
      */
-    public void selectTeam(final Team team) {
+    public void populateTeamList(final Team team, final ListView listView) {
         Log.v(TAG, "selectTeam " + team);
         AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
             CharSequence[] mTeamNames = null;
@@ -108,10 +110,13 @@ public class Teams {
              */
             @Override
             protected void onPostExecute(Void result) {
-                if (mTeamNames != null && mTeamNames.length >= 1) DialogFragmentFactory.showChoiceDialog(mActivity,
-                        mActivity.getString(R.string.dialog_message_switch_team), mTeamNames, mSelectedTeam, R.id.action_team_switch);
-                else
+                if (mTeamNames != null && mTeamNames.length >= 1) {
+                    ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(mActivity, android.R.layout.simple_list_item_single_choice, mTeamNames);
+                    listView.setAdapter(adapter);
+                    listView.setSelection(mSelectedTeam);
+                } else {
                     Log.wtf(TAG, "No existing teams found");
+                }
             }
 
         };

@@ -29,17 +29,14 @@
         android:layout_height="match_parent"
         tools:context=".MainActivity" />
 
-    <LinearLayout
+    <ListView
         android:id="@+id/left_drawer"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:layout_gravity="start"
-        android:background="#F00" >
+        android:choiceMode="singleChoice"
+        android:background="@android:color/white"
+        android:dividerHeight="0dp"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="hello" />
-    </LinearLayout>
 
 </android.support.v4.widget.DrawerLayout>

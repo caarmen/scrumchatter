@@ -50,6 +50,8 @@ import android.support.v4.widget.DrawerLayout;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ListView;
 import android.widget.Toast;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
@@ -106,6 +108,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
     private ViewPager mViewPager;
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
+    private ListView mDrawerList;
 
     private Teams mTeams = new Teams(this);
     private Meetings mMeetings = new Meetings(this);
@@ -129,6 +132,8 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
         actionBar.setDisplayHomeAsUpEnabled(true);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+        mDrawerList.setOnItemClickListener(mOnItemClickListener);
 
         mDrawerToggle = new ActionBarDrawerToggle(this, /* host Activity */
         mDrawerLayout, /* DrawerLayout object */
@@ -150,6 +155,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
 
         // Set the drawer toggle as the DrawerListener
         mDrawerLayout.setDrawerListener(mDrawerToggle);
+
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the app.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -280,7 +286,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
                     Log.v(TAG, "Sorry, monkeys are not allowed to switch teams");
                     return true;
                 }
-                mTeams.selectTeam(mTeam);
+                //mTeams.selectTeam(mTeam);
                 return true;
             case R.id.action_team_rename:
                 mTeams.promptRenameTeam(mTeam);
@@ -414,6 +420,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
             @Override
             protected void onPostExecute(Void result) {
                 updateTitle();
+                mTeams.populateTeamList(mTeam, mDrawerList);
                 supportInvalidateOptionsMenu();
             }
         };
@@ -478,6 +485,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
             task.execute();
         }
     }
+
 
 
     /**
@@ -599,6 +607,16 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
                 if (!result) Toast.makeText(MainActivity.this, R.string.export_error, Toast.LENGTH_LONG).show();
 
             }
+        }
+    };
+
+    private ListView.OnItemClickListener mOnItemClickListener = new ListView.OnItemClickListener() {
+
+        @Override
+        public void onItemClick(AdapterView parent, View view, int position, long id) {
+            Log.v(TAG, "onItemClick: parent=" + parent + ", position = " + position + ", id = " + id);
+
+            //mTeams.switchTeam(choices, which);
         }
     };
 }
