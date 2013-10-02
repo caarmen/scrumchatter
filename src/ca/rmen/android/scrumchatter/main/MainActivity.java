@@ -139,7 +139,6 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
         mDrawerList = (ListView) findViewById(R.id.left_drawer_list);
         mTeamsAdapter = new TeamArrayAdapter(this);
         mDrawerList.setAdapter(mTeamsAdapter);
-        mTeamsAdapter.registerDataSetObserver(mTeamsObserver);
         mDrawerList.setOnItemClickListener(mOnItemClickListener);
         TextView drawerTitle = (TextView) findViewById(R.id.left_drawer_title);
         drawerTitle.setText(drawerTitle.getText().toString().toUpperCase(Locale.getDefault()));
@@ -191,6 +190,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
         }
 
         onTeamChanged();
+        mTeamsAdapter.registerDataSetObserver(mTeamsObserver);
         // If our activity was opened by choosing a file from a mail attachment, file browser, or other program, 
         // import the database from this file.
         Intent intent = getIntent();
@@ -630,8 +630,12 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
 
         @Override
         public void onChanged() {
-            Log.v(TAG, "TeamObserver: onChanged");
-            mDrawerList.setItemChecked(mTeamsAdapter.getPosition(mTeam.teamName), true);
+            Log.v(TAG, "TeamObserver: onChanged: team = " + mTeam);
+            if (mTeam != null) {
+                int teamPosition = mTeamsAdapter.getPosition(mTeam.teamName);
+                Log.v(TAG, "Team position: " + teamPosition);
+                mDrawerList.setItemChecked(teamPosition, true);
+            }
         }
     };
 }
