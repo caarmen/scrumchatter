@@ -156,7 +156,7 @@ public class MeetingsListFragment extends SherlockListFragment {
             final Meeting meeting = (Meeting) v.getTag();
             switch (v.getId()) {
             // The user wants to delete a meeting
-                case R.id.btn_delete:
+                case R.id.btn_delete_meeting:
                     mMeetings.confirmDelete(meeting);
                     break;
                 default:

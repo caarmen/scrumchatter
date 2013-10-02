@@ -20,6 +20,7 @@ package ca.rmen.android.scrumchatter.meeting.detail;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
@@ -79,7 +80,8 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
                 } else {
                     mMeetingId = meetingId;
                 }
-                return new MeetingPagerAdapter(MeetingActivity.this, getSupportFragmentManager());
+                int teamId = PreferenceManager.getDefaultSharedPreferences(MeetingActivity.this).getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
+                return new MeetingPagerAdapter(MeetingActivity.this, teamId, getSupportFragmentManager());
             }
 
             @Override

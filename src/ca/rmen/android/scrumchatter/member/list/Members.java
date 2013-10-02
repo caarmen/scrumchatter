@@ -103,7 +103,7 @@ public class Members {
         Bundle extras = new Bundle(1);
         extras.putLong(EXTRA_MEMBER_ID, member.id);
         DialogFragmentFactory.showConfirmDialog(mActivity, mActivity.getString(R.string.action_delete_member),
-                mActivity.getString(R.string.dialog_message_delete_member_confirm, member.name), R.id.btn_delete, extras);
+                mActivity.getString(R.string.dialog_message_delete_member_confirm, member.name), R.id.action_delete_member, extras);
     }
 
     /**

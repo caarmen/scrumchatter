@@ -77,7 +77,7 @@ class MembersCursorAdapter extends CursorAdapter {
         TextView tvName = (TextView) view.findViewById(R.id.tv_name);
         TextView tvAvgDuration = (TextView) view.findViewById(R.id.tv_avg_duration);
         TextView tvSumDuration = (TextView) view.findViewById(R.id.tv_sum_duration);
-        View btnDelete = view.findViewById(R.id.btn_delete);
+        View btnDelete = view.findViewById(R.id.btn_delete_member);
 
         // Setup our views with the member data
         tvName.setText(memberName);

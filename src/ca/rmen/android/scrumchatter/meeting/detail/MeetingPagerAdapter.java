@@ -43,12 +43,15 @@ class MeetingPagerAdapter extends FragmentStatePagerAdapter {
     private MeetingCursorWrapper mCursor;
     private final Context mContext;
     private final MeetingObserver mMeetingObserver;
+    private final int mTeamId;
 
-    public MeetingPagerAdapter(Context context, FragmentManager fm) {
+    public MeetingPagerAdapter(Context context, int teamId, FragmentManager fm) {
         super(fm);
-        Log.v(TAG, "Constructor");
+        Log.v(TAG, "Constructor: teamId = " + teamId);
         mContext = context;
-        Cursor cursor = context.getContentResolver().query(MeetingColumns.CONTENT_URI, null, null, null, MeetingColumns.MEETING_DATE + " DESC");
+        mTeamId = teamId;
+        Cursor cursor = context.getContentResolver().query(MeetingColumns.CONTENT_URI, null, MeetingColumns.TEAM_ID + "=?",
+                new String[] { String.valueOf(mTeamId) }, MeetingColumns.MEETING_DATE + " DESC");
         mCursor = new MeetingCursorWrapper(cursor);
         mCursor.getCount();
         mMeetingObserver = new MeetingObserver(new Handler(Looper.getMainLooper()));
@@ -115,7 +118,8 @@ class MeetingPagerAdapter extends FragmentStatePagerAdapter {
 
                 @Override
                 protected MeetingCursorWrapper doInBackground(Void... params) {
-                    Cursor cursor = mContext.getContentResolver().query(MeetingColumns.CONTENT_URI, null, null, null, MeetingColumns.MEETING_DATE + " DESC");
+                    Cursor cursor = mContext.getContentResolver().query(MeetingColumns.CONTENT_URI, null, MeetingColumns.TEAM_ID + "=?",
+                            new String[] { String.valueOf(mTeamId) }, MeetingColumns.MEETING_DATE + " DESC");
                     MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(cursor);
                     cursorWrapper.getCount();
                     return cursorWrapper;

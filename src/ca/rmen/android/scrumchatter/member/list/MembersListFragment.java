@@ -152,7 +152,7 @@ public class MembersListFragment extends SherlockListFragment {
             Log.v(TAG, "onClick: " + v.getId());
             switch (v.getId()) {
             // The user wants to delete a team member.
-                case R.id.btn_delete:
+                case R.id.btn_delete_member:
                     if (v.getTag() instanceof Member) {
                         final Member member = (Member) v.getTag();
                         mMembers.confirmDeleteMember(member);

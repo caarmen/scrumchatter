@@ -109,14 +109,18 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
+
+    /**
+     * UI elements for the side menu (left drawer).
+     */
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
     private ListView mDrawerList;
+    private TeamArrayAdapter mTeamsAdapter;
 
     private Teams mTeams = new Teams(this);
     private Meetings mMeetings = new Meetings(this);
     private Members mMembers = new Members(this);
-    private TeamArrayAdapter mTeamsAdapter;
     private Team mTeam = null;
     private int mTeamCount = 0;
 
@@ -134,6 +138,8 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         actionBar.setDisplayHomeAsUpEnabled(true);
+
+        // Set up the left drawer
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         mDrawerList = (ListView) findViewById(R.id.left_drawer_list);
@@ -190,7 +196,6 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
         }
 
         onTeamChanged();
-        mTeamsAdapter.registerDataSetObserver(mTeamsObserver);
         // If our activity was opened by choosing a file from a mail attachment, file browser, or other program, 
         // import the database from this file.
         Intent intent = getIntent();
@@ -198,6 +203,8 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
             if (Intent.ACTION_VIEW.equals(intent.getAction())) importDB(intent.getData());
         }
 
+        // Register various observers.
+        mTeamsAdapter.registerDataSetObserver(mTeamsObserver);
         getContentResolver().registerContentObserver(TeamColumns.CONTENT_URI, true, mContentObserver);
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(mSharedPrefsListener);
         IntentFilter filter = new IntentFilter(ACTION_IMPORT_COMPLETE);
@@ -218,7 +225,6 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
-
     @Override
     protected void onResumeFragments() {
         Log.v(TAG, "onResumeFragments: intent = " + getIntent());
@@ -236,7 +242,6 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
             }
         }
     }
-
 
     @Override
     protected void onDestroy() {
@@ -343,10 +348,10 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
         }
     }
 
-
     @Override
     public void onBackPressed() {
         Log.v(TAG, "onBackPressed");
+        // Prevent the monkey from exiting the app, to maximize the time the monkey spends testing the app.
         if (ActivityManager.isUserAMonkey()) {
             Log.v(TAG, "Sorry, monkeys must stay in the cage");
             return;
@@ -411,21 +416,16 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
 
             @Override
             protected void onPostExecute(Void result) {
-                updateTitle();
+                // If the user has renamed the default team or added other teams, show the current team name in the title
+                if (mTeamCount > 1 || (mTeam != null && !mTeam.teamName.equals(Constants.DEFAULT_TEAM_NAME))) getSupportActionBar().setTitle(mTeam.teamName);
+                // otherwise the user doesn't care about team management: just show the app title.
+                else
+                    getSupportActionBar().setTitle(R.string.app_name);
                 mTeamsAdapter.reload();
                 supportInvalidateOptionsMenu();
             }
         };
         task.execute();
-    }
-
-    private void updateTitle() {
-        // If the user has renamed the default team or added other teams, show the current team name in the title
-        if (mTeamCount > 1 || (mTeam != null && !mTeam.teamName.equals(Constants.DEFAULT_TEAM_NAME))) getSupportActionBar().setTitle(mTeam.teamName);
-        // otherwise the user doesn't care about team management: just show the app title.
-        else
-            getSupportActionBar().setTitle(R.string.app_name);
-
     }
 
     /**
@@ -441,7 +441,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
         if (actionId == R.id.action_delete_meeting) {
             long meetingId = extras.getLong(Meetings.EXTRA_MEETING_ID);
             mMeetings.delete(meetingId);
-        } else if (actionId == R.id.btn_delete) {
+        } else if (actionId == R.id.action_delete_member) {
             long memberId = extras.getLong(Members.EXTRA_MEMBER_ID);
             mMembers.deleteMember(memberId);
         } else if (actionId == R.id.action_team_delete) {
@@ -477,8 +477,6 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
             task.execute();
         }
     }
-
-
 
     /**
      * The user selected an item in a choice dialog. Perform the action for the selected item.
@@ -626,6 +624,9 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
         }
     };
 
+    /**
+     * Once the list of teams is loaded, we need to select our current team in the list.
+     */
     private DataSetObserver mTeamsObserver = new DataSetObserver() {
 
         @Override

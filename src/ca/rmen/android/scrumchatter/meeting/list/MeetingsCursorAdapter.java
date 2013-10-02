@@ -86,7 +86,7 @@ class MeetingsCursorAdapter extends CursorAdapter {
         // Find the views we need to set up.
         TextView tvDate = (TextView) view.findViewById(R.id.tv_meeting_date);
         TextView tvDuration = (TextView) view.findViewById(R.id.tv_meeting_duration);
-        View btnDelete = view.findViewById(R.id.btn_delete);
+        View btnDelete = view.findViewById(R.id.btn_delete_meeting);
 
         // Fill the date view.
         tvDate.setText(dateString);

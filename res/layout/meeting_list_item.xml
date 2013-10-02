@@ -37,10 +37,10 @@
         android:layout_width="80dp"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_toLeftOf="@+id/btn_delete" />
+        android:layout_toLeftOf="@+id/btn_delete_meeting" />
 
     <ImageButton
-        android:id="@id/btn_delete"
+        android:id="@id/btn_delete_meeting"
         style="@style/listItemButton"
         android:layout_alignParentRight="true"
         android:contentDescription="@string/action_delete_meeting"

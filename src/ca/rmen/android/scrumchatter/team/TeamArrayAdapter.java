@@ -34,7 +34,8 @@ import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.provider.TeamColumns;
 
 /**
- * Adapter for the list of teams.
+ * Adapter for the list of teams. The adapter contains all the team names, sorted alphabetically. In addition, one additional item is added to the end, which is
+ * a special string "New team...", which the user may tap on to create a new team. Each item, except for the last one, has a radio button.
  */
 public class TeamArrayAdapter extends ArrayAdapter<CharSequence> {
     private static final String TAG = Constants.TAG + "/" + TeamArrayAdapter.class.getSimpleName();
@@ -53,6 +54,9 @@ public class TeamArrayAdapter extends ArrayAdapter<CharSequence> {
     public void reload() {
         new AsyncTask<Void, Void, List<CharSequence>>() {
 
+            /**
+             * Query the teams table, and return a list of the team names, plus the special "New team..." item.
+             */
             @Override
             protected List<CharSequence> doInBackground(Void... params) {
                 Log.v(TAG, "doInBackground");
@@ -75,6 +79,9 @@ public class TeamArrayAdapter extends ArrayAdapter<CharSequence> {
                 return teamNames;
             }
 
+            /**
+             * Reset the adapter data in one go (only one notification at the end).
+             */
             @Override
             protected void onPostExecute(List<CharSequence> teamNames) {
                 setNotifyOnChange(false);

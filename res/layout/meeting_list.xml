@@ -47,11 +47,11 @@
             android:layout_width="80dp"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_toLeftOf="@+id/btn_delete"
+            android:layout_toLeftOf="@+id/btn_delete_meeting"
             android:text="@string/meeting_list_header_duration" />
 
         <ImageButton
-            android:id="@id/btn_delete"
+            android:id="@id/btn_delete_meeting"
             style="@style/listItemButton"
             android:layout_alignParentRight="true"
             android:layout_marginRight="@dimen/list_inner_horizontal_margin"
