@@ -32,6 +32,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
 import android.database.ContentObserver;
+import android.database.DataSetObserver;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -71,6 +72,7 @@ import ca.rmen.android.scrumchatter.member.list.Members;
 import ca.rmen.android.scrumchatter.member.list.MembersListFragment;
 import ca.rmen.android.scrumchatter.provider.DBImport;
 import ca.rmen.android.scrumchatter.provider.TeamColumns;
+import ca.rmen.android.scrumchatter.team.TeamArrayAdapter;
 import ca.rmen.android.scrumchatter.team.Teams;
 import ca.rmen.android.scrumchatter.team.Teams.Team;
 
@@ -114,6 +116,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
     private Teams mTeams = new Teams(this);
     private Meetings mMeetings = new Meetings(this);
     private Members mMembers = new Members(this);
+    private TeamArrayAdapter mTeamsAdapter;
     private Team mTeam = null;
     private int mTeamCount = 0;
 
@@ -134,6 +137,9 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         mDrawerList = (ListView) findViewById(R.id.left_drawer_list);
+        mTeamsAdapter = new TeamArrayAdapter(this);
+        mDrawerList.setAdapter(mTeamsAdapter);
+        mTeamsAdapter.registerDataSetObserver(mTeamsObserver);
         mDrawerList.setOnItemClickListener(mOnItemClickListener);
         TextView drawerTitle = (TextView) findViewById(R.id.left_drawer_title);
         drawerTitle.setText(drawerTitle.getText().toString().toUpperCase(Locale.getDefault()));
@@ -147,7 +153,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
 
             /** Called when a drawer has settled in a completely closed state. */
             public void onDrawerClosed(View view) {
-                mTeams.populateTeamList(mTeam, mDrawerList);
+                mDrawerList.setItemChecked(mTeamsAdapter.getPosition(mTeam.teamName), true);
             }
 
             /** Called when a drawer has settled in a completely open state. */
@@ -212,11 +218,6 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
-    @Override
-    protected void onResume() {
-        Log.v(TAG, "onResume");
-        super.onResume();
-    }
 
     @Override
     protected void onResumeFragments() {
@@ -243,6 +244,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
         PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(mSharedPrefsListener);
         getContentResolver().unregisterContentObserver(mContentObserver);
         LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(mBroadcastReceiver);
+        mTeamsAdapter.unregisterDataSetObserver(mTeamsObserver);
         super.onDestroy();
     }
 
@@ -410,7 +412,7 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
             @Override
             protected void onPostExecute(Void result) {
                 updateTitle();
-                mTeams.populateTeamList(mTeam, mDrawerList);
+                mTeamsAdapter.reload();
                 supportInvalidateOptionsMenu();
             }
         };
@@ -621,6 +623,15 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
             else
                 mTeams.switchTeam(selectedTeamName);
             mDrawerLayout.closeDrawers();
+        }
+    };
+
+    private DataSetObserver mTeamsObserver = new DataSetObserver() {
+
+        @Override
+        public void onChanged() {
+            Log.v(TAG, "TeamObserver: onChanged");
+            mDrawerList.setItemChecked(mTeamsAdapter.getPosition(mTeam.teamName), true);
         }
     };
 }

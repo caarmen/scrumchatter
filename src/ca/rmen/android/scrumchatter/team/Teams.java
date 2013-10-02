@@ -28,11 +28,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.CheckedTextView;
-import android.widget.ListView;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.dialog.DialogFragmentFactory;
@@ -67,78 +62,6 @@ public class Teams {
 
     public Teams(FragmentActivity activity) {
         mActivity = activity;
-    }
-
-    /**
-     * Fill the list with the names of existing teams, plus a special item "New Team..." at the end.
-     * 
-     * @param team the current team being used.
-     */
-    public void populateTeamList(final Team team, final ListView listView) {
-        Log.v(TAG, "selectTeam " + team);
-        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-            CharSequence[] mTeamNames = null;
-            int mSelectedTeam = -1;
-
-            /**
-             * Create the list of team names, excluding the currently selected team, and with a special last item to create a new team.
-             */
-            @Override
-            protected Void doInBackground(Void... params) {
-                Cursor c = mActivity.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { TeamColumns.TEAM_NAME }, null, null,
-                        TeamColumns.TEAM_NAME + " COLLATE NOCASE");
-
-                if (c != null) {
-                    try {
-                        mTeamNames = new CharSequence[c.getCount() + 1];
-                        int i = 0;
-                        while (c.moveToNext()) {
-                            String teamName = c.getString(0);
-                            if (teamName.equals(team.teamName)) mSelectedTeam = i;
-                            mTeamNames[i++] = teamName;
-                        }
-                        mTeamNames[i++] = mActivity.getString(R.string.new_team);
-                    } finally {
-                        c.close();
-                    }
-                }
-                return null;
-            }
-
-            /**
-             * Show a dialog with the list of teams. Upon clicking a team name, switch to that team. Else upon clicking the "create new team" button, create a
-             * new team.
-             */
-            @Override
-            protected void onPostExecute(Void result) {
-                if (mTeamNames != null && mTeamNames.length >= 1) {
-                    ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(mActivity, android.R.layout.simple_list_item_single_choice, mTeamNames) {
-
-                        @Override
-                        public View getView(int position, View convertView, ViewGroup parent) {
-                            /**
-                             * Hack for Android 2.x: replace the radio button. See {@link DialogStyleHacks}
-                             */
-                            View result = super.getView(position, convertView, parent);
-                            if (result instanceof CheckedTextView) {
-                                CheckedTextView ctv = (CheckedTextView) result;
-                                if (position == mTeamNames.length - 1) ctv.setCheckMarkDrawable(0);
-                                else
-                                    ctv.setCheckMarkDrawable(R.drawable.btn_radio_holo_light);
-                            }
-                            return result;
-                        }
-
-                    };
-                    listView.setAdapter(adapter);
-                    listView.setItemChecked(mSelectedTeam, true);
-                } else {
-                    Log.wtf(TAG, "No existing teams found");
-                }
-            }
-
-        };
-        task.execute();
     }
 
     /**
