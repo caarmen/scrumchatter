@@ -43,15 +43,9 @@ class MembersCursorAdapter extends CursorAdapter {
     }
 
     @Override
-    public void bindView(View view, Context context, Cursor cursor) {
-        fillView(view, cursor);
-    }
-
-    @Override
     public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = layoutInflater.inflate(R.layout.member_list_item, null);
-        fillView(view, cursor);
         return view;
     }
 
@@ -63,7 +57,8 @@ class MembersCursorAdapter extends CursorAdapter {
      * @param cursor
      *            a row for a given team member.
      */
-    private void fillView(View view, Cursor cursor) {
+    @Override
+    public void bindView(View view, Context context, Cursor cursor) {
         // Get the data from the cursor
         @SuppressWarnings("resource")
         MemberCursorWrapper memberCursorWrapper = new MemberCursorWrapper(cursor);

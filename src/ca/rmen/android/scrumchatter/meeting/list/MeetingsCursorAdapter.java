@@ -54,15 +54,9 @@ class MeetingsCursorAdapter extends CursorAdapter {
     }
 
     @Override
-    public void bindView(View view, Context context, Cursor cursor) {
-        fillView(context, view, cursor);
-    }
-
-    @Override
     public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.meeting_list_item, null);
-        fillView(context, view, cursor);
         return view;
     }
 
@@ -74,7 +68,8 @@ class MeetingsCursorAdapter extends CursorAdapter {
      * @param cursor
      *            a row for one meeting
      */
-    private void fillView(Context context, View view, Cursor cursor) {
+    @Override
+    public void bindView(View view, Context context, Cursor cursor) {
         // Get the data from the cursor
         MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(cursor);
         Meeting meeting = Meeting.read(context, cursorWrapper);
