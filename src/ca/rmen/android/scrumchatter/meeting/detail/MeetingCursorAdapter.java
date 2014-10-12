@@ -38,6 +38,7 @@ import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
+import ca.rmen.android.scrumchatter.util.ViewHolder;
 
 /**
  * Adapter for the list of members in one meeting, and their speaking durations
@@ -92,10 +93,10 @@ class MeetingCursorAdapter extends CursorAdapter {
         Long talkStartTime = cursorWrapper.getTalkStartTime();
 
         // Find the Views we need to set up
-        TextView tvName = (TextView) view.findViewById(R.id.tv_name);
-        Chronometer chronometer = (Chronometer) view.findViewById(R.id.tv_duration);
-        ImageButton btnStartStop = (ImageButton) view.findViewById(R.id.btn_start_stop_member);
-        final ImageView ivChatterFace = (ImageView) view.findViewById(R.id.iv_chatter_face);
+        TextView tvName = ViewHolder.get(view, R.id.tv_name);
+        Chronometer chronometer = ViewHolder.get(view, R.id.tv_duration);
+        ImageButton btnStartStop = ViewHolder.get(view, R.id.btn_start_stop_member);
+        final ImageView ivChatterFace = ViewHolder.get(view, R.id.iv_chatter_face);
         // Set up the member's name
         tvName.setText(memberName);
 

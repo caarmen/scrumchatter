@@ -34,6 +34,7 @@ import ca.rmen.android.scrumchatter.meeting.detail.Meeting;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.provider.MeetingCursorWrapper;
 import ca.rmen.android.scrumchatter.util.TextUtils;
+import ca.rmen.android.scrumchatter.util.ViewHolder;
 
 /**
  * Adapter for the list of meetings.
@@ -79,9 +80,9 @@ class MeetingsCursorAdapter extends CursorAdapter {
         String stateName = mMeetingStateNames[meeting.getState().ordinal()];
 
         // Find the views we need to set up.
-        TextView tvDate = (TextView) view.findViewById(R.id.tv_meeting_date);
-        TextView tvDuration = (TextView) view.findViewById(R.id.tv_meeting_duration);
-        View btnDelete = view.findViewById(R.id.btn_delete_meeting);
+        TextView tvDate = ViewHolder.get(view, R.id.tv_meeting_date);
+        TextView tvDuration = ViewHolder.get(view, R.id.tv_meeting_duration);
+        View btnDelete = ViewHolder.get(view, R.id.btn_delete_meeting);
 
         // Fill the date view.
         tvDate.setText(dateString);

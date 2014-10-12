@@ -30,6 +30,7 @@ import android.widget.TextView;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.member.list.Members.Member;
 import ca.rmen.android.scrumchatter.provider.MemberCursorWrapper;
+import ca.rmen.android.scrumchatter.util.ViewHolder;
 
 /**
  * Adapter for the list of team members.
@@ -69,10 +70,10 @@ class MembersCursorAdapter extends CursorAdapter {
         Member cache = new Member(memberId, memberName);
 
         // Find the views we need to update
-        TextView tvName = (TextView) view.findViewById(R.id.tv_name);
-        TextView tvAvgDuration = (TextView) view.findViewById(R.id.tv_avg_duration);
-        TextView tvSumDuration = (TextView) view.findViewById(R.id.tv_sum_duration);
-        View btnDelete = view.findViewById(R.id.btn_delete_member);
+        TextView tvName = ViewHolder.get(view, R.id.tv_name);
+        TextView tvAvgDuration = ViewHolder.get(view, R.id.tv_avg_duration);
+        TextView tvSumDuration = ViewHolder.get(view, R.id.tv_sum_duration);
+        View btnDelete = ViewHolder.get(view, R.id.btn_delete_member);
 
         // Setup our views with the member data
         tvName.setText(memberName);
