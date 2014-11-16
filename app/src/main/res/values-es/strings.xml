@@ -93,4 +93,7 @@
     <string name="about_credit_app_icon_text">qubodup por el icono de bocadillo, en openclipart.</string>
     <string name="about_credit_app_icon_link">http://openclipart.org/detail/14322/16x16px-capable-black-and-white-icons-by-qubodup-14322</string>
 
+    <string name="drawer_open">Abrir el menú lateral</string>
+    <string name="drawer_close">Cerrar el menú lateral</string>
+
 </resources>

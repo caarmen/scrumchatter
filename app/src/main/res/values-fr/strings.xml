@@ -93,4 +93,7 @@
     <string name="about_credit_app_icon_text">qubodup pour l\'icône de la bulle, sur openclipart.</string>
     <string name="about_credit_app_icon_link">http://openclipart.org/detail/14322/16x16px-capable-black-and-white-icons-by-qubodup-14322</string>
 
+    <string name="drawer_open">Ouvrir le menu à gauche</string>
+    <string name="drawer_close">Fermer le menu à gauche</string>
+
 </resources>
