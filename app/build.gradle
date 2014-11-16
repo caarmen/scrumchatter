@@ -1,15 +1,24 @@
 apply plugin: 'com.android.application'
 
 android {
+    File signFile = rootProject.file('signing.properties')
+    Properties p = new Properties();
+    p.load(new FileInputStream(signFile))
+    signingConfigs {
+        release {
+            keyAlias p.KeyAlias
+            keyPassword p.KeyPassword
+            storeFile file(p.StoreFile)
+            storePassword p.StorePassword
+        }
+    }
     compileSdkVersion 17
     buildToolsVersion "21.1.1"
-
     defaultConfig {
         applicationId "ca.rmen.android.scrumchatter"
         minSdkVersion 9
         targetSdkVersion 18
     }
-
     buildTypes {
         release {
             minifyEnabled true
