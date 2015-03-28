@@ -10,8 +10,8 @@ Android app to track how long people talk during meetings.
 * Export a single meeting as text
 * Export all meetings in Excel format
 
-This project requires ActionBarSherlock.  You need to download and import ActionBarSherlock
-in your IDE separately from Scrum Chatter. http://actionbarsherlock.com/usage.html
+*Note*: This application does NOT use the microphone to automatically detect who is speaking. You must
+manually press on a "play" button when a team member speaks.
 
 Scrum Chatter is licensed under the GNU GPLv3 licensce.  Please see LICENSE.txt for more information.
 
