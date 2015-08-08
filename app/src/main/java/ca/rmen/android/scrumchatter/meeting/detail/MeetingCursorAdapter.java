@@ -156,7 +156,8 @@ class MeetingCursorAdapter extends CursorAdapter {
 
                             @Override
                             public void run() {
-                                animationDrawable.setVisible(true, true);
+                                animationDrawable.setVisible(true, false);
+                                animationDrawable.start();
                             }
                         });
                     }
