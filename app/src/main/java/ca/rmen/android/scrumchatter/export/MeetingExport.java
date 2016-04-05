@@ -45,7 +45,7 @@ public class MeetingExport {
      * Generate a text report for a single meeting and bring up a chooser to
      * send the report (by mail, etc).
      * 
-     * @param meetingId
+     * @param meetingId the id of the meeting to export
      * @return true if we were able to generate the report and bring up the
      *         chooser to send it.
      */
@@ -92,9 +92,6 @@ public class MeetingExport {
 
     /**
      * Bring up the chooser to share the meeting report.
-     * 
-     * @param subject
-     * @param body
      */
     private void showChooser(String subject, String body) {
         Log.v(TAG, "showChooser");

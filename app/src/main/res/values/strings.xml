@@ -88,10 +88,6 @@
     <string name="about_credit_title">Special thanks to:</string>
     <string name="about_credit_content_provider_generator_text">BoD for the chatter emoticon and his content provider generator.</string>
     <string name="about_credit_content_provider_generator_link">https://github.com/BoD/android-contentprovider-generator</string>
-    <string name="about_credit_actionbar_style_generator_text">Jeff Gilfelt for his action bar style generator.</string>
-    <string name="about_credit_actionbar_style_generator_link">http://jgilfelt.github.io/android-actionbarstylegenerator/</string>
-    <string name="about_credit_holo_style_generator_text">Jérôme Van Der Linden for his holo style generator.</string>
-    <string name="about_credit_holo_style_generator_link">http://android-holo-colors.com/</string>
     <string name="about_credit_app_icon_text">qubodup for the speech bubble icon on openclipart.</string>
     <string name="about_credit_app_icon_link">http://openclipart.org/detail/14322/16x16px-capable-black-and-white-icons-by-qubodup-14322</string>
     

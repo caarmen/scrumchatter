@@ -533,7 +533,7 @@ public class MainActivity extends AppCompatActivity implements ActionBar.TabList
             // getItem is called to instantiate the fragment for the given page.
             // Return a DummySectionFragment (defined as a static inner class
             // below) with the page number as its lone argument.
-            Fragment fragment = null;
+            Fragment fragment;
             if (position == 1) fragment = new MembersListFragment();
             else
                 fragment = new MeetingsListFragment();

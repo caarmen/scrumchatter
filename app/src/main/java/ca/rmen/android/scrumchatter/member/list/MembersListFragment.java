@@ -200,7 +200,7 @@ public class MembersListFragment extends ListFragment {
                 default:
                     break;
             }
-            // Requery if needed.
+            // Re-query if needed.
             if (!oldOrderByField.equals(mOrderByField)) getLoaderManager().restartLoader(URL_LOADER, null, mLoaderCallbacks);
 
         }

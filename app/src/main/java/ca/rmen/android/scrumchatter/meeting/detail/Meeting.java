@@ -179,7 +179,7 @@ public class Meeting {
         if (cursor != null) {
             // Prepare some update statements to set the duration and reset the
             // talk_start_time, for these members.
-            ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
+            ArrayList<ContentProviderOperation> operations = new ArrayList<>();
             MeetingMemberCursorWrapper cursorWrapper = new MeetingMemberCursorWrapper(cursor);
             if (cursorWrapper.moveToFirst()) {
                 do {

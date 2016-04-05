@@ -121,9 +121,9 @@ public class MeetingsExport extends FileExport {
 
     private void export(int teamId, String teamName) {
         // Build a cache of all member names, including the average and total duration for each member.
-        List<String> memberNames = new ArrayList<String>();
-        Map<String, Integer> avgMemberDurations = new HashMap<String, Integer>();
-        Map<String, Integer> sumMemberDurations = new HashMap<String, Integer>();
+        List<String> memberNames = new ArrayList<>();
+        Map<String, Integer> avgMemberDurations = new HashMap<>();
+        Map<String, Integer> sumMemberDurations = new HashMap<>();
         Cursor c = mContext.getContentResolver().query(MemberStatsColumns.CONTENT_URI,
                 new String[] { MemberColumns.NAME, MemberStatsColumns.AVG_DURATION, MemberStatsColumns.SUM_DURATION },
                 MemberStatsColumns.TEAM_ID + "=? AND " + "(" + MemberStatsColumns.SUM_DURATION + ">0 OR " + MemberStatsColumns.AVG_DURATION + " >0 " + ")",
@@ -138,16 +138,11 @@ public class MeetingsExport extends FileExport {
         memberCursorWrapper.close();
 
         // Write out the column headings
-        List<String> columnHeadings = new ArrayList<String>();
+        List<String> columnHeadings = new ArrayList<>();
         columnHeadings.add(mContext.getString(R.string.export_header_meeting_date));
         columnHeadings.addAll(memberNames);
         columnHeadings.add(mContext.getString(R.string.export_header_meeting_duration));
-        try {
-            writeHeader(teamName, columnHeadings);
-        } catch (IOException e) {
-            Log.e(TAG, e.getMessage(), e);
-            return;
-        }
+        writeHeader(teamName, columnHeadings);
 
         // Read all the meeting/member data
         c = mContext.getContentResolver().query(
@@ -169,7 +164,7 @@ public class MeetingsExport extends FileExport {
         MeetingMemberCursorWrapper cursorWrapper = new MeetingMemberCursorWrapper(c);
         long totalMeetingDuration = 0;
         try {
-            long currentMeetingId = -1;
+            long currentMeetingId;
             int rowNumber = 1;
             while (cursorWrapper.moveToNext()) {
                 // Write one row to the Excel file, for one meeting.
@@ -204,7 +199,7 @@ public class MeetingsExport extends FileExport {
      * Create the workbook, sheet, custom cell formats, and freeze row and
      * column. Also write the column headings.
      */
-    private void writeHeader(String teamName, List<String> columnNames) throws IOException {
+    private void writeHeader(String teamName, List<String> columnNames) {
         mSheet = mWorkbook.createSheet(teamName, 0);
         mSheet.insertRow(0);
         mSheet.getSettings().setHorizontalFreeze(1);
@@ -220,7 +215,7 @@ public class MeetingsExport extends FileExport {
      * Write the average and sum formulas at the bottom of the table.
      * 
      * @param rowNumber The row number for the row after the last row of the meetings.
-     * @param memberNames
+     * @param memberNames The names of each team member.
      * @param sumMemberDurations The total speaking time per member, in seconds
      * @param avgMemberDurations The average speaking time per member, in seconds
      * @param totalMeetingDuration The total time of all meetings.

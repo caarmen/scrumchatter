@@ -242,7 +242,7 @@ public class ScrumChatterProvider extends ContentProvider {
     @Override
     public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations) throws OperationApplicationException {
         Log.v(TAG, "applyBatch: " + operations);
-        Set<Uri> urisToNotify = new HashSet<Uri>();
+        Set<Uri> urisToNotify = new HashSet<>();
         for (ContentProviderOperation operation : operations)
             urisToNotify.add(operation.getUri());
         urisToNotify.add(MemberStatsColumns.CONTENT_URI);
@@ -262,15 +262,12 @@ public class ScrumChatterProvider extends ContentProvider {
 
     /**
      * Log the query of the given cursor.
-     * 
-     * @param cursor
-     * @param selectionArgs
      */
     private void logCursor(Cursor cursor, String[] selectionArgs) {
         try {
             Field queryField = SQLiteCursor.class.getDeclaredField("mQuery");
             queryField.setAccessible(true);
-            SQLiteQuery sqliteQuery = (SQLiteQuery) queryField.get((SQLiteCursor) cursor);
+            SQLiteQuery sqliteQuery = (SQLiteQuery) queryField.get(cursor);
             Log.v(TAG, sqliteQuery.toString() + ": " + Arrays.toString(selectionArgs));
         } catch (Exception e) {
             Log.v(TAG, e.getMessage(), e);
@@ -282,7 +279,7 @@ public class ScrumChatterProvider extends ContentProvider {
         Log.v(TAG, "notifyChange: uri = " + uri + ", notify = " + notify);
         if (notify == null || "true".equals(notify)) {
             // Notify the uri which changed.
-            Set<Uri> urisToNotify = new HashSet<Uri>();
+            Set<Uri> urisToNotify = new HashSet<>();
             urisToNotify.add(uri);
 
             // Whether a meeting, meeting_member, or meeting table was

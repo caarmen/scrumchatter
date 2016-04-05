@@ -60,7 +60,7 @@ public class TeamArrayAdapter extends ArrayAdapter<CharSequence> {
             @Override
             protected List<CharSequence> doInBackground(Void... params) {
                 Log.v(TAG, "doInBackground");
-                List<CharSequence> teamNames = new ArrayList<CharSequence>();
+                List<CharSequence> teamNames = new ArrayList<>();
                 Cursor c = mContext.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { TeamColumns.TEAM_NAME }, null, null,
                         TeamColumns.TEAM_NAME + " COLLATE NOCASE");
 

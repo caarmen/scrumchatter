@@ -55,10 +55,10 @@ public class DBImport {
         }
     }
 
-    private static void importDB(Context context, File importDb) throws RemoteException, OperationApplicationException, FileNotFoundException {
+    private static void importDB(Context context, File importDb) throws RemoteException, OperationApplicationException {
         Log.v(TAG, "importDB from " + importDb);
         SQLiteDatabase dbImport = SQLiteDatabase.openDatabase(importDb.getAbsolutePath(), null, SQLiteDatabase.OPEN_READONLY);
-        ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
+        ArrayList<ContentProviderOperation> operations = new ArrayList<>();
         operations.add(ContentProviderOperation.newDelete(MeetingMemberColumns.CONTENT_URI).build());
         operations.add(ContentProviderOperation.newDelete(MemberColumns.CONTENT_URI).build());
         operations.add(ContentProviderOperation.newDelete(MeetingColumns.CONTENT_URI).build());
