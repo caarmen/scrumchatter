@@ -52,7 +52,8 @@
 
         <ImageButton
             android:id="@id/btn_delete_meeting"
-            style="@style/listItemButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_marginRight="@dimen/list_inner_horizontal_margin"
             android:contentDescription="@string/action_delete_meeting"

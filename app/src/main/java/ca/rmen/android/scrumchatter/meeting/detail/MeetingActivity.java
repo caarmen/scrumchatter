@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import ca.rmen.android.scrumchatter.Constants;
@@ -32,12 +33,11 @@ import ca.rmen.android.scrumchatter.dialog.DialogFragmentFactory;
 import ca.rmen.android.scrumchatter.meeting.Meetings;
 import ca.rmen.android.scrumchatter.util.TextUtils;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 
 /**
  * Contains a ViewPager of {@link MeetingFragment}.
  */
-public class MeetingActivity extends SherlockFragmentActivity implements DialogButtonListener {
+public class MeetingActivity extends AppCompatActivity implements DialogButtonListener {
 
     private String TAG;
 

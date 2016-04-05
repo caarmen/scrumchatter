@@ -48,7 +48,8 @@
 
     <ImageButton
         android:id="@id/btn_delete_member"
-        style="@style/listItemButton"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
         android:layout_alignParentRight="true"
         android:contentDescription="@string/action_delete_member"
         android:src="@drawable/ic_action_delete" />

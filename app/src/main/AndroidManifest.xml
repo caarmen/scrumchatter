@@ -19,12 +19,12 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ca.rmen.android.scrumchatter"
-    android:versionCode="10024"
+    android:versionCode="10100"
     android:versionName="@string/app_version" >
 
     <uses-sdk
         android:minSdkVersion="9"
-        android:targetSdkVersion="21" />
+        android:targetSdkVersion="23" />
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 

@@ -81,8 +81,7 @@ public class InputDialogFragment extends DialogFragment { // NO_UCD (use default
         final Bundle extras = arguments.getBundle(DialogFragmentFactory.EXTRA_EXTRAS);
         final Class<?> inputValidatorClass = (Class<?>) arguments.getSerializable(DialogFragmentFactory.EXTRA_INPUT_VALIDATOR_CLASS);
         final String prefilledText = arguments.getString(DialogFragmentFactory.EXTRA_ENTERED_TEXT);
-        final Context context = new ContextThemeWrapper(getActivity(), R.style.dialogStyle);
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         builder.setTitle(arguments.getString(DialogFragmentFactory.EXTRA_TITLE));
         builder.setView(input);
@@ -117,6 +116,8 @@ public class InputDialogFragment extends DialogFragment { // NO_UCD (use default
                 }
             }
         });
+
+        final Context context = getActivity();
         try {
             final InputValidator validator = inputValidatorClass == null ? null : (InputValidator) inputValidatorClass.newInstance();
             Log.v(TAG, "input validator = " + validator);
@@ -135,13 +136,11 @@ public class InputDialogFragment extends DialogFragment { // NO_UCD (use default
                     if (validator != null) validateText(context, dialog, input, validator, actionId, extras);
                 }
             });
-            dialog.getContext().setTheme(R.style.dialogStyle);
             dialog.setOnShowListener(new OnShowListener() {
 
                 @Override
                 public void onShow(DialogInterface dialogInterface) {
                     Log.v(TAG, "onShow");
-                    DialogStyleHacks.uglyHackReplaceBlueHoloBackground(getActivity(), (ViewGroup) dialog.getWindow().getDecorView(), dialog);
                     validateText(context, dialog, input, validator, actionId, extras);
                 }
             });

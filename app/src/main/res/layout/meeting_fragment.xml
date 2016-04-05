@@ -50,7 +50,6 @@
 
         <ImageButton
             android:id="@id/btn_stop_meeting"
-            style="@style/listItemButton"
             android:layout_alignParentRight="true"
             android:layout_marginRight="@dimen/list_inner_horizontal_margin"
             android:contentDescription="@string/action_stop_meeting"

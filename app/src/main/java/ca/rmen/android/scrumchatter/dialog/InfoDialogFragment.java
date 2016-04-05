@@ -45,13 +45,11 @@ public class InfoDialogFragment extends DialogFragment { // NO_UCD (use default)
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Log.v(TAG, "onCreateDialog: savedInstanceState = " + savedInstanceState);
-        Context context = new ContextThemeWrapper(getActivity(), R.style.dialogStyle);
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         Bundle arguments = getArguments();
         builder.setTitle(arguments.getString(DialogFragmentFactory.EXTRA_TITLE)).setMessage(arguments.getString(DialogFragmentFactory.EXTRA_MESSAGE))
                 .setNeutralButton(android.R.string.ok, null);
         final AlertDialog dialog = builder.create();
-        DialogStyleHacks.styleDialog(getActivity(), dialog);
         return dialog;
     }
 }

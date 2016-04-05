@@ -28,13 +28,18 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -48,16 +53,10 @@ import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-
 /**
  * Displays info about a meeting (the duration) as well as the list of members participating in a particular meeting.
  */
-public class MeetingFragment extends SherlockListFragment { // NO_UCD (use default)
+public class MeetingFragment extends ListFragment {
 
     private String TAG = Constants.TAG + "/" + MeetingFragment.class.getSimpleName() + "/" + System.currentTimeMillis();
 
@@ -196,7 +195,7 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
             protected void onPostExecute(Meeting meeting) {
                 Log.v(TAG, "onPostExecute: meeting = " + meeting);
                 // Don't do anything if the activity has been closed in the meantime
-                SherlockFragmentActivity activity = (SherlockFragmentActivity) getActivity();
+                AppCompatActivity activity = (AppCompatActivity) getActivity();
                 if (activity == null) {
                     Log.w(TAG, "No longer attached to the activity: can't load meeting members");
                     return;

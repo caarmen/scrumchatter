@@ -56,8 +56,7 @@ public class ConfirmDialogFragment extends DialogFragment { // NO_UCD (use defau
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Log.v(TAG, "onCreateDialog: savedInstanceState = " + savedInstanceState);
 
-        Context context = new ContextThemeWrapper(getActivity(), R.style.dialogStyle);
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         Bundle arguments = getArguments();
         builder.setTitle(arguments.getString(DialogFragmentFactory.EXTRA_TITLE)).setMessage(arguments.getString(DialogFragmentFactory.EXTRA_MESSAGE));
         final int actionId = arguments.getInt(DialogFragmentFactory.EXTRA_ACTION_ID);
@@ -77,7 +76,6 @@ public class ConfirmDialogFragment extends DialogFragment { // NO_UCD (use defau
         builder.setNegativeButton(android.R.string.cancel, null);
         builder.setPositiveButton(android.R.string.ok, positiveListener);
         final AlertDialog dialog = builder.create();
-        DialogStyleHacks.styleDialog(getActivity(), dialog);
         return dialog;
 
     }

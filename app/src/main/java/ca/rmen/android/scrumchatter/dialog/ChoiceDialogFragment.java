@@ -55,8 +55,7 @@ public class ChoiceDialogFragment extends DialogFragment { // NO_UCD (use defaul
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Log.v(TAG, "onCreateDialog: savedInstanceState = " + savedInstanceState);
-        Context context = new ContextThemeWrapper(getActivity(), R.style.dialogStyle);
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         Bundle arguments = getArguments();
         builder.setTitle(arguments.getString(DialogFragmentFactory.EXTRA_TITLE));
         final int actionId = arguments.getInt(DialogFragmentFactory.EXTRA_ACTION_ID);
@@ -82,7 +81,6 @@ public class ChoiceDialogFragment extends DialogFragment { // NO_UCD (use defaul
             builder.setItems(choices, listener);
 
         final AlertDialog dialog = builder.create();
-        DialogStyleHacks.styleDialog(getActivity(), dialog);
         return dialog;
     }
 }

@@ -19,96 +19,20 @@
 -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Action bar theme generation url: http://jgilfelt.github.io/android-actionbarstylegenerator/#name=scrum_chatter&compat=sherlock&theme=light_dark&actionbarstyle=solid&texture=0&hairline=0&backColor=6c006c%2C100&secondaryColor=ccc%2C100&tabColor=d25fd2%2C100&tertiaryColor=3F3F3F%2C100&accentColor=d25fd2%2C100&cabBackColor=002E3E%2C100&cabHighlightColor=d25fd2%2C100 -->
-    <!--
-        Base application theme, dependent on API level. This theme is replaced
-        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
-    -->
-    <style name="AppBaseTheme" parent="Theme.Scrum_chatter">
-        <!--
-            Theme customizations available in newer API levels can go in
-            res/values-vXX/styles.xml, while customizations related to
-            backward-compatibility can go here.
-        -->
-    </style>
 
-    <!-- Application theme. -->
-    <style name="AppTheme" parent="AppBaseTheme">
-
-        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
-        <item name="android:listViewStyle">@style/listStyle</item>
-        <item name="actionBarTabTextStyle">@style/tabTextStyle</item>
-        <item name="actionBarDivider">@drawable/tab_divider</item>
-        <item name="actionBarTabBarStyle">@style/tabBarStyle</item>
-        <item name="android:editTextStyle">@style/EditTextscrum_chatter_holo</item>
-        <item name="android:textColorSecondaryInverse">@android:color/black</item>
-        <item name="android:progressBarStyleHorizontal">@style/ProgressBarscrum_chatter_holo</item>
-        <item name="android:radioButtonStyle">@style/RadioButtonscrum_chatter</item>
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/scrum_chatter_holo_purple</item>
     </style>
 
     <style name="listHeader">
         <item name="android:textColor">@color/unselected_header</item>
         <item name="android:textStyle">italic</item>
     </style>
-
-    <style name="listItemButton">
-        <item name="android:layout_width">48dp</item>
-        <item name="android:layout_height">48dp</item>
-        <item name="android:background">@drawable/selector</item>
-        <item name="android:scaleType">center</item>
+     <style name="sectionHeadingStyle">
+         <item name="android:textStyle">bold</item>
+         <item name="android:textSize">14sp</item>
+         <item name="android:paddingLeft">@dimen/section_heading_horizontal_padding</item>
+         <item name="android:paddingRight">@dimen/section_heading_horizontal_padding</item>
+         <item name="android:paddingTop">@dimen/section_heading_top_padding</item>
     </style>
-
-    <style name="listStyle" parent="Widget.Sherlock.Light.ListView.DropDown">
-        <item name="android:listSelector">@drawable/selector</item>
-    </style>
-
-    <style name="tabTextStyle" parent="Widget.Sherlock.ActionBar.TabText">
-        <item name="android:textColor">@android:color/black</item>
-    </style>
-
-    <style name="tabBarStyle" parent="Widget.Sherlock.ActionBar.TabBar">
-        <item name="android:divider">@drawable/tab_divider</item>
-    </style>
-
-    <style name="dialogStyle" parent="android:Theme.Dialog">
-
-        <!-- Copied from standard android:Theme.Dialog.Alert - cannot just inherit it because of different ids towards android versions -->
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:windowIsFloating">true</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:buttonStyle">@style/buttonStyle</item>
-        <item name="android:textAppearanceLarge">@style/textAppearanceLarge</item>
-        <item name="android:textAppearanceMedium">@style/textAppearanceMedium</item>
-        <item name="android:alertDialogStyle">@style/alertDialogStyle</item>
-        <item name="android:listViewStyle">@style/listStyle</item>
-        <item name="android:radioButtonStyle">@style/RadioButtonscrum_chatter</item>
-    </style>
-
-    <style name="textAppearanceLarge" parent="@android:style/TextAppearance.Large">
-        <item name="android:textColor">@color/scrum_chatter_holo_purple</item>
-    </style>
-
-    <style name="textAppearanceMedium" parent="@android:style/TextAppearance.Medium">
-        <item name="android:textColor">@android:color/black</item>
-    </style>
-
-    <style name="alertDialogStyle">
-        <item name="android:topDark">@drawable/popup_top_bright</item>
-        <item name="android:centerDark">@drawable/popup_center_bright</item>
-        <item name="android:bottomBright">@drawable/popup_bottom_bright</item>
-        <item name="android:bottomMedium">@drawable/popup_bottom_bright</item>
-    </style>
-
-    <style name="buttonStyle" parent="@android:style/Widget.Button">
-        <item name="android:background">@drawable/btn_default</item>
-    </style>
-
-    <style name="sectionHeadingStyle">
-        <item name="android:textStyle">bold</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:paddingLeft">@dimen/section_heading_horizontal_padding</item>
-        <item name="android:paddingRight">@dimen/section_heading_horizontal_padding</item>
-        <item name="android:paddingTop">@dimen/section_heading_top_padding</item>
-    </style>
-
 </resources>

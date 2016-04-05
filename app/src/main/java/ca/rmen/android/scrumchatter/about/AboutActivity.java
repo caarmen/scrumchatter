@@ -20,12 +20,13 @@ package ca.rmen.android.scrumchatter.about;
 
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
+
 import ca.rmen.android.scrumchatter.R;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.MenuItem;
 
-public class AboutActivity extends SherlockFragmentActivity { // NO_UCD (use default)
+public class AboutActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

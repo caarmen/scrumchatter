@@ -99,10 +99,10 @@ public class TeamArrayAdapter extends ArrayAdapter<CharSequence> {
         if (result instanceof CheckedTextView) {
             CheckedTextView ctv = (CheckedTextView) result;
             // The last item is the special "New team..." item. Don't show a radio button for this item
-            if (position == getCount() - 1) ctv.setCheckMarkDrawable(0);
+            if (position == getCount() - 1) ctv.setCheckMarkDrawable(null);
             // Hack for Android 2.x: replace the radio button. See {@link DialogStyleHacks}
-            else
-                ctv.setCheckMarkDrawable(R.drawable.btn_radio_holo_light);
+            //else
+            //    ctv.setCheckMarkDrawable(R.drawable.btn_radio_holo_light);
         }
         return result;
     }
