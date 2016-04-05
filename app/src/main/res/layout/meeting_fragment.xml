@@ -52,6 +52,8 @@
             android:id="@id/btn_stop_meeting"
             android:layout_alignParentRight="true"
             android:layout_marginRight="@dimen/list_inner_horizontal_margin"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
             android:contentDescription="@string/action_stop_meeting"
             android:src="@drawable/ic_action_stop"
             android:visibility="invisible" />

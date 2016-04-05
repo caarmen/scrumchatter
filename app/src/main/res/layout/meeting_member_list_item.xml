@@ -53,6 +53,8 @@
     <ImageButton
         android:id="@id/btn_start_stop_member"
         android:layout_alignParentRight="true"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
         android:contentDescription="@string/action_start"
         android:src="@drawable/ic_action_start" />
 
