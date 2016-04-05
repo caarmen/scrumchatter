@@ -42,7 +42,7 @@ public class TeamArrayAdapter extends ArrayAdapter<CharSequence> {
     private final Context mContext;
 
     public TeamArrayAdapter(final Context context) {
-        super(context, android.R.layout.simple_list_item_single_choice);
+        super(context, R.layout.scrum_chatter_select_singlechoice_material);
         Log.v(TAG, "Constructor");
         mContext = context;
         reload();
@@ -105,5 +105,16 @@ public class TeamArrayAdapter extends ArrayAdapter<CharSequence> {
             //    ctv.setCheckMarkDrawable(R.drawable.btn_radio_holo_light);
         }
         return result;
+    }
+
+    @Override
+    public int getViewTypeCount() {
+        return 2;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (position == getCount() - 1) return 1;
+        return 0;
     }
 }
