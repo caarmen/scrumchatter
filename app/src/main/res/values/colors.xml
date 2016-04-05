@@ -19,14 +19,15 @@
 -->
 <resources>
     <!-- http://colorschemedesigner.com/#4W11Tw0w0w0w0 -->
-    <color name="scrum_chatter_holo_purple">#9c27b0</color>
+    <color name="scrum_chatter_primary_color">#9c27b0</color>
+    <color name="scrum_chatter_accent_color">#e040fb</color>
     <color name="selected_header">#7c1f7c</color>
     <color name="unselected_header">#333</color>
     <color name="item_pressed">#33d25fd2</color>
-    <color name="chrono_active">@color/scrum_chatter_holo_purple</color>
+    <color name="chrono_active">@color/scrum_chatter_primary_color</color>
     <color name="chrono_inactive">#000</color>
     <color name="chrono_not_started">#aaa</color>
     <color name="light_gray">#e0e0e0</color>
-    <color name="meeting_state_in_progress">@color/scrum_chatter_holo_purple</color>
+    <color name="meeting_state_in_progress">@color/scrum_chatter_primary_color</color>
     <color name="meeting_state_default">@color/abc_primary_text_material_light</color>
 </resources>

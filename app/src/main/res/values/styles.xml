@@ -21,9 +21,10 @@
 
 
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="colorPrimary">@color/scrum_chatter_holo_purple</item>
-        <item name="colorAccent">#e040fb</item>
-        <item name="android:listViewStyle">@style/ListViewAppTheme</item>
+        <item name="colorPrimary">@color/scrum_chatter_primary_color</item>
+        <item name="colorAccent">@color/scrum_chatter_accent_color</item>
+        <item name="android:listViewStyle">@style/AppListView</item>
+        <item name="alertDialogTheme">@style/AppAlertDialog</item>
     </style>
 
     <style name="listHeader">
@@ -38,8 +39,13 @@
          <item name="android:paddingTop">@dimen/section_heading_top_padding</item>
     </style>
 
-    <style name="ListViewAppTheme" parent="Base.Widget.AppCompat.ListView">
+    <style name="AppListView" parent="Base.Widget.AppCompat.ListView">
         <item name="android:listSelector">@drawable/selector</item>
         <item name="android:divider">@null</item>
+    </style>
+
+    <style name="AppAlertDialog" parent="Theme.AppCompat.Light.Dialog">
+        <item name="colorPrimary">@color/scrum_chatter_primary_color</item>
+        <item name="colorAccent">@color/scrum_chatter_accent_color</item>
     </style>
 </resources>
