@@ -18,15 +18,12 @@
  */
 package ca.rmen.android.scrumchatter.dialog;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
-import android.view.ContextThemeWrapper;
 import ca.rmen.android.scrumchatter.Constants;
-import ca.rmen.android.scrumchatter.R;
 
 /**
  * Shows a dialog with a title, message, and a single button to dismiss the dialog.
