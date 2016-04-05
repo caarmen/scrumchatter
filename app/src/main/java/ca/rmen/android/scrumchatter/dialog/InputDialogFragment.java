@@ -38,6 +38,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import ca.rmen.android.scrumchatter.Constants;
+import ca.rmen.android.scrumchatter.R;
 
 /**
  * A dialog fragment with an EditText for user text input.
@@ -74,14 +75,15 @@ public class InputDialogFragment extends DialogFragment { // NO_UCD (use default
         if (savedInstanceState != null) mEnteredText = savedInstanceState.getString(DialogFragmentFactory.EXTRA_ENTERED_TEXT);
         Bundle arguments = getArguments();
         final int actionId = arguments.getInt(DialogFragmentFactory.EXTRA_ACTION_ID);
-        final EditText input = new EditText(getActivity());
+        View view = View.inflate(getActivity(), R.layout.input_dialog_edit_text, null);
+        final EditText input = (EditText) view.findViewById(android.R.id.edit);
         final Bundle extras = arguments.getBundle(DialogFragmentFactory.EXTRA_EXTRAS);
         final Class<?> inputValidatorClass = (Class<?>) arguments.getSerializable(DialogFragmentFactory.EXTRA_INPUT_VALIDATOR_CLASS);
         final String prefilledText = arguments.getString(DialogFragmentFactory.EXTRA_ENTERED_TEXT);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         builder.setTitle(arguments.getString(DialogFragmentFactory.EXTRA_TITLE));
-        builder.setView(input);
+        builder.setView(view);
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
         input.setHint(arguments.getString(DialogFragmentFactory.EXTRA_INPUT_HINT));
         input.setText(prefilledText);

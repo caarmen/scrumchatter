@@ -22,6 +22,7 @@
 
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/scrum_chatter_primary_color</item>
+        <item name="colorPrimaryDark">@color/scrum_chatter_primary_color</item>
         <item name="colorAccent">@color/scrum_chatter_accent_color</item>
         <item name="android:listViewStyle">@style/AppListView</item>
         <item name="alertDialogTheme">@style/AppAlertDialog</item>
@@ -46,6 +47,8 @@
 
     <style name="AppAlertDialog" parent="Theme.AppCompat.Light.Dialog">
         <item name="colorPrimary">@color/scrum_chatter_primary_color</item>
+        <item name="colorPrimaryDark">@color/scrum_chatter_primary_color</item>
         <item name="colorAccent">@color/scrum_chatter_accent_color</item>
+        <item name="android:listViewStyle">@style/AppListView</item>
     </style>
 </resources>
