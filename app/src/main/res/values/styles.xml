@@ -23,6 +23,7 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/scrum_chatter_holo_purple</item>
         <item name="colorAccent">#e040fb</item>
+        <item name="android:listViewStyle">@style/ListViewAppTheme</item>
     </style>
 
     <style name="listHeader">
@@ -35,5 +36,10 @@
          <item name="android:paddingLeft">@dimen/section_heading_horizontal_padding</item>
          <item name="android:paddingRight">@dimen/section_heading_horizontal_padding</item>
          <item name="android:paddingTop">@dimen/section_heading_top_padding</item>
+    </style>
+
+    <style name="ListViewAppTheme" parent="Base.Widget.AppCompat.ListView">
+        <item name="android:listSelector">@drawable/selector</item>
+        <item name="android:divider">@null</item>
     </style>
 </resources>
