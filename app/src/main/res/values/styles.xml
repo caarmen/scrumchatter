@@ -51,4 +51,5 @@
         <item name="colorAccent">@color/scrum_chatter_accent_color</item>
         <item name="android:listViewStyle">@style/AppListView</item>
     </style>
+
 </resources>

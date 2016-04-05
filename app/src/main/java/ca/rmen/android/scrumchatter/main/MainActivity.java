@@ -39,7 +39,6 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
 import android.preference.PreferenceManager;
-import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -49,6 +48,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -141,7 +141,6 @@ public class MainActivity extends AppCompatActivity implements ActionBar.TabList
 
         // Set up the left drawer
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         mDrawerList = (ListView) findViewById(R.id.left_drawer_list);
         mTeamsAdapter = new TeamArrayAdapter(this);
         mDrawerList.setAdapter(mTeamsAdapter);
@@ -151,7 +150,6 @@ public class MainActivity extends AppCompatActivity implements ActionBar.TabList
 
         mDrawerToggle = new ActionBarDrawerToggle(this, /* host Activity */
         mDrawerLayout, /* DrawerLayout object */
-        R.drawable.ic_drawer, /* nav drawer icon to replace 'Up' caret */
         R.string.drawer_open, /* "open drawer" description */
         R.string.drawer_close /* "close drawer" description */
         ) {
