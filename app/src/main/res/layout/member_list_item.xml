@@ -48,6 +48,8 @@
 
     <ImageButton
         android:id="@id/btn_delete_member"
+        android:background="?selectableItemBackgroundBorderless"
+        android:padding="8dp"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:layout_alignParentRight="true"
