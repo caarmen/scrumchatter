@@ -19,7 +19,7 @@
 -->
 <resources>
     <!-- http://colorschemedesigner.com/#4W11Tw0w0w0w0 -->
-    <color name="scrum_chatter_holo_purple">#a600a6</color>
+    <color name="scrum_chatter_holo_purple">#9c27b0</color>
     <color name="selected_header">#7c1f7c</color>
     <color name="unselected_header">#333</color>
     <color name="item_pressed">#33d25fd2</color>
