@@ -187,8 +187,7 @@ public class MeetingFragment extends ListFragment {
                     cancel(false);
                     return null;
                 }
-                Meeting meeting = Meeting.read(activity, meetingId);
-                return meeting;
+                return Meeting.read(activity, meetingId);
             }
 
             @Override
@@ -289,7 +288,7 @@ public class MeetingFragment extends ListFragment {
     /**
      * Cursor on the MeetingMember table
      */
-    private LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
+    private final LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
 
         @Override
         public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
@@ -307,8 +306,7 @@ public class MeetingFragment extends ListFragment {
                     MeetingMemberColumns.TALK_START_TIME };
 
             Uri uri = Uri.withAppendedPath(MeetingMemberColumns.CONTENT_URI, String.valueOf(loaderId));
-            CursorLoader loader = new CursorLoader(getActivity(), uri, projection, selection, null, orderBy);
-            return loader;
+            return new CursorLoader(getActivity(), uri, projection, selection, null, orderBy);
         }
 
         @Override
@@ -348,7 +346,7 @@ public class MeetingFragment extends ListFragment {
             super.onChange(selfChange);
             loadMeeting();
         }
-    };
+    }
 
     /**
      * Manage clicks on items inside the meeting fragment.
@@ -373,7 +371,7 @@ public class MeetingFragment extends ListFragment {
                 }
             };
             task.execute(mMeeting);
-        };
+        }
 
         @Override
         public void onClick(View v) {

@@ -55,7 +55,7 @@ public class InputDialogFragment extends DialogFragment { // NO_UCD (use default
          * @return an error string if the input has a problem, null if the input is valid.
          */
         String getError(Context context, CharSequence input, Bundle extras);
-    };
+    }
 
     /**
      * The activity owning this dialog fragment should implement this interface to be notified when the user submits entered text.

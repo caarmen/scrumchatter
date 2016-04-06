@@ -23,7 +23,6 @@
     android:orientation="vertical" >
 
     <RelativeLayout
-        android:id="@+id/meeting_header"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:background="@color/light_gray"

@@ -33,7 +33,7 @@ import ca.rmen.android.scrumchatter.R;
  */
 public abstract class FileExport {
     private static final String TAG = Constants.TAG + "/" + FileExport.class.getSimpleName();
-    protected final Context mContext;
+    final Context mContext;
     private final String mMimeType;
 
     /**

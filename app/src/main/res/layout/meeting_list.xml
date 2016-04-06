@@ -31,7 +31,6 @@
         android:paddingRight="@dimen/activity_horizontal_margin" >
 
         <TextView
-            android:id="@+id/tv_date"
             style="@style/listHeader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

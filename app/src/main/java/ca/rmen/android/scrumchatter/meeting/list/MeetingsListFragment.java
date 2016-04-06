@@ -118,15 +118,14 @@ public class MeetingsListFragment extends ListFragment {
         startActivity(intent);
     }
 
-    private LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
+    private final LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
         @Override
         public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
             Log.v(TAG, "onCreateLoader, loaderId = " + loaderId + ", bundle = " + bundle);
             String selection = MeetingColumns.TEAM_ID + "=?";
             String[] selectionArgs = new String[] { String.valueOf(mTeamId) };
-            CursorLoader loader = new CursorLoader(getActivity(), MeetingColumns.CONTENT_URI, null, selection, selectionArgs, MeetingColumns.MEETING_DATE
+            return new CursorLoader(getActivity(), MeetingColumns.CONTENT_URI, null, selection, selectionArgs, MeetingColumns.MEETING_DATE
                     + " DESC");
-            return loader;
         }
 
         @Override
@@ -164,7 +163,7 @@ public class MeetingsListFragment extends ListFragment {
         }
     };
 
-    private OnSharedPreferenceChangeListener mPrefsListener = new OnSharedPreferenceChangeListener() {
+    private final OnSharedPreferenceChangeListener mPrefsListener = new OnSharedPreferenceChangeListener() {
 
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {

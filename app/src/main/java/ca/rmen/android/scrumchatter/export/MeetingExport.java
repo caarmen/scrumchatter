@@ -35,7 +35,7 @@ import ca.rmen.android.scrumchatter.util.TextUtils;
 public class MeetingExport {
 
     private static final String TAG = MeetingExport.class.getSimpleName();
-    private Context mContext;
+    private final Context mContext;
 
     public MeetingExport(Context context) {
         mContext = context;

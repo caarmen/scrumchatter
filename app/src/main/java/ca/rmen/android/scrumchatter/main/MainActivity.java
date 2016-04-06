@@ -98,14 +98,6 @@ public class MainActivity extends AppCompatActivity implements ActionBar.TabList
     private static final String PROGRESS_DIALOG_FRAGMENT_TAG = "progress_dialog_fragment_tag";
 
     /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a {@link android.support.v4.app.FragmentPagerAdapter} derivative, which
-     * will keep every loaded fragment in memory. If this becomes too memory
-     * intensive, it may be best to switch to a {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
-    private SectionsPagerAdapter mSectionsPagerAdapter;
-
-    /**
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
@@ -118,9 +110,9 @@ public class MainActivity extends AppCompatActivity implements ActionBar.TabList
     private ListView mDrawerList;
     private TeamArrayAdapter mTeamsAdapter;
 
-    private Teams mTeams = new Teams(this);
-    private Meetings mMeetings = new Meetings(this);
-    private Members mMembers = new Members(this);
+    private final Teams mTeams = new Teams(this);
+    private final Meetings mMeetings = new Meetings(this);
+    private final Members mMembers = new Members(this);
     private Team mTeam = null;
     private int mTeamCount = 0;
 
@@ -168,11 +160,17 @@ public class MainActivity extends AppCompatActivity implements ActionBar.TabList
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the app.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        /*
+      The {@link android.support.v4.view.PagerAdapter} that will provide
+      fragments for each of the sections. We use a {@link android.support.v4.app.FragmentPagerAdapter} derivative, which
+      will keep every loaded fragment in memory. If this becomes too memory
+      intensive, it may be best to switch to a {@link android.support.v4.app.FragmentStatePagerAdapter}.
+     */
+        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
+        mViewPager.setAdapter(sectionsPagerAdapter);
 
         // When swiping between different sections, select the corresponding
         // tab. We can also use ActionBar.Tab#select() to do this if we have
@@ -185,12 +183,12 @@ public class MainActivity extends AppCompatActivity implements ActionBar.TabList
         });
 
         // For each of the sections in the app, add a tab to the action bar.
-        for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
+        for (int i = 0; i < sectionsPagerAdapter.getCount(); i++) {
             // Create a tab with text corresponding to the page title defined by
             // the adapter. Also specify this Activity object, which implements
             // the TabListener interface, as the callback (listener) for when
             // this tab is selected.
-            actionBar.addTab(actionBar.newTab().setText(mSectionsPagerAdapter.getPageTitle(i)).setTabListener(this));
+            actionBar.addTab(actionBar.newTab().setText(sectionsPagerAdapter.getPageTitle(i)).setTabListener(this));
         }
 
         onTeamChanged();
@@ -559,21 +557,21 @@ public class MainActivity extends AppCompatActivity implements ActionBar.TabList
         }
     }
 
-    private ContentObserver mContentObserver = new ContentObserver(null) {
+    private final ContentObserver mContentObserver = new ContentObserver(null) {
         @Override
         public void onChange(boolean selfChange) {
             onTeamChanged();
         }
     };
 
-    private OnSharedPreferenceChangeListener mSharedPrefsListener = new OnSharedPreferenceChangeListener() {
+    private final OnSharedPreferenceChangeListener mSharedPrefsListener = new OnSharedPreferenceChangeListener() {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
             onTeamChanged();
         }
     };
 
-    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -599,7 +597,7 @@ public class MainActivity extends AppCompatActivity implements ActionBar.TabList
     /**
      * Select a team the user picked from the left drawer.
      */
-    private ListView.OnItemClickListener mOnItemClickListener = new ListView.OnItemClickListener() {
+    private final ListView.OnItemClickListener mOnItemClickListener = new ListView.OnItemClickListener() {
 
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -625,7 +623,7 @@ public class MainActivity extends AppCompatActivity implements ActionBar.TabList
     /**
      * Once the list of teams is loaded, we need to select our current team in the list.
      */
-    private DataSetObserver mTeamsObserver = new DataSetObserver() {
+    private final DataSetObserver mTeamsObserver = new DataSetObserver() {
 
         @Override
         public void onChanged() {

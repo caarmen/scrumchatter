@@ -160,7 +160,7 @@ public class MeetingActivity extends AppCompatActivity implements DialogButtonLi
      * When the user selects a meeting by swiping left or right, we need to load the data
      * from the meeting, to update the title in the action bar.
      */
-    private OnPageChangeListener mOnPageChangeListener = new OnPageChangeListener() {
+    private final OnPageChangeListener mOnPageChangeListener = new OnPageChangeListener() {
 
         @Override
         public void onPageSelected(int position) {

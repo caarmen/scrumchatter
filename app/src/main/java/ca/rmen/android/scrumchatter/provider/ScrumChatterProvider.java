@@ -56,8 +56,8 @@ public class ScrumChatterProvider extends ContentProvider {
     public static final String AUTHORITY = "ca.rmen.android.scrumchatter.provider";
     static final String CONTENT_URI_BASE = "content://" + AUTHORITY;
 
-    public static final String QUERY_NOTIFY = "QUERY_NOTIFY"; // NO_UCD (use private)
-    public static final String QUERY_GROUP_BY = "QUERY_GROUP_BY"; // NO_UCD (use private)
+    private static final String QUERY_NOTIFY = "QUERY_NOTIFY"; // NO_UCD (use private)
+    private static final String QUERY_GROUP_BY = "QUERY_GROUP_BY"; // NO_UCD (use private)
 
     private static final int URI_TYPE_TEAM = 0;
     private static final int URI_TYPE_TEAM_ID = 1;

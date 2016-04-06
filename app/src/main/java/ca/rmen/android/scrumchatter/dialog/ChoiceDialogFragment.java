@@ -77,7 +77,6 @@ public class ChoiceDialogFragment extends DialogFragment { // NO_UCD (use defaul
         else
             builder.setItems(choices, listener);
 
-        final AlertDialog dialog = builder.create();
-        return dialog;
+        return builder.create();
     }
 }

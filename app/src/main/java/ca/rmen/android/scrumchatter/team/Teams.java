@@ -58,7 +58,7 @@ public class Teams {
             return "Team [teamUri=" + teamUri + ", teamName=" + teamName + "]";
         }
 
-    };
+    }
 
     public Teams(FragmentActivity activity) {
         mActivity = activity;

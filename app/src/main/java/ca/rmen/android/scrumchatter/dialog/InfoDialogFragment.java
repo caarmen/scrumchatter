@@ -46,7 +46,6 @@ public class InfoDialogFragment extends DialogFragment { // NO_UCD (use default)
         Bundle arguments = getArguments();
         builder.setTitle(arguments.getString(DialogFragmentFactory.EXTRA_TITLE)).setMessage(arguments.getString(DialogFragmentFactory.EXTRA_MESSAGE))
                 .setNeutralButton(android.R.string.ok, null);
-        final AlertDialog dialog = builder.create();
-        return dialog;
+        return builder.create();
     }
 }

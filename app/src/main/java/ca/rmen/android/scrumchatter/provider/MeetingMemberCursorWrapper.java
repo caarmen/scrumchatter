@@ -25,7 +25,7 @@ import android.database.CursorWrapper;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 
 public class MeetingMemberCursorWrapper extends CursorWrapper {
-    private HashMap<String, Integer> mColumnIndexes = new HashMap<>();
+    private final HashMap<String, Integer> mColumnIndexes = new HashMap<>();
 
     public MeetingMemberCursorWrapper(Cursor cursor) {
         super(cursor);

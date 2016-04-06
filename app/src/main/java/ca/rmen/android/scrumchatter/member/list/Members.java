@@ -50,7 +50,7 @@ public class Members {
             this.id = memberId;
             this.name = memberName;
         }
-    };
+    }
 
     public Members(FragmentActivity activity) {
         mActivity = activity;

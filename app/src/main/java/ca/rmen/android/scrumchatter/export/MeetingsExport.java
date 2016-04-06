@@ -69,9 +69,9 @@ public class MeetingsExport extends FileExport {
     private WritableSheet mSheet;
     private WritableCellFormat mDefaultFormat;
     private WritableCellFormat mBoldFormat;
-    private WritableCellFormat mLongDurationFormat = new WritableCellFormat(DateFormats.FORMAT8);
-    private WritableCellFormat mShortDurationFormat = new WritableCellFormat(DateFormats.FORMAT10);
-    private WritableCellFormat mDateFormat = new WritableCellFormat(new DateFormat("dd-MMM-yyyy HH:mm"));
+    private final WritableCellFormat mLongDurationFormat = new WritableCellFormat(DateFormats.FORMAT8);
+    private final WritableCellFormat mShortDurationFormat = new WritableCellFormat(DateFormats.FORMAT10);
+    private final WritableCellFormat mDateFormat = new WritableCellFormat(new DateFormat("dd-MMM-yyyy HH:mm"));
 
 
     public MeetingsExport(Context context) {

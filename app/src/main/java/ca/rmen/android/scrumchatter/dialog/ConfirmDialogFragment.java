@@ -72,8 +72,7 @@ public class ConfirmDialogFragment extends DialogFragment { // NO_UCD (use defau
         }
         builder.setNegativeButton(android.R.string.cancel, null);
         builder.setPositiveButton(android.R.string.ok, positiveListener);
-        final AlertDialog dialog = builder.create();
-        return dialog;
+        return builder.create();
 
     }
 }
