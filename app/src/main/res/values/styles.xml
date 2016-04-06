@@ -25,6 +25,7 @@
         <item name="colorPrimaryDark">@color/scrum_chatter_primary_color</item>
         <item name="colorAccent">@color/scrum_chatter_accent_color</item>
         <item name="android:listViewStyle">@style/AppListView</item>
+        <item name="drawerArrowStyle">@style/AppDrawerArrowStyle</item>
         <item name="alertDialogTheme">@style/AppAlertDialog</item>
     </style>
 
@@ -58,5 +59,10 @@
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppDrawerArrowStyle" parent="@style/Widget.AppCompat.DrawerArrowToggle">
+        <item name="spinBars">true</item>
+        <item name="color">@color/toolbar_title_color</item>
+    </style>
 
 </resources>
