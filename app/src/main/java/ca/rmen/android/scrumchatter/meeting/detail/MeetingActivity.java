@@ -51,7 +51,7 @@ public class MeetingActivity extends AppCompatActivity implements DialogButtonLi
         Log.v(TAG, "onCreate: savedInstanceState = " + savedInstanceState + ", intent = " + getIntent() + ", intent flags = " + getIntent().getFlags());
         setContentView(R.layout.meeting_activity);
         mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setOnPageChangeListener(mOnPageChangeListener);
+        mViewPager.addOnPageChangeListener(mOnPageChangeListener);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // If this is the first time we open the activity, we will use the meeting id provided in the intent.
@@ -101,6 +101,7 @@ public class MeetingActivity extends AppCompatActivity implements DialogButtonLi
         Log.v(TAG, "onDestroy");
         super.onDestroy();
         if (mMeetingPagerAdapter != null) mMeetingPagerAdapter.destroy();
+        mViewPager.removeOnPageChangeListener(mOnPageChangeListener);
     }
 
     /**

@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements ActionBar.TabList
         };
 
         // Set the drawer toggle as the DrawerListener
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        mDrawerLayout.addDrawerListener(mDrawerToggle);
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the app.
@@ -175,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements ActionBar.TabList
         // When swiping between different sections, select the corresponding
         // tab. We can also use ActionBar.Tab#select() to do this if we have
         // a reference to the Tab.
-        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+        mViewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
                 actionBar.setSelectedNavigationItem(position);
@@ -246,6 +246,7 @@ public class MainActivity extends AppCompatActivity implements ActionBar.TabList
         getContentResolver().unregisterContentObserver(mContentObserver);
         LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(mBroadcastReceiver);
         mTeamsAdapter.unregisterDataSetObserver(mTeamsObserver);
+        mDrawerLayout.removeDrawerListener(mDrawerToggle);
         super.onDestroy();
     }
 
