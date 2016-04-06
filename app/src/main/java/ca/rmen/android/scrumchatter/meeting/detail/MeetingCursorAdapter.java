@@ -22,6 +22,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.SystemClock;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -60,9 +61,9 @@ class MeetingCursorAdapter extends CursorAdapter {
         super(context, null, false);
         Log.v(TAG, "Constructor");
         mOnClickListener = onClickListener;
-        mColorChronoActive = context.getResources().getColor(R.color.chrono_active);
-        mColorChronoInactive = context.getResources().getColor(R.color.chrono_inactive);
-        mColorChronoNotStarted = context.getResources().getColor(R.color.chrono_not_started);
+        mColorChronoActive = ContextCompat.getColor(context, R.color.chrono_active);
+        mColorChronoInactive = ContextCompat.getColor(context, R.color.chrono_inactive);
+        mColorChronoNotStarted = ContextCompat.getColor(context, R.color.chrono_not_started);
     }
 
     @Override

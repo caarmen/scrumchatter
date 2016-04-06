@@ -21,7 +21,7 @@ package ca.rmen.android.scrumchatter.member.list;
 /**
  * Displays the list of team members.
  */
-import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
@@ -30,6 +30,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
@@ -83,10 +84,10 @@ public class MembersListFragment extends ListFragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        mMembers = new Members((FragmentActivity) activity);
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mMembers = new Members((FragmentActivity) context);
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
         mPrefs.registerOnSharedPreferenceChangeListener(mPrefsListener);
         mTeamId = mPrefs.getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
         getLoaderManager().initLoader(URL_LOADER, null, mLoaderCallbacks);
@@ -174,8 +175,8 @@ public class MembersListFragment extends ListFragment {
          */
         private void setSortField(int viewId) {
             String oldOrderByField = mOrderByField;
-            int selectedHeaderColor = getResources().getColor(R.color.selected_header);
-            int unselectedHeaderColor = getResources().getColor(R.color.unselected_header);
+            int selectedHeaderColor = ContextCompat.getColor(getActivity(), R.color.selected_header);
+            int unselectedHeaderColor = ContextCompat.getColor(getActivity(), R.color.unselected_header);
             // Reset all the header text views to the default color
             mTextViewName.setTextColor(unselectedHeaderColor);
             mTextViewAvgDuration.setTextColor(unselectedHeaderColor);

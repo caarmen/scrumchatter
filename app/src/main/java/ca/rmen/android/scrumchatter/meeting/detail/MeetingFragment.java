@@ -18,7 +18,6 @@
  */
 package ca.rmen.android.scrumchatter.meeting.detail;
 
-import android.app.Activity;
 import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -76,7 +75,7 @@ public class MeetingFragment extends ListFragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
+    public void onAttach(Context activity) {
         super.onAttach(activity);
         mMeetings = new Meetings((FragmentActivity) activity);
     }

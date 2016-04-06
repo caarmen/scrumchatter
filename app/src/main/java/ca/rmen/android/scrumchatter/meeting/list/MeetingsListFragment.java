@@ -18,7 +18,7 @@
  */
 package ca.rmen.android.scrumchatter.meeting.list;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -73,11 +73,11 @@ public class MeetingsListFragment extends ListFragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
         // No way around this cast to FragmentActivity
-        mMeetings = new Meetings((FragmentActivity) activity);
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(activity);
+        mMeetings = new Meetings((FragmentActivity) context);
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
         mPrefs.registerOnSharedPreferenceChangeListener(mPrefsListener);
         mTeamId = mPrefs.getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
         getLoaderManager().initLoader(URL_LOADER, null, mLoaderCallbacks);
