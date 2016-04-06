@@ -101,7 +101,7 @@ class MeetingCursorAdapter extends CursorAdapter {
 
         // if the talkStartTime is non-zero, this means the
         // member is talking (and started talking that long ago).
-        boolean memberIsTalking = talkStartTime != null && talkStartTime > 0;
+        boolean memberIsTalking = talkStartTime > 0;
 
         // Set up the start/stop button for this member.
         // If the meeting is finished, we hide the start/stop button.

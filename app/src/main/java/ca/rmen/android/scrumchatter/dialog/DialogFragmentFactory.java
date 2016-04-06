@@ -64,7 +64,7 @@ public class DialogFragmentFactory extends DialogFragment {
     }
 
     /**
-     * @return a visible dialog fragment with the given title and message, and just one OK button.
+     * Show a visible dialog fragment with the given title and message, and just one OK button.
      */
     public static void showInfoDialog(FragmentActivity activity, int titleId, int messageId) {
         Log.v(TAG, "showInfoDialog");
@@ -77,7 +77,7 @@ public class DialogFragmentFactory extends DialogFragment {
     }
 
     /**
-     * @return a visible dialog fragment with the given title and message, and an ok and cancel button. If the given activity implements
+     * Show a visible dialog fragment with the given title and message, and an ok and cancel button. If the given activity implements
      *         {@link DialogButtonListener}, the actionId and extras parameter will be provided in
      *         the {@link DialogButtonListener#onOkClicked(int, Bundle)} callback on the activity, when the user clicks on the ok button.
      */
@@ -94,7 +94,7 @@ public class DialogFragmentFactory extends DialogFragment {
     }
 
     /**
-     * @return a visible dialog fragment with the given title and list of items. If the given activity implements {@link DialogItemListener}, the
+     * Show a visible dialog fragment with the given title and list of items. If the given activity implements {@link DialogItemListener}, the
      *         actionId, list of items, and item selected by the user, will be provided in the
      *         {@link DialogItemListener#onItemSelected(int, CharSequence[], int)} callback on the activity, when the user selects an item.
      * @param selectedItem if greater than zero, then the given item at that index will be pre-selected in the list.
@@ -113,7 +113,7 @@ public class DialogFragmentFactory extends DialogFragment {
     }
 
     /**
-     * @return a visible dialog fragment with the given message.
+     * Show a visible dialog fragment with the given message.
      * @param tag should be used by the calling activity, when the background task is complete, to find the fragment and dismiss it.
      */
     public static void showProgressDialog(FragmentActivity activity, String message, String tag) {

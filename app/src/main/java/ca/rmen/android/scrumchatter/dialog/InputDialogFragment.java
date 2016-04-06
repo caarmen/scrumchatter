@@ -169,14 +169,14 @@ public class InputDialogFragment extends DialogFragment { // NO_UCD (use default
         okButton.setEnabled(true);
 
         // Search for an error in background thread, update the dialog in the UI thread.
-        AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>() {
+        AsyncTask<String, Void, String> task = new AsyncTask<String, Void, String>() {
 
             /**
              * @return an error String if the input is invalid.
              */
             @Override
-            protected String doInBackground(Void... params) {
-                return validator.getError(context, editText.getText().toString().trim(), extras);
+            protected String doInBackground(String... text) {
+                return validator.getError(context, text[0], extras);
             }
 
             @Override
@@ -189,6 +189,6 @@ public class InputDialogFragment extends DialogFragment { // NO_UCD (use default
                 }
             }
         };
-        task.execute();
+        task.execute(editText.getText().toString().trim());
     }
 }
