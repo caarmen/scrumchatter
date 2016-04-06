@@ -28,6 +28,11 @@
         <item name="alertDialogTheme">@style/AppAlertDialog</item>
     </style>
 
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
     <style name="listHeader">
         <item name="android:textColor">@color/unselected_header</item>
         <item name="android:textStyle">italic</item>
@@ -51,5 +56,7 @@
         <item name="colorAccent">@color/scrum_chatter_accent_color</item>
         <item name="android:listViewStyle">@style/AppListView</item>
     </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
 </resources>
