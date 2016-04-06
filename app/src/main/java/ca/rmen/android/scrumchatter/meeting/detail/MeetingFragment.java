@@ -84,7 +84,7 @@ public class MeetingFragment extends ListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.v(TAG, "onCreateView: savedInstanceState = " + savedInstanceState);
         // Create our views
-        View view = inflater.inflate(R.layout.meeting_fragment, null);
+        View view = inflater.inflate(R.layout.meeting_fragment, container, false);
         mBtnStopMeeting = view.findViewById(R.id.btn_stop_meeting);
         mMeetingChronometer = (Chronometer) view.findViewById(R.id.tv_meeting_duration);
         mProgressBarHeader = view.findViewById(R.id.header_progress_bar);

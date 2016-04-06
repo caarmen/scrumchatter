@@ -66,7 +66,7 @@ public class MeetingsListFragment extends ListFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.meeting_list, null);
+        View view = inflater.inflate(R.layout.meeting_list, container, false);
         TextView emptyText = (TextView) view.findViewById(android.R.id.empty);
         emptyText.setText(R.string.empty_list_meetings);
         return view;

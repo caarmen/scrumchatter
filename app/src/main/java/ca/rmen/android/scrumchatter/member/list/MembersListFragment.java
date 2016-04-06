@@ -71,7 +71,7 @@ public class MembersListFragment extends ListFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.member_list, null);
+        View view = inflater.inflate(R.layout.member_list, container, false);
         mTextViewName = (TextView) view.findViewById(R.id.tv_name);
         mTextViewAvgDuration = (TextView) view.findViewById(R.id.tv_avg_duration);
         mTextViewSumDuration = (TextView) view.findViewById(R.id.tv_sum_duration);

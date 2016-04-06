@@ -46,7 +46,7 @@ class MembersCursorAdapter extends CursorAdapter {
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        return layoutInflater.inflate(R.layout.member_list_item, null);
+        return layoutInflater.inflate(R.layout.member_list_item, viewGroup, false);
     }
 
     /**

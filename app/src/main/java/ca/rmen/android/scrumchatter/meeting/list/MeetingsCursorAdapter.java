@@ -58,7 +58,7 @@ class MeetingsCursorAdapter extends CursorAdapter {
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        return inflater.inflate(R.layout.meeting_list_item, null);
+        return inflater.inflate(R.layout.meeting_list_item, viewGroup, false);
     }
 
     /**
