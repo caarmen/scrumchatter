@@ -30,4 +30,6 @@
     <color name="light_gray">#e0e0e0</color>
     <color name="meeting_state_in_progress">@color/scrum_chatter_primary_color</color>
     <color name="meeting_state_default">@color/abc_primary_text_material_light</color>
+    <color name="toolbar_title_color">#fff</color>
+    <color name="tab_text_color">#aaa</color>
 </resources>

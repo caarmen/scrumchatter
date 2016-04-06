@@ -19,10 +19,12 @@
 <android.support.design.widget.AppBarLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:paddingTop="@dimen/appbar_padding_top"
     android:theme="@style/AppTheme.AppBarOverlay">
 
     <android.support.v7.widget.Toolbar
+        app:titleTextColor="@color/toolbar_title_color"
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
@@ -30,6 +32,8 @@
 
     <android.support.design.widget.TabLayout
         android:id="@+id/tabs"
+        app:tabTextColor="@color/tab_text_color"
+        app:tabSelectedTextColor="@color/toolbar_title_color"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
