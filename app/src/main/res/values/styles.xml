@@ -29,6 +29,10 @@
         <item name="alertDialogTheme">@style/AppAlertDialog</item>
     </style>
 
+    <style name="AppTheme.Toolbar" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="colorControlNormal">@color/toolbar_title_color</item>
+    </style>
+
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
