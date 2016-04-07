@@ -19,11 +19,11 @@ android {
         android.buildTypes.release.signingConfig = null
     }
     compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    buildToolsVersion "23.0.3"
     defaultConfig {
         applicationId "ca.rmen.android.scrumchatter"
         minSdkVersion 9
-        targetSdkVersion 23
+        targetSdkVersion 22
     }
     buildTypes {
         release {
