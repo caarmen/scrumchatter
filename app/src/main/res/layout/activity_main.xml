@@ -21,6 +21,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:fitsSystemWindows="true"
     tools:context=".main.MainActivity">
 
     <include layout="@layout/toolbar_tabs"/>
@@ -28,8 +29,7 @@
     <android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fitsSystemWindows="true">
+        android:layout_height="match_parent" >
 
         <android.support.v4.view.ViewPager xmlns:tools="http://schemas.android.com/tools"
             android:id="@+id/pager"
