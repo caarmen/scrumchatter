@@ -20,13 +20,18 @@ package ca.rmen.android.scrumchatter.dialog;
 
 import java.util.Arrays;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
+import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.dialog.ChoiceDialogFragment.DialogItemListener;
 import ca.rmen.android.scrumchatter.dialog.ConfirmDialogFragment.DialogButtonListener;
+import permissions.dispatcher.PermissionRequest;
 
 /**
  * Create different types of dialog fragments (edit text input, information, choice, confirmation, progress).
@@ -123,6 +128,22 @@ public class DialogFragmentFactory extends DialogFragment {
         ProgressDialogFragment result = new ProgressDialogFragment();
         result.setArguments(arguments);
         result.show(activity.getSupportFragmentManager(), tag);
+    }
+
+    public static void showPermissionRationaleDialog(Context context, String rationale, final PermissionRequest request) {
+        new AlertDialog.Builder(context)
+                .setMessage(rationale)
+                .setPositiveButton(R.string.allow, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        request.proceed();
+                    }
+                }).setNegativeButton(R.string.deny, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                request.cancel();
+            }
+        }).show();
     }
 
 }
