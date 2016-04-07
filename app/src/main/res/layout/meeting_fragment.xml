@@ -33,13 +33,14 @@
             style="@style/listHeader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/tv_meeting_duration"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:layout_marginLeft="@dimen/list_inner_horizontal_margin"
             android:text="@string/meeting_header_total_duration" />
 
         <Chronometer
-            android:id="@+id/tv_meeting_duration"
+            android:id="@id/tv_meeting_duration"
             android:layout_width="70dp"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"

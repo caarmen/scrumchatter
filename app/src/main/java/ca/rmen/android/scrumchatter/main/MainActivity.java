@@ -99,11 +99,6 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
     private static final String PROGRESS_DIALOG_FRAGMENT_TAG = "progress_dialog_fragment_tag";
 
     /**
-     * The {@link ViewPager} that will host the section contents.
-     */
-    private ViewPager mViewPager;
-
-    /**
      * UI elements for the side menu (left drawer).
      */
     private DrawerLayout mDrawerLayout;
@@ -172,11 +167,11 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setAdapter(sectionsPagerAdapter);
+        ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
+        viewPager.setAdapter(sectionsPagerAdapter);
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         assert tabLayout != null;
-        tabLayout.setupWithViewPager(mViewPager);
+        tabLayout.setupWithViewPager(viewPager);
 
         onTeamChanged();
         // If our activity was opened by choosing a file from a mail attachment, file browser, or other program, 
