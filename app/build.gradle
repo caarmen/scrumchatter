@@ -1,10 +1,13 @@
 apply plugin: 'com.android.application'
 apply plugin: 'android-apt'
 
-
-dependencies {
-    compile 'com.github.hotchemi:permissionsdispatcher:2.1.1'
-    apt 'com.github.hotchemi:permissionsdispatcher-processor:2.1.1'
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+    }
 }
 
 android {
@@ -41,6 +44,8 @@ android {
 }
 
 dependencies {
+    apt 'com.github.hotchemi:permissionsdispatcher-processor:2.1.1'
+    compile 'com.github.hotchemi:permissionsdispatcher:2.1.1'
     compile 'com.android.support:appcompat-v7:23.3.0'
     compile 'com.android.support:design:23.3.0'
     compile 'com.android.support:support-v4:23.3.0'
