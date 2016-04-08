@@ -20,10 +20,16 @@ package ca.rmen.android.scrumchatter.dialog;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.widget.ProgressBar;
+
 import ca.rmen.android.scrumchatter.Constants;
+import ca.rmen.android.scrumchatter.R;
 
 /**
  * Implements a dialog fragment with a ProgressDialog with a message.
@@ -46,6 +52,19 @@ public class ProgressDialogFragment extends DialogFragment {
         Bundle arguments = getArguments();
         dialog.setMessage(arguments.getString(DialogFragmentFactory.EXTRA_MESSAGE));
         dialog.setIndeterminate(true);
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface shownDialog) {
+                ProgressBar progressBar = (ProgressBar) ((ProgressDialog)shownDialog).findViewById(android.R.id.progress);
+                if (progressBar != null) {
+                    Drawable drawable = progressBar.getIndeterminateDrawable();
+                    if (drawable != null) {
+                        drawable.setColorFilter(ContextCompat.getColor(getActivity(), R.color.scrum_chatter_accent_color),
+                                android.graphics.PorterDuff.Mode.SRC_IN);
+                    }
+                }
+            }
+        });
         dialog.setCancelable(false);
         return dialog;
     }
