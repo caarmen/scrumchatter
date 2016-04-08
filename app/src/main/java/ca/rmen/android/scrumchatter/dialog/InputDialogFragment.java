@@ -18,7 +18,6 @@
  */
 package ca.rmen.android.scrumchatter.dialog;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -28,14 +27,13 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.ContextThemeWrapper;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -57,7 +55,7 @@ public class InputDialogFragment extends DialogFragment { // NO_UCD (use default
          * @return an error string if the input has a problem, null if the input is valid.
          */
         String getError(Context context, CharSequence input, Bundle extras);
-    };
+    }
 
     /**
      * The activity owning this dialog fragment should implement this interface to be notified when the user submits entered text.
@@ -77,15 +75,15 @@ public class InputDialogFragment extends DialogFragment { // NO_UCD (use default
         if (savedInstanceState != null) mEnteredText = savedInstanceState.getString(DialogFragmentFactory.EXTRA_ENTERED_TEXT);
         Bundle arguments = getArguments();
         final int actionId = arguments.getInt(DialogFragmentFactory.EXTRA_ACTION_ID);
-        final EditText input = new EditText(getActivity());
+        View view = View.inflate(getActivity(), R.layout.input_dialog_edit_text, null);
+        final EditText input = (EditText) view.findViewById(android.R.id.edit);
         final Bundle extras = arguments.getBundle(DialogFragmentFactory.EXTRA_EXTRAS);
         final Class<?> inputValidatorClass = (Class<?>) arguments.getSerializable(DialogFragmentFactory.EXTRA_INPUT_VALIDATOR_CLASS);
         final String prefilledText = arguments.getString(DialogFragmentFactory.EXTRA_ENTERED_TEXT);
-        final Context context = new ContextThemeWrapper(getActivity(), R.style.dialogStyle);
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         builder.setTitle(arguments.getString(DialogFragmentFactory.EXTRA_TITLE));
-        builder.setView(input);
+        builder.setView(view);
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
         input.setHint(arguments.getString(DialogFragmentFactory.EXTRA_INPUT_HINT));
         input.setText(prefilledText);
@@ -117,6 +115,8 @@ public class InputDialogFragment extends DialogFragment { // NO_UCD (use default
                 }
             }
         });
+
+        final Context context = getActivity();
         try {
             final InputValidator validator = inputValidatorClass == null ? null : (InputValidator) inputValidatorClass.newInstance();
             Log.v(TAG, "input validator = " + validator);
@@ -135,13 +135,11 @@ public class InputDialogFragment extends DialogFragment { // NO_UCD (use default
                     if (validator != null) validateText(context, dialog, input, validator, actionId, extras);
                 }
             });
-            dialog.getContext().setTheme(R.style.dialogStyle);
             dialog.setOnShowListener(new OnShowListener() {
 
                 @Override
                 public void onShow(DialogInterface dialogInterface) {
                     Log.v(TAG, "onShow");
-                    DialogStyleHacks.uglyHackReplaceBlueHoloBackground(getActivity(), (ViewGroup) dialog.getWindow().getDecorView(), dialog);
                     validateText(context, dialog, input, validator, actionId, extras);
                 }
             });
@@ -171,14 +169,14 @@ public class InputDialogFragment extends DialogFragment { // NO_UCD (use default
         okButton.setEnabled(true);
 
         // Search for an error in background thread, update the dialog in the UI thread.
-        AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>() {
+        AsyncTask<String, Void, String> task = new AsyncTask<String, Void, String>() {
 
             /**
              * @return an error String if the input is invalid.
              */
             @Override
-            protected String doInBackground(Void... params) {
-                return validator.getError(context, editText.getText().toString().trim(), extras);
+            protected String doInBackground(String... text) {
+                return validator.getError(context, text[0], extras);
             }
 
             @Override
@@ -191,6 +189,6 @@ public class InputDialogFragment extends DialogFragment { // NO_UCD (use default
                 }
             }
         };
-        task.execute();
+        task.execute(editText.getText().toString().trim());
     }
 }

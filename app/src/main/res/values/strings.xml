@@ -20,7 +20,7 @@
 <resources>
 
     <string name="app_name" translatable="false">Scrum Chatter</string>
-    <string name="app_version" translatable="false">1.0.24</string>
+    <string name="app_version" translatable="false">1.2.0</string>
     <string name="title_section_meetings">Meetings</string>
     <string name="title_section_team">Team</string>
     <string name="action_share">Share</string>
@@ -74,6 +74,7 @@
     <string name="empty_list_members">You have no team members.</string>
     <string name="progress_dialog_message">Please wait&#8230;</string>
     <string name="dialog_confirm">Are you sure?</string>
+    <string name="import_permission_rationale">Scrum Chatter needs access to your device\'s external storage to import a database.</string>
     <string name="import_confirm_title">Import database</string>
     <string name="import_confirm_message">Delete the current database and replace with %s?</string>
     <string name="import_result_success">Import successful</string>
@@ -87,15 +88,16 @@
     <string name="about_source_link">https://github.com/caarmen/scrumchatter</string>
     <string name="about_credit_title">Special thanks to:</string>
     <string name="about_credit_content_provider_generator_text">BoD for the chatter emoticon and his content provider generator.</string>
-    <string name="about_credit_content_provider_generator_link">https://github.com/BoD/android-contentprovider-generator</string>
-    <string name="about_credit_actionbar_style_generator_text">Jeff Gilfelt for his action bar style generator.</string>
-    <string name="about_credit_actionbar_style_generator_link">http://jgilfelt.github.io/android-actionbarstylegenerator/</string>
-    <string name="about_credit_holo_style_generator_text">Jérôme Van Der Linden for his holo style generator.</string>
-    <string name="about_credit_holo_style_generator_link">http://android-holo-colors.com/</string>
+    <string translatable="false" name="about_credit_content_provider_generator_link">https://github.com/BoD/android-contentprovider-generator</string>
     <string name="about_credit_app_icon_text">qubodup for the speech bubble icon on openclipart.</string>
-    <string name="about_credit_app_icon_link">http://openclipart.org/detail/14322/16x16px-capable-black-and-white-icons-by-qubodup-14322</string>
-    
+    <string translatable="false" name="about_credit_app_icon_link">http://openclipart.org/detail/14322/16x16px-capable-black-and-white-icons-by-qubodup-14322</string>
+    <string name="about_credit_permissions_lib_text">Shintaro Katafuchi, for his PermissionsDispatcher library.</string>
+    <string translatable="false" name="about_credit_permissions_lib_link">https://github.com/hotchemi/PermissionsDispatcher</string>
+
     <string name="drawer_open">Open side menu</string>
     <string name="drawer_close">Close side menu</string>
+    <string name="allow">Allow</string>
+    <string name="deny">Deny</string>
+
 
 </resources>

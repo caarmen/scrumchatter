@@ -1,4 +1,14 @@
 apply plugin: 'com.android.application'
+apply plugin: 'android-apt'
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+    }
+}
 
 android {
     File signFile = rootProject.file('signing.properties')
@@ -18,12 +28,12 @@ android {
     } else  {
         android.buildTypes.release.signingConfig = null
     }
-    compileSdkVersion 17
-    buildToolsVersion "21.1.1"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.3"
     defaultConfig {
         applicationId "ca.rmen.android.scrumchatter"
         minSdkVersion 9
-        targetSdkVersion 18
+        targetSdkVersion 23
     }
     buildTypes {
         release {
@@ -34,8 +44,11 @@ android {
 }
 
 dependencies {
-    compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
-    compile 'com.android.support:support-v4:21.0.0'
+    apt 'com.github.hotchemi:permissionsdispatcher-processor:2.1.1'
+    compile 'com.github.hotchemi:permissionsdispatcher:2.1.1'
+    compile 'com.android.support:appcompat-v7:23.3.0'
+    compile 'com.android.support:design:23.3.0'
+    compile 'com.android.support:support-v4:23.3.0'
     compile ('net.sourceforge.jexcelapi:jxl:2.6.12') {
         exclude group: "log4j"
     }

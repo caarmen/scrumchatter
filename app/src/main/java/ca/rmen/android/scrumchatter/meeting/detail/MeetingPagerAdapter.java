@@ -136,6 +136,6 @@ class MeetingPagerAdapter extends FragmentStatePagerAdapter {
 
             }.execute();
         }
-    };
+    }
 
 }

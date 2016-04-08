@@ -24,7 +24,7 @@ import android.database.Cursor;
 import android.database.CursorWrapper;
 
 public class MeetingCursorWrapper extends CursorWrapper {
-    private HashMap<String, Integer> mColumnIndexes = new HashMap<String, Integer>();
+    private final HashMap<String, Integer> mColumnIndexes = new HashMap<>();
 
     public MeetingCursorWrapper(Cursor cursor) {
         super(cursor);
@@ -44,7 +44,7 @@ public class MeetingCursorWrapper extends CursorWrapper {
 
     public Long getTotalDuration() {
         Integer index = getIndex(MeetingColumns.TOTAL_DURATION);
-        if (isNull(index)) return Long.valueOf(0);
+        if (isNull(index)) return 0L;
         return getLong(index);
     }
 

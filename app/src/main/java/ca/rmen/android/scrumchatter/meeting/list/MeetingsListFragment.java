@@ -18,7 +18,7 @@
  */
 package ca.rmen.android.scrumchatter.meeting.list;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -26,11 +26,15 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -43,15 +47,10 @@ import ca.rmen.android.scrumchatter.meeting.detail.Meeting;
 import ca.rmen.android.scrumchatter.meeting.detail.MeetingActivity;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
 
-import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-
 /**
  * Displays the list of meetings that have taken place.
  */
-public class MeetingsListFragment extends SherlockListFragment {
+public class MeetingsListFragment extends ListFragment {
     private static final String TAG = Constants.TAG + "/" + MeetingsListFragment.class.getSimpleName();
     private static final int URL_LOADER = 0;
 
@@ -67,18 +66,18 @@ public class MeetingsListFragment extends SherlockListFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.meeting_list, null);
+        View view = inflater.inflate(R.layout.meeting_list, container, false);
         TextView emptyText = (TextView) view.findViewById(android.R.id.empty);
         emptyText.setText(R.string.empty_list_meetings);
         return view;
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
         // No way around this cast to FragmentActivity
-        mMeetings = new Meetings((FragmentActivity) activity);
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(activity);
+        mMeetings = new Meetings((FragmentActivity) context);
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
         mPrefs.registerOnSharedPreferenceChangeListener(mPrefsListener);
         mTeamId = mPrefs.getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
         getLoaderManager().initLoader(URL_LOADER, null, mLoaderCallbacks);
@@ -119,15 +118,14 @@ public class MeetingsListFragment extends SherlockListFragment {
         startActivity(intent);
     }
 
-    private LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
+    private final LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
         @Override
         public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
             Log.v(TAG, "onCreateLoader, loaderId = " + loaderId + ", bundle = " + bundle);
             String selection = MeetingColumns.TEAM_ID + "=?";
             String[] selectionArgs = new String[] { String.valueOf(mTeamId) };
-            CursorLoader loader = new CursorLoader(getActivity(), MeetingColumns.CONTENT_URI, null, selection, selectionArgs, MeetingColumns.MEETING_DATE
+            return new CursorLoader(getActivity(), MeetingColumns.CONTENT_URI, null, selection, selectionArgs, MeetingColumns.MEETING_DATE
                     + " DESC");
-            return loader;
         }
 
         @Override
@@ -165,7 +163,7 @@ public class MeetingsListFragment extends SherlockListFragment {
         }
     };
 
-    private OnSharedPreferenceChangeListener mPrefsListener = new OnSharedPreferenceChangeListener() {
+    private final OnSharedPreferenceChangeListener mPrefsListener = new OnSharedPreferenceChangeListener() {
 
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {

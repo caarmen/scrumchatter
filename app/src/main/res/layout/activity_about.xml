@@ -98,30 +98,6 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/about_credit_actionbar_style_generator_text" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:autoLink="web"
-                android:text="@string/about_credit_actionbar_style_generator_link" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/about_credit_holo_style_generator_text" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:autoLink="web"
-                android:text="@string/about_credit_holo_style_generator_link" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:text="@string/about_credit_app_icon_text" />
 
             <TextView
@@ -130,6 +106,18 @@
                 android:layout_marginBottom="20dp"
                 android:autoLink="web"
                 android:text="@string/about_credit_app_icon_link" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/about_credit_permissions_lib_text" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:autoLink="web"
+                android:text="@string/about_credit_permissions_lib_link" />
 
             <TextView
                 android:layout_width="wrap_content"

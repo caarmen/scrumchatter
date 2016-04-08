@@ -18,7 +18,6 @@
  */
 package ca.rmen.android.scrumchatter.meeting.detail;
 
-import android.app.Activity;
 import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -28,13 +27,18 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -48,16 +52,10 @@ import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-
 /**
  * Displays info about a meeting (the duration) as well as the list of members participating in a particular meeting.
  */
-public class MeetingFragment extends SherlockListFragment { // NO_UCD (use default)
+public class MeetingFragment extends ListFragment {
 
     private String TAG = Constants.TAG + "/" + MeetingFragment.class.getSimpleName() + "/" + System.currentTimeMillis();
 
@@ -77,7 +75,7 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
     }
 
     @Override
-    public void onAttach(Activity activity) {
+    public void onAttach(Context activity) {
         super.onAttach(activity);
         mMeetings = new Meetings((FragmentActivity) activity);
     }
@@ -86,7 +84,7 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.v(TAG, "onCreateView: savedInstanceState = " + savedInstanceState);
         // Create our views
-        View view = inflater.inflate(R.layout.meeting_fragment, null);
+        View view = inflater.inflate(R.layout.meeting_fragment, container, false);
         mBtnStopMeeting = view.findViewById(R.id.btn_stop_meeting);
         mMeetingChronometer = (Chronometer) view.findViewById(R.id.tv_meeting_duration);
         mProgressBarHeader = view.findViewById(R.id.header_progress_bar);
@@ -188,15 +186,14 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
                     cancel(false);
                     return null;
                 }
-                Meeting meeting = Meeting.read(activity, meetingId);
-                return meeting;
+                return Meeting.read(activity, meetingId);
             }
 
             @Override
             protected void onPostExecute(Meeting meeting) {
                 Log.v(TAG, "onPostExecute: meeting = " + meeting);
                 // Don't do anything if the activity has been closed in the meantime
-                SherlockFragmentActivity activity = (SherlockFragmentActivity) getActivity();
+                AppCompatActivity activity = (AppCompatActivity) getActivity();
                 if (activity == null) {
                     Log.w(TAG, "No longer attached to the activity: can't load meeting members");
                     return;
@@ -290,7 +287,7 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
     /**
      * Cursor on the MeetingMember table
      */
-    private LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
+    private final LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
 
         @Override
         public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
@@ -308,8 +305,7 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
                     MeetingMemberColumns.TALK_START_TIME };
 
             Uri uri = Uri.withAppendedPath(MeetingMemberColumns.CONTENT_URI, String.valueOf(loaderId));
-            CursorLoader loader = new CursorLoader(getActivity(), uri, projection, selection, null, orderBy);
-            return loader;
+            return new CursorLoader(getActivity(), uri, projection, selection, null, orderBy);
         }
 
         @Override
@@ -349,7 +345,7 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
             super.onChange(selfChange);
             loadMeeting();
         }
-    };
+    }
 
     /**
      * Manage clicks on items inside the meeting fragment.
@@ -374,7 +370,7 @@ public class MeetingFragment extends SherlockListFragment { // NO_UCD (use defau
                 }
             };
             task.execute(mMeeting);
-        };
+        }
 
         @Override
         public void onClick(View v) {

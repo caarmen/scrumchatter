@@ -22,6 +22,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.SystemClock;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -60,16 +61,16 @@ class MeetingCursorAdapter extends CursorAdapter {
         super(context, null, false);
         Log.v(TAG, "Constructor");
         mOnClickListener = onClickListener;
-        mColorChronoActive = context.getResources().getColor(R.color.chrono_active);
-        mColorChronoInactive = context.getResources().getColor(R.color.chrono_inactive);
-        mColorChronoNotStarted = context.getResources().getColor(R.color.chrono_not_started);
+        mColorChronoActive = ContextCompat.getColor(context, R.color.chrono_active);
+        mColorChronoInactive = ContextCompat.getColor(context, R.color.chrono_inactive);
+        mColorChronoNotStarted = ContextCompat.getColor(context, R.color.chrono_not_started);
     }
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = layoutInflater.inflate(R.layout.meeting_member_list_item, null);
-        return view;
+        return layoutInflater.inflate(R.layout.meeting_member_list_item, viewGroup, false);
+
     }
 
     /**
@@ -102,7 +103,7 @@ class MeetingCursorAdapter extends CursorAdapter {
 
         // if the talkStartTime is non-zero, this means the
         // member is talking (and started talking that long ago).
-        boolean memberIsTalking = talkStartTime != null && talkStartTime > 0;
+        boolean memberIsTalking = talkStartTime > 0;
 
         // Set up the start/stop button for this member.
         // If the meeting is finished, we hide the start/stop button.

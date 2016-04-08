@@ -21,18 +21,23 @@ package ca.rmen.android.scrumchatter.member.list;
 /**
  * Displays the list of team members.
  */
-import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -43,12 +48,7 @@ import ca.rmen.android.scrumchatter.member.list.Members.Member;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberStatsColumns;
 
-import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-
-public class MembersListFragment extends SherlockListFragment {
+public class MembersListFragment extends ListFragment {
 
     private static final String TAG = Constants.TAG + "/" + MembersListFragment.class.getSimpleName();
 
@@ -71,7 +71,7 @@ public class MembersListFragment extends SherlockListFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.member_list, null);
+        View view = inflater.inflate(R.layout.member_list, container, false);
         mTextViewName = (TextView) view.findViewById(R.id.tv_name);
         mTextViewAvgDuration = (TextView) view.findViewById(R.id.tv_avg_duration);
         mTextViewSumDuration = (TextView) view.findViewById(R.id.tv_sum_duration);
@@ -84,10 +84,10 @@ public class MembersListFragment extends SherlockListFragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        mMembers = new Members((FragmentActivity) activity);
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mMembers = new Members((FragmentActivity) context);
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
         mPrefs.registerOnSharedPreferenceChangeListener(mPrefsListener);
         mTeamId = mPrefs.getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
         getLoaderManager().initLoader(URL_LOADER, null, mLoaderCallbacks);
@@ -115,15 +115,14 @@ public class MembersListFragment extends SherlockListFragment {
         return false;
     }
 
-    private LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
+    private final LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
         @Override
         public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
             Log.v(TAG, "onCreateLoader, order by " + mOrderByField);
             String[] projection = new String[] { MemberColumns._ID, MemberColumns.NAME, MemberStatsColumns.SUM_DURATION, MemberStatsColumns.AVG_DURATION };
             String selection = MemberStatsColumns.TEAM_ID + " =? AND " + MemberColumns.DELETED + "=0 ";
             String[] selectionArgs = new String[] { String.valueOf(mTeamId) };
-            CursorLoader loader = new CursorLoader(getActivity(), MemberStatsColumns.CONTENT_URI, projection, selection, selectionArgs, mOrderByField);
-            return loader;
+            return new CursorLoader(getActivity(), MemberStatsColumns.CONTENT_URI, projection, selection, selectionArgs, mOrderByField);
         }
 
         @Override
@@ -176,8 +175,8 @@ public class MembersListFragment extends SherlockListFragment {
          */
         private void setSortField(int viewId) {
             String oldOrderByField = mOrderByField;
-            int selectedHeaderColor = getResources().getColor(R.color.selected_header);
-            int unselectedHeaderColor = getResources().getColor(R.color.unselected_header);
+            int selectedHeaderColor = ContextCompat.getColor(getActivity(), R.color.selected_header);
+            int unselectedHeaderColor = ContextCompat.getColor(getActivity(), R.color.unselected_header);
             // Reset all the header text views to the default color
             mTextViewName.setTextColor(unselectedHeaderColor);
             mTextViewAvgDuration.setTextColor(unselectedHeaderColor);
@@ -201,7 +200,7 @@ public class MembersListFragment extends SherlockListFragment {
                 default:
                     break;
             }
-            // Requery if needed.
+            // Re-query if needed.
             if (!oldOrderByField.equals(mOrderByField)) getLoaderManager().restartLoader(URL_LOADER, null, mLoaderCallbacks);
 
         }
@@ -210,7 +209,7 @@ public class MembersListFragment extends SherlockListFragment {
     /**
      * Refresh the list when the selected team changes.
      */
-    private OnSharedPreferenceChangeListener mPrefsListener = new OnSharedPreferenceChangeListener() {
+    private final OnSharedPreferenceChangeListener mPrefsListener = new OnSharedPreferenceChangeListener() {
 
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {

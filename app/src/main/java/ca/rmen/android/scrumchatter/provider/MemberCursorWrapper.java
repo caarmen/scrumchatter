@@ -24,7 +24,7 @@ import android.database.Cursor;
 import android.database.CursorWrapper;
 
 public class MemberCursorWrapper extends CursorWrapper {
-    private HashMap<String, Integer> mColumnIndexes = new HashMap<String, Integer>();
+    private final HashMap<String, Integer> mColumnIndexes = new HashMap<>();
 
     public MemberCursorWrapper(Cursor cursor) {
         super(cursor);

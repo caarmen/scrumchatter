@@ -20,6 +20,7 @@ package ca.rmen.android.scrumchatter.meeting.list;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
@@ -48,8 +49,8 @@ class MeetingsCursorAdapter extends CursorAdapter {
     MeetingsCursorAdapter(Context context, OnClickListener onClickListener) {
         super(context, null, false);
         mOnClickListener = onClickListener;
-        mColorStateInProgress = context.getResources().getColor(R.color.meeting_state_in_progress);
-        mColorStateDefault = context.getResources().getColor(R.color.meeting_state_default);
+        mColorStateInProgress = ContextCompat.getColor(context, R.color.meeting_state_in_progress);
+        mColorStateDefault = ContextCompat.getColor(context, R.color.meeting_state_default);
         mMeetingStateNames = context.getResources().getStringArray(R.array.meeting_states);
 
     }
@@ -57,8 +58,7 @@ class MeetingsCursorAdapter extends CursorAdapter {
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.meeting_list_item, null);
-        return view;
+        return inflater.inflate(R.layout.meeting_list_item, viewGroup, false);
     }
 
     /**

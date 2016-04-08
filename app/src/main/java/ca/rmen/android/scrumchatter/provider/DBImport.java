@@ -55,10 +55,10 @@ public class DBImport {
         }
     }
 
-    private static void importDB(Context context, File importDb) throws RemoteException, OperationApplicationException, FileNotFoundException {
+    private static void importDB(Context context, File importDb) throws RemoteException, OperationApplicationException {
         Log.v(TAG, "importDB from " + importDb);
         SQLiteDatabase dbImport = SQLiteDatabase.openDatabase(importDb.getAbsolutePath(), null, SQLiteDatabase.OPEN_READONLY);
-        ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
+        ArrayList<ContentProviderOperation> operations = new ArrayList<>();
         operations.add(ContentProviderOperation.newDelete(MeetingMemberColumns.CONTENT_URI).build());
         operations.add(ContentProviderOperation.newDelete(MemberColumns.CONTENT_URI).build());
         operations.add(ContentProviderOperation.newDelete(MeetingColumns.CONTENT_URI).build());
@@ -72,7 +72,7 @@ public class DBImport {
         Cursor c = context.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { TeamColumns._ID }, null, null, null);
         if (c.moveToFirst()) {
             int teamId = c.getInt(0);
-            PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(Constants.PREF_TEAM_ID, teamId);
+            PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(Constants.PREF_TEAM_ID, teamId).apply();
         }
         c.close();
         dbImport.close();

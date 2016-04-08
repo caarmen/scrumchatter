@@ -58,7 +58,7 @@ public class Teams {
             return "Team [teamUri=" + teamUri + ", teamName=" + teamName + "]";
         }
 
-    };
+    }
 
     public Teams(FragmentActivity activity) {
         mActivity = activity;
@@ -248,7 +248,7 @@ public class Teams {
                 c.close();
             }
         }
-        Log.wtf(TAG, "Could not get the curren team", new Throwable());
+        Log.wtf(TAG, "Could not get the current team", new Throwable());
         return null;
     }
 

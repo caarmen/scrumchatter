@@ -42,7 +42,7 @@ public class TeamArrayAdapter extends ArrayAdapter<CharSequence> {
     private final Context mContext;
 
     public TeamArrayAdapter(final Context context) {
-        super(context, android.R.layout.simple_list_item_single_choice);
+        super(context, R.layout.scrum_chatter_select_singlechoice_material);
         Log.v(TAG, "Constructor");
         mContext = context;
         reload();
@@ -60,7 +60,7 @@ public class TeamArrayAdapter extends ArrayAdapter<CharSequence> {
             @Override
             protected List<CharSequence> doInBackground(Void... params) {
                 Log.v(TAG, "doInBackground");
-                List<CharSequence> teamNames = new ArrayList<CharSequence>();
+                List<CharSequence> teamNames = new ArrayList<>();
                 Cursor c = mContext.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { TeamColumns.TEAM_NAME }, null, null,
                         TeamColumns.TEAM_NAME + " COLLATE NOCASE");
 
@@ -99,11 +99,22 @@ public class TeamArrayAdapter extends ArrayAdapter<CharSequence> {
         if (result instanceof CheckedTextView) {
             CheckedTextView ctv = (CheckedTextView) result;
             // The last item is the special "New team..." item. Don't show a radio button for this item
-            if (position == getCount() - 1) ctv.setCheckMarkDrawable(0);
+            if (position == getCount() - 1) ctv.setCheckMarkDrawable(null);
             // Hack for Android 2.x: replace the radio button. See {@link DialogStyleHacks}
-            else
-                ctv.setCheckMarkDrawable(R.drawable.btn_radio_holo_light);
+            //else
+            //    ctv.setCheckMarkDrawable(R.drawable.btn_radio_holo_light);
         }
         return result;
+    }
+
+    @Override
+    public int getViewTypeCount() {
+        return 2;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (position == getCount() - 1) return 1;
+        return 0;
     }
 }

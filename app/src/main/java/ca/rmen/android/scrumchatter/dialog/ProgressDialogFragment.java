@@ -47,7 +47,6 @@ public class ProgressDialogFragment extends DialogFragment {
         dialog.setMessage(arguments.getString(DialogFragmentFactory.EXTRA_MESSAGE));
         dialog.setIndeterminate(true);
         dialog.setCancelable(false);
-        DialogStyleHacks.styleDialog(getActivity(), dialog);
         return dialog;
     }
 }

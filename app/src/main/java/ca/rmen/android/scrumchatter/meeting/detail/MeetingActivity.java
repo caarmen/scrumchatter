@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import ca.rmen.android.scrumchatter.Constants;
@@ -32,12 +33,11 @@ import ca.rmen.android.scrumchatter.dialog.DialogFragmentFactory;
 import ca.rmen.android.scrumchatter.meeting.Meetings;
 import ca.rmen.android.scrumchatter.util.TextUtils;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 
 /**
  * Contains a ViewPager of {@link MeetingFragment}.
  */
-public class MeetingActivity extends SherlockFragmentActivity implements DialogButtonListener {
+public class MeetingActivity extends AppCompatActivity implements DialogButtonListener {
 
     private String TAG;
 
@@ -51,7 +51,7 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
         Log.v(TAG, "onCreate: savedInstanceState = " + savedInstanceState + ", intent = " + getIntent() + ", intent flags = " + getIntent().getFlags());
         setContentView(R.layout.meeting_activity);
         mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setOnPageChangeListener(mOnPageChangeListener);
+        mViewPager.addOnPageChangeListener(mOnPageChangeListener);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // If this is the first time we open the activity, we will use the meeting id provided in the intent.
@@ -101,6 +101,7 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
         Log.v(TAG, "onDestroy");
         super.onDestroy();
         if (mMeetingPagerAdapter != null) mMeetingPagerAdapter.destroy();
+        mViewPager.removeOnPageChangeListener(mOnPageChangeListener);
     }
 
     /**
@@ -160,7 +161,7 @@ public class MeetingActivity extends SherlockFragmentActivity implements DialogB
      * When the user selects a meeting by swiping left or right, we need to load the data
      * from the meeting, to update the title in the action bar.
      */
-    private OnPageChangeListener mOnPageChangeListener = new OnPageChangeListener() {
+    private final OnPageChangeListener mOnPageChangeListener = new OnPageChangeListener() {
 
         @Override
         public void onPageSelected(int position) {

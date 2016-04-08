@@ -56,8 +56,8 @@ public class ScrumChatterProvider extends ContentProvider {
     public static final String AUTHORITY = "ca.rmen.android.scrumchatter.provider";
     static final String CONTENT_URI_BASE = "content://" + AUTHORITY;
 
-    public static final String QUERY_NOTIFY = "QUERY_NOTIFY"; // NO_UCD (use private)
-    public static final String QUERY_GROUP_BY = "QUERY_GROUP_BY"; // NO_UCD (use private)
+    private static final String QUERY_NOTIFY = "QUERY_NOTIFY"; // NO_UCD (use private)
+    private static final String QUERY_GROUP_BY = "QUERY_GROUP_BY"; // NO_UCD (use private)
 
     private static final int URI_TYPE_TEAM = 0;
     private static final int URI_TYPE_TEAM_ID = 1;
@@ -242,7 +242,7 @@ public class ScrumChatterProvider extends ContentProvider {
     @Override
     public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations) throws OperationApplicationException {
         Log.v(TAG, "applyBatch: " + operations);
-        Set<Uri> urisToNotify = new HashSet<Uri>();
+        Set<Uri> urisToNotify = new HashSet<>();
         for (ContentProviderOperation operation : operations)
             urisToNotify.add(operation.getUri());
         urisToNotify.add(MemberStatsColumns.CONTENT_URI);
@@ -262,15 +262,12 @@ public class ScrumChatterProvider extends ContentProvider {
 
     /**
      * Log the query of the given cursor.
-     * 
-     * @param cursor
-     * @param selectionArgs
      */
     private void logCursor(Cursor cursor, String[] selectionArgs) {
         try {
             Field queryField = SQLiteCursor.class.getDeclaredField("mQuery");
             queryField.setAccessible(true);
-            SQLiteQuery sqliteQuery = (SQLiteQuery) queryField.get((SQLiteCursor) cursor);
+            SQLiteQuery sqliteQuery = (SQLiteQuery) queryField.get(cursor);
             Log.v(TAG, sqliteQuery.toString() + ": " + Arrays.toString(selectionArgs));
         } catch (Exception e) {
             Log.v(TAG, e.getMessage(), e);
@@ -282,7 +279,7 @@ public class ScrumChatterProvider extends ContentProvider {
         Log.v(TAG, "notifyChange: uri = " + uri + ", notify = " + notify);
         if (notify == null || "true".equals(notify)) {
             // Notify the uri which changed.
-            Set<Uri> urisToNotify = new HashSet<Uri>();
+            Set<Uri> urisToNotify = new HashSet<>();
             urisToNotify.add(uri);
 
             // Whether a meeting, meeting_member, or meeting table was

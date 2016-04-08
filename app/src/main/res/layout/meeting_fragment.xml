@@ -23,7 +23,6 @@
     android:orientation="vertical" >
 
     <RelativeLayout
-        android:id="@+id/meeting_header"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:background="@color/light_gray"
@@ -34,13 +33,14 @@
             style="@style/listHeader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/tv_meeting_duration"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:layout_marginLeft="@dimen/list_inner_horizontal_margin"
             android:text="@string/meeting_header_total_duration" />
 
         <Chronometer
-            android:id="@+id/tv_meeting_duration"
+            android:id="@id/tv_meeting_duration"
             android:layout_width="70dp"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
@@ -50,9 +50,12 @@
 
         <ImageButton
             android:id="@id/btn_stop_meeting"
-            style="@style/listItemButton"
             android:layout_alignParentRight="true"
             android:layout_marginRight="@dimen/list_inner_horizontal_margin"
+            android:background="?selectableItemBackgroundBorderless"
+            android:padding="8dp"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
             android:contentDescription="@string/action_stop_meeting"
             android:src="@drawable/ic_action_stop"
             android:visibility="invisible" />
