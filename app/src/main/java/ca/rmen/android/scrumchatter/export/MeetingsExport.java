@@ -45,7 +45,7 @@ import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import android.content.Context;
 import android.database.Cursor;
-import android.util.Log;
+import ca.rmen.android.scrumchatter.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;

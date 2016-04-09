@@ -25,7 +25,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
+import ca.rmen.android.scrumchatter.util.Log;
 import android.widget.ProgressBar;
 
 import ca.rmen.android.scrumchatter.Constants;
