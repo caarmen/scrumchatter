@@ -126,15 +126,15 @@ public class MeetingsExport extends FileExport {
         List<String> memberNames = new ArrayList<>();
         Map<String, Integer> avgMemberDurations = new HashMap<>();
         Map<String, Integer> sumMemberDurations = new HashMap<>();
-        // Closing the memberCursorWrapper will also close the cursor c
+        // Closing the memberCursorWrapper will also close memberCursor
         @SuppressLint("Recycle")
-        Cursor c = mContext.getContentResolver().query(MemberStatsColumns.CONTENT_URI,
+        Cursor memberCursor = mContext.getContentResolver().query(MemberStatsColumns.CONTENT_URI,
                 new String[] { MemberColumns.NAME, MemberStatsColumns.AVG_DURATION, MemberStatsColumns.SUM_DURATION },
                 MemberStatsColumns.TEAM_ID + "=? AND " + "(" + MemberStatsColumns.SUM_DURATION + ">0 OR " + MemberStatsColumns.AVG_DURATION + " >0 " + ")",
                 new String[] { String.valueOf(teamId) }, MemberColumns.NAME);
-        if (c != null) {
-            MemberCursorWrapper memberCursorWrapper = new MemberCursorWrapper(c);
-            while (c.moveToNext()) {
+        if (memberCursor != null) {
+            MemberCursorWrapper memberCursorWrapper = new MemberCursorWrapper(memberCursor);
+            while (memberCursor.moveToNext()) {
                 String memberName = memberCursorWrapper.getName();
                 memberNames.add(memberName);
                 avgMemberDurations.put(memberName, memberCursorWrapper.getAverageDuration());
@@ -151,7 +151,9 @@ public class MeetingsExport extends FileExport {
         writeHeader(teamName, columnHeadings);
 
         // Read all the meeting/member data
-        c = mContext.getContentResolver().query(
+        // Closing meetingMemberCursorWrapper will also close meetingMemberCursor
+        @SuppressLint("Recycle")
+        Cursor meetingMemberCursor = mContext.getContentResolver().query(
                 MeetingMemberColumns.CONTENT_URI,
                 new String[]{
                         MeetingMemberColumns.MEETING_ID,
@@ -165,37 +167,37 @@ public class MeetingsExport extends FileExport {
                         + MeetingMemberColumns.MEETING_ID + ", "
                         + MemberColumns.NAME);
 
-        MeetingMemberCursorWrapper cursorWrapper = new MeetingMemberCursorWrapper(c);
+        MeetingMemberCursorWrapper meetingMemberCursorWrapper = new MeetingMemberCursorWrapper(meetingMemberCursor);
         long totalMeetingDuration = 0;
         //noinspection TryFinallyCanBeTryWithResources
         try {
             long currentMeetingId;
             int rowNumber = 1;
-            while (cursorWrapper.moveToNext()) {
+            while (meetingMemberCursorWrapper.moveToNext()) {
                 // Write one row to the Excel file, for one meeting.
-                insertDateCell(cursorWrapper.getMeetingDate(), rowNumber);
-                long meetingDuration = cursorWrapper.getTotalDuration();
+                insertDateCell(meetingMemberCursorWrapper.getMeetingDate(), rowNumber);
+                long meetingDuration = meetingMemberCursorWrapper.getTotalDuration();
                 totalMeetingDuration += meetingDuration;
-                insertDurationCell(cursorWrapper.getTotalDuration(), rowNumber, columnHeadings.size() - 1, null);
-                currentMeetingId = cursorWrapper.getMeetingId();
+                insertDurationCell(meetingMemberCursorWrapper.getTotalDuration(), rowNumber, columnHeadings.size() - 1, null);
+                currentMeetingId = meetingMemberCursorWrapper.getMeetingId();
 
                 do {
-                    long meetingId = cursorWrapper.getMeetingId();
+                    long meetingId = meetingMemberCursorWrapper.getMeetingId();
                     if (meetingId != currentMeetingId) {
-                        cursorWrapper.move(-1);
+                        meetingMemberCursorWrapper.move(-1);
                         break;
                     }
-                    String memberName = cursorWrapper.getMemberName();
+                    String memberName = meetingMemberCursorWrapper.getMemberName();
                     int memberColumnIndex = memberNames.indexOf(memberName) + 1;
-                    insertDurationCell(cursorWrapper.getDuration(), rowNumber, memberColumnIndex, null);
-                } while (cursorWrapper.moveToNext());
+                    insertDurationCell(meetingMemberCursorWrapper.getDuration(), rowNumber, memberColumnIndex, null);
+                } while (meetingMemberCursorWrapper.moveToNext());
                 rowNumber++;
             }
             // Write the table footer containing the averages and totals
             writeFooter(rowNumber, memberNames, sumMemberDurations, avgMemberDurations, totalMeetingDuration);
 
         } finally {
-            cursorWrapper.close();
+            meetingMemberCursorWrapper.close();
         }
     }
 
