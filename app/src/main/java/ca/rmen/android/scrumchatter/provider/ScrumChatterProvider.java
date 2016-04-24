@@ -22,6 +22,7 @@ import android.content.ContentProvider;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.OperationApplicationException;
 import android.content.UriMatcher;
 import android.database.Cursor;
@@ -95,10 +96,16 @@ public class ScrumChatterProvider extends ContentProvider {
     }
 
     private ScrumChatterDatabase mScrumChatterDatabase;
+    private Context mContext;
 
     @Override
     public boolean onCreate() {
         mScrumChatterDatabase = new ScrumChatterDatabase(getContext());
+        // Save a copy of the context, because if we call getContext() later on,
+        // Android Studio warns us that calling getContext() can return null, even
+        // though this isn't really the case (getContext() can only be null before
+        // onCreate() is called).
+        mContext = getContext();
         return true;
     }
 
@@ -228,7 +235,7 @@ public class ScrumChatterProvider extends ContentProvider {
                 queryParams.selection, selectionArgs, groupBy, null,
                 sortOrder == null ? queryParams.orderBy : sortOrder);
         logCursor(res, selectionArgs);
-        res.setNotificationUri(getContext().getContentResolver(), uri);
+        res.setNotificationUri(mContext.getContentResolver(), uri);
 
         return res;
     }
@@ -310,7 +317,7 @@ public class ScrumChatterProvider extends ContentProvider {
             // Notify all the relevant uris.
             for (Uri uriToNotify : urisToNotify) {
                 Log.v(TAG, "notifyChange: notify uri " + uriToNotify);
-                getContext().getContentResolver().notifyChange(uriToNotify, null);
+                mContext.getContentResolver().notifyChange(uriToNotify, null);
             }
         }
     }
