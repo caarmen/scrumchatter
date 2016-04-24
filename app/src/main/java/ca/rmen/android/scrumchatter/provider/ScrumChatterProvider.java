@@ -18,12 +18,6 @@
  */
 package ca.rmen.android.scrumchatter.provider;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
 import android.content.ContentProvider;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
@@ -39,8 +33,14 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 
-import ca.rmen.android.scrumchatter.util.Log;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import ca.rmen.android.scrumchatter.Constants;
+import ca.rmen.android.scrumchatter.util.Log;
 
 /**
  * Provider for the Scrum Chatter app. This provider provides access to the
@@ -219,16 +219,14 @@ public class ScrumChatterProvider extends ContentProvider {
         Log.d(TAG,
                 "query uri=" + uri + ", projection = " + Arrays.toString(projection) + " selection=" + selection + " selectionArgs = "
                         + Arrays.toString(selectionArgs) + " sortOrder=" + sortOrder + " groupBy=" + groupBy);
-        final QueryParams queryParams = getQueryParams(uri, selection, selectionArgs);
+        final QueryParams queryParams = getQueryParams(uri, selection);
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         qb.setTables(queryParams.table);
 
-        // @formatter:off
-		final Cursor res = qb.query(
-				mScrumChatterDatabase.getReadableDatabase(), projection,
-				queryParams.selection, selectionArgs, groupBy, null,
-				sortOrder == null ? queryParams.orderBy : sortOrder);
-		// @formatter:on
+        final Cursor res = qb.query(
+                mScrumChatterDatabase.getReadableDatabase(), projection,
+                queryParams.selection, selectionArgs, groupBy, null,
+                sortOrder == null ? queryParams.orderBy : sortOrder);
         logCursor(res, selectionArgs);
         res.setNotificationUri(getContext().getContentResolver(), uri);
 
@@ -401,7 +399,7 @@ public class ScrumChatterProvider extends ContentProvider {
      * @return the full QueryParams based on the Uri and selection provided by
      *         the user of the ContentProvider.
      */
-    private QueryParams getQueryParams(Uri uri, String selection, String[] selectionArgs) {
+    private QueryParams getQueryParams(Uri uri, String selection) {
         QueryParams res = new QueryParams();
         String id = null;
         int matchedId = URI_MATCHER.match(uri);

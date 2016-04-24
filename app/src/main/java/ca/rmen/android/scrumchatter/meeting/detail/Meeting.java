@@ -115,10 +115,6 @@ public class Meeting {
         return mId;
     }
 
-    public Uri getUri() {
-        return mUri;
-    }
-
     public long getStartDate() {
         return mStartDate;
     }

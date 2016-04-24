@@ -173,7 +173,7 @@ public class MeetingsExport extends FileExport {
             int rowNumber = 1;
             while (cursorWrapper.moveToNext()) {
                 // Write one row to the Excel file, for one meeting.
-                insertDateCell(cursorWrapper.getMeetingDate(), rowNumber, 0);
+                insertDateCell(cursorWrapper.getMeetingDate(), rowNumber);
                 long meetingDuration = cursorWrapper.getTotalDuration();
                 totalMeetingDuration += meetingDuration;
                 insertDurationCell(cursorWrapper.getTotalDuration(), rowNumber, columnHeadings.size() - 1, null);
@@ -298,12 +298,12 @@ public class MeetingsExport extends FileExport {
         }
     }
 
-    private void insertDateCell(long dateInMillis, int row, int column) {
+    private void insertDateCell(long dateInMillis, int row) {
         DateTime dateCell = new DateTime(0, row, new Date(dateInMillis), mDateFormat);
         try {
             mSheet.addCell(dateCell);
         } catch (JXLException e) {
-            Log.e(TAG, "writeHeader Could not insert cell " + dateCell + " at row=" + row + ", col=" + column, e);
+            Log.e(TAG, "writeHeader Could not insert cell " + dateCell + " at row=" + row, e);
         }
     }
 
