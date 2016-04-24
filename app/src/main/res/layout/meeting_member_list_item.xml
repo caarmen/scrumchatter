@@ -17,7 +17,9 @@
   You should have received a copy of the GNU General Public License
   along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
 -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+<RelativeLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:descendantFocusability="blocksDescendants"
@@ -26,11 +28,16 @@
 
     <TextView
         android:id="@+id/tv_name"
+        android:gravity="start"
+        android:textAlignment="viewStart"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:layout_toLeftOf="@+id/iv_chatter_face" />
+        android:layout_toLeftOf="@+id/iv_chatter_face"
+        android:layout_toStartOf="@+id/iv_chatter_face"
+        tools:targetApi="jelly_bean_mr1"/>
 
     <ImageView
         android:id="@id/iv_chatter_face"
@@ -38,21 +45,28 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_marginRight="8dp"
+        android:layout_marginEnd="8dp"
         android:layout_toLeftOf="@+id/tv_duration"
+        android:layout_toStartOf="@+id/tv_duration"
         android:contentDescription="@string/chatter_face_label"
         android:src="@drawable/chatter_face"
         android:visibility="invisible" />
 
     <Chronometer
         android:id="@id/tv_duration"
+        android:gravity="start"
+        android:textAlignment="viewStart"
         android:layout_width="70dp"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_toLeftOf="@+id/btn_start_stop_member" />
+        android:layout_toLeftOf="@+id/btn_start_stop_member"
+        android:layout_toStartOf="@+id/btn_start_stop_member"
+        tools:targetApi="jelly_bean_mr1"/>
 
     <ImageButton
         android:id="@id/btn_start_stop_member"
         android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_height="wrap_content"
         android:background="?selectableItemBackgroundBorderless"
         android:padding="8dp"
@@ -61,3 +75,4 @@
         android:src="@drawable/ic_action_start" />
 
 </RelativeLayout>
+</layout>

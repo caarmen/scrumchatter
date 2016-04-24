@@ -18,12 +18,15 @@
  */
 package ca.rmen.android.scrumchatter.meeting.detail;
 
+import android.databinding.DataBindingUtil;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+
+import ca.rmen.android.scrumchatter.databinding.MeetingActivityBinding;
 import ca.rmen.android.scrumchatter.util.Log;
 import android.view.View;
 import ca.rmen.android.scrumchatter.Constants;
@@ -42,17 +45,18 @@ public class MeetingActivity extends AppCompatActivity implements DialogButtonLi
     private String TAG;
 
     private MeetingPagerAdapter mMeetingPagerAdapter;
-    private ViewPager mViewPager;
+    private MeetingActivityBinding mBinding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (TAG == null) TAG = Constants.TAG + "/" + MeetingActivity.class.getSimpleName() + "/" + System.currentTimeMillis();
         Log.v(TAG, "onCreate: savedInstanceState = " + savedInstanceState + ", intent = " + getIntent() + ", intent flags = " + getIntent().getFlags());
-        setContentView(R.layout.meeting_activity);
-        mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.addOnPageChangeListener(mOnPageChangeListener);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        mBinding = DataBindingUtil.setContentView(this, R.layout.meeting_activity);
+        mBinding.pager.addOnPageChangeListener(mOnPageChangeListener);
+        ActionBar supportActionBar = getSupportActionBar();
+        if (supportActionBar != null) supportActionBar.setDisplayHomeAsUpEnabled(true);
 
         // If this is the first time we open the activity, we will use the meeting id provided in the intent.
         // If we are recreating the activity (because of a device rotation, for example), we will display the meeting that the user 
@@ -76,7 +80,7 @@ public class MeetingActivity extends AppCompatActivity implements DialogButtonLi
             protected MeetingPagerAdapter doInBackground(Void... param) {
                 if (meetingId < 0) {
                     Meeting newMeeting = Meeting.createNewMeeting(MeetingActivity.this);
-                    mMeetingId = newMeeting.getId();
+                    if (newMeeting != null) mMeetingId = newMeeting.getId();
                 } else {
                     mMeetingId = meetingId;
                 }
@@ -87,11 +91,13 @@ public class MeetingActivity extends AppCompatActivity implements DialogButtonLi
             @Override
             protected void onPostExecute(MeetingPagerAdapter result) {
                 mMeetingPagerAdapter = result;
-                findViewById(R.id.activity_loading).setVisibility(View.GONE);
-                mViewPager.setAdapter(mMeetingPagerAdapter);
-                int position = mMeetingPagerAdapter.getPositionForMeetingId(mMeetingId);
-                Log.v(TAG, "meeting " + mMeetingId + " is on page " + position);
-                mViewPager.setCurrentItem(position);
+                mBinding.activityLoading.setVisibility(View.GONE);
+                mBinding.pager.setAdapter(mMeetingPagerAdapter);
+                if (mMeetingId >= 0) {
+                    int position = mMeetingPagerAdapter.getPositionForMeetingId(mMeetingId);
+                    Log.v(TAG, "meeting " + mMeetingId + " is on page " + position);
+                    mBinding.pager.setCurrentItem(position);
+                }
             }
         }.execute();
     }
@@ -101,7 +107,7 @@ public class MeetingActivity extends AppCompatActivity implements DialogButtonLi
         Log.v(TAG, "onDestroy");
         super.onDestroy();
         if (mMeetingPagerAdapter != null) mMeetingPagerAdapter.destroy();
-        mViewPager.removeOnPageChangeListener(mOnPageChangeListener);
+        mBinding.pager.removeOnPageChangeListener(mOnPageChangeListener);
     }
 
     /**
@@ -111,7 +117,7 @@ public class MeetingActivity extends AppCompatActivity implements DialogButtonLi
     protected void onSaveInstanceState(Bundle outState) {
         Log.v(TAG, "onSaveInstanceState, outState = " + outState);
         if (mMeetingPagerAdapter != null) {
-            Meeting meeting = mMeetingPagerAdapter.getMeetingAt(mViewPager.getCurrentItem());
+            Meeting meeting = mMeetingPagerAdapter.getMeetingAt(mBinding.pager.getCurrentItem());
             outState.putLong(Meetings.EXTRA_MEETING_ID, meeting.getId());
         }
         super.onSaveInstanceState(outState);
@@ -133,7 +139,7 @@ public class MeetingActivity extends AppCompatActivity implements DialogButtonLi
         }
         // Not intuitive: instantiateItem will actually return an existing Fragment, whereas getItem() will always instantiate a new Fragment.
         // We want to retrieve the existing fragment.
-        MeetingFragment fragment = (MeetingFragment) mMeetingPagerAdapter.instantiateItem(mViewPager, mViewPager.getCurrentItem());
+        MeetingFragment fragment = (MeetingFragment) mMeetingPagerAdapter.instantiateItem(mBinding.pager, mBinding.pager.getCurrentItem());
         if (actionId == R.id.action_delete_meeting) {
             fragment.deleteMeeting();
         } else if (actionId == R.id.btn_stop_meeting) {
@@ -148,7 +154,7 @@ public class MeetingActivity extends AppCompatActivity implements DialogButtonLi
     @Override
     public void supportInvalidateOptionsMenu() {
         Log.v(TAG, "supportInvalidateOptionsMenu");
-        mViewPager.post(new Runnable() {
+        mBinding.pager.post(new Runnable() {
 
             @Override
             public void run() {
@@ -168,7 +174,8 @@ public class MeetingActivity extends AppCompatActivity implements DialogButtonLi
             Log.v(TAG, "onPageSelected, position = " + position);
             Meeting meeting = mMeetingPagerAdapter.getMeetingAt(position);
             Log.v(TAG, "Selected meeting " + meeting);
-            getSupportActionBar().setTitle(TextUtils.formatDateTime(MeetingActivity.this, meeting.getStartDate()));
+            ActionBar supportActionBar = getSupportActionBar();
+            if (supportActionBar != null) supportActionBar.setTitle(TextUtils.formatDateTime(MeetingActivity.this, meeting.getStartDate()));
         }
 
         @Override

@@ -87,7 +87,7 @@
     <string name="about_source_text">Source code on GitHub:</string>
     <string name="about_source_link">https://github.com/caarmen/scrumchatter</string>
     <string name="about_credit_title">Special thanks to:</string>
-    <string name="about_credit_content_provider_generator_text">BoD for the chatter emoticon and his content provider generator.</string>
+    <string name="about_credit_content_provider_generator_text">BoD for his content provider generator.</string>
     <string translatable="false" name="about_credit_content_provider_generator_link">https://github.com/BoD/android-contentprovider-generator</string>
     <string name="about_credit_app_icon_text">qubodup for the speech bubble icon on openclipart.</string>
     <string translatable="false" name="about_credit_app_icon_link">http://openclipart.org/detail/14322/16x16px-capable-black-and-white-icons-by-qubodup-14322</string>

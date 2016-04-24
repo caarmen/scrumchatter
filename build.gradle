@@ -13,3 +13,10 @@ allprojects {
         jcenter()
     }
 }
+
+apply plugin: 'idea'
+idea {
+    module {
+        excludeDirs = [file("etc"), file("signing.properties"), file("signing.properties.template")]
+    }
+}

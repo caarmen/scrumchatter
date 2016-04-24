@@ -20,17 +20,17 @@ package ca.rmen.android.scrumchatter.member.list;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.databinding.DataBindingUtil;
 import android.support.v4.widget.CursorAdapter;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import ca.rmen.android.scrumchatter.R;
+import ca.rmen.android.scrumchatter.databinding.MemberListItemBinding;
 import ca.rmen.android.scrumchatter.member.list.Members.Member;
 import ca.rmen.android.scrumchatter.provider.MemberCursorWrapper;
-import ca.rmen.android.scrumchatter.util.ViewHolder;
 
 /**
  * Adapter for the list of team members.
@@ -45,8 +45,9 @@ class MembersCursorAdapter extends CursorAdapter {
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
-        LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        return layoutInflater.inflate(R.layout.member_list_item, viewGroup, false);
+        MemberListItemBinding binding = DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.member_list_item, viewGroup, false);
+        binding.getRoot().setTag(binding);
+        return binding.getRoot();
     }
 
     /**
@@ -69,19 +70,16 @@ class MembersCursorAdapter extends CursorAdapter {
         Member cache = new Member(memberId, memberName);
 
         // Find the views we need to update
-        TextView tvName = ViewHolder.get(view, R.id.tv_name);
-        TextView tvAvgDuration = ViewHolder.get(view, R.id.tv_avg_duration);
-        TextView tvSumDuration = ViewHolder.get(view, R.id.tv_sum_duration);
-        View btnDelete = ViewHolder.get(view, R.id.btn_delete_member);
+        MemberListItemBinding binding = (MemberListItemBinding) view.getTag();
 
         // Setup our views with the member data
-        tvName.setText(memberName);
-        tvAvgDuration.setText(DateUtils.formatElapsedTime(avgDuration));
-        tvSumDuration.setText(DateUtils.formatElapsedTime(sumDuration));
+        binding.tvName.setText(memberName);
+        binding.tvAvgDuration.setText(DateUtils.formatElapsedTime(avgDuration));
+        binding.tvSumDuration.setText(DateUtils.formatElapsedTime(sumDuration));
 
         // Forward clicks to our OnClickListener, and use the tag
         // to pass data about the member that the OnClickListener needs.
-        btnDelete.setOnClickListener(mOnClickListener);
-        btnDelete.setTag(cache);
+        binding.btnDeleteMember.setOnClickListener(mOnClickListener);
+        binding.btnDeleteMember.setTag(cache);
     }
 }

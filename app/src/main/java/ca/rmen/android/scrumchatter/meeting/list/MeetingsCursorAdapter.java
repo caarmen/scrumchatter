@@ -20,6 +20,7 @@ package ca.rmen.android.scrumchatter.meeting.list;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.databinding.DataBindingUtil;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.text.format.DateUtils;
@@ -29,13 +30,12 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.TextView;
 import ca.rmen.android.scrumchatter.R;
+import ca.rmen.android.scrumchatter.databinding.MeetingListItemBinding;
 import ca.rmen.android.scrumchatter.meeting.detail.Meeting;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.provider.MeetingCursorWrapper;
 import ca.rmen.android.scrumchatter.util.TextUtils;
-import ca.rmen.android.scrumchatter.util.ViewHolder;
 
 /**
  * Adapter for the list of meetings.
@@ -57,8 +57,9 @@ class MeetingsCursorAdapter extends CursorAdapter {
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        return inflater.inflate(R.layout.meeting_list_item, viewGroup, false);
+        MeetingListItemBinding binding = DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.meeting_list_item, viewGroup, false);
+        binding.getRoot().setTag(binding);
+        return binding.getRoot();
     }
 
     /**
@@ -80,39 +81,37 @@ class MeetingsCursorAdapter extends CursorAdapter {
         String stateName = mMeetingStateNames[meeting.getState().ordinal()];
 
         // Find the views we need to set up.
-        TextView tvDate = ViewHolder.get(view, R.id.tv_meeting_date);
-        TextView tvDuration = ViewHolder.get(view, R.id.tv_meeting_duration);
-        View btnDelete = ViewHolder.get(view, R.id.btn_delete_meeting);
+        MeetingListItemBinding binding = (MeetingListItemBinding) view.getTag();
 
         // Fill the date view.
-        tvDate.setText(dateString);
+        binding.tvMeetingDate.setText(dateString);
 
         // Fill the duration view. We will only show the duration if
         // the meeting is finished. For not-started or in-progress
         // meetings, we show the state.
-        if (meeting.getState() == State.FINISHED) tvDuration.setText(duration);
+        if (meeting.getState() == State.FINISHED) binding.tvMeetingDuration.setText(duration);
         else
-            tvDuration.setText(stateName);
+            binding.tvMeetingDuration.setText(stateName);
         if (meeting.getState() == State.IN_PROGRESS) {
             Animation animBlink = AnimationUtils.loadAnimation(mContext, R.anim.blink);
-            tvDuration.startAnimation(animBlink);
-            tvDuration.setTextColor(mColorStateInProgress);
+            binding.tvMeetingDuration.startAnimation(animBlink);
+            binding.tvMeetingDuration.setTextColor(mColorStateInProgress);
         } else {
-            Animation anim = tvDuration.getAnimation();
+            Animation anim = binding.tvMeetingDuration.getAnimation();
             if (anim != null) {
                 anim.cancel();
                 // Need to make sure the animation doesn't stay faded out.
                 anim = AnimationUtils.loadAnimation(mContext, R.anim.show);
-                tvDuration.startAnimation(anim);
+                binding.tvMeetingDuration.startAnimation(anim);
             }
-            tvDuration.setTextColor(mColorStateDefault);
+            binding.tvMeetingDuration.setTextColor(mColorStateDefault);
         }
 
         // Forward clicks to our OnClickListener. We put the cache in the tag
         // so the listener can have access to data it needs to display
         // (showing the meeting date in the confirmation dialog to delete
         // a meeting).
-        btnDelete.setTag(meeting);
-        btnDelete.setOnClickListener(mOnClickListener);
+        binding.btnDeleteMeeting.setTag(meeting);
+        binding.btnDeleteMeeting.setOnClickListener(mOnClickListener);
     }
 }

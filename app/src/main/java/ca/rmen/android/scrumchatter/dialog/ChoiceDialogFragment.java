@@ -22,6 +22,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
@@ -50,6 +51,7 @@ public class ChoiceDialogFragment extends DialogFragment { // NO_UCD (use defaul
      * @return an AlertDialog with a list of items, one of them possibly pre-selected.
      */
     @Override
+    @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Log.v(TAG, "onCreateDialog: savedInstanceState = " + savedInstanceState);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());

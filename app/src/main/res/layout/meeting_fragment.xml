@@ -17,7 +17,9 @@
   You should have received a copy of the GNU General Public License
   along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+<LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
@@ -31,27 +33,39 @@
 
         <TextView
             style="@style/listHeader"
+            android:gravity="start"
+            android:textAlignment="viewStart"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toLeftOf="@+id/tv_meeting_duration"
+            android:layout_toStartOf="@+id/tv_meeting_duration"
             android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             android:layout_marginLeft="@dimen/list_inner_horizontal_margin"
-            android:text="@string/meeting_header_total_duration" />
+            android:layout_marginStart="@dimen/list_inner_horizontal_margin"
+            android:text="@string/meeting_header_total_duration"
+            tools:targetApi="jelly_bean_mr1"/>
 
         <Chronometer
             android:id="@id/tv_meeting_duration"
+            android:gravity="start"
+            android:textAlignment="viewStart"
             android:layout_width="70dp"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_toLeftOf="@+id/btn_stop_meeting"
+            android:layout_toStartOf="@+id/btn_stop_meeting"
             android:textStyle="bold"
-            android:color="@color/selected_header" />
+            android:color="@color/selected_header"
+            tools:targetApi="jelly_bean_mr1"/>
 
         <ImageButton
             android:id="@id/btn_stop_meeting"
             android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:layout_marginRight="@dimen/list_inner_horizontal_margin"
+            android:layout_marginEnd="@dimen/list_inner_horizontal_margin"
             android:background="?selectableItemBackgroundBorderless"
             android:padding="8dp"
             android:layout_height="wrap_content"
@@ -76,6 +90,7 @@
         android:indeterminate="true"
         android:visibility="invisible" />
 
-    <include layout="@layout/list_content" />
+    <include android:id="@+id/list_content" layout="@layout/list_content" />
 
 </LinearLayout>
+</layout>

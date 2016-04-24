@@ -17,7 +17,9 @@
   You should have received a copy of the GNU General Public License
   along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<LinearLayout
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -32,22 +34,32 @@
 
         <TextView
             style="@style/listHeader"
+            android:gravity="start"
+            android:textAlignment="viewStart"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             android:layout_marginLeft="@dimen/list_inner_horizontal_margin"
+            android:layout_marginStart="@dimen/list_inner_horizontal_margin"
             android:layout_toLeftOf="@+id/tv_duration"
-            android:text="@string/meeting_list_header_date" />
+            android:layout_toStartOf="@+id/tv_duration"
+            android:text="@string/meeting_list_header_date"
+            tools:targetApi="JELLY_BEAN_MR1"/>
 
         <TextView
             android:id="@id/tv_duration"
             style="@style/listHeader"
+            android:gravity="start"
+            android:textAlignment="viewStart"
             android:layout_width="80dp"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_toLeftOf="@+id/btn_delete_meeting"
-            android:text="@string/meeting_list_header_duration" />
+            android:layout_toStartOf="@+id/btn_delete_meeting"
+            android:text="@string/meeting_list_header_duration"
+            tools:targetApi="jelly_bean_mr1"/>
 
         <ImageButton
             android:id="@id/btn_delete_meeting"
@@ -56,7 +68,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:layout_marginRight="@dimen/list_inner_horizontal_margin"
+            android:layout_marginEnd="@dimen/list_inner_horizontal_margin"
             android:contentDescription="@string/action_delete_meeting"
             android:src="@drawable/ic_action_delete"
             android:visibility="invisible" />
@@ -68,7 +82,9 @@
         android:background="@color/selected_header" />
 
     <include
+        android:id="@+id/list_content"
         layout="@layout/list_content"
         tools:listitem="@android:layout/simple_list_item_2" />
 
 </LinearLayout>
+</layout>

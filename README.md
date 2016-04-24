@@ -13,7 +13,7 @@ Android app to track how long people talk during meetings.
 *Note*: This application does NOT use the microphone to automatically detect who is speaking. You must
 manually press on a "play" button when a team member speaks.
 
-Scrum Chatter is licensed under the GNU GPLv3 licensce.  Please see LICENSE.txt for more information.
+Scrum Chatter is licensed under the GNU GPLv3 licence.  Please see LICENSE.txt for more information.
 
 Maintenance
 ===========

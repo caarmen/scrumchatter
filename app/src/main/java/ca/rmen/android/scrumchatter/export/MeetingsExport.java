@@ -18,6 +18,10 @@
  */
 package ca.rmen.android.scrumchatter.export;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.database.Cursor;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,6 +30,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ca.rmen.android.scrumchatter.Constants;
+import ca.rmen.android.scrumchatter.R;
+import ca.rmen.android.scrumchatter.provider.MeetingColumns;
+import ca.rmen.android.scrumchatter.provider.MeetingMemberColumns;
+import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
+import ca.rmen.android.scrumchatter.provider.MemberColumns;
+import ca.rmen.android.scrumchatter.provider.MemberCursorWrapper;
+import ca.rmen.android.scrumchatter.provider.MemberStatsColumns;
+import ca.rmen.android.scrumchatter.provider.TeamColumns;
+import ca.rmen.android.scrumchatter.util.Log;
 import jxl.CellView;
 import jxl.JXLException;
 import jxl.Workbook;
@@ -43,18 +57,6 @@ import jxl.write.WritableFont;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
-import android.content.Context;
-import android.database.Cursor;
-import ca.rmen.android.scrumchatter.util.Log;
-import ca.rmen.android.scrumchatter.Constants;
-import ca.rmen.android.scrumchatter.R;
-import ca.rmen.android.scrumchatter.provider.MeetingColumns;
-import ca.rmen.android.scrumchatter.provider.MeetingMemberColumns;
-import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
-import ca.rmen.android.scrumchatter.provider.MemberColumns;
-import ca.rmen.android.scrumchatter.provider.MemberCursorWrapper;
-import ca.rmen.android.scrumchatter.provider.MemberStatsColumns;
-import ca.rmen.android.scrumchatter.provider.TeamColumns;
 
 /**
  * Export data for all meetings to an Excel file.
@@ -124,18 +126,22 @@ public class MeetingsExport extends FileExport {
         List<String> memberNames = new ArrayList<>();
         Map<String, Integer> avgMemberDurations = new HashMap<>();
         Map<String, Integer> sumMemberDurations = new HashMap<>();
-        Cursor c = mContext.getContentResolver().query(MemberStatsColumns.CONTENT_URI,
+        // Closing the memberCursorWrapper will also close memberCursor
+        @SuppressLint("Recycle")
+        Cursor memberCursor = mContext.getContentResolver().query(MemberStatsColumns.CONTENT_URI,
                 new String[] { MemberColumns.NAME, MemberStatsColumns.AVG_DURATION, MemberStatsColumns.SUM_DURATION },
                 MemberStatsColumns.TEAM_ID + "=? AND " + "(" + MemberStatsColumns.SUM_DURATION + ">0 OR " + MemberStatsColumns.AVG_DURATION + " >0 " + ")",
                 new String[] { String.valueOf(teamId) }, MemberColumns.NAME);
-        MemberCursorWrapper memberCursorWrapper = new MemberCursorWrapper(c);
-        while (c.moveToNext()) {
-            String memberName = memberCursorWrapper.getName();
-            memberNames.add(memberName);
-            avgMemberDurations.put(memberName, memberCursorWrapper.getAverageDuration());
-            sumMemberDurations.put(memberName, memberCursorWrapper.getSumDuration());
+        if (memberCursor != null) {
+            MemberCursorWrapper memberCursorWrapper = new MemberCursorWrapper(memberCursor);
+            while (memberCursor.moveToNext()) {
+                String memberName = memberCursorWrapper.getName();
+                memberNames.add(memberName);
+                avgMemberDurations.put(memberName, memberCursorWrapper.getAverageDuration());
+                sumMemberDurations.put(memberName, memberCursorWrapper.getSumDuration());
+            }
+            memberCursorWrapper.close();
         }
-        memberCursorWrapper.close();
 
         // Write out the column headings
         List<String> columnHeadings = new ArrayList<>();
@@ -145,52 +151,53 @@ public class MeetingsExport extends FileExport {
         writeHeader(teamName, columnHeadings);
 
         // Read all the meeting/member data
-        c = mContext.getContentResolver().query(
-				MeetingMemberColumns.CONTENT_URI,
-				// @formatter:off
-				new String[] {
-						MeetingMemberColumns.MEETING_ID,
-						MeetingColumns.MEETING_DATE,
-						MeetingColumns.TOTAL_DURATION,
-						MemberColumns.NAME,
-						MeetingMemberColumns.DURATION },
-				MeetingMemberColumns.DURATION + ">0 AND " + MeetingColumns.TEAM_ID + "=?",
-				new String[]{String.valueOf(teamId)},
-				MeetingColumns.MEETING_DATE + ", " 
-				+ MeetingMemberColumns.MEETING_ID + ", "
-				+ MemberColumns.NAME);
-				// @formatter:on
+        // Closing meetingMemberCursorWrapper will also close meetingMemberCursor
+        @SuppressLint("Recycle")
+        Cursor meetingMemberCursor = mContext.getContentResolver().query(
+                MeetingMemberColumns.CONTENT_URI,
+                new String[]{
+                        MeetingMemberColumns.MEETING_ID,
+                        MeetingColumns.MEETING_DATE,
+                        MeetingColumns.TOTAL_DURATION,
+                        MemberColumns.NAME,
+                        MeetingMemberColumns.DURATION},
+                MeetingMemberColumns.DURATION + ">0 AND " + MeetingColumns.TEAM_ID + "=?",
+                new String[]{String.valueOf(teamId)},
+                MeetingColumns.MEETING_DATE + ", "
+                        + MeetingMemberColumns.MEETING_ID + ", "
+                        + MemberColumns.NAME);
 
-        MeetingMemberCursorWrapper cursorWrapper = new MeetingMemberCursorWrapper(c);
+        MeetingMemberCursorWrapper meetingMemberCursorWrapper = new MeetingMemberCursorWrapper(meetingMemberCursor);
         long totalMeetingDuration = 0;
+        //noinspection TryFinallyCanBeTryWithResources
         try {
             long currentMeetingId;
             int rowNumber = 1;
-            while (cursorWrapper.moveToNext()) {
+            while (meetingMemberCursorWrapper.moveToNext()) {
                 // Write one row to the Excel file, for one meeting.
-                insertDateCell(cursorWrapper.getMeetingDate(), rowNumber, 0);
-                long meetingDuration = cursorWrapper.getTotalDuration();
+                insertDateCell(meetingMemberCursorWrapper.getMeetingDate(), rowNumber);
+                long meetingDuration = meetingMemberCursorWrapper.getTotalDuration();
                 totalMeetingDuration += meetingDuration;
-                insertDurationCell(cursorWrapper.getTotalDuration(), rowNumber, columnHeadings.size() - 1, null);
-                currentMeetingId = cursorWrapper.getMeetingId();
+                insertDurationCell(meetingMemberCursorWrapper.getTotalDuration(), rowNumber, columnHeadings.size() - 1, null);
+                currentMeetingId = meetingMemberCursorWrapper.getMeetingId();
 
                 do {
-                    long meetingId = cursorWrapper.getMeetingId();
+                    long meetingId = meetingMemberCursorWrapper.getMeetingId();
                     if (meetingId != currentMeetingId) {
-                        cursorWrapper.move(-1);
+                        meetingMemberCursorWrapper.move(-1);
                         break;
                     }
-                    String memberName = cursorWrapper.getMemberName();
+                    String memberName = meetingMemberCursorWrapper.getMemberName();
                     int memberColumnIndex = memberNames.indexOf(memberName) + 1;
-                    insertDurationCell(cursorWrapper.getDuration(), rowNumber, memberColumnIndex, null);
-                } while (cursorWrapper.moveToNext());
+                    insertDurationCell(meetingMemberCursorWrapper.getDuration(), rowNumber, memberColumnIndex, null);
+                } while (meetingMemberCursorWrapper.moveToNext());
                 rowNumber++;
             }
             // Write the table footer containing the averages and totals
             writeFooter(rowNumber, memberNames, sumMemberDurations, avgMemberDurations, totalMeetingDuration);
 
         } finally {
-            cursorWrapper.close();
+            meetingMemberCursorWrapper.close();
         }
     }
 
@@ -293,12 +300,12 @@ public class MeetingsExport extends FileExport {
         }
     }
 
-    private void insertDateCell(long dateInMillis, int row, int column) {
+    private void insertDateCell(long dateInMillis, int row) {
         DateTime dateCell = new DateTime(0, row, new Date(dateInMillis), mDateFormat);
         try {
             mSheet.addCell(dateCell);
         } catch (JXLException e) {
-            Log.e(TAG, "writeHeader Could not insert cell " + dateCell + " at row=" + row + ", col=" + column, e);
+            Log.e(TAG, "writeHeader Could not insert cell " + dateCell + " at row=" + row, e);
         }
     }
 

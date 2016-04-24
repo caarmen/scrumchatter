@@ -104,7 +104,7 @@ public class DialogFragmentFactory extends DialogFragment {
      *         {@link DialogItemListener#onItemSelected(int, CharSequence[], int)} callback on the activity, when the user selects an item.
      * @param selectedItem if greater than zero, then the given item at that index will be pre-selected in the list.
      */
-    public static void showChoiceDialog(FragmentActivity activity, String title, CharSequence[] items, int selectedItem, int actionId) {
+    public static void showChoiceDialog(FragmentActivity activity, String title, CharSequence[] items, int selectedItem, @SuppressWarnings("SameParameterValue") int actionId) {
         Log.v(TAG, "showChoiceDialog: title = " + title + ", actionId = " + actionId + ", items =" + Arrays.toString(items) + ", selectedItem = "
                 + selectedItem);
         ChoiceDialogFragment result = new ChoiceDialogFragment();
@@ -121,7 +121,7 @@ public class DialogFragmentFactory extends DialogFragment {
      * Show a visible dialog fragment with the given message.
      * @param tag should be used by the calling activity, when the background task is complete, to find the fragment and dismiss it.
      */
-    public static void showProgressDialog(FragmentActivity activity, String message, String tag) {
+    public static void showProgressDialog(FragmentActivity activity, String message, @SuppressWarnings("SameParameterValue") String tag) {
         Log.v(TAG, "showProgressDialog: message = " + message);
         Bundle arguments = new Bundle(2);
         arguments.putString(EXTRA_MESSAGE, message);

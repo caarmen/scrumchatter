@@ -21,6 +21,7 @@ package ca.rmen.android.scrumchatter.meeting.detail;
 import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -34,6 +35,8 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateUtils;
+
+import ca.rmen.android.scrumchatter.databinding.MeetingFragmentBinding;
 import ca.rmen.android.scrumchatter.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -42,7 +45,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.Chronometer;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.dialog.DialogFragmentFactory;
@@ -61,12 +63,10 @@ public class MeetingFragment extends ListFragment {
 
     private MeetingCursorAdapter mAdapter;
     private final MeetingObserver mMeetingObserver;
-    private View mBtnStopMeeting;
-    private View mProgressBarHeader;
-    private Chronometer mMeetingChronometer;
     private Meeting mMeeting;
     private long mMeetingId;
     private Meetings mMeetings;
+    private MeetingFragmentBinding mBinding;
 
     public MeetingFragment() {
         super();
@@ -84,11 +84,8 @@ public class MeetingFragment extends ListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.v(TAG, "onCreateView: savedInstanceState = " + savedInstanceState);
         // Create our views
-        View view = inflater.inflate(R.layout.meeting_fragment, container, false);
-        mBtnStopMeeting = view.findViewById(R.id.btn_stop_meeting);
-        mMeetingChronometer = (Chronometer) view.findViewById(R.id.tv_meeting_duration);
-        mProgressBarHeader = view.findViewById(R.id.header_progress_bar);
-        mBtnStopMeeting.setOnClickListener(mOnClickListener);
+        mBinding = DataBindingUtil.inflate(inflater, R.layout.meeting_fragment, container, false);
+        mBinding.btnStopMeeting.setOnClickListener(mOnClickListener);
         mMeetingId = getArguments().getLong(Meetings.EXTRA_MEETING_ID);
         if (!TAG.endsWith("" + mMeetingId)) TAG += "/" + mMeetingId;
 
@@ -96,7 +93,7 @@ public class MeetingFragment extends ListFragment {
         Uri uri = Uri.withAppendedPath(MeetingColumns.CONTENT_URI, String.valueOf(mMeetingId));
         getActivity().getContentResolver().registerContentObserver(uri, false, mMeetingObserver);
         loadMeeting();
-        return view;
+        return mBinding.getRoot();
     }
 
     @Override
@@ -216,24 +213,24 @@ public class MeetingFragment extends ListFragment {
                 // Update the UI views
                 Log.v(TAG, "meetingState = " + meeting.getState());
                 // Show the "stop meeting" button if the meeting is not finished.
-                mBtnStopMeeting.setVisibility(meeting.getState() == State.NOT_STARTED || meeting.getState() == State.IN_PROGRESS ? View.VISIBLE
+                mBinding.btnStopMeeting.setVisibility(meeting.getState() == State.NOT_STARTED || meeting.getState() == State.IN_PROGRESS ? View.VISIBLE
                         : View.INVISIBLE);
                 // Only enable the "stop meeting" button if the meeting is in progress.
-                mBtnStopMeeting.setEnabled(meeting.getState() == State.IN_PROGRESS);
+                mBinding.btnStopMeeting.setEnabled(meeting.getState() == State.IN_PROGRESS);
 
                 // Show the horizontal progress bar for in progress meetings
-                mProgressBarHeader.setVisibility(meeting.getState() == State.IN_PROGRESS ? View.VISIBLE : View.INVISIBLE);
+                mBinding.headerProgressBar.setVisibility(meeting.getState() == State.IN_PROGRESS ? View.VISIBLE : View.INVISIBLE);
 
                 // Update the chronometer
                 if (meeting.getState() == State.IN_PROGRESS) {
                     // If the meeting is in progress, show the Chronometer.
                     long timeSinceMeetingStartedMillis = System.currentTimeMillis() - meeting.getStartDate();
-                    mMeetingChronometer.setBase(SystemClock.elapsedRealtime() - timeSinceMeetingStartedMillis);
-                    mMeetingChronometer.start();
+                    mBinding.tvMeetingDuration.setBase(SystemClock.elapsedRealtime() - timeSinceMeetingStartedMillis);
+                    mBinding.tvMeetingDuration.start();
                 } else if (meeting.getState() == State.FINISHED) {
                     // For finished meetings, show the duration we retrieved from the db.
-                    mMeetingChronometer.stop();
-                    mMeetingChronometer.setText(DateUtils.formatElapsedTime(meeting.getDuration()));
+                    mBinding.tvMeetingDuration.stop();
+                    mBinding.tvMeetingDuration.setText(DateUtils.formatElapsedTime(meeting.getDuration()));
                 }
             }
         };
@@ -264,7 +261,7 @@ public class MeetingFragment extends ListFragment {
 
             @Override
             protected void onPreExecute() {
-                mBtnStopMeeting.setVisibility(View.INVISIBLE);
+                mBinding.btnStopMeeting.setVisibility(View.INVISIBLE);
                 getActivity().getContentResolver().unregisterContentObserver(mMeetingObserver);
             }
 
@@ -313,7 +310,7 @@ public class MeetingFragment extends ListFragment {
             Log.v(TAG, "onLoadFinished");
             if (getListAdapter() == null) {
                 setListAdapter(mAdapter);
-                getView().findViewById(R.id.progressContainer).setVisibility(View.GONE);
+                mBinding.listContent.progressContainer.setVisibility(View.GONE);
             }
             mAdapter.changeCursor(cursor);
         }

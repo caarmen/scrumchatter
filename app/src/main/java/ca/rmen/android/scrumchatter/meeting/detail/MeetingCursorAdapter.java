@@ -20,26 +20,25 @@ package ca.rmen.android.scrumchatter.meeting.detail;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.databinding.DataBindingUtil;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.SystemClock;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.text.format.DateUtils;
+
+import ca.rmen.android.scrumchatter.databinding.MeetingMemberListItemBinding;
 import ca.rmen.android.scrumchatter.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
-import android.widget.Chronometer;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.TextView;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
-import ca.rmen.android.scrumchatter.util.ViewHolder;
 
 /**
  * Adapter for the list of members in one meeting, and their speaking durations
@@ -68,9 +67,9 @@ class MeetingCursorAdapter extends CursorAdapter {
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
-        LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        return layoutInflater.inflate(R.layout.meeting_member_list_item, viewGroup, false);
-
+        MeetingMemberListItemBinding binding = DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.meeting_member_list_item, viewGroup, false);
+        binding.getRoot().setTag(binding);
+        return binding.getRoot();
     }
 
     /**
@@ -94,12 +93,9 @@ class MeetingCursorAdapter extends CursorAdapter {
         Long talkStartTime = cursorWrapper.getTalkStartTime();
 
         // Find the Views we need to set up
-        TextView tvName = ViewHolder.get(view, R.id.tv_name);
-        Chronometer chronometer = ViewHolder.get(view, R.id.tv_duration);
-        ImageButton btnStartStop = ViewHolder.get(view, R.id.btn_start_stop_member);
-        final ImageView ivChatterFace = ViewHolder.get(view, R.id.iv_chatter_face);
+        MeetingMemberListItemBinding binding = (MeetingMemberListItemBinding) view.getTag();
         // Set up the member's name
-        tvName.setText(memberName);
+        binding.tvName.setText(memberName);
 
         // if the talkStartTime is non-zero, this means the
         // member is talking (and started talking that long ago).
@@ -108,34 +104,34 @@ class MeetingCursorAdapter extends CursorAdapter {
         // Set up the start/stop button for this member.
         // If the meeting is finished, we hide the start/stop button.
         if (meetingState == State.FINISHED) {
-            btnStartStop.setVisibility(View.INVISIBLE);
+            binding.btnStartStopMember.setVisibility(View.INVISIBLE);
         }
         // If the meeting is in progress, set the button to stop
         // or start, depending on whether the member is already talking
         // or not.
         else {
-            btnStartStop.setOnClickListener(mOnClickListener);
-            btnStartStop.setImageResource(memberIsTalking ? R.drawable.ic_action_stop : R.drawable.ic_action_start);
+            binding.btnStartStopMember.setOnClickListener(mOnClickListener);
+            binding.btnStartStopMember.setImageResource(memberIsTalking ? R.drawable.ic_action_stop : R.drawable.ic_action_start);
         }
 
         // If the member is currently talking, show the chronometer.
         // Otherwise, show the duration that they talked (if any).
         if (memberIsTalking) {
             long hasBeenTalkingFor = duration * 1000 + (System.currentTimeMillis() - talkStartTime);
-            chronometer.setBase(SystemClock.elapsedRealtime() - hasBeenTalkingFor);
-            chronometer.start();
-            chronometer.setTextColor(mColorChronoActive);
-            startAnimation(ivChatterFace);
+            binding.tvDuration.setBase(SystemClock.elapsedRealtime() - hasBeenTalkingFor);
+            binding.tvDuration.start();
+            binding.tvDuration.setTextColor(mColorChronoActive);
+            startAnimation(binding.ivChatterFace);
         } else {
-            chronometer.stop();
-            chronometer.setText(DateUtils.formatElapsedTime(duration));
-            chronometer.setTextColor(duration > 0 ? mColorChronoInactive : mColorChronoNotStarted);
-            stopAnimation(ivChatterFace);
+            binding.tvDuration.stop();
+            binding.tvDuration.setText(DateUtils.formatElapsedTime(duration));
+            binding.tvDuration.setTextColor(duration > 0 ? mColorChronoInactive : mColorChronoNotStarted);
+            stopAnimation(binding.ivChatterFace);
         }
 
         // Set the member id as a tag, so when the OnClickListener receives the
         // click action, it knows for which member the user clicked.
-        btnStartStop.setTag(memberId);
+        binding.btnStartStopMember.setTag(memberId);
     }
 
     /**

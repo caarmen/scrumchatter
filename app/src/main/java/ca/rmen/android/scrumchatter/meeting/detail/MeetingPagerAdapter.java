@@ -18,6 +18,7 @@
  */
 package ca.rmen.android.scrumchatter.meeting.detail;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -50,6 +51,8 @@ class MeetingPagerAdapter extends FragmentStatePagerAdapter {
         Log.v(TAG, "Constructor: teamId = " + teamId);
         mContext = context;
         mTeamId = teamId;
+        // Closing the cursor wrapper also closes the cursor
+        @SuppressLint("Recycle")
         Cursor cursor = context.getContentResolver().query(MeetingColumns.CONTENT_URI, null, MeetingColumns.TEAM_ID + "=?",
                 new String[] { String.valueOf(mTeamId) }, MeetingColumns.MEETING_DATE + " DESC");
         mCursor = new MeetingCursorWrapper(cursor);
@@ -118,6 +121,8 @@ class MeetingPagerAdapter extends FragmentStatePagerAdapter {
 
                 @Override
                 protected MeetingCursorWrapper doInBackground(Void... params) {
+                    // Closing the cursorWrapper also closes the cursor
+                    @SuppressLint("Recycle")
                     Cursor cursor = mContext.getContentResolver().query(MeetingColumns.CONTENT_URI, null, MeetingColumns.TEAM_ID + "=?",
                             new String[] { String.valueOf(mTeamId) }, MeetingColumns.MEETING_DATE + " DESC");
                     MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(cursor);

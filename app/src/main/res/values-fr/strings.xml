@@ -85,7 +85,7 @@
     <string name="about_source_text">Code source sur GitHub:</string>
     <string name="about_source_link">https://github.com/caarmen/scrumchatter</string>
     <string name="about_credit_title">Remerciements :</string>
-    <string name="about_credit_content_provider_generator_text">BoD pour l\'icône du bavard et pour son générateur de content provider.</string>
+    <string name="about_credit_content_provider_generator_text">BoD pour son générateur de content provider.</string>
     <string name="about_credit_app_icon_text">qubodup pour l\'icône de la bulle, sur openclipart.</string>
     <string name="about_credit_permissions_lib_text">Shintaro Katafuchi, pour sa bibliothèque PermissionsDispatcher.</string>
 

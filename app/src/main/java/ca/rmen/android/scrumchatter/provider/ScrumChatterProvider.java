@@ -18,16 +18,11 @@
  */
 package ca.rmen.android.scrumchatter.provider;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
 import android.content.ContentProvider;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.OperationApplicationException;
 import android.content.UriMatcher;
 import android.database.Cursor;
@@ -37,8 +32,16 @@ import android.database.sqlite.SQLiteQuery;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.provider.BaseColumns;
-import ca.rmen.android.scrumchatter.util.Log;
+import android.support.annotation.NonNull;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import ca.rmen.android.scrumchatter.Constants;
+import ca.rmen.android.scrumchatter.util.Log;
 
 /**
  * Provider for the Scrum Chatter app. This provider provides access to the
@@ -93,15 +96,21 @@ public class ScrumChatterProvider extends ContentProvider {
     }
 
     private ScrumChatterDatabase mScrumChatterDatabase;
+    private Context mContext;
 
     @Override
     public boolean onCreate() {
         mScrumChatterDatabase = new ScrumChatterDatabase(getContext());
+        // Save a copy of the context, because if we call getContext() later on,
+        // Android Studio warns us that calling getContext() can return null, even
+        // though this isn't really the case (getContext() can only be null before
+        // onCreate() is called).
+        mContext = getContext();
         return true;
     }
 
     @Override
-    public String getType(Uri uri) {
+    public String getType(@NonNull Uri uri) {
         final int match = URI_MATCHER.match(uri);
         switch (match) {
             case URI_TYPE_TEAM:
@@ -132,7 +141,7 @@ public class ScrumChatterProvider extends ContentProvider {
     }
 
     @Override
-    public Uri insert(Uri uri, ContentValues values) {
+    public Uri insert(@NonNull Uri uri, ContentValues values) {
         Log.d(TAG, "insert uri=" + uri + " values=" + values);
         final String table = uri.getLastPathSegment();
         SQLiteDatabase db = mScrumChatterDatabase.getWritableDatabase();
@@ -169,7 +178,7 @@ public class ScrumChatterProvider extends ContentProvider {
     }
 
     @Override
-    public int bulkInsert(Uri uri, ContentValues[] values) {
+    public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
         Log.d(TAG, "bulkInsert uri=" + uri + " values.length=" + values.length);
         final String table = uri.getLastPathSegment();
         final SQLiteDatabase db = mScrumChatterDatabase.getWritableDatabase();
@@ -192,7 +201,7 @@ public class ScrumChatterProvider extends ContentProvider {
     }
 
     @Override
-    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+    public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         StatementParams params = getStatementParams(uri, selection);
         Log.d(TAG, "update uri=" + uri + " values=" + values + " selection=" + selection + ", selectionArgs = " + Arrays.toString(selectionArgs));
         SQLiteDatabase db = mScrumChatterDatabase.getWritableDatabase();
@@ -202,7 +211,7 @@ public class ScrumChatterProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(Uri uri, String selection, String[] selectionArgs) {
+    public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
         Log.d(TAG, "delete uri=" + uri + " selection=" + selection);
         StatementParams params = getStatementParams(uri, selection);
         SQLiteDatabase db = mScrumChatterDatabase.getWritableDatabase();
@@ -212,23 +221,21 @@ public class ScrumChatterProvider extends ContentProvider {
     }
 
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+    public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         final String groupBy = uri.getQueryParameter(QUERY_GROUP_BY);
         Log.d(TAG,
                 "query uri=" + uri + ", projection = " + Arrays.toString(projection) + " selection=" + selection + " selectionArgs = "
                         + Arrays.toString(selectionArgs) + " sortOrder=" + sortOrder + " groupBy=" + groupBy);
-        final QueryParams queryParams = getQueryParams(uri, selection, selectionArgs);
+        final QueryParams queryParams = getQueryParams(uri, selection);
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         qb.setTables(queryParams.table);
 
-        // @formatter:off
-		final Cursor res = qb.query(
-				mScrumChatterDatabase.getReadableDatabase(), projection,
-				queryParams.selection, selectionArgs, groupBy, null,
-				sortOrder == null ? queryParams.orderBy : sortOrder);
-		// @formatter:on
+        final Cursor res = qb.query(
+                mScrumChatterDatabase.getReadableDatabase(), projection,
+                queryParams.selection, selectionArgs, groupBy, null,
+                sortOrder == null ? queryParams.orderBy : sortOrder);
         logCursor(res, selectionArgs);
-        res.setNotificationUri(getContext().getContentResolver(), uri);
+        res.setNotificationUri(mContext.getContentResolver(), uri);
 
         return res;
     }
@@ -240,7 +247,7 @@ public class ScrumChatterProvider extends ContentProvider {
      * @see android.content.ContentProvider#applyBatch(java.util.ArrayList)
      */
     @Override
-    public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations) throws OperationApplicationException {
+    @NonNull public ContentProviderResult[] applyBatch(@NonNull ArrayList<ContentProviderOperation> operations) throws OperationApplicationException {
         Log.v(TAG, "applyBatch: " + operations);
         Set<Uri> urisToNotify = new HashSet<>();
         for (ContentProviderOperation operation : operations)
@@ -310,7 +317,7 @@ public class ScrumChatterProvider extends ContentProvider {
             // Notify all the relevant uris.
             for (Uri uriToNotify : urisToNotify) {
                 Log.v(TAG, "notifyChange: notify uri " + uriToNotify);
-                getContext().getContentResolver().notifyChange(uriToNotify, null);
+                mContext.getContentResolver().notifyChange(uriToNotify, null);
             }
         }
     }
@@ -399,7 +406,7 @@ public class ScrumChatterProvider extends ContentProvider {
      * @return the full QueryParams based on the Uri and selection provided by
      *         the user of the ContentProvider.
      */
-    private QueryParams getQueryParams(Uri uri, String selection, String[] selectionArgs) {
+    private QueryParams getQueryParams(Uri uri, String selection) {
         QueryParams res = new QueryParams();
         String id = null;
         int matchedId = URI_MATCHER.match(uri);
