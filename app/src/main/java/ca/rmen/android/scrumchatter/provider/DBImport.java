@@ -50,7 +50,9 @@ public class DBImport {
             FileOutputStream os = new FileOutputStream(tempDb);
             if (IOUtils.copy(is, os)) {
                 importDB(context, tempDb);
-                tempDb.delete();
+                if (!tempDb.delete()) {
+                    Log.v(TAG, "Couldn't delete the temporary database " + tempDb);
+                }
             }
         }
     }
@@ -70,11 +72,13 @@ public class DBImport {
         context.getContentResolver().applyBatch(ScrumChatterProvider.AUTHORITY, operations);
         // Set the first available team as our selected team
         Cursor c = context.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { TeamColumns._ID }, null, null, null);
-        if (c.moveToFirst()) {
-            int teamId = c.getInt(0);
-            PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(Constants.PREF_TEAM_ID, teamId).apply();
+        if (c != null) {
+            if (c.moveToFirst()) {
+                int teamId = c.getInt(0);
+                PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(Constants.PREF_TEAM_ID, teamId).apply();
+            }
+            c.close();
         }
-        c.close();
         dbImport.close();
     }
 

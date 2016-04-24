@@ -23,6 +23,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
 import ca.rmen.android.scrumchatter.util.Log;
@@ -46,6 +47,7 @@ public class ProgressDialogFragment extends DialogFragment {
      * @return an indeterminate, non-cancelable, ProgressDialog with a message.
      */
     @Override
+    @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Log.v(TAG, "onCreateDialog: savedInstanceState = " + savedInstanceState);
         ProgressDialog dialog = new ProgressDialog(getActivity());

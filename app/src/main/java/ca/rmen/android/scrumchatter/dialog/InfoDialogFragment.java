@@ -20,6 +20,7 @@ package ca.rmen.android.scrumchatter.dialog;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import ca.rmen.android.scrumchatter.util.Log;
@@ -40,6 +41,7 @@ public class InfoDialogFragment extends DialogFragment { // NO_UCD (use default)
      * @return an AlertDialog with a title, message, and single button to dismiss the dialog.
      */
     @Override
+    @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Log.v(TAG, "onCreateDialog: savedInstanceState = " + savedInstanceState);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());

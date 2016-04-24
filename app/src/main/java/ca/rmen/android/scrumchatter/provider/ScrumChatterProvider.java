@@ -37,6 +37,8 @@ import android.database.sqlite.SQLiteQuery;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.support.annotation.NonNull;
+
 import ca.rmen.android.scrumchatter.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
 
@@ -101,7 +103,7 @@ public class ScrumChatterProvider extends ContentProvider {
     }
 
     @Override
-    public String getType(Uri uri) {
+    public String getType(@NonNull Uri uri) {
         final int match = URI_MATCHER.match(uri);
         switch (match) {
             case URI_TYPE_TEAM:
@@ -132,7 +134,7 @@ public class ScrumChatterProvider extends ContentProvider {
     }
 
     @Override
-    public Uri insert(Uri uri, ContentValues values) {
+    public Uri insert(@NonNull Uri uri, ContentValues values) {
         Log.d(TAG, "insert uri=" + uri + " values=" + values);
         final String table = uri.getLastPathSegment();
         SQLiteDatabase db = mScrumChatterDatabase.getWritableDatabase();
@@ -169,7 +171,7 @@ public class ScrumChatterProvider extends ContentProvider {
     }
 
     @Override
-    public int bulkInsert(Uri uri, ContentValues[] values) {
+    public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
         Log.d(TAG, "bulkInsert uri=" + uri + " values.length=" + values.length);
         final String table = uri.getLastPathSegment();
         final SQLiteDatabase db = mScrumChatterDatabase.getWritableDatabase();
@@ -192,7 +194,7 @@ public class ScrumChatterProvider extends ContentProvider {
     }
 
     @Override
-    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+    public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         StatementParams params = getStatementParams(uri, selection);
         Log.d(TAG, "update uri=" + uri + " values=" + values + " selection=" + selection + ", selectionArgs = " + Arrays.toString(selectionArgs));
         SQLiteDatabase db = mScrumChatterDatabase.getWritableDatabase();
@@ -202,7 +204,7 @@ public class ScrumChatterProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(Uri uri, String selection, String[] selectionArgs) {
+    public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
         Log.d(TAG, "delete uri=" + uri + " selection=" + selection);
         StatementParams params = getStatementParams(uri, selection);
         SQLiteDatabase db = mScrumChatterDatabase.getWritableDatabase();
@@ -212,7 +214,7 @@ public class ScrumChatterProvider extends ContentProvider {
     }
 
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+    public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         final String groupBy = uri.getQueryParameter(QUERY_GROUP_BY);
         Log.d(TAG,
                 "query uri=" + uri + ", projection = " + Arrays.toString(projection) + " selection=" + selection + " selectionArgs = "
@@ -240,7 +242,7 @@ public class ScrumChatterProvider extends ContentProvider {
      * @see android.content.ContentProvider#applyBatch(java.util.ArrayList)
      */
     @Override
-    public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations) throws OperationApplicationException {
+    @NonNull public ContentProviderResult[] applyBatch(@NonNull ArrayList<ContentProviderOperation> operations) throws OperationApplicationException {
         Log.v(TAG, "applyBatch: " + operations);
         Set<Uri> urisToNotify = new HashSet<>();
         for (ContentProviderOperation operation : operations)

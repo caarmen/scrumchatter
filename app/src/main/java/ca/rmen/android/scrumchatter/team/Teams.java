@@ -116,8 +116,10 @@ public class Teams {
                     ContentValues values = new ContentValues(1);
                     values.put(TeamColumns.TEAM_NAME, teamName);
                     Uri newTeamUri = mActivity.getContentResolver().insert(TeamColumns.CONTENT_URI, values);
-                    int newTeamId = Integer.valueOf(newTeamUri.getLastPathSegment());
-                    PreferenceManager.getDefaultSharedPreferences(mActivity).edit().putInt(Constants.PREF_TEAM_ID, newTeamId).commit();
+                    if (newTeamUri != null) {
+                        int newTeamId = Integer.valueOf(newTeamUri.getLastPathSegment());
+                        PreferenceManager.getDefaultSharedPreferences(mActivity).edit().putInt(Constants.PREF_TEAM_ID, newTeamId).commit();
+                    }
                     return null;
                 }
             };

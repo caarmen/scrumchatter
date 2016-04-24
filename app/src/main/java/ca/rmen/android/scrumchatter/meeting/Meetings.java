@@ -59,13 +59,16 @@ public class Meetings {
             protected Boolean doInBackground(Void... params) {
                 Cursor c = mActivity.getContentResolver().query(MemberColumns.CONTENT_URI, new String[] { "count(*)" },
                         MemberColumns.TEAM_ID + "=? AND " + MemberColumns.DELETED + "= 0", new String[] { String.valueOf(teamId) }, null);
-                try {
-                    c.moveToFirst();
-                    int memberCount = c.getInt(0);
-                    return memberCount > 0;
-                } finally {
-                    c.close();
+                if (c != null) {
+                    try {
+                        c.moveToFirst();
+                        int memberCount = c.getInt(0);
+                        return memberCount > 0;
+                    } finally {
+                        c.close();
+                    }
                 }
+                return false;
             }
 
             @Override

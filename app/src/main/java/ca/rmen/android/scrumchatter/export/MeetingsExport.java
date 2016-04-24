@@ -128,14 +128,16 @@ public class MeetingsExport extends FileExport {
                 new String[] { MemberColumns.NAME, MemberStatsColumns.AVG_DURATION, MemberStatsColumns.SUM_DURATION },
                 MemberStatsColumns.TEAM_ID + "=? AND " + "(" + MemberStatsColumns.SUM_DURATION + ">0 OR " + MemberStatsColumns.AVG_DURATION + " >0 " + ")",
                 new String[] { String.valueOf(teamId) }, MemberColumns.NAME);
-        MemberCursorWrapper memberCursorWrapper = new MemberCursorWrapper(c);
-        while (c.moveToNext()) {
-            String memberName = memberCursorWrapper.getName();
-            memberNames.add(memberName);
-            avgMemberDurations.put(memberName, memberCursorWrapper.getAverageDuration());
-            sumMemberDurations.put(memberName, memberCursorWrapper.getSumDuration());
+        if (c != null) {
+            MemberCursorWrapper memberCursorWrapper = new MemberCursorWrapper(c);
+            while (c.moveToNext()) {
+                String memberName = memberCursorWrapper.getName();
+                memberNames.add(memberName);
+                avgMemberDurations.put(memberName, memberCursorWrapper.getAverageDuration());
+                sumMemberDurations.put(memberName, memberCursorWrapper.getSumDuration());
+            }
+            memberCursorWrapper.close();
         }
-        memberCursorWrapper.close();
 
         // Write out the column headings
         List<String> columnHeadings = new ArrayList<>();
