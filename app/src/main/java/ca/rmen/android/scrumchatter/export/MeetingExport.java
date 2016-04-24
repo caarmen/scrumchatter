@@ -18,6 +18,7 @@
  */
 package ca.rmen.android.scrumchatter.export;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -52,6 +53,8 @@ public class MeetingExport {
     public boolean exportMeeting(long meetingId) {
         StringBuilder sb = new StringBuilder();
         // Export info about the meeting (date, total duration)
+        // Closing the meetingCursorWrapper also closes the meetingCursor
+        @SuppressLint("Recycle")
         Cursor meetingCursor = mContext.getContentResolver().query(Uri.withAppendedPath(MeetingColumns.CONTENT_URI, String.valueOf(meetingId)),
                 new String[] { MeetingColumns.MEETING_DATE, MeetingColumns.TOTAL_DURATION }, null, null, null);
         MeetingCursorWrapper meetingCursorWrapper = new MeetingCursorWrapper(meetingCursor);
@@ -68,6 +71,8 @@ public class MeetingExport {
             sb.append("\n");
 
             // Export the member times:
+            // Closing the meetingMemberCursorWrapper also closes the meetingMemberCursor
+            @SuppressLint("Recycle")
             Cursor meetingMemberCursor = mContext.getContentResolver().query(Uri.withAppendedPath(MeetingMemberColumns.CONTENT_URI, String.valueOf(meetingId)),
                     new String[] { MemberColumns.NAME, MeetingMemberColumns.DURATION },
 

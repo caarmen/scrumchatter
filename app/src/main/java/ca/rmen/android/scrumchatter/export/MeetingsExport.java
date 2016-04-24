@@ -18,6 +18,10 @@
  */
 package ca.rmen.android.scrumchatter.export;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.database.Cursor;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,6 +30,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ca.rmen.android.scrumchatter.Constants;
+import ca.rmen.android.scrumchatter.R;
+import ca.rmen.android.scrumchatter.provider.MeetingColumns;
+import ca.rmen.android.scrumchatter.provider.MeetingMemberColumns;
+import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
+import ca.rmen.android.scrumchatter.provider.MemberColumns;
+import ca.rmen.android.scrumchatter.provider.MemberCursorWrapper;
+import ca.rmen.android.scrumchatter.provider.MemberStatsColumns;
+import ca.rmen.android.scrumchatter.provider.TeamColumns;
+import ca.rmen.android.scrumchatter.util.Log;
 import jxl.CellView;
 import jxl.JXLException;
 import jxl.Workbook;
@@ -43,18 +57,6 @@ import jxl.write.WritableFont;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
-import android.content.Context;
-import android.database.Cursor;
-import ca.rmen.android.scrumchatter.util.Log;
-import ca.rmen.android.scrumchatter.Constants;
-import ca.rmen.android.scrumchatter.R;
-import ca.rmen.android.scrumchatter.provider.MeetingColumns;
-import ca.rmen.android.scrumchatter.provider.MeetingMemberColumns;
-import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
-import ca.rmen.android.scrumchatter.provider.MemberColumns;
-import ca.rmen.android.scrumchatter.provider.MemberCursorWrapper;
-import ca.rmen.android.scrumchatter.provider.MemberStatsColumns;
-import ca.rmen.android.scrumchatter.provider.TeamColumns;
 
 /**
  * Export data for all meetings to an Excel file.
@@ -124,6 +126,8 @@ public class MeetingsExport extends FileExport {
         List<String> memberNames = new ArrayList<>();
         Map<String, Integer> avgMemberDurations = new HashMap<>();
         Map<String, Integer> sumMemberDurations = new HashMap<>();
+        // Closing the memberCursorWrapper will also close the cursor c
+        @SuppressLint("Recycle")
         Cursor c = mContext.getContentResolver().query(MemberStatsColumns.CONTENT_URI,
                 new String[] { MemberColumns.NAME, MemberStatsColumns.AVG_DURATION, MemberStatsColumns.SUM_DURATION },
                 MemberStatsColumns.TEAM_ID + "=? AND " + "(" + MemberStatsColumns.SUM_DURATION + ">0 OR " + MemberStatsColumns.AVG_DURATION + " >0 " + ")",
@@ -148,20 +152,18 @@ public class MeetingsExport extends FileExport {
 
         // Read all the meeting/member data
         c = mContext.getContentResolver().query(
-				MeetingMemberColumns.CONTENT_URI,
-				// @formatter:off
-				new String[] {
-						MeetingMemberColumns.MEETING_ID,
-						MeetingColumns.MEETING_DATE,
-						MeetingColumns.TOTAL_DURATION,
-						MemberColumns.NAME,
-						MeetingMemberColumns.DURATION },
-				MeetingMemberColumns.DURATION + ">0 AND " + MeetingColumns.TEAM_ID + "=?",
-				new String[]{String.valueOf(teamId)},
-				MeetingColumns.MEETING_DATE + ", " 
-				+ MeetingMemberColumns.MEETING_ID + ", "
-				+ MemberColumns.NAME);
-				// @formatter:on
+                MeetingMemberColumns.CONTENT_URI,
+                new String[]{
+                        MeetingMemberColumns.MEETING_ID,
+                        MeetingColumns.MEETING_DATE,
+                        MeetingColumns.TOTAL_DURATION,
+                        MemberColumns.NAME,
+                        MeetingMemberColumns.DURATION},
+                MeetingMemberColumns.DURATION + ">0 AND " + MeetingColumns.TEAM_ID + "=?",
+                new String[]{String.valueOf(teamId)},
+                MeetingColumns.MEETING_DATE + ", "
+                        + MeetingMemberColumns.MEETING_ID + ", "
+                        + MemberColumns.NAME);
 
         MeetingMemberCursorWrapper cursorWrapper = new MeetingMemberCursorWrapper(c);
         long totalMeetingDuration = 0;

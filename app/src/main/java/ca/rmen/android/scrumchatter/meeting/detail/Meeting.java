@@ -20,6 +20,7 @@ package ca.rmen.android.scrumchatter.meeting.detail;
 
 import java.util.ArrayList;
 
+import android.annotation.SuppressLint;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderOperation.Builder;
 import android.content.ContentValues;
@@ -64,7 +65,8 @@ public class Meeting {
         Log.v(TAG, "read meeting with id " + id);
         // Read the meeting attributes from the DB 
         Uri uri = Uri.withAppendedPath(MeetingColumns.CONTENT_URI, String.valueOf(id));
-        Cursor meetingCursor = context.getContentResolver().query(uri, null, null, null, null);
+        // Closing the cursorWrapper will also close meetingCursor
+        @SuppressLint("Recycle") Cursor meetingCursor = context.getContentResolver().query(uri, null, null, null, null);
         MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(meetingCursor);
         //noinspection TryFinallyCanBeTryWithResources
         try {
@@ -121,24 +123,12 @@ public class Meeting {
         return mStartDate;
     }
 
-    public void setStartDate(long startDate) {
-        mStartDate = startDate;
-    }
-
     public State getState() {
         return mState;
     }
 
-    public void setState(State state) {
-        mState = state;
-    }
-
     public long getDuration() {
         return mDuration;
-    }
-
-    public void setDuration(long duration) {
-        mDuration = duration;
     }
 
     /**
@@ -174,6 +164,8 @@ public class Meeting {
         Log.v(TAG, "shutEverybodyUp");
         // Query all team members who are still talking in this meeting.
         Uri uri = Uri.withAppendedPath(MeetingMemberColumns.CONTENT_URI, String.valueOf(mId));
+        // Closing the cursorWrapper also closes the cursor
+        @SuppressLint("Recycle")
         Cursor cursor = mContext.getContentResolver().query(uri,
                 new String[] { MeetingMemberColumns._ID, MeetingMemberColumns.DURATION, MeetingMemberColumns.TALK_START_TIME },
                 MeetingMemberColumns.TALK_START_TIME + ">0", null, null);
@@ -218,6 +210,8 @@ public class Meeting {
         // Find out if this member is currently talking:
         // read its talk_start_time and duration fields.
         Uri meetingMemberUri = Uri.withAppendedPath(MeetingMemberColumns.CONTENT_URI, String.valueOf(mId));
+        // Closing the cursorWrapper also closes the cursor
+        @SuppressLint("Recycle")
         Cursor cursor = mContext.getContentResolver().query(meetingMemberUri,
                 new String[] { MeetingMemberColumns.TALK_START_TIME, MeetingMemberColumns.DURATION }, MeetingMemberColumns.MEMBER_ID + "=?",
                 new String[] { String.valueOf(memberId) }, null);
