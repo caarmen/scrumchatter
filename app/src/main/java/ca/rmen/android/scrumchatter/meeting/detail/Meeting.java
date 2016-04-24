@@ -66,6 +66,7 @@ public class Meeting {
         Uri uri = Uri.withAppendedPath(MeetingColumns.CONTENT_URI, String.valueOf(id));
         Cursor meetingCursor = context.getContentResolver().query(uri, null, null, null, null);
         MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(meetingCursor);
+        //noinspection TryFinallyCanBeTryWithResources
         try {
             if (cursorWrapper.moveToFirst()) {
 

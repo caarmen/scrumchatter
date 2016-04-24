@@ -165,6 +165,7 @@ public class MeetingsExport extends FileExport {
 
         MeetingMemberCursorWrapper cursorWrapper = new MeetingMemberCursorWrapper(c);
         long totalMeetingDuration = 0;
+        //noinspection TryFinallyCanBeTryWithResources
         try {
             long currentMeetingId;
             int rowNumber = 1;

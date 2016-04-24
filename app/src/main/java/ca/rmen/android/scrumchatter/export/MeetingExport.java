@@ -55,6 +55,7 @@ public class MeetingExport {
         Cursor meetingCursor = mContext.getContentResolver().query(Uri.withAppendedPath(MeetingColumns.CONTENT_URI, String.valueOf(meetingId)),
                 new String[] { MeetingColumns.MEETING_DATE, MeetingColumns.TOTAL_DURATION }, null, null, null);
         MeetingCursorWrapper meetingCursorWrapper = new MeetingCursorWrapper(meetingCursor);
+        //noinspection TryFinallyCanBeTryWithResources
         try {
             if (!meetingCursorWrapper.moveToFirst()) {
                 Log.w(TAG, "Trying to export a meeting which doesn't exist.  Surely a monkey must be involved.");
