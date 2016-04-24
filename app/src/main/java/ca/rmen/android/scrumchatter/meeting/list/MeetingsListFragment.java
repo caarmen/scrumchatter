@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
@@ -30,6 +31,8 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+
+import ca.rmen.android.scrumchatter.databinding.MeetingListBinding;
 import ca.rmen.android.scrumchatter.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -39,7 +42,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ListView;
-import android.widget.TextView;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.meeting.Meetings;
@@ -58,6 +60,7 @@ public class MeetingsListFragment extends ListFragment {
     private SharedPreferences mPrefs;
     private Meetings mMeetings;
     private int mTeamId;
+    private MeetingListBinding mBinding;
 
     public MeetingsListFragment() {
         super();
@@ -66,10 +69,9 @@ public class MeetingsListFragment extends ListFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.meeting_list, container, false);
-        TextView emptyText = (TextView) view.findViewById(android.R.id.empty);
-        emptyText.setText(R.string.empty_list_meetings);
-        return view;
+        mBinding = DataBindingUtil.inflate(inflater, R.layout.meeting_list, container, false);
+        mBinding.listContent.empty.setText(R.string.empty_list_meetings);
+        return mBinding.getRoot();
     }
 
     @Override
@@ -135,7 +137,7 @@ public class MeetingsListFragment extends ListFragment {
                 mAdapter = new MeetingsCursorAdapter(getActivity(), mOnClickListener);
                 setListAdapter(mAdapter);
             }
-            getView().findViewById(R.id.progressContainer).setVisibility(View.GONE);
+            mBinding.listContent.progressContainer.setVisibility(View.GONE);
             mAdapter.changeCursor(cursor);
         }
 

@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnShowListener;
+import android.databinding.DataBindingUtil;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -33,7 +34,11 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+
+import ca.rmen.android.scrumchatter.databinding.InputDialogEditTextBinding;
 import ca.rmen.android.scrumchatter.util.Log;
+
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -77,19 +82,24 @@ public class InputDialogFragment extends DialogFragment { // NO_UCD (use default
         if (savedInstanceState != null) mEnteredText = savedInstanceState.getString(DialogFragmentFactory.EXTRA_ENTERED_TEXT);
         Bundle arguments = getArguments();
         final int actionId = arguments.getInt(DialogFragmentFactory.EXTRA_ACTION_ID);
-        View view = View.inflate(getActivity(), R.layout.input_dialog_edit_text, null);
-        final EditText input = (EditText) view.findViewById(android.R.id.edit);
+
+        final InputDialogEditTextBinding binding = DataBindingUtil.inflate(
+                LayoutInflater.from(getActivity()),
+                R.layout.input_dialog_edit_text,
+                null,
+                false);
+
         final Bundle extras = arguments.getBundle(DialogFragmentFactory.EXTRA_EXTRAS);
         final Class<?> inputValidatorClass = (Class<?>) arguments.getSerializable(DialogFragmentFactory.EXTRA_INPUT_VALIDATOR_CLASS);
         final String prefilledText = arguments.getString(DialogFragmentFactory.EXTRA_ENTERED_TEXT);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         builder.setTitle(arguments.getString(DialogFragmentFactory.EXTRA_TITLE));
-        builder.setView(view);
-        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
-        input.setHint(arguments.getString(DialogFragmentFactory.EXTRA_INPUT_HINT));
-        input.setText(prefilledText);
-        if (!TextUtils.isEmpty(mEnteredText)) input.setText(mEnteredText);
+        builder.setView(binding.getRoot());
+        binding.edit.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+        binding.edit.setHint(arguments.getString(DialogFragmentFactory.EXTRA_INPUT_HINT));
+        binding.edit.setText(prefilledText);
+        if (!TextUtils.isEmpty(mEnteredText)) binding.edit.setText(mEnteredText);
 
         // Notify the activity of the click on the OK button.
         OnClickListener listener = null;
@@ -101,7 +111,7 @@ public class InputDialogFragment extends DialogFragment { // NO_UCD (use default
                     FragmentActivity activity = getActivity();
                     if (activity == null) Log.w(TAG, "User clicked on dialog after it was detached from activity. Monkey?");
                     else
-                        ((DialogInputListener) activity).onInputEntered(actionId, input.getText().toString(), extras);
+                        ((DialogInputListener) activity).onInputEntered(actionId, binding.edit.getText().toString(), extras);
                 }
             };
         }
@@ -110,7 +120,7 @@ public class InputDialogFragment extends DialogFragment { // NO_UCD (use default
 
         final AlertDialog dialog = builder.create();
         // Show the keyboard when the EditText gains focus.
-        input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        binding.edit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
                     dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
@@ -123,7 +133,7 @@ public class InputDialogFragment extends DialogFragment { // NO_UCD (use default
             final InputValidator validator = inputValidatorClass == null ? null : (InputValidator) inputValidatorClass.newInstance();
             Log.v(TAG, "input validator = " + validator);
             // Validate the text as the user types.
-            input.addTextChangedListener(new TextWatcher() {
+            binding.edit.addTextChangedListener(new TextWatcher() {
 
                 @Override
                 public void afterTextChanged(Editable s) {}
@@ -133,8 +143,8 @@ public class InputDialogFragment extends DialogFragment { // NO_UCD (use default
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    mEnteredText = input.getText().toString();
-                    if (validator != null) validateText(context, dialog, input, validator, actionId, extras);
+                    mEnteredText = binding.edit.getText().toString();
+                    if (validator != null) validateText(context, dialog, binding.edit, validator, actionId, extras);
                 }
             });
             dialog.setOnShowListener(new OnShowListener() {
@@ -142,7 +152,7 @@ public class InputDialogFragment extends DialogFragment { // NO_UCD (use default
                 @Override
                 public void onShow(DialogInterface dialogInterface) {
                     Log.v(TAG, "onShow");
-                    validateText(context, dialog, input, validator, actionId, extras);
+                    validateText(context, dialog, binding.edit, validator, actionId, extras);
                 }
             });
         } catch (Exception e) {

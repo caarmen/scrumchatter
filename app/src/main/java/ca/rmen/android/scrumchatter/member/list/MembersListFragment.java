@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
@@ -33,6 +34,8 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+
+import ca.rmen.android.scrumchatter.databinding.MemberListBinding;
 import ca.rmen.android.scrumchatter.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -41,7 +44,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.member.list.Members.Member;
@@ -54,9 +56,7 @@ public class MembersListFragment extends ListFragment {
 
     private static final int URL_LOADER = 0;
     private String mOrderByField = MemberColumns.NAME + " COLLATE NOCASE";
-    private TextView mTextViewName;
-    private TextView mTextViewAvgDuration;
-    private TextView mTextViewSumDuration;
+    private MemberListBinding mBinding;
 
     private MembersCursorAdapter mAdapter;
     private SharedPreferences mPrefs;
@@ -71,16 +71,12 @@ public class MembersListFragment extends ListFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.member_list, container, false);
-        mTextViewName = (TextView) view.findViewById(R.id.tv_name);
-        mTextViewAvgDuration = (TextView) view.findViewById(R.id.tv_avg_duration);
-        mTextViewSumDuration = (TextView) view.findViewById(R.id.tv_sum_duration);
-        mTextViewName.setOnClickListener(mOnClickListener);
-        mTextViewAvgDuration.setOnClickListener(mOnClickListener);
-        mTextViewSumDuration.setOnClickListener(mOnClickListener);
-        TextView emptyText = (TextView) view.findViewById(android.R.id.empty);
-        emptyText.setText(R.string.empty_list_members);
-        return view;
+        mBinding = DataBindingUtil.inflate(inflater, R.layout.member_list, container, false);
+        mBinding.tvName.setOnClickListener(mOnClickListener);
+        mBinding.tvAvgDuration.setOnClickListener(mOnClickListener);
+        mBinding.tvSumDuration.setOnClickListener(mOnClickListener);
+        mBinding.listContent.empty.setText(R.string.empty_list_members);
+        return mBinding.getRoot();
     }
 
     @Override
@@ -132,7 +128,7 @@ public class MembersListFragment extends ListFragment {
                 mAdapter = new MembersCursorAdapter(getActivity(), mOnClickListener);
                 setListAdapter(mAdapter);
             }
-            getView().findViewById(R.id.progressContainer).setVisibility(View.GONE);
+            mBinding.listContent.progressContainer.setVisibility(View.GONE);
             mAdapter.changeCursor(cursor);
         }
 
@@ -178,24 +174,24 @@ public class MembersListFragment extends ListFragment {
             int selectedHeaderColor = ContextCompat.getColor(getActivity(), R.color.selected_header);
             int unselectedHeaderColor = ContextCompat.getColor(getActivity(), R.color.unselected_header);
             // Reset all the header text views to the default color
-            mTextViewName.setTextColor(unselectedHeaderColor);
-            mTextViewAvgDuration.setTextColor(unselectedHeaderColor);
-            mTextViewSumDuration.setTextColor(unselectedHeaderColor);
+            mBinding.tvName.setTextColor(unselectedHeaderColor);
+            mBinding.tvAvgDuration.setTextColor(unselectedHeaderColor);
+            mBinding.tvSumDuration.setTextColor(unselectedHeaderColor);
 
             // Depending on the header column selected, change the sort order
             // field and highlight that header column.
             switch (viewId) {
                 case R.id.tv_name:
                     mOrderByField = MemberColumns.NAME + " COLLATE NOCASE";
-                    mTextViewName.setTextColor(selectedHeaderColor);
+                    mBinding.tvName.setTextColor(selectedHeaderColor);
                     break;
                 case R.id.tv_avg_duration:
                     mOrderByField = MemberStatsColumns.AVG_DURATION + " DESC, " + MemberColumns.NAME + " ASC ";
-                    mTextViewAvgDuration.setTextColor(selectedHeaderColor);
+                    mBinding.tvAvgDuration.setTextColor(selectedHeaderColor);
                     break;
                 case R.id.tv_sum_duration:
                     mOrderByField = MemberStatsColumns.SUM_DURATION + " DESC, " + MemberColumns.NAME + " ASC ";
-                    mTextViewSumDuration.setTextColor(selectedHeaderColor);
+                    mBinding.tvSumDuration.setTextColor(selectedHeaderColor);
                     break;
                 default:
                     break;

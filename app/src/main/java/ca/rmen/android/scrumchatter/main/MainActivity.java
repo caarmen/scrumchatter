@@ -19,6 +19,7 @@
 package ca.rmen.android.scrumchatter.main;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
@@ -30,32 +31,32 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
 import android.database.ContentObserver;
 import android.database.DataSetObserver;
+import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.ViewPager;
-import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+
+import ca.rmen.android.scrumchatter.databinding.ActivityMainBinding;
 import ca.rmen.android.scrumchatter.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -108,9 +109,7 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
     /**
      * UI elements for the side menu (left drawer).
      */
-    private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
-    private ListView mDrawerList;
     private TeamArrayAdapter mTeamsAdapter;
 
     private final Teams mTeams = new Teams(this);
@@ -118,12 +117,14 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
     private final Members mMembers = new Members(this);
     private Team mTeam = null;
     private int mTeamCount = 0;
+    private ActivityMainBinding mBinding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.v(TAG, "onCreate");
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
+        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         // Use strict mode for monkey tests.  We can't enable strict mode for normal use
         // because, when sharing (exporting), the mail app may read the attachment in
         // the main thread.
@@ -131,29 +132,27 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
             StrictMode.setThreadPolicy(new ThreadPolicy.Builder().detectDiskReads().detectDiskWrites().penaltyLog().penaltyDeath().build());
 
         // Set up the action bar.
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
+        setSupportActionBar(mBinding.toolbarTabs.toolbar);
+        ActionBar supportActionBar = getSupportActionBar();
+        assert supportActionBar != null;
+        supportActionBar.setDisplayHomeAsUpEnabled(true);
+        supportActionBar.setHomeButtonEnabled(true);
 
         // Set up the left drawer
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerList = (ListView) findViewById(R.id.left_drawer_list);
         mTeamsAdapter = new TeamArrayAdapter(this);
-        mDrawerList.setAdapter(mTeamsAdapter);
-        mDrawerList.setOnItemClickListener(mOnItemClickListener);
-        TextView drawerTitle = (TextView) findViewById(R.id.left_drawer_title);
-        drawerTitle.setText(drawerTitle.getText().toString().toUpperCase(Locale.getDefault()));
+        mBinding.leftDrawerList.setAdapter(mTeamsAdapter);
+        mBinding.leftDrawerList.setOnItemClickListener(mOnItemClickListener);
+        mBinding.leftDrawerTitle.setText(mBinding.leftDrawerTitle.getText().toString().toUpperCase(Locale.getDefault()));
 
         mDrawerToggle = new ActionBarDrawerToggle(this, /* host Activity */
-                mDrawerLayout, /* DrawerLayout object */
+                mBinding.drawerLayout, /* DrawerLayout object */
                 R.string.drawer_open, /* "open drawer" description */
                 R.string.drawer_close /* "close drawer" description */
         ) {
 
             /** Called when a drawer has settled in a completely closed state. */
             public void onDrawerClosed(View view) {
-                mDrawerList.setItemChecked(mTeamsAdapter.getPosition(mTeam.teamName), true);
+                mBinding.leftDrawerList.setItemChecked(mTeamsAdapter.getPosition(mTeam.teamName), true);
             }
 
             /** Called when a drawer has settled in a completely open state. */
@@ -161,7 +160,7 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
         };
 
         // Set the drawer toggle as the DrawerListener
-        mDrawerLayout.addDrawerListener(mDrawerToggle);
+        mBinding.drawerLayout.addDrawerListener(mDrawerToggle);
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the app.
@@ -174,11 +173,8 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-        ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
-        viewPager.setAdapter(sectionsPagerAdapter);
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-        assert tabLayout != null;
-        tabLayout.setupWithViewPager(viewPager);
+        mBinding.pager.setAdapter(sectionsPagerAdapter);
+        mBinding.toolbarTabs.tabs.setupWithViewPager(mBinding.pager);
 
         onTeamChanged();
         // If our activity was opened by choosing a file from a mail attachment, file browser, or other program, 
@@ -235,7 +231,7 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
         getContentResolver().unregisterContentObserver(mContentObserver);
         LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(mBroadcastReceiver);
         mTeamsAdapter.unregisterDataSetObserver(mTeamsObserver);
-        mDrawerLayout.removeDrawerListener(mDrawerToggle);
+        mBinding.drawerLayout.removeDrawerListener(mDrawerToggle);
         super.onDestroy();
     }
 
@@ -265,10 +261,10 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                if (mDrawerLayout.isDrawerVisible(GravityCompat.START)) {
-                    mDrawerLayout.closeDrawer(GravityCompat.START);
+                if (mBinding.drawerLayout.isDrawerVisible(GravityCompat.START)) {
+                    mBinding.drawerLayout.closeDrawer(GravityCompat.START);
                 } else {
-                    mDrawerLayout.openDrawer(GravityCompat.START);
+                    mBinding.drawerLayout.openDrawer(GravityCompat.START);
                 }
                 return true;
             case R.id.action_team_rename:
@@ -387,11 +383,16 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
 
             @Override
             protected void onPostExecute(Void result) {
+                ActionBar supportActionBar = getSupportActionBar();
+                assert supportActionBar != null;
                 // If the user has renamed the default team or added other teams, show the current team name in the title
-                if (mTeamCount > 1 || (mTeam != null && !mTeam.teamName.equals(Constants.DEFAULT_TEAM_NAME))) getSupportActionBar().setTitle(mTeam.teamName);
-                    // otherwise the user doesn't care about team management: just show the app title.
-                else
-                    getSupportActionBar().setTitle(R.string.app_name);
+                if (mTeamCount > 1 || (mTeam != null && !mTeam.teamName.equals(Constants.DEFAULT_TEAM_NAME))) {
+                    supportActionBar.setTitle(mTeam.teamName);
+                }
+                // otherwise the user doesn't care about team management: just show the app title.
+                else {
+                    supportActionBar.setTitle(R.string.app_name);
+                }
                 mTeamsAdapter.reload();
                 supportInvalidateOptionsMenu();
             }
@@ -491,6 +492,7 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
         }
     }
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @NeedsPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
     void startFileChooser() {
         Intent importIntent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -498,6 +500,7 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
         startActivityForResult(Intent.createChooser(importIntent, getResources().getText(R.string.action_import)), ACTIVITY_REQUEST_CODE_IMPORT);
     }
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @OnShowRationale(Manifest.permission.READ_EXTERNAL_STORAGE)
     void showRationaleForReadExternalStorage(final PermissionRequest request) {
         DialogFragmentFactory.showPermissionRationaleDialog(this, getString(R.string.import_permission_rationale), request);
@@ -609,7 +612,7 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
             if (position == parent.getCount() - 1) mTeams.promptCreateTeam();
             else
                 mTeams.switchTeam(selectedTeamName);
-            mDrawerLayout.closeDrawers();
+            mBinding.drawerLayout.closeDrawers();
         }
     };
 
@@ -624,7 +627,7 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
             if (mTeam != null) {
                 int teamPosition = mTeamsAdapter.getPosition(mTeam.teamName);
                 Log.v(TAG, "Team position: " + teamPosition);
-                mDrawerList.setItemChecked(teamPosition, true);
+                mBinding.leftDrawerList.setItemChecked(teamPosition, true);
             }
         }
     };
