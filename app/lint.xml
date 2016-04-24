@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<lint>
-    <issue id="IllegalResourceRef">
-        <ignore path="AndroidManifest.xml" />
-    </issue>
-    <issue id="MissingTranslation">
-        <ignore path="res/values/strings.xml" />
-    </issue>
-</lint>
