@@ -42,7 +42,6 @@
         android:title="@string/action_import"/>
     <item
         android:id="@+id/action_about"
-        android:icon="@drawable/ic_action_about"
         android:orderInCategory="130"
         app:showAsAction="never"
         android:title="@string/about"/>
