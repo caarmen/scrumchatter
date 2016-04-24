@@ -80,7 +80,7 @@ public class MeetingActivity extends AppCompatActivity implements DialogButtonLi
             protected MeetingPagerAdapter doInBackground(Void... param) {
                 if (meetingId < 0) {
                     Meeting newMeeting = Meeting.createNewMeeting(MeetingActivity.this);
-                    mMeetingId = newMeeting.getId();
+                    if (newMeeting != null) mMeetingId = newMeeting.getId();
                 } else {
                     mMeetingId = meetingId;
                 }
@@ -93,9 +93,11 @@ public class MeetingActivity extends AppCompatActivity implements DialogButtonLi
                 mMeetingPagerAdapter = result;
                 mBinding.activityLoading.setVisibility(View.GONE);
                 mBinding.pager.setAdapter(mMeetingPagerAdapter);
-                int position = mMeetingPagerAdapter.getPositionForMeetingId(mMeetingId);
-                Log.v(TAG, "meeting " + mMeetingId + " is on page " + position);
-                mBinding.pager.setCurrentItem(position);
+                if (mMeetingId >= 0) {
+                    int position = mMeetingPagerAdapter.getPositionForMeetingId(mMeetingId);
+                    Log.v(TAG, "meeting " + mMeetingId + " is on page " + position);
+                    mBinding.pager.setCurrentItem(position);
+                }
             }
         }.execute();
     }

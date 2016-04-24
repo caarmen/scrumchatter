@@ -107,8 +107,13 @@ public class Meeting {
         values.put(MeetingColumns.MEETING_DATE, System.currentTimeMillis());
         values.put(MeetingColumns.TEAM_ID, teamId);
         Uri newMeetingUri = context.getContentResolver().insert(MeetingColumns.CONTENT_URI, values);
-        long meetingId = Long.parseLong(newMeetingUri.getLastPathSegment());
-        return new Meeting(context, meetingId, startDate, State.NOT_STARTED, 0);
+        if (newMeetingUri != null) {
+            long meetingId = Long.parseLong(newMeetingUri.getLastPathSegment());
+            return new Meeting(context, meetingId, startDate, State.NOT_STARTED, 0);
+        } else {
+            Log.w(TAG, "Couldn't create a meeting for values " + values);
+            return null;
+        }
     }
 
     public long getId() {
