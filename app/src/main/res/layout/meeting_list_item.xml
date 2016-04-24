@@ -17,7 +17,8 @@
   You should have received a copy of the GNU General Public License
   along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
 -->
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" >
 <RelativeLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -27,24 +28,36 @@
 
     <TextView
         android:id="@+id/tv_meeting_date"
+        tools:text="August 25, 2015 08:15"
+        android:textAlignment="viewStart"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:layout_toLeftOf="@+id/tv_meeting_duration" />
+        android:layout_toLeftOf="@+id/tv_meeting_duration"
+        android:layout_toStartOf="@+id/tv_meeting_duration"
+        tools:targetApi="jelly_bean_mr1"
+        android:gravity="start" />
 
     <TextView
         android:id="@id/tv_meeting_duration"
+        tools:text="10:23"
+        android:textAlignment="viewStart"
+        android:gravity="start"
         android:layout_width="80dp"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_toLeftOf="@+id/btn_delete_meeting" />
+        android:layout_toLeftOf="@+id/btn_delete_meeting"
+        android:layout_toStartOf="@+id/btn_delete_meeting"
+        tools:targetApi="jelly_bean_mr1" />
 
     <ImageButton
         android:id="@id/btn_delete_meeting"
         android:background="?selectableItemBackgroundBorderless"
         android:padding="8dp"
         android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:contentDescription="@string/action_delete_meeting"
