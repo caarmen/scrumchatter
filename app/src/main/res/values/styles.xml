@@ -20,7 +20,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
 
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">
         <item name="colorPrimary">@color/scrum_chatter_primary_color</item>
         <item name="colorPrimaryDark">@color/scrum_chatter_primary_color</item>
         <item name="colorAccent">@color/scrum_chatter_accent_color</item>
@@ -55,7 +55,7 @@
         <item name="android:divider">@null</item>
     </style>
 
-    <style name="AppAlertDialog" parent="Theme.AppCompat.Light.Dialog">
+    <style name="AppAlertDialog" parent="Theme.AppCompat.DayNight.Dialog">
         <item name="colorPrimary">@color/scrum_chatter_primary_color</item>
         <item name="colorPrimaryDark">@color/scrum_chatter_primary_color</item>
         <item name="colorAccent">@color/scrum_chatter_accent_color</item>
