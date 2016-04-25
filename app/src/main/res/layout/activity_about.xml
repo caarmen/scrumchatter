@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2013 Carmen Alvarez
+  Copyright 2016 Carmen Alvarez
  
   This file is part of Scrum Chatter.
  
@@ -56,21 +56,21 @@
                     android:paddingEnd="4dp"
                     android:text="@string/app_name"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="@color/selected_header" />
+                    android:textColor="@color/scrum_chatter_primary_color" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/about_version"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="@color/selected_header" />
+                    android:textColor="@color/scrum_chatter_primary_color" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/app_version"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="@color/selected_header" />
+                    android:textColor="@color/scrum_chatter_primary_color" />
             </LinearLayout>
 
             <TextView
@@ -84,7 +84,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/about_credit_title"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="@color/selected_header" />
+                android:textColor="@color/scrum_chatter_primary_color" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -127,7 +127,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/about_source_text"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="@color/selected_header" />
+                android:textColor="@color/scrum_chatter_primary_color" />
 
             <TextView
                 android:layout_width="wrap_content"
