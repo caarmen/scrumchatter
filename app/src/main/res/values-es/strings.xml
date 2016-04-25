@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2013 Carmen Alvarez
+  Copyright 2016 Carmen Alvarez
  
   This file is part of Scrum Chatter.
  
@@ -93,5 +93,9 @@
     <string name="drawer_close">Cerrar el menú lateral</string>
     <string name="allow">Acceptar</string>
     <string name="deny">Rechazar</string>
+    <string name="title_activity_settings">Ajustes</string>
+    <string name="pref_theme_title">Tema</string>
+    <string name="pref_theme_value_dark">Oscuro</string>
+    <string name="pref_theme_value_light">Claro</string>
 
 </resources>

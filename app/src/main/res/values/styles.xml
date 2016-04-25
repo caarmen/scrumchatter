@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2013 Carmen Alvarez
+  Copyright 2016 Carmen Alvarez
  
   This file is part of Scrum Chatter.
  
@@ -20,13 +20,14 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
 
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">
         <item name="colorPrimary">@color/scrum_chatter_primary_color</item>
         <item name="colorPrimaryDark">@color/scrum_chatter_primary_color</item>
         <item name="colorAccent">@color/scrum_chatter_accent_color</item>
         <item name="android:listViewStyle">@style/AppListView</item>
         <item name="drawerArrowStyle">@style/AppDrawerArrowStyle</item>
         <item name="alertDialogTheme">@style/AppAlertDialog</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
     </style>
 
     <style name="AppTheme.Toolbar" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
@@ -55,7 +56,7 @@
         <item name="android:divider">@null</item>
     </style>
 
-    <style name="AppAlertDialog" parent="Theme.AppCompat.Light.Dialog">
+    <style name="AppAlertDialog" parent="Theme.AppCompat.DayNight.Dialog">
         <item name="colorPrimary">@color/scrum_chatter_primary_color</item>
         <item name="colorPrimaryDark">@color/scrum_chatter_primary_color</item>
         <item name="colorAccent">@color/scrum_chatter_accent_color</item>

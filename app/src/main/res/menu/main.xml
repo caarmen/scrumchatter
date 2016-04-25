@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2013 Carmen Alvarez
+  Copyright 2016 Carmen Alvarez
  
   This file is part of Scrum Chatter.
  
@@ -40,6 +40,11 @@
         android:orderInCategory="120"
         app:showAsAction="ifRoom"
         android:title="@string/action_import"/>
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="125"
+        app:showAsAction="never"
+        android:title="@string/title_activity_settings"/>
     <item
         android:id="@+id/action_about"
         android:orderInCategory="130"
