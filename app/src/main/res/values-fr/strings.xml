@@ -93,5 +93,9 @@
     <string name="drawer_close">Fermer le menu à gauche</string>
     <string name="allow">Accepter</string>
     <string name="deny">Refuser</string>
+    <string name="title_activity_settings">Préférences</string>
+    <string name="pref_theme_value_dark">Sombre</string>
+    <string name="pref_theme_value_light">Clair</string>
+    <string name="pref_theme_title">Thème</string>
 
 </resources>

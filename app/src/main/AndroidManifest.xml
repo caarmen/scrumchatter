@@ -66,6 +66,15 @@
                 android:value="ca.rmen.android.scrumchatter.main.MainActivity" />
         </activity>
         <activity
+            android:name=".settings.SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".main.MainActivity"
+            tools:ignore="UnusedAttribute">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ca.rmen.android.scrumchatter.main.MainActivity" />
+        </activity>
+        <activity
             android:name="ca.rmen.android.scrumchatter.about.AboutActivity"
             android:label="@string/about"
             android:parentActivityName="ca.rmen.android.scrumchatter.main.MainActivity"

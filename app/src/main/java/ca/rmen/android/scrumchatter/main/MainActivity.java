@@ -51,6 +51,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 
 import ca.rmen.android.scrumchatter.databinding.ActivityMainBinding;
+import ca.rmen.android.scrumchatter.settings.SettingsActivity;
+import ca.rmen.android.scrumchatter.settings.Theme;
 import ca.rmen.android.scrumchatter.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -123,6 +125,7 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
     protected void onCreate(Bundle savedInstanceState) {
         Log.v(TAG, "onCreate");
         super.onCreate(savedInstanceState);
+        Theme.checkTheme(this);
 
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         // Use strict mode for monkey tests.  We can't enable strict mode for normal use
@@ -254,6 +257,13 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
             MenuItem renameItem = menu.findItem(R.id.action_team_rename);
             renameItem.setTitle(getString(R.string.action_team_rename_name, mTeam.teamName));
         }
+        // Only show the settings in v14+.  Currently the only setting
+        // we have is for the day/night theme switch, which only works on
+        // v14+.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            MenuItem settingsItem = menu.findItem(R.id.action_settings);
+            settingsItem.setVisible(false);
+        }
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -281,9 +291,13 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
                 DialogFragmentFactory.showChoiceDialog(this, getString(R.string.export_choice_title), getResources().getStringArray(R.array.export_choices),
                         -1, R.id.action_share);
                 return true;
+            case R.id.action_settings:
+                Intent settingsIntent = new Intent(this, SettingsActivity.class);
+                startActivity(settingsIntent);
+                return true;
             case R.id.action_about:
-                Intent intent = new Intent(this, AboutActivity.class);
-                startActivity(intent);
+                Intent aboutIntent = new Intent(this, AboutActivity.class);
+                startActivity(aboutIntent);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -384,14 +398,15 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
             @Override
             protected void onPostExecute(Void result) {
                 ActionBar supportActionBar = getSupportActionBar();
-                assert supportActionBar != null;
-                // If the user has renamed the default team or added other teams, show the current team name in the title
-                if (mTeamCount > 1 || (mTeam != null && !mTeam.teamName.equals(Constants.DEFAULT_TEAM_NAME))) {
-                    supportActionBar.setTitle(mTeam.teamName);
-                }
-                // otherwise the user doesn't care about team management: just show the app title.
-                else {
-                    supportActionBar.setTitle(R.string.app_name);
+                if (supportActionBar != null) {
+                    // If the user has renamed the default team or added other teams, show the current team name in the title
+                    if (mTeamCount > 1 || (mTeam != null && !mTeam.teamName.equals(Constants.DEFAULT_TEAM_NAME))) {
+                        supportActionBar.setTitle(mTeam.teamName);
+                    }
+                    // otherwise the user doesn't care about team management: just show the app title.
+                    else {
+                        supportActionBar.setTitle(R.string.app_name);
+                    }
                 }
                 mTeamsAdapter.reload();
                 supportInvalidateOptionsMenu();

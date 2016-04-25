@@ -27,6 +27,7 @@
         <item name="android:listViewStyle">@style/AppListView</item>
         <item name="drawerArrowStyle">@style/AppDrawerArrowStyle</item>
         <item name="alertDialogTheme">@style/AppAlertDialog</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
     </style>
 
     <style name="AppTheme.Toolbar" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
