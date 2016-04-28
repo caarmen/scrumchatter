@@ -36,6 +36,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 
 import ca.rmen.android.scrumchatter.databinding.MemberListBinding;
+import ca.rmen.android.scrumchatter.databinding.MemberListItemBinding;
 import ca.rmen.android.scrumchatter.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -44,6 +45,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.ListView;
+
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.member.list.Members.Member;
@@ -109,6 +112,13 @@ public class MembersListFragment extends ListFragment {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        super.onListItemClick(l, v, position, id);
+        MemberListItemBinding binding = (MemberListItemBinding) v.getTag();
+        mMembers.promptRenameMember(id, binding.tvName.getText().toString());
     }
 
     private final LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {

@@ -95,6 +95,42 @@ public class Members {
     }
 
     /**
+     * Show a dialog with a text input for the member name. Validate that the member doesn't already exist in the given team. Upon pressing "OK", update the
+     * name of the member.
+     *
+     * @param memberId the id of the team member to rename
+     * @param memberName the current name of the team member
+     */
+    void promptRenameMember(final long memberId, final String memberName) {
+        Log.v(TAG, "promptRenameMember, memberId = " + memberId + ", memberName = " + memberName);
+        Bundle extras = new Bundle(1);
+        extras.putLong(EXTRA_MEMBER_ID, memberId);
+        DialogFragmentFactory.showInputDialog(mActivity, mActivity.getString(R.string.action_rename_member), mActivity.getString(R.string.hint_new_member), memberName,
+                MemberNameValidator.class, R.id.action_rename_member, extras);
+    }
+
+    /**
+     * Renames a member
+     */
+    public void renameMember(final long memberId, final String memberName) {
+        Log.v(TAG, "rename member " + memberId + " to " + memberName);
+
+        // Delete the member in a background thread
+        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(Void... params) {
+                Uri uri = Uri.withAppendedPath(MemberColumns.CONTENT_URI, String.valueOf(memberId));
+                ContentValues values = new ContentValues(1);
+                values.put(MemberColumns.NAME, memberName);
+                mActivity.getContentResolver().update(uri, values, null, null);
+                return null;
+            }
+        };
+        task.execute();
+    }
+
+    /**
      * Shows a confirmation dialog to the user, to delete a member.
      */
     void confirmDeleteMember(final Member member) {

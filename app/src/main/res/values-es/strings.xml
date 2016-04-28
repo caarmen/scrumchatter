@@ -28,6 +28,7 @@
     <string name="action_team_delete_name">Borrar %s</string>
     <string name="action_import">Importar base de datos</string>
     <string name="action_new_member">Añadir un miembro</string>
+    <string name="action_rename_member">Renombrar un miembro</string>
     <string name="action_new_meeting">Nueva reunión</string>
     <string name="action_new_team">Nuevo equipo</string>
     <string name="hint_new_member">Nombre del miembro.</string>

@@ -20,5 +20,6 @@
 <resources>
     <item name="action_team" type="id"/>
     <item name="action_delete_member" type="id"/>
+    <item name="action_rename_member" type="id"/>
 
 </resources>
