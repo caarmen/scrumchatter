@@ -118,7 +118,7 @@ public class MembersListFragment extends ListFragment {
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
         MemberListItemBinding binding = (MemberListItemBinding) v.getTag();
-        mMembers.promptRenameMember(id, binding.tvName.getText().toString());
+        mMembers.promptRenameMember(mTeamId, id, binding.tvName.getText().toString());
     }
 
     private final LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
