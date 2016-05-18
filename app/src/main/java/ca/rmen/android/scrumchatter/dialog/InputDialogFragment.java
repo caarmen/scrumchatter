@@ -178,7 +178,7 @@ public class InputDialogFragment extends DialogFragment { // NO_UCD (use default
         // Start off with everything a-ok.
         editText.setError(null);
         final Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-        okButton.setEnabled(true);
+        okButton.setEnabled(!TextUtils.isEmpty(editText.getText()));
 
         // Search for an error in background thread, update the dialog in the UI thread.
         AsyncTask<String, Void, String> task = new AsyncTask<String, Void, String>() {
