@@ -499,6 +499,9 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
         if (actionId == R.id.action_new_member) {
             long teamId = extras.getLong(Teams.EXTRA_TEAM_ID);
             mMembers.createMember(teamId, input);
+        } else if (actionId == R.id.action_rename_member) {
+            long memberId = extras.getLong(Members.EXTRA_MEMBER_ID);
+            mMembers.renameMember(memberId, input);
         } else if (actionId == R.id.action_team) {
             mTeams.createTeam(input);
         } else if (actionId == R.id.action_team_rename) {

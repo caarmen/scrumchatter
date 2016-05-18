@@ -30,6 +30,7 @@
     <string name="action_team_delete_name">Delete %s</string>
     <string name="action_import">Import database</string>
     <string name="action_new_member">Add team member</string>
+    <string name="action_rename_member">Rename team member</string>
     <string name="action_new_meeting">New meeting</string>
     <string name="action_new_team">New team</string>
     <string name="hint_new_member">Team member\'s name.</string>

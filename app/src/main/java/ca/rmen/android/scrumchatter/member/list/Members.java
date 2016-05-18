@@ -40,6 +40,7 @@ import ca.rmen.android.scrumchatter.team.Teams;
 public class Members {
     private static final String TAG = Constants.TAG + "/" + Members.class.getSimpleName();
     public static final String EXTRA_MEMBER_ID = "member_id";
+    public static final String EXTRA_MEMBER_NAME = "member_name";
     private final FragmentActivity mActivity;
 
     static class Member {
@@ -95,6 +96,45 @@ public class Members {
     }
 
     /**
+     * Show a dialog with a text input for the member name. Validate that the member doesn't already exist in the given team. Upon pressing "OK", update the
+     * name of the member.
+     *
+     * @param teamId the id of the member's team
+     * @param memberId the id of the team member to rename
+     * @param memberName the current name of the team member
+     */
+    void promptRenameMember(final long teamId, final long memberId, final String memberName) {
+        Log.v(TAG, "promptRenameMember, teamId = " + teamId + ", memberId = " + memberId + ", memberName = " + memberName);
+        Bundle extras = new Bundle(1);
+        extras.putLong(Teams.EXTRA_TEAM_ID, teamId);
+        extras.putLong(EXTRA_MEMBER_ID, memberId);
+        extras.putString(EXTRA_MEMBER_NAME, memberName);
+        DialogFragmentFactory.showInputDialog(mActivity, mActivity.getString(R.string.action_rename_member), mActivity.getString(R.string.hint_new_member), memberName,
+                MemberNameValidator.class, R.id.action_rename_member, extras);
+    }
+
+    /**
+     * Renames a member
+     */
+    public void renameMember(final long memberId, final String memberName) {
+        Log.v(TAG, "rename member " + memberId + " to " + memberName);
+
+        // Delete the member in a background thread
+        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(Void... params) {
+                Uri uri = Uri.withAppendedPath(MemberColumns.CONTENT_URI, String.valueOf(memberId));
+                ContentValues values = new ContentValues(1);
+                values.put(MemberColumns.NAME, memberName);
+                mActivity.getContentResolver().update(uri, values, null, null);
+                return null;
+            }
+        };
+        task.execute();
+    }
+
+    /**
      * Shows a confirmation dialog to the user, to delete a member.
      */
     void confirmDeleteMember(final Member member) {
@@ -139,6 +179,9 @@ public class Members {
         @Override
         public String getError(Context context, CharSequence input, Bundle extras) {
             long teamId = extras.getLong(Teams.EXTRA_TEAM_ID);
+            String currentMemberName = extras.getString(EXTRA_MEMBER_NAME);
+            if (!TextUtils.isEmpty(currentMemberName) && currentMemberName.equals(input)) return null;
+
             // Query for a member with this name.
             Cursor existingMemberCountCursor = context.getContentResolver().query(MemberColumns.CONTENT_URI, new String[] { "count(*)" },
                     MemberColumns.NAME + "=? AND " + MemberColumns.TEAM_ID + "=?", new String[] { String.valueOf(input), String.valueOf(teamId) }, null);
