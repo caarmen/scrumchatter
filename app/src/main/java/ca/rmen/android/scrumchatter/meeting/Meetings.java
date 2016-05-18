@@ -22,9 +22,9 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import ca.rmen.android.scrumchatter.util.Log;
-import android.widget.Toast;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.dialog.DialogFragmentFactory;
@@ -142,7 +142,7 @@ public class Meetings {
 
             @Override
             protected void onPostExecute(Boolean result) {
-                if (!result) Toast.makeText(mActivity, R.string.error_sharing_meeting, Toast.LENGTH_LONG).show();
+                if (!result) Snackbar.make(mActivity.getWindow().getDecorView().getRootView(), R.string.error_sharing_meeting, Snackbar.LENGTH_LONG).show();
             }
 
         };

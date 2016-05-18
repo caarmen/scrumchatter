@@ -40,6 +40,7 @@ import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -59,7 +60,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.io.File;
 import java.util.Arrays;
@@ -309,17 +309,17 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
         // The user chose a DB file to import.
         if (requestCode == ACTIVITY_REQUEST_CODE_IMPORT && resultCode == Activity.RESULT_OK) {
             if (intent == null || intent.getData() == null) {
-                Toast.makeText(this, R.string.import_result_no_file, Toast.LENGTH_SHORT).show();
+                Snackbar.make(mBinding.getRoot(), R.string.import_result_no_file, Snackbar.LENGTH_SHORT).show();
                 return;
             }
             final String filePath = intent.getData().getPath();
             if (TextUtils.isEmpty(filePath)) {
-                Toast.makeText(this, R.string.import_result_no_file, Toast.LENGTH_SHORT).show();
+                Snackbar.make(mBinding.getRoot(), R.string.import_result_no_file, Snackbar.LENGTH_SHORT).show();
                 return;
             }
             final File file = new File(filePath);
             if (!file.exists()) {
-                Toast.makeText(this, getString(R.string.import_result_file_does_not_exist, file.getName()), Toast.LENGTH_SHORT).show();
+                Snackbar.make(mBinding.getRoot(), getString(R.string.import_result_file_does_not_exist, file.getName()), Snackbar.LENGTH_SHORT).show();
                 return;
             }
             // Save the uri of the file.  We will import it in onResumeFragments.
@@ -592,14 +592,14 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
                 Boolean result = intent.getExtras().getBoolean(EXTRA_IMPORT_RESULT);
                 ProgressDialogFragment dialogFragment = (ProgressDialogFragment) getSupportFragmentManager().findFragmentByTag(PROGRESS_DIALOG_FRAGMENT_TAG);
                 if (dialogFragment != null) dialogFragment.dismiss();
-                Toast.makeText(MainActivity.this, result ? R.string.import_result_success : R.string.import_result_failed, Toast.LENGTH_SHORT).show();
+                Snackbar.make(mBinding.getRoot(), result ? R.string.import_result_success : R.string.import_result_failed, Snackbar.LENGTH_SHORT).show();
             }
             // The file export has completed.  Dismiss the progress dialog and, if there was an error, show a toast.
             else if (ACTION_EXPORT_COMPLETE.equals(intent.getAction())) {
                 Boolean result = intent.getExtras().getBoolean(EXTRA_EXPORT_RESULT);
                 ProgressDialogFragment dialogFragment = (ProgressDialogFragment) getSupportFragmentManager().findFragmentByTag(PROGRESS_DIALOG_FRAGMENT_TAG);
                 if (dialogFragment != null) dialogFragment.dismiss();
-                if (!result) Toast.makeText(MainActivity.this, R.string.export_error, Toast.LENGTH_LONG).show();
+                if (!result) Snackbar.make(mBinding.getRoot(), R.string.export_error, Snackbar.LENGTH_LONG).show();
 
             }
         }
