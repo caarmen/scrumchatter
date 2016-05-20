@@ -20,7 +20,7 @@
 <resources>
 
     <string name="app_name" translatable="false">Scrum Chatter</string>
-    <string name="app_version" translatable="false">1.2.1</string>
+    <string name="app_version" translatable="false">1.2.2</string>
     <string name="title_section_meetings">Meetings</string>
     <string name="title_section_team">Team</string>
     <string name="action_share">Share</string>
@@ -114,4 +114,8 @@
         <item>Light</item>
         <item>Dark</item>
     </string-array>
+
+    <!-- Default team members -->
+    <string name="default_team_member1">Justin</string>
+    <string name="default_team_member2">Ashley</string>
 </resources>

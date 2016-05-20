@@ -25,6 +25,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.util.Log;
+import ca.rmen.android.scrumchatter.R;
 
 /**
  * Creates and upgrades database tables.
@@ -179,8 +180,11 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
 
     private static final String SQL_DROP_VIEW_MEMBER_STATS = "DROP VIEW " + MemberStatsColumns.VIEW_NAME;
 
+    private final Context mContext;
+
     ScrumChatterDatabase(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        mContext = context;
     }
 
     @Override
@@ -243,6 +247,17 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
         values.put(TeamColumns._ID, Constants.DEFAULT_TEAM_ID);
         values.put(TeamColumns.TEAM_NAME, Constants.DEFAULT_TEAM_NAME);
         db.insert(TeamColumns.TABLE_NAME, null, values);
+
+        insertDefaultTeamMember(db, mContext.getString(R.string.default_team_member1));
+        insertDefaultTeamMember(db, mContext.getString(R.string.default_team_member2));
+    }
+
+    private void insertDefaultTeamMember(SQLiteDatabase db, String memberName) {
+        ContentValues values = new ContentValues(2);
+        values.put(MemberColumns.NAME, memberName);
+        values.put(MemberColumns.TEAM_ID, Constants.DEFAULT_TEAM_ID);
+        values.put(MemberColumns.DELETED, 0);
+        db.insert(MemberColumns.TABLE_NAME, null, values);
     }
 
     private void execSQL(SQLiteDatabase db, String sql) {

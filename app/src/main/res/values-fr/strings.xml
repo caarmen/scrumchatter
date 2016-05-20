@@ -99,4 +99,8 @@
     <string name="pref_theme_value_light">Clair</string>
     <string name="pref_theme_title">Thème</string>
 
+    <!-- Default team members -->
+    <string name="default_team_member1">Julien</string>
+    <string name="default_team_member2">Élodie</string>
+
 </resources>

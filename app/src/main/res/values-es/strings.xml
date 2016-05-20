@@ -99,4 +99,8 @@
     <string name="pref_theme_value_dark">Oscuro</string>
     <string name="pref_theme_value_light">Claro</string>
 
+    <!-- Default team members -->
+    <string name="default_team_member1">Álvaro</string>
+    <string name="default_team_member2">Lucía</string>
+
 </resources>
