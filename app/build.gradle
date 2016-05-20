@@ -38,6 +38,8 @@ android {
     }
     defaultConfig {
         applicationId "ca.rmen.android.scrumchatter"
+        versionCode 10202
+        versionName "1.2.2"
         minSdkVersion 9
         targetSdkVersion 23
     }

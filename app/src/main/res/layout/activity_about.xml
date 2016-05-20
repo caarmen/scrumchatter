@@ -66,9 +66,9 @@
                     android:textColor="@color/scrum_chatter_primary_color" />
 
                 <TextView
+                    android:id="@+id/tv_app_version"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/app_version"
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:textColor="@color/scrum_chatter_primary_color" />
             </LinearLayout>
