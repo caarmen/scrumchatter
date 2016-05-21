@@ -110,6 +110,7 @@ public class MembersListFragment extends ListFragment {
         if (item.getItemId() == R.id.action_new_member) {
             mMembers.promptCreateMember(mTeamId);
             return true;
+        } else if (item.getItemId() == R.id.action_graphs) {
         }
         return false;
     }

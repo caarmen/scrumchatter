@@ -19,6 +19,7 @@
 package ca.rmen.android.scrumchatter.meeting.list;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
@@ -32,6 +33,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 
 import ca.rmen.android.scrumchatter.databinding.MeetingListBinding;
+import ca.rmen.android.scrumchatter.meeting.graph.MeetingsGraphActivity;
 import ca.rmen.android.scrumchatter.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -97,11 +99,21 @@ public class MeetingsListFragment extends ListFragment {
     }
 
     @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        MenuItem menuItem = menu.findItem(R.id.action_graphs);
+        menuItem.setVisible(mAdapter != null && mAdapter.getCount() > 0);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Start a new meeting.
         // Check if we have any members first.  A meeting with no members is not much fun.
         if (item.getItemId() == R.id.action_new_meeting) {
             mMeetings.createMeeting(mTeamId);
+            return true;
+        } else if (item.getItemId() == R.id.action_graphs) {
+            startActivity(new Intent(getContext(), MeetingsGraphActivity.class));
             return true;
         }
         return true;
@@ -135,6 +147,7 @@ public class MeetingsListFragment extends ListFragment {
             }
             mBinding.listContent.progressContainer.setVisibility(View.GONE);
             mAdapter.changeCursor(cursor);
+            getActivity().supportInvalidateOptionsMenu();
         }
 
         @Override
