@@ -88,6 +88,7 @@
     <string name="about_credit_title">Remerciements :</string>
     <string name="about_credit_content_provider_generator_text">BoD pour son générateur de content provider.</string>
     <string name="about_credit_app_icon_text">qubodup pour l\'icône de la bulle, sur openclipart.</string>
+    <string name="about_credit_jxl_lib_text">Andy Khan, pour sa bibliothèque Java Excel API.</string>
     <string name="about_credit_permissions_lib_text">Shintaro Katafuchi, pour sa bibliothèque PermissionsDispatcher.</string>
 
     <string name="drawer_open">Ouvrir le menu à gauche</string>

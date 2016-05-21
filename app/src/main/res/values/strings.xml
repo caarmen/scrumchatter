@@ -91,6 +91,8 @@
     <string translatable="false" name="about_credit_content_provider_generator_link">https://github.com/BoD/android-contentprovider-generator</string>
     <string name="about_credit_app_icon_text">qubodup for the speech bubble icon on openclipart.</string>
     <string translatable="false" name="about_credit_app_icon_link">http://openclipart.org/detail/14322/16x16px-capable-black-and-white-icons-by-qubodup-14322</string>
+    <string name="about_credit_jxl_lib_text">Andy Khan, for his Java Excel API library.</string>
+    <string translatable="false" name="about_credit_jxl_lib_link">http://sourceforge.net/projects/jexcelapi</string>
     <string name="about_credit_permissions_lib_text">Shintaro Katafuchi, for his PermissionsDispatcher library.</string>
     <string translatable="false" name="about_credit_permissions_lib_link">https://github.com/hotchemi/PermissionsDispatcher</string>
 
