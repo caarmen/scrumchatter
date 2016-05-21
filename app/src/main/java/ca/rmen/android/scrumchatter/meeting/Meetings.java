@@ -18,7 +18,6 @@
  */
 package ca.rmen.android.scrumchatter.meeting;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -74,9 +73,7 @@ public class Meetings {
             @Override
             protected void onPostExecute(Boolean result) {
                 if (result) {
-                    Intent intent = new Intent(mActivity, MeetingActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                    mActivity.startActivity(intent);
+                    MeetingActivity.startNewMeeting(mActivity);
                 } else {
                     DialogFragmentFactory.showInfoDialog(mActivity, R.string.dialog_error_title_one_member_required,
                             R.string.dialog_error_message_one_member_required);

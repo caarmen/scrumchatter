@@ -19,7 +19,6 @@
 package ca.rmen.android.scrumchatter.meeting.list;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
@@ -114,10 +113,7 @@ public class MeetingsListFragment extends ListFragment {
         super.onListItemClick(l, v, position, id);
         // The user clicked on the meeting. Let's go to the
         // details of that meeting.
-        Intent intent = new Intent(getActivity(), MeetingActivity.class);
-        intent.putExtra(Meetings.EXTRA_MEETING_ID, id);
-        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        startActivity(intent);
+        MeetingActivity.startMeeting(getActivity(), id);
     }
 
     private final LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {

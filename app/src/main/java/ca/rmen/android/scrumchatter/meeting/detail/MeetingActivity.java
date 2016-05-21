@@ -18,6 +18,8 @@
  */
 package ca.rmen.android.scrumchatter.meeting.detail;
 
+import android.content.Context;
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -46,6 +48,19 @@ public class MeetingActivity extends AppCompatActivity implements DialogButtonLi
 
     private MeetingPagerAdapter mMeetingPagerAdapter;
     private MeetingActivityBinding mBinding;
+
+    public static void startNewMeeting(Context context) {
+        Intent intent = new Intent(context, MeetingActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        context.startActivity(intent);
+    }
+
+    public static void startMeeting(Context context, long meetingId) {
+        Intent intent = new Intent(context, MeetingActivity.class);
+        intent.putExtra(Meetings.EXTRA_MEETING_ID, meetingId);
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        context.startActivity(intent);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
