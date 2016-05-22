@@ -23,18 +23,14 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 
-import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.databinding.ChartsActivityBinding;
-import ca.rmen.android.scrumchatter.util.Log;
 
 
 /**
  * Displays charts for all meetings.
  */
 public class ChartsActivity extends AppCompatActivity {
-
-    private static final String TAG = Constants.TAG + "/" + ChartsActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,12 +46,5 @@ public class ChartsActivity extends AppCompatActivity {
         binding.viewPager.setOffscreenPageLimit(3);
         binding.toolbarTabs.tabs.setupWithViewPager(binding.viewPager);
     }
-
-    @Override
-    protected void onDestroy() {
-        Log.v(TAG, "onDestroy");
-        super.onDestroy();
-    }
-
 
 }

@@ -45,8 +45,11 @@ import lecho.lib.hellocharts.view.LineChartView;
  * The meetings duration chart has one single line.  This line plots the meeting duration in minutes
  * on the y-axis versus the meeting dates on the x-axis.
  */
-final class MeetingsDurationChart {
-    // prevent instantiation
+final class MeetingDurationLineChart {
+    private MeetingDurationLineChart() {
+        // prevent instantiation
+    }
+
     public static void populateMeetingDurationChart(Context context, LineChartView chart, @NonNull Cursor cursor) {
         List<PointValue> points = new ArrayList<>();
         List<AxisValue> xAxisValues = new ArrayList<>();
@@ -91,9 +94,9 @@ final class MeetingsDurationChart {
 
     private static void setupChart(Context context, LineChartView chart, List<AxisValue> xAxisValues, String yAxisLabel, List<Line> lines) {
         Axis xAxis = new Axis(xAxisValues);
-        MeetingsCharts.setupXAxis(context, xAxis);
+        ChartUtils.setupXAxis(context, xAxis);
         Axis yAxis = new Axis();
-        MeetingsCharts.setupYAxis(context, yAxisLabel, yAxis);
+        ChartUtils.setupYAxis(context, yAxisLabel, yAxis);
         LineChartData lineChartData = new LineChartData();
         lineChartData.setAxisXBottom(xAxis);
         lineChartData.setAxisYLeft(yAxis);
@@ -112,6 +115,5 @@ final class MeetingsDurationChart {
         viewport.set(viewport.left, viewport.top, viewport.right, 0);
         chart.setCurrentViewport(viewport);
     }
-
 
 }

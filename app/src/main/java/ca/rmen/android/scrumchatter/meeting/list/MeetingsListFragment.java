@@ -112,9 +112,6 @@ public class MeetingsListFragment extends ListFragment {
         if (item.getItemId() == R.id.action_new_meeting) {
             mMeetings.createMeeting(mTeamId);
             return true;
-        } else if (item.getItemId() == R.id.action_charts) {
-            startActivity(new Intent(getContext(), ChartsActivity.class));
-            return true;
         }
         return true;
     }

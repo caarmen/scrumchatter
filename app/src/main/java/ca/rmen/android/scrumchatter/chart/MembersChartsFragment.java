@@ -22,14 +22,11 @@ import android.annotation.TargetApi;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -41,7 +38,6 @@ import android.view.ViewGroup;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.databinding.MembersChartsFragmentBinding;
-import ca.rmen.android.scrumchatter.export.BitmapExport;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberStatsColumns;
 import ca.rmen.android.scrumchatter.team.Teams;
@@ -57,13 +53,6 @@ public class MembersChartsFragment extends Fragment {
     private static final int LOADER_MEMBER_SPEAKING_TIME = 0;
 
     private MembersChartsFragmentBinding mBinding;
-
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -128,36 +117,9 @@ public class MembersChartsFragment extends Fragment {
         }
     };
 
-    private class ChartExportTask extends AsyncTask<Void, Void, Void> {
-
-        private final View mView;
-        private Bitmap mBitmap;
-
-        ChartExportTask(View view) {
-            super();
-            mView = view;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            Snackbar.make(mBinding.getRoot(), getString(R.string.chart_exporting_snackbar), Snackbar.LENGTH_LONG).show();
-            mBitmap = Bitmap.createBitmap(mView.getWidth(), mView.getHeight(), Bitmap.Config.ARGB_8888);
-            Canvas canvas = new Canvas(mBitmap);
-            mView.draw(canvas);
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            BitmapExport export = new BitmapExport(getActivity(), mBitmap);
-            export.export();
-            return null;
-        }
-
-    }
-
     public class FabListener {
         public void onShareMemberSpeakingTime(View view) {
-            new ChartExportTask((View) view.getTag()).execute();
+            new ChartExportTask(getContext(), (View) view.getTag()).execute();
         }
     }
 }

@@ -49,8 +49,8 @@ import lecho.lib.hellocharts.view.ColumnChartView;
  * The member speaking-time chart has one stacked column per meeting, with each column having stacked
  * boxes for each member (the time the member spoke during that meeting).
  */
-final class MemberSpeakingTimeChart {
-    private MemberSpeakingTimeChart() {
+final class MemberSpeakingTimeColumnChart {
+    private MemberSpeakingTimeColumnChart() {
         // prevent instantiation
     }
 
@@ -90,7 +90,7 @@ final class MemberSpeakingTimeChart {
         cursor.moveToPosition(-1);
 
         for (String memberName : memberColors.keySet()) {
-            MeetingsCharts.addLegendEntry(context, legendView, memberName, memberColors.get(memberName));
+            ChartUtils.addLegendEntry(context, legendView, memberName, memberColors.get(memberName));
         }
 
         setupChart(context,
@@ -123,9 +123,9 @@ final class MemberSpeakingTimeChart {
 
     private static void setupChart(Context context, ColumnChartView chart, List<AxisValue> xAxisValues, String yAxisLabel, List<Column> columns) {
         Axis xAxis = new Axis(xAxisValues);
-        MeetingsCharts.setupXAxis(context, xAxis);
+        ChartUtils.setupXAxis(context, xAxis);
         Axis yAxis = new Axis();
-        MeetingsCharts.setupYAxis(context, yAxisLabel, yAxis);
+        ChartUtils.setupYAxis(context, yAxisLabel, yAxis);
         ColumnChartData data = new ColumnChartData();
         data.setAxisXBottom(xAxis);
         data.setAxisYLeft(yAxis);

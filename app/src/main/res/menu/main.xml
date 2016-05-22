@@ -44,8 +44,7 @@
         android:id="@+id/action_charts"
         android:orderInCategory="122"
         app:showAsAction="never"
-        android:title="@string/action_charts"
-        android:visible="false"/>
+        android:title="@string/action_charts"/>
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="125"

@@ -21,13 +21,10 @@ package ca.rmen.android.scrumchatter.chart;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -39,7 +36,6 @@ import android.view.ViewGroup;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.databinding.MeetingsChartsFragmentBinding;
-import ca.rmen.android.scrumchatter.export.BitmapExport;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
@@ -59,12 +55,6 @@ public class MeetingsChartsFragment extends Fragment {
     private MeetingsChartsFragmentBinding mBinding;
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.v(TAG, "onCreateView");
         mBinding = DataBindingUtil.inflate(inflater, R.layout.meetings_charts_fragment, container, false);
@@ -79,7 +69,6 @@ public class MeetingsChartsFragment extends Fragment {
         getLoaderManager().initLoader(LOADER_MEETING_DURATION, null, mLoaderCallbacks);
         getLoaderManager().initLoader(LOADER_MEMBER_SPEAKING_TIME, null, mLoaderCallbacks);
     }
-
 
     private final LoaderManager.LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderManager.LoaderCallbacks<Cursor>() {
 
@@ -116,9 +105,9 @@ public class MeetingsChartsFragment extends Fragment {
         public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
             if (cursor != null) {
                 if (loader.getId() == LOADER_MEETING_DURATION) {
-                    MeetingsDurationChart.populateMeetingDurationChart(getContext(), mBinding.chartMeetingDuration, cursor);
+                    MeetingDurationLineChart.populateMeetingDurationChart(getContext(), mBinding.chartMeetingDuration, cursor);
                 } else {
-                    MemberSpeakingTimeChart.populateMemberSpeakingTimeChart(getContext(), mBinding.chartSpeakerTime, mBinding.legend, cursor);
+                    MemberSpeakingTimeColumnChart.populateMemberSpeakingTimeChart(getContext(), mBinding.chartSpeakerTime, mBinding.legend, cursor);
                 }
             }
         }
@@ -141,41 +130,14 @@ public class MeetingsChartsFragment extends Fragment {
         }
     };
 
-    private class ChartExportTask extends AsyncTask<Void, Void, Void> {
-
-        private final View mView;
-        private Bitmap mBitmap;
-
-        ChartExportTask(View view) {
-            super();
-            mView = view;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            Snackbar.make(mBinding.getRoot(), getString(R.string.chart_exporting_snackbar), Snackbar.LENGTH_LONG).show();
-            mBitmap = Bitmap.createBitmap(mView.getWidth(), mView.getHeight(), Bitmap.Config.ARGB_8888);
-            Canvas canvas = new Canvas(mBitmap);
-            mView.draw(canvas);
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            BitmapExport export = new BitmapExport(getActivity(), mBitmap);
-            export.export();
-            return null;
-        }
-
-    }
-
     public class FabListener {
         public void onShareMeetingDuration(@SuppressWarnings("UnusedParameters") View view) {
-            new ChartExportTask(mBinding.meetingDurationChart).execute();
+            new ChartExportTask(getContext(), mBinding.meetingDurationChart).execute();
 
         }
 
         public void onShareSpeakerTime(@SuppressWarnings("UnusedParameters") View view) {
-            new ChartExportTask(mBinding.speakerTimeChart).execute();
+            new ChartExportTask(getContext(), mBinding.speakerTimeChart).execute();
         }
     }
 }

@@ -98,7 +98,7 @@ final class MemberSpeakingTimePieChart {
             String duration = label.substring(label.indexOf("###") + 3);
             sliceValue.setColor(color);
 
-            MeetingsCharts.addLegendEntry(context, legendView, memberName, color);
+            ChartUtils.addLegendEntry(context, legendView, memberName, color);
             sliceValue.setLabel(duration);
         }
 

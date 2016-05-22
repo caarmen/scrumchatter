@@ -31,23 +31,23 @@ import lecho.lib.hellocharts.model.Axis;
 
 
 /**
- * Some utility methods common to the meetings duration and member speaking time chart generation.
+ * Some utility methods common to the different charts.
  */
-final class MeetingsCharts {
+final class ChartUtils {
 
-    private MeetingsCharts() {
+    private ChartUtils() {
         // prevent instantiation
     }
 
     static void setupXAxis(Context context, Axis xAxis) {
-        xAxis.setTextColor(ResourcesCompat.getColor(context.getResources(), R.color.primary_text_color, null));
+        xAxis.setTextColor(ResourcesCompat.getColor(context.getResources(), R.color.chart_text, null));
         xAxis.setHasTiltedLabels(true);
         xAxis.setName(context.getString(R.string.chart_date));
         xAxis.setMaxLabelChars(10);
     }
 
     static void setupYAxis(Context context, String yAxisLabel, Axis yAxis) {
-        yAxis.setTextColor(ResourcesCompat.getColor(context.getResources(), R.color.primary_text_color, null));
+        yAxis.setTextColor(ResourcesCompat.getColor(context.getResources(), R.color.chart_text, null));
         yAxis.setName(yAxisLabel);
         yAxis.setHasLines(true);
     }
