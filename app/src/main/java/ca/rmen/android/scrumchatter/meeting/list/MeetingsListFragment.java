@@ -33,7 +33,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 
 import ca.rmen.android.scrumchatter.databinding.MeetingListBinding;
-import ca.rmen.android.scrumchatter.meeting.chart.MeetingsChartsActivity;
+import ca.rmen.android.scrumchatter.chart.MeetingsChartsActivity;
 import ca.rmen.android.scrumchatter.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;

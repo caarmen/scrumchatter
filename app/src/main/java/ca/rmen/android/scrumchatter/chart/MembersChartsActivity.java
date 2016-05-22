@@ -16,14 +16,16 @@
  * You should have received a copy of the GNU General Public License
  * along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
  */
-package ca.rmen.android.scrumchatter.meeting.chart;
+package ca.rmen.android.scrumchatter.chart;
 
+import android.annotation.TargetApi;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
@@ -36,36 +38,38 @@ import android.view.View;
 
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
-import ca.rmen.android.scrumchatter.databinding.MeetingsChartsActivityBinding;
+import ca.rmen.android.scrumchatter.databinding.MembersChartsActivityBinding;
 import ca.rmen.android.scrumchatter.export.BitmapExport;
-import ca.rmen.android.scrumchatter.provider.MeetingColumns;
-import ca.rmen.android.scrumchatter.provider.MeetingMemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
+import ca.rmen.android.scrumchatter.provider.MemberStatsColumns;
 import ca.rmen.android.scrumchatter.team.Teams;
 import ca.rmen.android.scrumchatter.util.Log;
 
 
 /**
- * Displays charts for all meetings.
+ * Displays charts for members.
  */
-public class MeetingsChartsActivity extends AppCompatActivity {
+@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+public class MembersChartsActivity extends AppCompatActivity {
 
-    private static final String TAG = Constants.TAG + "/" + MeetingsChartsActivity.class.getSimpleName();
-    private static final int LOADER_MEETING_DURATION = 0;
-    private static final int LOADER_MEMBER_SPEAKING_TIME = 1;
+    private static final String TAG = Constants.TAG + "/" + MembersChartsActivity.class.getSimpleName();
+    private static final int LOADER_MEMBER_SPEAKING_TIME = 0;
 
-    private MeetingsChartsActivityBinding mBinding;
+    private MembersChartsActivityBinding mBinding;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FabListener listener = new FabListener();
 
-        mBinding = DataBindingUtil.setContentView(this, R.layout.meetings_charts_activity);
-        mBinding.setFabListener(new FabListener());
+        mBinding = DataBindingUtil.setContentView(this, R.layout.members_charts_activity);
+        mBinding.pieChartCardAvg.setFabListener(listener);
+        mBinding.pieChartCardTotal.setFabListener(listener);
+        mBinding.pieChartCardAvg.fabShareMemberSpeakingTime.setTag(mBinding.pieChartCardAvg.memberSpeakingTimeChart);
+        mBinding.pieChartCardTotal.fabShareMemberSpeakingTime.setTag(mBinding.pieChartCardTotal.memberSpeakingTimeChart);
         ActionBar supportActionBar = getSupportActionBar();
         if (supportActionBar != null) supportActionBar.setDisplayHomeAsUpEnabled(true);
-        getSupportLoaderManager().initLoader(LOADER_MEETING_DURATION, null, mLoaderCallbacks);
         getSupportLoaderManager().initLoader(LOADER_MEMBER_SPEAKING_TIME, null, mLoaderCallbacks);
         mTeamLoader.execute();
     }
@@ -84,37 +88,19 @@ public class MeetingsChartsActivity extends AppCompatActivity {
             long teamId = sharedPreferences.getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
             String[] selectionArgs = new String[]{String.valueOf(teamId)};
 
-            if (id == LOADER_MEETING_DURATION) {
-                String selection = MeetingColumns.TEAM_ID + "=?";
-                return new CursorLoader(
-                        getApplicationContext(),
-                        MeetingColumns.CONTENT_URI,
-                        null,
-                        selection,
-                        selectionArgs,
-                        MeetingColumns.MEETING_DATE);
-            } else {
-                return new CursorLoader(getApplicationContext(),
-                        MeetingMemberColumns.CONTENT_URI,
-                        new String[]{
-                                MeetingMemberColumns.MEETING_ID,
-                                MeetingColumns.MEETING_DATE,
-                                MemberColumns.NAME,
-                                MeetingMemberColumns.DURATION},
-                        MeetingMemberColumns.DURATION + ">0 AND " + MeetingColumns.TEAM_ID + "=?",
-                        selectionArgs,
-                        MeetingMemberColumns.MEETING_ID + ", " + MemberColumns.NAME + " DESC");
-            }
+            String[] projection = new String[]{MemberColumns._ID, MemberColumns.NAME, MemberStatsColumns.SUM_DURATION, MemberStatsColumns.AVG_DURATION};
+            String selection = MemberStatsColumns.TEAM_ID + " =? AND " + MemberColumns.DELETED + "=0 ";
+            return new CursorLoader(getApplicationContext(), MemberStatsColumns.CONTENT_URI, projection, selection, selectionArgs, null);
+
         }
 
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
             if (cursor != null) {
-                if (loader.getId() == LOADER_MEETING_DURATION) {
-                    MeetingsDurationChart.populateMeetingDurationChart(getApplicationContext(), mBinding.chartMeetingDuration, cursor);
-                } else {
-                    MemberSpeakingTimeChart.populateMemberSpeakingTimeChart(getApplicationContext(), mBinding.chartSpeakerTime, mBinding.legend, cursor);
-                }
+                MemberSpeakingTimePieChart.populateMemberSpeakingTimeChart(getApplicationContext(),
+                        mBinding.pieChartCardAvg.chartMemberSpeakingTime,
+                        mBinding.pieChartCardTotal.chartMemberSpeakingTime,
+                        cursor);
             }
         }
 
@@ -126,13 +112,13 @@ public class MeetingsChartsActivity extends AppCompatActivity {
     private final AsyncTask<Void, Void, Teams.Team> mTeamLoader = new AsyncTask<Void, Void, Teams.Team>() {
         @Override
         protected Teams.Team doInBackground(Void... params) {
-            return new Teams(MeetingsChartsActivity.this).getCurrentTeam();
+            return new Teams(MembersChartsActivity.this).getCurrentTeam();
         }
 
         @Override
         protected void onPostExecute(Teams.Team team) {
-            mBinding.tvTitleMeetingDurationChart.setText(getString(R.string.chart_meeting_duration_title, team.teamName));
-            mBinding.tvTitleSpeakerTimeChart.setText(getString(R.string.chart_speaker_time_title, team.teamName));
+            mBinding.pieChartCardAvg.tvTitleMemberSpeakingTimeChart.setText(getString(R.string.chart_member_average_speaking_time_title, team.teamName));
+            mBinding.pieChartCardTotal.tvTitleMemberSpeakingTimeChart.setText(getString(R.string.chart_member_total_speaking_time_title, team.teamName));
         }
     };
 
@@ -156,7 +142,7 @@ public class MeetingsChartsActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            BitmapExport export = new BitmapExport(MeetingsChartsActivity.this, mBitmap);
+            BitmapExport export = new BitmapExport(MembersChartsActivity.this, mBitmap);
             export.export();
             return null;
         }
@@ -164,13 +150,8 @@ public class MeetingsChartsActivity extends AppCompatActivity {
     }
 
     public class FabListener {
-        public void onShareMeetingDuration(@SuppressWarnings("UnusedParameters") View view) {
-            new ChartExportTask(mBinding.meetingDurationChart).execute();
-
-        }
-
-        public void onShareSpeakerTime(@SuppressWarnings("UnusedParameters") View view) {
-            new ChartExportTask(mBinding.speakerTimeChart).execute();
+        public void onShareMemberSpeakingTime(View view) {
+            new ChartExportTask((View) view.getTag()).execute();
         }
     }
 }

@@ -39,7 +39,7 @@ import android.support.v4.content.Loader;
 
 import ca.rmen.android.scrumchatter.databinding.MemberListBinding;
 import ca.rmen.android.scrumchatter.databinding.MemberListItemBinding;
-import ca.rmen.android.scrumchatter.member.chart.MembersChartsActivity;
+import ca.rmen.android.scrumchatter.chart.MembersChartsActivity;
 import ca.rmen.android.scrumchatter.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;

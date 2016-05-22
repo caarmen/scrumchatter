@@ -65,7 +65,7 @@
                 android:value="ca.rmen.android.scrumchatter.main.MainActivity" />
         </activity>
         <activity
-            android:name=".meeting.chart.MeetingsChartsActivity"
+            android:name=".chart.MeetingsChartsActivity"
             android:label="@string/title_meetings_chart"
             android:parentActivityName="ca.rmen.android.scrumchatter.main.MainActivity"
             tools:ignore="UnusedAttribute">
@@ -76,7 +76,7 @@
                 android:value="ca.rmen.android.scrumchatter.main.MainActivity" />
         </activity>
         <activity
-            android:name=".member.chart.MembersChartsActivity"
+            android:name=".chart.MembersChartsActivity"
             android:label="@string/title_members_chart"
             android:parentActivityName="ca.rmen.android.scrumchatter.main.MainActivity"
             tools:ignore="UnusedAttribute">
