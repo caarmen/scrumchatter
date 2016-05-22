@@ -26,17 +26,19 @@ import android.graphics.Canvas;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
-import ca.rmen.android.scrumchatter.databinding.MeetingsChartsActivityBinding;
+import ca.rmen.android.scrumchatter.databinding.MeetingsChartsFragmentBinding;
 import ca.rmen.android.scrumchatter.export.BitmapExport;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberColumns;
@@ -48,53 +50,56 @@ import ca.rmen.android.scrumchatter.util.Log;
 /**
  * Displays charts for all meetings.
  */
-public class MeetingsChartsActivity extends AppCompatActivity {
+public class MeetingsChartsFragment extends Fragment {
 
-    private static final String TAG = Constants.TAG + "/" + MeetingsChartsActivity.class.getSimpleName();
+    private static final String TAG = Constants.TAG + "/" + MeetingsChartsFragment.class.getSimpleName();
     private static final int LOADER_MEETING_DURATION = 0;
     private static final int LOADER_MEMBER_SPEAKING_TIME = 1;
 
-    private MeetingsChartsActivityBinding mBinding;
-
+    private MeetingsChartsFragmentBinding mBinding;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mBinding = DataBindingUtil.setContentView(this, R.layout.meetings_charts_activity);
-        mBinding.setFabListener(new FabListener());
-        ActionBar supportActionBar = getSupportActionBar();
-        if (supportActionBar != null) supportActionBar.setDisplayHomeAsUpEnabled(true);
-        getSupportLoaderManager().initLoader(LOADER_MEETING_DURATION, null, mLoaderCallbacks);
-        getSupportLoaderManager().initLoader(LOADER_MEMBER_SPEAKING_TIME, null, mLoaderCallbacks);
-        mTeamLoader.execute();
+        setHasOptionsMenu(true);
     }
 
     @Override
-    protected void onDestroy() {
-        Log.v(TAG, "onDestroy");
-        super.onDestroy();
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.v(TAG, "onCreateView");
+        mBinding = DataBindingUtil.inflate(inflater, R.layout.meetings_charts_fragment, container, false);
+        mBinding.setFabListener(new FabListener());
+        mTeamLoader.execute();
+        return mBinding.getRoot();
     }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getLoaderManager().initLoader(LOADER_MEETING_DURATION, null, mLoaderCallbacks);
+        getLoaderManager().initLoader(LOADER_MEMBER_SPEAKING_TIME, null, mLoaderCallbacks);
+    }
+
 
     private final LoaderManager.LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderManager.LoaderCallbacks<Cursor>() {
 
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
             long teamId = sharedPreferences.getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
             String[] selectionArgs = new String[]{String.valueOf(teamId)};
 
             if (id == LOADER_MEETING_DURATION) {
                 String selection = MeetingColumns.TEAM_ID + "=?";
                 return new CursorLoader(
-                        getApplicationContext(),
+                        getContext(),
                         MeetingColumns.CONTENT_URI,
                         null,
                         selection,
                         selectionArgs,
                         MeetingColumns.MEETING_DATE);
             } else {
-                return new CursorLoader(getApplicationContext(),
+                return new CursorLoader(getContext(),
                         MeetingMemberColumns.CONTENT_URI,
                         new String[]{
                                 MeetingMemberColumns.MEETING_ID,
@@ -111,9 +116,9 @@ public class MeetingsChartsActivity extends AppCompatActivity {
         public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
             if (cursor != null) {
                 if (loader.getId() == LOADER_MEETING_DURATION) {
-                    MeetingsDurationChart.populateMeetingDurationChart(getApplicationContext(), mBinding.chartMeetingDuration, cursor);
+                    MeetingsDurationChart.populateMeetingDurationChart(getContext(), mBinding.chartMeetingDuration, cursor);
                 } else {
-                    MemberSpeakingTimeChart.populateMemberSpeakingTimeChart(getApplicationContext(), mBinding.chartSpeakerTime, mBinding.legend, cursor);
+                    MemberSpeakingTimeChart.populateMemberSpeakingTimeChart(getContext(), mBinding.chartSpeakerTime, mBinding.legend, cursor);
                 }
             }
         }
@@ -126,7 +131,7 @@ public class MeetingsChartsActivity extends AppCompatActivity {
     private final AsyncTask<Void, Void, Teams.Team> mTeamLoader = new AsyncTask<Void, Void, Teams.Team>() {
         @Override
         protected Teams.Team doInBackground(Void... params) {
-            return new Teams(MeetingsChartsActivity.this).getCurrentTeam();
+            return new Teams(getActivity()).getCurrentTeam();
         }
 
         @Override
@@ -156,7 +161,7 @@ public class MeetingsChartsActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            BitmapExport export = new BitmapExport(MeetingsChartsActivity.this, mBitmap);
+            BitmapExport export = new BitmapExport(getActivity(), mBitmap);
             export.export();
             return null;
         }

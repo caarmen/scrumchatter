@@ -21,8 +21,7 @@
 
     <string name="title_section_meetings">Reuniones</string>
     <string name="title_section_team">Equipo</string>
-    <string name="title_meetings_chart">Estadísticas de reuniones</string>
-    <string name="title_members_chart">Estadísticas de miembros</string>
+    <string name="title_chart">Estadísticas</string>
     <string name="action_share">Compartir</string>
     <string name="action_team_rename">Renombrar el equipo</string>
     <string name="action_team_rename_name">Renombrar %s</string>

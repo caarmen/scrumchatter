@@ -24,7 +24,7 @@
 
         <variable
             name="fabListener"
-            type="ca.rmen.android.scrumchatter.chart.MeetingsChartsActivity.FabListener" />
+            type="ca.rmen.android.scrumchatter.chart.MeetingsChartsFragment.FabListener" />
     </data>
 
     <ScrollView

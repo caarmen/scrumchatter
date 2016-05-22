@@ -51,6 +51,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 
+import ca.rmen.android.scrumchatter.chart.ChartsActivity;
 import ca.rmen.android.scrumchatter.databinding.ActivityMainBinding;
 import ca.rmen.android.scrumchatter.settings.SettingsActivity;
 import ca.rmen.android.scrumchatter.settings.Theme;
@@ -285,6 +286,9 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
                 return true;
             case R.id.action_import:
                 MainActivityPermissionsDispatcher.startFileChooserWithCheck(this);
+                return true;
+            case R.id.action_charts:
+                startActivity(new Intent(this, ChartsActivity.class));
                 return true;
             case R.id.action_share:
                 // Build a chooser dialog for the file format.

@@ -28,76 +28,82 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
-import ca.rmen.android.scrumchatter.databinding.MembersChartsActivityBinding;
+import ca.rmen.android.scrumchatter.databinding.MembersChartsFragmentBinding;
 import ca.rmen.android.scrumchatter.export.BitmapExport;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberStatsColumns;
 import ca.rmen.android.scrumchatter.team.Teams;
 import ca.rmen.android.scrumchatter.util.Log;
 
-
 /**
  * Displays charts for members.
  */
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-public class MembersChartsActivity extends AppCompatActivity {
+public class MembersChartsFragment extends Fragment {
 
-    private static final String TAG = Constants.TAG + "/" + MembersChartsActivity.class.getSimpleName();
+    private static final String TAG = Constants.TAG + "/" + MembersChartsFragment.class.getSimpleName();
     private static final int LOADER_MEMBER_SPEAKING_TIME = 0;
 
-    private MembersChartsActivityBinding mBinding;
+    private MembersChartsFragmentBinding mBinding;
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.v(TAG, "onCreateView");
+        mBinding = DataBindingUtil.inflate(inflater, R.layout.members_charts_fragment, container, false);
         FabListener listener = new FabListener();
 
-        mBinding = DataBindingUtil.setContentView(this, R.layout.members_charts_activity);
         mBinding.pieChartCardAvg.setFabListener(listener);
         mBinding.pieChartCardTotal.setFabListener(listener);
         mBinding.pieChartCardAvg.fabShareMemberSpeakingTime.setTag(mBinding.pieChartCardAvg.memberSpeakingTimeChart);
         mBinding.pieChartCardTotal.fabShareMemberSpeakingTime.setTag(mBinding.pieChartCardTotal.memberSpeakingTimeChart);
-        ActionBar supportActionBar = getSupportActionBar();
-        if (supportActionBar != null) supportActionBar.setDisplayHomeAsUpEnabled(true);
-        getSupportLoaderManager().initLoader(LOADER_MEMBER_SPEAKING_TIME, null, mLoaderCallbacks);
-        mTeamLoader.execute();
+        return mBinding.getRoot();
     }
 
     @Override
-    protected void onDestroy() {
-        Log.v(TAG, "onDestroy");
-        super.onDestroy();
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getLoaderManager().initLoader(LOADER_MEMBER_SPEAKING_TIME, null, mLoaderCallbacks);
+        mTeamLoader.execute();
     }
+
 
     private final LoaderManager.LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderManager.LoaderCallbacks<Cursor>() {
 
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
             long teamId = sharedPreferences.getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
             String[] selectionArgs = new String[]{String.valueOf(teamId)};
 
             String[] projection = new String[]{MemberColumns._ID, MemberColumns.NAME, MemberStatsColumns.SUM_DURATION, MemberStatsColumns.AVG_DURATION};
             String selection = MemberStatsColumns.TEAM_ID + " =? AND " + MemberColumns.DELETED + "=0 ";
-            return new CursorLoader(getApplicationContext(), MemberStatsColumns.CONTENT_URI, projection, selection, selectionArgs, null);
+            return new CursorLoader(getContext(), MemberStatsColumns.CONTENT_URI, projection, selection, selectionArgs, null);
 
         }
 
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
             if (cursor != null) {
-                MemberSpeakingTimePieChart.populateMemberSpeakingTimeChart(getApplicationContext(),
+                MemberSpeakingTimePieChart.populateMemberSpeakingTimeChart(getContext(),
                         mBinding.pieChartCardAvg.chartMemberSpeakingTime,
                         mBinding.pieChartCardTotal.chartMemberSpeakingTime,
                         cursor);
@@ -112,7 +118,7 @@ public class MembersChartsActivity extends AppCompatActivity {
     private final AsyncTask<Void, Void, Teams.Team> mTeamLoader = new AsyncTask<Void, Void, Teams.Team>() {
         @Override
         protected Teams.Team doInBackground(Void... params) {
-            return new Teams(MembersChartsActivity.this).getCurrentTeam();
+            return new Teams(getActivity()).getCurrentTeam();
         }
 
         @Override
@@ -142,7 +148,7 @@ public class MembersChartsActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            BitmapExport export = new BitmapExport(MembersChartsActivity.this, mBitmap);
+            BitmapExport export = new BitmapExport(getActivity(), mBitmap);
             export.export();
             return null;
         }

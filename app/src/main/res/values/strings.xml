@@ -22,8 +22,7 @@
     <string name="app_name" translatable="false">Scrum Chatter</string>
     <string name="title_section_meetings">Meetings</string>
     <string name="title_section_team">Team</string>
-    <string name="title_meetings_chart">Meetings stats</string>
-    <string name="title_members_chart">Members stats</string>
+    <string name="title_chart">Stats</string>
     <string name="action_share">Share</string>
     <string name="action_team_rename">Rename team</string>
     <string name="action_team_rename_name">Rename %s</string>
