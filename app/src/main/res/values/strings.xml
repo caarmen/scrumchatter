@@ -23,6 +23,7 @@
     <string name="title_section_meetings">Meetings</string>
     <string name="title_section_team">Team</string>
     <string name="title_meetings_graph">Meetings stats</string>
+    <string name="title_members_graph">Members stats</string>
     <string name="action_share">Share</string>
     <string name="action_team_rename">Rename team</string>
     <string name="action_team_rename_name">Rename %s</string>
@@ -127,8 +128,10 @@
     <!-- Charts -->
     <string name="chart_meeting_duration_title">Meeting duration for %s</string>
     <string name="chart_speaker_time_title">Speaker time for %s</string>
-    <string name="chart_duration">Meeting duration (m)</string>
-    <string name="chart_speaking_time">Speaking time (m)</string>
+    <string name="chart_member_average_speaking_time_title">Average speaking time for %s members (min)</string>
+    <string name="chart_member_total_speaking_time_title">Total speaking time for %s members (min)</string>
+    <string name="chart_duration">Meeting duration (min)</string>
+    <string name="chart_speaking_time">Speaking time (min)</string>
     <string name="chart_date">Meeting date</string>
     <string name="chart_exporting_snackbar">Exporting chart…</string>
 </resources>

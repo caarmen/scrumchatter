@@ -75,6 +75,17 @@
                 android:value="ca.rmen.android.scrumchatter.main.MainActivity" />
         </activity>
         <activity
+            android:name="ca.rmen.android.scrumchatter.member.graph.MembersGraphActivity"
+            android:label="@string/title_members_graph"
+            android:parentActivityName="ca.rmen.android.scrumchatter.main.MainActivity"
+            tools:ignore="UnusedAttribute">
+
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ca.rmen.android.scrumchatter.main.MainActivity" />
+        </activity>
+        <activity
             android:name=".settings.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".main.MainActivity"

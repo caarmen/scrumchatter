@@ -22,6 +22,7 @@
     <string name="title_section_meetings">Reuniones</string>
     <string name="title_section_team">Equipo</string>
     <string name="title_meetings_graph">Estadísticas de reuniones</string>
+    <string name="title_members_graph">Estadísticas de miembros</string>
     <string name="action_share">Compartir</string>
     <string name="action_team_rename">Renombrar el equipo</string>
     <string name="action_team_rename_name">Renombrar %s</string>
@@ -110,8 +111,10 @@
     <!-- Charts -->
     <string name="chart_meeting_duration_title">Tiempo de reuniones para %s</string>
     <string name="chart_speaker_time_title">Tiempo de palabra para %s</string>
-    <string name="chart_duration">Tiempo de la reunión (m)</string>
-    <string name="chart_speaking_time">Tiempo de palabra (m)</string>
+    <string name="chart_member_average_speaking_time_title">Tiempo medio de palabra para los miembros de %s (min)</string>
+    <string name="chart_member_total_speaking_time_title">Tiempo total de palabra para los miembros de %s (min)</string>
+    <string name="chart_duration">Tiempo de la reunión (min)</string>
+    <string name="chart_speaking_time">Tiempo de palabra (min)</string>
     <string name="chart_date">Fecha de la reunión</string>
     <string name="chart_exporting_snackbar">Exportación de la gráfica…</string>
 
