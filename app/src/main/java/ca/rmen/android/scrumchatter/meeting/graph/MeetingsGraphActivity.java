@@ -97,7 +97,8 @@ public class MeetingsGraphActivity extends AppCompatActivity {
                 return new CursorLoader(getApplicationContext(),
                         MeetingMemberColumns.CONTENT_URI,
                         new String[]{
-                                MeetingMemberColumns.MEETING_ID,
+                                MeetingMemberColumns._ID,
+                                MeetingMemberColumns.MEMBER_ID,
                                 MeetingColumns.MEETING_DATE,
                                 MemberColumns.NAME,
                                 MeetingMemberColumns.DURATION},

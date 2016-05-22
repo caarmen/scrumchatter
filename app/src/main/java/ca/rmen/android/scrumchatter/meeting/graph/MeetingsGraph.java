@@ -67,20 +67,12 @@ final class MeetingsGraph {
         MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(cursor);
         while (cursorWrapper.moveToNext()) {
             Meeting meeting = Meeting.read(context, cursorWrapper);
-            String duration = DateUtils.formatElapsedTime(meeting.getDuration());
-            PointValue point = new PointValue();
-            point.set(meeting.getStartDate(), (float) meeting.getDuration() / (60));
-            point.setLabel(duration);
-            points.add(point);
-            AxisValue xAxisValue = new AxisValue(meeting.getStartDate());
-            String dateString = TextUtils.formatDate(context, meeting.getStartDate());
-            xAxisValue.setLabel(dateString);
-            xAxisValues.add(xAxisValue);
+            points.add(getMeetingDurationPointValue(meeting));
+            xAxisValues.add(getMeetingDurationXAxisValue(context, meeting));
         }
         cursor.moveToPosition(-1);
 
-        Line line = new Line(points);
-        line.setColor(ResourcesCompat.getColor(context.getResources(), R.color.scrum_chatter_primary_color, null));
+        Line line = createLine(context, points, 0);
         List<Line> lines = new ArrayList<>();
         lines.add(line);
 
@@ -91,21 +83,38 @@ final class MeetingsGraph {
                 lines);
     }
 
+    private static PointValue getMeetingDurationPointValue(Meeting meeting) {
+        String duration = DateUtils.formatElapsedTime(meeting.getDuration());
+        PointValue point = new PointValue();
+        point.set(meeting.getStartDate(), (float) meeting.getDuration() / (60));
+        point.setLabel(duration);
+        return point;
+    }
+
+    private static AxisValue getMeetingDurationXAxisValue(Context context, Meeting meeting) {
+        AxisValue xAxisValue = new AxisValue(meeting.getStartDate());
+        String dateString = TextUtils.formatDate(context, meeting.getStartDate());
+        xAxisValue.setLabel(dateString);
+        return xAxisValue;
+    }
+
     public static void populateMemberSpeakingTimeGraph(Context context, LineChartView chart, ViewGroup legendView, @NonNull Cursor cursor) {
         List<AxisValue> xAxisValues = new ArrayList<>();
         Map<String, List<PointValue>> memberLines = new HashMap<>();
 
         MeetingMemberCursorWrapper cursorWrapper = new MeetingMemberCursorWrapper(cursor);
+        long lastMemberId = -1;
         while (cursorWrapper.moveToNext()) {
             do {
+                long currentMemberId = cursorWrapper.getMemberId();
                 String memberName = cursorWrapper.getMemberName();
-                List<PointValue> memberPoints = memberLines.get(memberName);
-                if (memberPoints == null) {
-                    memberPoints = new ArrayList<>();
-                    memberLines.put(memberName, memberPoints);
+                if (currentMemberId != lastMemberId) {
+                    memberLines.put(memberName, new ArrayList<PointValue>());
                 }
+                List<PointValue> memberPoints = memberLines.get(memberName);
                 memberPoints.add(getSpeakingTimePointValue(cursorWrapper));
                 xAxisValues.add(getSpeakingTimeXAxisValue(context, cursorWrapper));
+                lastMemberId = currentMemberId;
             } while (cursorWrapper.moveToNext());
         }
         cursor.moveToPosition(-1);
