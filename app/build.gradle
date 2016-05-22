@@ -63,4 +63,5 @@ dependencies {
     compile ('net.sourceforge.jexcelapi:jxl:2.6.12') {
         exclude group: "log4j"
     }
+    compile 'org.apmem.tools:layouts:1.10@aar'
 }

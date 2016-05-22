@@ -16,16 +16,7 @@
   You should have received a copy of the GNU General Public License
   along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
 -->
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto">
-
-    <data>
-
-        <variable
-            name="fabListener"
-            type="ca.rmen.android.scrumchatter.member.graph.MembersGraphActivity.FabListener" />
-    </data>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -38,88 +29,13 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <android.support.v7.widget.CardView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="16dp"
-                card_view:cardCornerRadius="4dp">
+            <include
+                android:id="@+id/pie_chart_card_avg"
+                layout="@layout/pie_chart_card" />
 
-                <RelativeLayout
-                    android:id="@+id/member_avg_speaking_time_graph"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@android:color/white">
-
-                    <TextView
-                        android:id="@+id/tv_title_member_avg_speaking_time_graph"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentTop="true"
-                        android:gravity="center_horizontal" />
-
-                    <lecho.lib.hellocharts.view.PieChartView
-                        android:id="@+id/chart_member_avg_speaking_time"
-                        android:layout_width="wrap_content"
-                        android:layout_height="480dp"
-                        android:layout_below="@id/tv_title_member_avg_speaking_time_graph"
-                        android:padding="8dp" />
-
-                </RelativeLayout>
-
-                <android.support.design.widget.FloatingActionButton
-                    android:id="@+id/fab_share_member_avg_speaking_time"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end|bottom"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginRight="16dp"
-                    android:clickable="true"
-                    android:onClick="@{fabListener.onShareMemberAvgSpeakingTime}"
-                    app:srcCompat="@drawable/ic_action_share" />
-            </android.support.v7.widget.CardView>
-
-            <android.support.v7.widget.CardView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="16dp"
-                card_view:cardCornerRadius="4dp">
-
-                <RelativeLayout
-                    android:id="@+id/member_total_speaking_time_graph"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@android:color/white">
-
-                    <TextView
-                        android:id="@+id/tv_title_member_total_speaking_time_graph"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentTop="true"
-                        android:gravity="center_horizontal" />
-
-                    <lecho.lib.hellocharts.view.PieChartView
-                        android:id="@+id/chart_member_total_speaking_time"
-                        android:layout_width="wrap_content"
-                        android:layout_height="480dp"
-                        android:layout_below="@id/tv_title_member_total_speaking_time_graph"
-                        android:padding="8dp" />
-
-                </RelativeLayout>
-
-                <android.support.design.widget.FloatingActionButton
-                    android:id="@+id/fab_share_member_total_speaking_time"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end|bottom"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginRight="16dp"
-                    android:clickable="true"
-                    android:onClick="@{fabListener.onShareMemberTotalSpeakingTime}"
-                    app:srcCompat="@drawable/ic_action_share" />
-            </android.support.v7.widget.CardView>
-
+            <include
+                android:id="@+id/pie_chart_card_total"
+                layout="@layout/pie_chart_card" />
         </LinearLayout>
 
     </ScrollView>

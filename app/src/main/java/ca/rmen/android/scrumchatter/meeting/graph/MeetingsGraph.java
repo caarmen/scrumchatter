@@ -19,7 +19,12 @@
 package ca.rmen.android.scrumchatter.meeting.graph;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
 import ca.rmen.android.scrumchatter.R;
 import lecho.lib.hellocharts.model.Axis;
@@ -28,7 +33,7 @@ import lecho.lib.hellocharts.model.Axis;
 /**
  * Some utility methods common to the meetings duration and member speaking time chart generation.
  */
-final class MeetingsGraph {
+public final class MeetingsGraph {
 
     private MeetingsGraph() {
         // prevent instantiation
@@ -47,5 +52,16 @@ final class MeetingsGraph {
         yAxis.setHasLines(true);
     }
 
+    public static void addLegendEntry(Context context, ViewGroup legendView, String name, int color) {
+        TextView memberLegendEntry = new TextView(context);
+        memberLegendEntry.setTextColor(color);
+        memberLegendEntry.setText(name);
+        memberLegendEntry.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        memberLegendEntry.setPadding(0, 0, context.getResources().getDimensionPixelSize(R.dimen.chart_legend_entry_padding), 0);
 
+        Drawable icon = ContextCompat.getDrawable(context, R.drawable.ic_legend_square);
+        DrawableCompat.setTint(icon, color);
+        memberLegendEntry.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
+        legendView.addView(memberLegendEntry);
+    }
 }

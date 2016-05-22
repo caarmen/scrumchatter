@@ -27,6 +27,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
@@ -110,7 +111,7 @@ public class MembersListFragment extends ListFragment {
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         MenuItem menuItem = menu.findItem(R.id.action_graphs);
-        menuItem.setVisible(mAdapter != null && mAdapter.getCount() > 0);
+        menuItem.setVisible(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && mAdapter != null && mAdapter.getCount() > 0);
     }
 
     @Override

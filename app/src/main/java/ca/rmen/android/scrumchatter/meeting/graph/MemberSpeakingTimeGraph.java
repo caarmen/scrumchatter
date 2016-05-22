@@ -95,7 +95,7 @@ final class MemberSpeakingTimeGraph {
         cursor.moveToPosition(-1);
 
         for (String memberName : memberColors.keySet()) {
-            addLegendEntry(context, legendView, memberName, memberColors.get(memberName));
+            MeetingsGraph.addLegendEntry(context, legendView, memberName, memberColors.get(memberName));
         }
 
         setupChart(context,
@@ -126,18 +126,6 @@ final class MemberSpeakingTimeGraph {
         return Color.parseColor(colorString);
     }
 
-    private static void addLegendEntry(Context context, ViewGroup legendView, String name, int color) {
-        TextView memberLegendEntry = new TextView(context);
-        memberLegendEntry.setTextColor(color);
-        memberLegendEntry.setText(name);
-        memberLegendEntry.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-
-        Drawable icon = ContextCompat.getDrawable(context, R.drawable.ic_legend_square);
-        DrawableCompat.setTint(icon, color);
-        memberLegendEntry.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
-        legendView.addView(memberLegendEntry);
-    }
-
     private static void setupChart(Context context, ColumnChartView chart, List<AxisValue> xAxisValues, String yAxisLabel, List<Column> columns) {
         Axis xAxis = new Axis(xAxisValues);
         MeetingsGraph.setupXAxis(context, xAxis);
@@ -148,6 +136,7 @@ final class MemberSpeakingTimeGraph {
         data.setAxisYLeft(yAxis);
         data.setColumns(columns);
         data.setStacked(true);
+        chart.setInteractive(true);
         chart.setColumnChartData(data);
         chart.setValueSelectionEnabled(true);
         chart.setZoomEnabled(true);

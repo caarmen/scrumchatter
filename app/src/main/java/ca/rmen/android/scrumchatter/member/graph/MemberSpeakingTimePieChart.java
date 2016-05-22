@@ -23,6 +23,7 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.text.format.DateUtils;
+import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,6 +31,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import ca.rmen.android.scrumchatter.R;
+import ca.rmen.android.scrumchatter.meeting.graph.MeetingsGraph;
 import ca.rmen.android.scrumchatter.provider.MemberCursorWrapper;
 import lecho.lib.hellocharts.gesture.ZoomType;
 import lecho.lib.hellocharts.model.PieChartData;
@@ -39,8 +41,10 @@ import lecho.lib.hellocharts.view.PieChartView;
 /**
  */
 final class MemberSpeakingTimePieChart {
+    private static final int MAX_VALUES = 10;
+
     // prevent instantiation
-    public static void populateMemberSpeakingTimeChart(Context context, PieChartView avgSpeakingTimeChart, PieChartView totalSpeakingTimeChart, @NonNull Cursor cursor) {
+    public static void populateMemberSpeakingTimeChart(Context context, PieChartView pieChartAvg, PieChartView pieChartTotal, @NonNull Cursor cursor) {
         List<SliceValue> sliceValuesAvgSpeakingTime = new ArrayList<>();
         List<SliceValue> sliceValuesTotalSpeakingTime = new ArrayList<>();
         MemberCursorWrapper cursorWrapper = new MemberCursorWrapper(cursor);
@@ -57,8 +61,8 @@ final class MemberSpeakingTimePieChart {
         }
         cursor.moveToPosition(-1);
 
-        setupChart(context, avgSpeakingTimeChart, sliceValuesAvgSpeakingTime);
-        setupChart(context, totalSpeakingTimeChart, sliceValuesTotalSpeakingTime);
+        setupChart(context, pieChartAvg, sliceValuesAvgSpeakingTime);
+        setupChart(context, pieChartTotal, sliceValuesTotalSpeakingTime);
 
     }
 
@@ -66,7 +70,7 @@ final class MemberSpeakingTimePieChart {
         SliceValue sliceValue = new SliceValue();
         sliceValue.setValue(duration);
         String durationString = DateUtils.formatElapsedTime(duration);
-        String label = String.format("%s (%s)", memberName, durationString);
+        String label = String.format("%s###%s", memberName, durationString);
         sliceValue.setLabel(label);
         return sliceValue;
     }
@@ -74,28 +78,38 @@ final class MemberSpeakingTimePieChart {
     private static void setupChart(Context context, PieChartView pieChartView, List<SliceValue> sliceValues) {
         PieChartData data = new PieChartData();
         data.setHasLabels(true);
-        data.setHasLabelsOutside(true);
-        data.setHasCenterCircle(false);
+        //data.setHasLabelsOutside(true);
 
         Collections.sort(sliceValues, SLICE_VALUE_COMPARATOR);
+        while (sliceValues.size() >= MAX_VALUES) {
+            sliceValues.remove(sliceValues.size() - 1);
+        }
 
         String[] lineColors = context.getResources().getStringArray(R.array.chart_colors);
-        for (int i=0; i < sliceValues.size(); i++) {
+        ViewGroup legendView = (ViewGroup) ((ViewGroup) pieChartView.getParent()).findViewById(R.id.legend);
+        for (int i = 0; i < sliceValues.size(); i++) {
             String colorString = lineColors[i % lineColors.length];
             int color = Color.parseColor(colorString);
-            sliceValues.get(i).setColor(color);
+            SliceValue sliceValue = sliceValues.get(i);
+            String label = new String(sliceValue.getLabelAsChars());
+            String memberName = label.substring(0, label.indexOf("###"));
+            String duration = label.substring(label.indexOf("###") + 3);
+            sliceValue.setColor(color);
+
+            MeetingsGraph.addLegendEntry(context, legendView, memberName, color);
+            sliceValue.setLabel(duration);
         }
 
         data.setValues(sliceValues);
         pieChartView.setPieChartData(data);
-        pieChartView.setInteractive(true);
+        pieChartView.setInteractive(false);
         pieChartView.setZoomEnabled(true);
         pieChartView.setZoomType(ZoomType.HORIZONTAL_AND_VERTICAL);
         // https://github.com/lecho/hellocharts-android/issues/268
-        pieChartView.setCircleFillRatio(0.7f);
+        //pieChartView.setCircleFillRatio(0.4f);
     }
 
-    private static final Comparator<SliceValue>  SLICE_VALUE_COMPARATOR = new Comparator<SliceValue>() {
+    private static final Comparator<SliceValue> SLICE_VALUE_COMPARATOR = new Comparator<SliceValue>() {
         @Override
         public int compare(SliceValue lhs, SliceValue rhs) {
             return (int) (rhs.getValue() - lhs.getValue());

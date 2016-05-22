@@ -18,12 +18,14 @@
  */
 package ca.rmen.android.scrumchatter.member.graph;
 
+import android.annotation.TargetApi;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
@@ -38,6 +40,7 @@ import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.databinding.MembersGraphActivityBinding;
 import ca.rmen.android.scrumchatter.export.BitmapExport;
+import ca.rmen.android.scrumchatter.meeting.graph.MeetingsGraphActivity;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberStatsColumns;
 import ca.rmen.android.scrumchatter.team.Teams;
@@ -47,6 +50,7 @@ import ca.rmen.android.scrumchatter.util.Log;
 /**
  * Displays graphs for members.
  */
+@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class MembersGraphActivity extends AppCompatActivity {
 
     private static final String TAG = Constants.TAG + "/" + MembersGraphActivity.class.getSimpleName();
@@ -58,9 +62,13 @@ public class MembersGraphActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FabListener listener = new FabListener();
 
         mBinding = DataBindingUtil.setContentView(this, R.layout.members_graph_activity);
-        mBinding.setFabListener(new FabListener());
+        mBinding.pieChartCardAvg.setFabListener(listener);
+        mBinding.pieChartCardTotal.setFabListener(listener);
+        mBinding.pieChartCardAvg.fabShareMemberSpeakingTime.setTag(mBinding.pieChartCardAvg.memberSpeakingTimeGraph);
+        mBinding.pieChartCardTotal.fabShareMemberSpeakingTime.setTag(mBinding.pieChartCardTotal.memberSpeakingTimeGraph);
         ActionBar supportActionBar = getSupportActionBar();
         if (supportActionBar != null) supportActionBar.setDisplayHomeAsUpEnabled(true);
         getSupportLoaderManager().initLoader(LOADER_MEMBER_SPEAKING_TIME, null, mLoaderCallbacks);
@@ -90,7 +98,10 @@ public class MembersGraphActivity extends AppCompatActivity {
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
             if (cursor != null) {
-                MemberSpeakingTimePieChart.populateMemberSpeakingTimeChart(getApplicationContext(), mBinding.chartMemberAvgSpeakingTime, mBinding.chartMemberTotalSpeakingTime, cursor);
+                MemberSpeakingTimePieChart.populateMemberSpeakingTimeChart(getApplicationContext(),
+                        mBinding.pieChartCardAvg.chartMemberSpeakingTime,
+                        mBinding.pieChartCardTotal.chartMemberSpeakingTime,
+                        cursor);
             }
         }
 
@@ -107,8 +118,8 @@ public class MembersGraphActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Teams.Team team) {
-            mBinding.tvTitleMemberAvgSpeakingTimeGraph.setText(getString(R.string.chart_member_average_speaking_time_title, team.teamName));
-            mBinding.tvTitleMemberTotalSpeakingTimeGraph.setText(getString(R.string.chart_member_total_speaking_time_title, team.teamName));
+            mBinding.pieChartCardAvg.tvTitleMemberSpeakingTimeGraph.setText(getString(R.string.chart_member_average_speaking_time_title, team.teamName));
+            mBinding.pieChartCardTotal.tvTitleMemberSpeakingTimeGraph.setText(getString(R.string.chart_member_total_speaking_time_title, team.teamName));
         }
     };
 
@@ -140,13 +151,8 @@ public class MembersGraphActivity extends AppCompatActivity {
     }
 
     public class FabListener {
-        public void onShareMemberAvgSpeakingTime(@SuppressWarnings("UnusedParameters") View view) {
-            new GraphExportTask(mBinding.memberAvgSpeakingTimeGraph).execute();
-
-        }
-
-        public void onShareMemberTotalSpeakingTime(@SuppressWarnings("UnusedParameters") View view) {
-            new GraphExportTask(mBinding.memberTotalSpeakingTimeGraph).execute();
+        public void onShareMemberSpeakingTime(View view) {
+            new GraphExportTask((View)view.getTag()).execute();
         }
     }
 }
