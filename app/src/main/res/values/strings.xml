@@ -22,12 +22,15 @@
     <string name="app_name" translatable="false">Scrum Chatter</string>
     <string name="title_section_meetings">Meetings</string>
     <string name="title_section_team">Team</string>
+    <string name="title_meetings_graph">Meetings stats</string>
+    <string name="title_members_graph">Members stats</string>
     <string name="action_share">Share</string>
     <string name="action_team_rename">Rename team</string>
     <string name="action_team_rename_name">Rename %s</string>
     <string name="action_team_delete">Delete team</string>
     <string name="action_team_delete_name">Delete %s</string>
     <string name="action_import">Import database</string>
+    <string name="action_graphs">Stats</string>
     <string name="action_new_member">Add team member</string>
     <string name="action_rename_member">Rename team member</string>
     <string name="action_new_meeting">New meeting</string>
@@ -95,6 +98,10 @@
     <string translatable="false" name="about_credit_jxl_lib_link">http://sourceforge.net/projects/jexcelapi</string>
     <string name="about_credit_permissions_lib_text">Shintaro Katafuchi, for his PermissionsDispatcher library.</string>
     <string translatable="false" name="about_credit_permissions_lib_link">https://github.com/hotchemi/PermissionsDispatcher</string>
+    <string name="about_credit_graph_lib_text">Leszek Wach, for his HelloCharts for Android library.</string>
+    <string translatable="false" name="about_credit_graph_lib_link">https://github.com/lecho/hellocharts-android</string>
+    <string name="about_credit_flowlayout_lib_text">Artem Votincev, for his FlowLayout library.</string>
+    <string translatable="false" name="about_credit_flowlayout_lib_link">https://github.com/ApmeM/android-flowlayout</string>
 
     <string name="drawer_open">Open side menu</string>
     <string name="drawer_close">Close side menu</string>
@@ -119,4 +126,14 @@
     <!-- Default team members -->
     <string name="default_team_member1">Justin</string>
     <string name="default_team_member2">Ashley</string>
+
+    <!-- Charts -->
+    <string name="chart_meeting_duration_title">Meeting duration for %s</string>
+    <string name="chart_speaker_time_title">Speaker time for %s</string>
+    <string name="chart_member_average_speaking_time_title">Average speaking time for %s members (min)</string>
+    <string name="chart_member_total_speaking_time_title">Total speaking time for %s members (min)</string>
+    <string name="chart_duration">Meeting duration (min)</string>
+    <string name="chart_speaking_time">Speaking time (min)</string>
+    <string name="chart_date">Meeting date</string>
+    <string name="chart_exporting_snackbar">Exporting chart…</string>
 </resources>

@@ -298,7 +298,7 @@ public class MeetingFragment extends ListFragment {
                 selection = MeetingMemberColumns.DURATION + ">0";
                 orderBy = MeetingMemberColumns.DURATION + " DESC";
             }
-            String[] projection = new String[] { MeetingMemberColumns._ID, MemberColumns.NAME, MeetingMemberColumns.DURATION, MeetingColumns.STATE,
+            String[] projection = new String[] { MeetingMemberColumns._ID, MeetingMemberColumns.MEMBER_ID, MemberColumns.NAME, MeetingMemberColumns.DURATION, MeetingColumns.STATE,
                     MeetingMemberColumns.TALK_START_TIME };
 
             Uri uri = Uri.withAppendedPath(MeetingMemberColumns.CONTENT_URI, String.valueOf(loaderId));

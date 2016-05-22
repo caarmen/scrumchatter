@@ -22,6 +22,7 @@
     package="ca.rmen.android.scrumchatter">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-sdk tools:overrideLibrary="org.apmem.tools.layouts"/>
 
     <application
         android:allowBackup="true"
@@ -55,6 +56,28 @@
         <activity
             android:name="ca.rmen.android.scrumchatter.meeting.detail.MeetingActivity"
             android:label="@string/app_name"
+            android:parentActivityName="ca.rmen.android.scrumchatter.main.MainActivity"
+            tools:ignore="UnusedAttribute">
+
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ca.rmen.android.scrumchatter.main.MainActivity" />
+        </activity>
+        <activity
+            android:name="ca.rmen.android.scrumchatter.meeting.graph.MeetingsGraphActivity"
+            android:label="@string/title_meetings_graph"
+            android:parentActivityName="ca.rmen.android.scrumchatter.main.MainActivity"
+            tools:ignore="UnusedAttribute">
+
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ca.rmen.android.scrumchatter.main.MainActivity" />
+        </activity>
+        <activity
+            android:name="ca.rmen.android.scrumchatter.member.graph.MembersGraphActivity"
+            android:label="@string/title_members_graph"
             android:parentActivityName="ca.rmen.android.scrumchatter.main.MainActivity"
             tools:ignore="UnusedAttribute">
 

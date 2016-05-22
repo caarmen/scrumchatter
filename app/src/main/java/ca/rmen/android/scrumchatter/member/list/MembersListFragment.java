@@ -22,10 +22,12 @@ package ca.rmen.android.scrumchatter.member.list;
  * Displays the list of team members.
  */
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
@@ -37,6 +39,7 @@ import android.support.v4.content.Loader;
 
 import ca.rmen.android.scrumchatter.databinding.MemberListBinding;
 import ca.rmen.android.scrumchatter.databinding.MemberListItemBinding;
+import ca.rmen.android.scrumchatter.member.graph.MembersGraphActivity;
 import ca.rmen.android.scrumchatter.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -105,11 +108,20 @@ public class MembersListFragment extends ListFragment {
     }
 
     @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        MenuItem menuItem = menu.findItem(R.id.action_graphs);
+        menuItem.setVisible(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && mAdapter != null && mAdapter.getCount() > 0);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Create a new team member
         if (item.getItemId() == R.id.action_new_member) {
             mMembers.promptCreateMember(mTeamId);
             return true;
+        } else if (item.getItemId() == R.id.action_graphs) {
+            startActivity(new Intent(getActivity(), MembersGraphActivity.class));
         }
         return false;
     }
@@ -140,6 +152,7 @@ public class MembersListFragment extends ListFragment {
             }
             mBinding.listContent.progressContainer.setVisibility(View.GONE);
             mAdapter.changeCursor(cursor);
+            getActivity().supportInvalidateOptionsMenu();
         }
 
         @Override

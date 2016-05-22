@@ -168,7 +168,7 @@ public class Meeting {
         // Closing the cursorWrapper also closes the cursor
         @SuppressLint("Recycle")
         Cursor cursor = mContext.getContentResolver().query(uri,
-                new String[] { MeetingMemberColumns._ID, MeetingMemberColumns.DURATION, MeetingMemberColumns.TALK_START_TIME },
+                new String[] { MeetingMemberColumns.MEMBER_ID, MeetingMemberColumns.DURATION, MeetingMemberColumns.TALK_START_TIME },
                 MeetingMemberColumns.TALK_START_TIME + ">0", null, null);
         if (cursor != null) {
             // Prepare some update statements to set the duration and reset the
