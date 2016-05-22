@@ -16,7 +16,16 @@
   You should have received a copy of the GNU General Public License
   along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
 -->
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="fabListener"
+            type="ca.rmen.android.scrumchatter.meeting.graph.MeetingsGraphActivity.FabListener" />
+    </data>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -27,21 +36,101 @@
             android:id="@+id/graph_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/white"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/tv_title_meetings_graph"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:text="@string/title_meetings_graph" />
-
-            <lecho.lib.hellocharts.view.LineChartView
-                android:id="@+id/chart"
+            <android.support.v7.widget.CardView
                 android:layout_width="wrap_content"
-                android:layout_height="480dp"
-                android:padding="8dp" />
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="16dp"
+                card_view:cardCornerRadius="4dp">
+
+                <RelativeLayout
+                    android:id="@+id/meeting_duration_graph"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/white">
+
+                    <TextView
+                        android:id="@+id/tv_title_meeting_duration_graph"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:gravity="center_horizontal" />
+
+                    <lecho.lib.hellocharts.view.LineChartView
+                        android:id="@+id/chart_meeting_duration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="480dp"
+                        android:layout_below="@id/tv_title_meeting_duration_graph"
+                        android:padding="8dp" />
+
+                </RelativeLayout>
+
+                <android.support.design.widget.FloatingActionButton
+                    android:id="@+id/fab_share_meeting_duration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|bottom"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginRight="16dp"
+                    android:clickable="true"
+                    android:onClick="@{fabListener.onShareMeetingDuration}"
+                    app:srcCompat="@drawable/ic_action_share" />
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="16dp"
+                card_view:cardCornerRadius="4dp">
+
+                <RelativeLayout
+                    android:id="@+id/speaker_time_graph"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/white">
+
+                    <TextView
+                        android:id="@+id/tv_title_speaker_time_graph"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_marginTop="16dp"
+                        android:gravity="center_horizontal" />
+
+                    <LinearLayout
+                        android:id="@+id/legend"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_below="@id/tv_title_speaker_time_graph"
+                        android:orientation="vertical" />
+
+                    <lecho.lib.hellocharts.view.LineChartView
+                        android:id="@+id/chart_speaker_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="480dp"
+                        android:layout_below="@id/tv_title_speaker_time_graph"
+                        android:layout_toLeftOf="@id/legend"
+                        android:layout_toStartOf="@id/legend"
+                        android:padding="8dp" />
+
+                </RelativeLayout>
+
+                <android.support.design.widget.FloatingActionButton
+                    android:id="@+id/fab_share_speaker_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|bottom"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginRight="16dp"
+                    android:clickable="true"
+                    android:onClick="@{fabListener.onShareSpeakerTime}"
+                    app:srcCompat="@drawable/ic_action_share" />
+            </android.support.v7.widget.CardView>
         </LinearLayout>
 
     </ScrollView>

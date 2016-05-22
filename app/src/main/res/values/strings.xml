@@ -125,8 +125,10 @@
     <string name="default_team_member2">Ashley</string>
 
     <!-- Charts -->
-    <string name="chart_meetings_title">Meeting duration for %s</string>
+    <string name="chart_meeting_duration_title">Meeting duration for %s</string>
+    <string name="chart_speaker_time_title">Speaker time for %s</string>
     <string name="chart_duration">Meeting duration (m)</string>
+    <string name="chart_speaking_time">Speaking time (m)</string>
     <string name="chart_date">Meeting date</string>
     <string name="chart_exporting_snackbar">Exporting chart…</string>
 </resources>

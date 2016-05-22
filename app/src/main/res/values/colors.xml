@@ -34,4 +34,17 @@
     <color name="chrono_inactive">@color/primary_text_color</color>
     <color name="meeting_state_default">@color/primary_text_color</color>
     <color name="chrono_not_started">@color/primary_text_disabled_color</color>
+
+    <string-array name="chart_colors">
+        <item>#9c27b0</item>
+        <item>#2196f3</item>
+        <item>#009688</item>
+        <item>#cddc39</item>
+        <item>#ff9800</item>
+        <item>#9e9e9e</item>
+        <item>#e91e63</item>
+        <item>#3f51b5</item>
+        <item>#00bcd4</item>
+        <item>#8bc34a</item>
+    </string-array>
 </resources>

@@ -20,8 +20,6 @@ package ca.rmen.android.scrumchatter.export;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.view.View;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -34,16 +32,16 @@ import ca.rmen.android.scrumchatter.util.Log;
 /**
  * Export data for all meetings to an Excel file.
  */
-public class GraphExport extends FileExport {
-    private static final String TAG = Constants.TAG + "/" + GraphExport.class.getSimpleName();
+public class BitmapExport extends FileExport {
+    private static final String TAG = Constants.TAG + "/" + BitmapExport.class.getSimpleName();
 
     private static final String FILE = "scrumchatter.png";
     private static final String MIME_TYPE = "image/png";
-    private final View mView;
+    private final Bitmap mBitmap;
 
-    public GraphExport(Context context, View view) {
+    public BitmapExport(Context context, Bitmap bitmap) {
         super(context, MIME_TYPE);
-        mView = view;
+        mBitmap = bitmap;
     }
 
     /**
@@ -57,17 +55,14 @@ public class GraphExport extends FileExport {
 
         File file = new File(mContext.getExternalFilesDir(null), FILE);
         // Draw everything to a bitmap.
-        Bitmap bitmap = Bitmap.createBitmap(mView.getWidth(), mView.getHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        mView.draw(canvas);
         FileOutputStream os = null;
         try {
             os = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, os);
+            mBitmap.compress(Bitmap.CompressFormat.PNG, 100, os);
         } catch (FileNotFoundException e) {
             Log.v(TAG, "Error writing bitmap file", e);
         } finally {
-            if (os != null)  {
+            if (os != null) {
                 try {
                     os.close();
                 } catch (IOException e) {

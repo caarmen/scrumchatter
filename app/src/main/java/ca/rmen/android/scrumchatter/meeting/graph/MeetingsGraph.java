@@ -20,16 +20,25 @@ package ca.rmen.android.scrumchatter.meeting.graph;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.text.format.DateUtils;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.meeting.detail.Meeting;
 import ca.rmen.android.scrumchatter.provider.MeetingCursorWrapper;
+import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
 import ca.rmen.android.scrumchatter.util.TextUtils;
 import lecho.lib.hellocharts.gesture.ZoomType;
 import lecho.lib.hellocharts.model.Axis;
@@ -37,6 +46,7 @@ import lecho.lib.hellocharts.model.AxisValue;
 import lecho.lib.hellocharts.model.Line;
 import lecho.lib.hellocharts.model.LineChartData;
 import lecho.lib.hellocharts.model.PointValue;
+import lecho.lib.hellocharts.model.ValueShape;
 import lecho.lib.hellocharts.model.Viewport;
 import lecho.lib.hellocharts.view.LineChartView;
 
@@ -50,13 +60,12 @@ final class MeetingsGraph {
         // prevent instantiation
     }
 
-    public static void populateMeetingsGraph(Context context, LineChartView chart, @NonNull Cursor cursor) {
+    public static void populateMeetingDurationGraph(Context context, LineChartView chart, @NonNull Cursor cursor) {
         List<PointValue> points = new ArrayList<>();
         List<AxisValue> axisValues = new ArrayList<>();
 
-
-        while (cursor.moveToNext()) {
-            MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(cursor);
+        MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(cursor);
+        while (cursorWrapper.moveToNext()) {
             Meeting meeting = Meeting.read(context, cursorWrapper);
             String duration = DateUtils.formatElapsedTime(meeting.getDuration());
             PointValue point = new PointValue();
@@ -75,15 +84,93 @@ final class MeetingsGraph {
         List<Line> lines = new ArrayList<>();
         lines.add(line);
 
-        Axis xAxis = new Axis(axisValues);
-        xAxis.setTextColor(ResourcesCompat.getColor(context.getResources(), R.color.primary_text_color, null));
-        xAxis.setHasTiltedLabels(true);
-        xAxis.setName(context.getString(R.string.chart_date));
-        xAxis.setMaxLabelChars(10);
-        Axis yAxis = new Axis();
-        yAxis.setTextColor(ResourcesCompat.getColor(context.getResources(), R.color.primary_text_color, null));
+        setupChart(context,
+                chart,
+                axisValues,
+                context.getString(R.string.chart_duration),
+                lines);
+    }
 
-        yAxis.setName(context.getString(R.string.chart_duration));
+    public static void populateMemberSpeakingTimeGraph(Context context, LineChartView chart, ViewGroup legendView, @NonNull Cursor cursor) {
+        List<AxisValue> axisValues = new ArrayList<>();
+        Map<String, List<PointValue>> memberLines = new HashMap<>();
+
+        MeetingMemberCursorWrapper cursorWrapper = new MeetingMemberCursorWrapper(cursor);
+        while (cursorWrapper.moveToNext()) {
+            long currentMeetingId = cursorWrapper.getMeetingId();
+            do {
+                long meetingId = cursorWrapper.getMeetingId();
+                if (meetingId != currentMeetingId) {
+                    cursorWrapper.move(-1);
+                    break;
+                }
+                String memberName = cursorWrapper.getMemberName();
+                List<PointValue> memberPoints = memberLines.get(memberName);
+                if (memberPoints == null) {
+                    memberPoints = new ArrayList<>();
+                    memberLines.put(memberName, memberPoints);
+                }
+                PointValue point = new PointValue();
+                point.set(cursorWrapper.getMeetingDate(), (float) cursorWrapper.getDuration() / 60);
+                String duration = DateUtils.formatElapsedTime(cursorWrapper.getDuration());
+                point.setLabel(duration);
+                memberPoints.add(point);
+                AxisValue axisValue = new AxisValue(cursorWrapper.getMeetingDate());
+                String dateString = TextUtils.formatDate(context, cursorWrapper.getMeetingDate());
+                axisValue.setLabel(dateString);
+                axisValues.add(axisValue);
+            } while (cursorWrapper.moveToNext());
+        }
+        cursor.moveToPosition(-1);
+        List<Line> lines = new ArrayList<>();
+        int i = 0;
+        String[] lineColors = context.getResources().getStringArray(R.array.chart_colors);
+        for (Map.Entry<String, List<PointValue>> memberLine : memberLines.entrySet()) {
+            Line line = new Line(memberLine.getValue());
+            lines.add(line);
+            String lineColorString = lineColors[i % lineColors.length];
+            int lineColor = Color.parseColor(lineColorString);
+            ValueShape shape = ValueShape.values()[i % ValueShape.values().length];
+            line.setColor(lineColor);
+            line.setShape(shape);
+            addLegendEntry(context, legendView, memberLine.getKey(), lineColor, shape);
+            i++;
+        }
+        legendView.getParent().requestLayout();
+        setupChart(context,
+                chart,
+                axisValues,
+                context.getString(R.string.chart_speaking_time),
+                lines);
+
+    }
+
+    private static void addLegendEntry(Context context, ViewGroup legendView, String name, int color, ValueShape shape) {
+        TextView memberLegendEntry = new TextView(context);
+        memberLegendEntry.setTextColor(color);
+        memberLegendEntry.setText(name);
+        memberLegendEntry.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        int iconResId;
+        if (shape == ValueShape.CIRCLE) {
+            iconResId = R.drawable.ic_legend_circle;
+        } else if (shape == ValueShape.DIAMOND) {
+            iconResId = R.drawable.ic_legend_diamond;
+        } else {
+            iconResId = R.drawable.ic_legend_square;
+        }
+        Drawable icon = ContextCompat.getDrawable(context, iconResId);
+        DrawableCompat.setTint(icon, color);
+        memberLegendEntry.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
+        legendView.addView(memberLegendEntry);
+
+    }
+
+    private static void setupChart(Context context, LineChartView chart, List<AxisValue> xAxisValues, String yAxisLabel, List<Line> lines) {
+        Axis xAxis = new Axis(xAxisValues);
+        setupXAxis(context, xAxis);
+        Axis yAxis = new Axis();
+        setupYAxis(context, yAxisLabel, yAxis);
         LineChartData lineChartData = new LineChartData();
         lineChartData.setAxisXBottom(xAxis);
         lineChartData.setAxisYLeft(yAxis);
@@ -92,7 +179,23 @@ final class MeetingsGraph {
         chart.setZoomEnabled(true);
         chart.setZoomType(ZoomType.HORIZONTAL);
         chart.setLineChartData(lineChartData);
+        resetViewport(chart);
+    }
 
+
+    private static void setupXAxis(Context context, Axis xAxis) {
+        xAxis.setTextColor(ResourcesCompat.getColor(context.getResources(), R.color.primary_text_color, null));
+        xAxis.setHasTiltedLabels(true);
+        xAxis.setName(context.getString(R.string.chart_date));
+        xAxis.setMaxLabelChars(10);
+    }
+
+    private static void setupYAxis(Context context, String yAxisLabel, Axis yAxis) {
+        yAxis.setTextColor(ResourcesCompat.getColor(context.getResources(), R.color.primary_text_color, null));
+        yAxis.setName(yAxisLabel);
+    }
+
+    private static void resetViewport(LineChartView chart) {
         Viewport viewport = chart.getMaximumViewport();
         viewport.set(viewport.left, viewport.top, viewport.right, 0);
         chart.setMaximumViewport(viewport);
@@ -100,4 +203,5 @@ final class MeetingsGraph {
         viewport.set(viewport.left, viewport.top, viewport.right, 0);
         chart.setCurrentViewport(viewport);
     }
+
 }
