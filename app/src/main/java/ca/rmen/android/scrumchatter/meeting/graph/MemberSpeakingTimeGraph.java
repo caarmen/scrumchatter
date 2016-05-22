@@ -20,27 +20,34 @@ package ca.rmen.android.scrumchatter.meeting.graph;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.text.format.DateUtils;
+import android.util.DisplayMetrics;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
 import ca.rmen.android.scrumchatter.util.TextUtils;
+import lecho.lib.hellocharts.gesture.ZoomType;
+import lecho.lib.hellocharts.model.Axis;
 import lecho.lib.hellocharts.model.AxisValue;
-import lecho.lib.hellocharts.model.Line;
-import lecho.lib.hellocharts.model.PointValue;
-import lecho.lib.hellocharts.model.ValueShape;
-import lecho.lib.hellocharts.view.LineChartView;
+import lecho.lib.hellocharts.model.Column;
+import lecho.lib.hellocharts.model.ColumnChartData;
+import lecho.lib.hellocharts.model.SubcolumnValue;
+import lecho.lib.hellocharts.view.ColumnChartView;
 
 /**
  * The member speaking-time graph has one line per member. A line for a member contains points for
@@ -52,75 +59,107 @@ final class MemberSpeakingTimeGraph {
         // prevent instantiation
     }
 
-    public static void populateMemberSpeakingTimeGraph(Context context, LineChartView chart, ViewGroup legendView, @NonNull Cursor cursor) {
+    public static void populateMemberSpeakingTimeGraph(Context context, ColumnChartView chart, ViewGroup legendView, @NonNull Cursor cursor) {
         List<AxisValue> xAxisValues = new ArrayList<>();
-        Map<String, List<PointValue>> memberLines = new HashMap<>();
+        List<Column> columns = new ArrayList<>();
 
         MeetingMemberCursorWrapper cursorWrapper = new MeetingMemberCursorWrapper(cursor);
-        long lastMemberId = -1;
+        Map<String, Integer> memberColors = buildMemberColorMap(context, cursorWrapper);
+        long lastMeetingId = -1;
+        List<SubcolumnValue> subcolumnValues = new ArrayList<>();
         while (cursorWrapper.moveToNext()) {
             do {
-                long currentMemberId = cursorWrapper.getMemberId();
-                String memberName = cursorWrapper.getMemberName();
-                if (currentMemberId != lastMemberId) {
-                    memberLines.put(memberName, new ArrayList<PointValue>());
+                long currentMeetingId = cursorWrapper.getMeetingId();
+                if (currentMeetingId != lastMeetingId) {
+                    if (!subcolumnValues.isEmpty()) {
+                        Column column = new Column(subcolumnValues);
+                        column.setHasLabelsOnlyForSelected(true);
+                        columns.add(column);
+                        AxisValue xAxisValue = new AxisValue(xAxisValues.size());
+                        String dateString = TextUtils.formatDate(context, cursorWrapper.getMeetingDate());
+                        xAxisValue.setLabel(dateString);
+                        xAxisValues.add(xAxisValue);
+                    }
+                    subcolumnValues = new ArrayList<>();
                 }
-                List<PointValue> memberPoints = memberLines.get(memberName);
-                memberPoints.add(getSpeakingTimePointValue(cursorWrapper));
-                xAxisValues.add(getSpeakingTimeXAxisValue(context, cursorWrapper));
-                lastMemberId = currentMemberId;
+                String memberName = cursorWrapper.getMemberName();
+                SubcolumnValue subcolumnValue = new SubcolumnValue();
+                String durationString = DateUtils.formatElapsedTime(cursorWrapper.getDuration());
+                subcolumnValue.setLabel(String.format("%s (%s)", memberName, durationString));
+                subcolumnValue.setColor(memberColors.get(memberName));
+                subcolumnValue.setValue((float) cursorWrapper.getDuration() / 60);
+                subcolumnValues.add(subcolumnValue);
+                lastMeetingId = currentMeetingId;
             } while (cursorWrapper.moveToNext());
         }
         cursor.moveToPosition(-1);
-        List<Line> lines = new ArrayList<>();
-        for (Map.Entry<String, List<PointValue>> memberLine : memberLines.entrySet()) {
-            Line line = MeetingsGraph.createLine(context, memberLine.getValue(), lines.size());
-            lines.add(line);
-            addLegendEntry(context, legendView, memberLine.getKey(), line.getColor(), line.getShape());
+
+        for (String memberName : memberColors.keySet()) {
+            addLegendEntry(context, legendView, memberName, memberColors.get(memberName));
         }
 
-        MeetingsGraph.setupChart(context,
+        setupChart(context,
                 chart,
                 xAxisValues,
                 context.getString(R.string.chart_speaking_time),
-                lines);
+                columns);
 
     }
 
-    private static PointValue getSpeakingTimePointValue(MeetingMemberCursorWrapper cursorWrapper) {
-        PointValue point = new PointValue();
-        point.set(cursorWrapper.getMeetingDate(), (float) cursorWrapper.getDuration() / 60);
-        String duration = DateUtils.formatElapsedTime(cursorWrapper.getDuration());
-        point.setLabel(duration);
-        return point;
+    private static Map<String, Integer> buildMemberColorMap(Context context, MeetingMemberCursorWrapper cursorWrapper) {
+        Set<String> memberNames = new TreeSet<>();
+        while (cursorWrapper.moveToNext()) {
+            memberNames.add(cursorWrapper.getMemberName());
+        }
+        cursorWrapper.moveToPosition(-1);
+        LinkedHashMap<String, Integer> memberColors = new LinkedHashMap<>();
+        int index = 0;
+        for (String memberName : memberNames) {
+            memberColors.put(memberName, getColor(context, index++));
+        }
+        return memberColors;
     }
 
-    private static AxisValue getSpeakingTimeXAxisValue(Context context, MeetingMemberCursorWrapper cursorWrapper) {
-        AxisValue xAxisValue = new AxisValue(cursorWrapper.getMeetingDate());
-        String dateString = TextUtils.formatDate(context, cursorWrapper.getMeetingDate());
-        xAxisValue.setLabel(dateString);
-        return xAxisValue;
+    private static int getColor(Context context, int index) {
+        String[] colors = context.getResources().getStringArray(R.array.chart_colors);
+        String colorString = colors[index % colors.length];
+        return Color.parseColor(colorString);
     }
 
-    private static void addLegendEntry(Context context, ViewGroup legendView, String name, int color, ValueShape shape) {
+    private static void addLegendEntry(Context context, ViewGroup legendView, String name, int color) {
         TextView memberLegendEntry = new TextView(context);
         memberLegendEntry.setTextColor(color);
         memberLegendEntry.setText(name);
         memberLegendEntry.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        int iconResId;
-        if (shape == ValueShape.CIRCLE) {
-            iconResId = R.drawable.ic_legend_circle;
-        } else if (shape == ValueShape.DIAMOND) {
-            iconResId = R.drawable.ic_legend_diamond;
-        } else {
-            iconResId = R.drawable.ic_legend_square;
-        }
-        Drawable icon = ContextCompat.getDrawable(context, iconResId);
+        Drawable icon = ContextCompat.getDrawable(context, R.drawable.ic_legend_square);
         DrawableCompat.setTint(icon, color);
         memberLegendEntry.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
         legendView.addView(memberLegendEntry);
+    }
 
+    private static void setupChart(Context context, ColumnChartView chart, List<AxisValue> xAxisValues, String yAxisLabel, List<Column> columns) {
+        Axis xAxis = new Axis(xAxisValues);
+        MeetingsGraph.setupXAxis(context, xAxis);
+        Axis yAxis = new Axis();
+        MeetingsGraph.setupYAxis(context, yAxisLabel, yAxis);
+        ColumnChartData data = new ColumnChartData();
+        data.setAxisXBottom(xAxis);
+        data.setAxisYLeft(yAxis);
+        data.setColumns(columns);
+        data.setStacked(true);
+        chart.setColumnChartData(data);
+        chart.setValueSelectionEnabled(true);
+        chart.setZoomEnabled(true);
+        chart.setZoomType(ZoomType.HORIZONTAL);
+        WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        windowManager.getDefaultDisplay().getMetrics(displayMetrics);
+        float numberVisibleColumns = displayMetrics.widthPixels / context.getResources().getDimension(R.dimen.column_chart_column_width);
+        float zoomLevel = columns.size() / numberVisibleColumns;
+        if (zoomLevel > 0) {
+            chart.setZoomLevel(chart.getMaximumViewport().right - 1, 0.0f, zoomLevel);
+        }
     }
 
 }

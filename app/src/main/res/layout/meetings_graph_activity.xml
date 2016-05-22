@@ -109,7 +109,7 @@
                         android:layout_below="@id/tv_title_speaker_time_graph"
                         android:orientation="vertical" />
 
-                    <lecho.lib.hellocharts.view.LineChartView
+                    <lecho.lib.hellocharts.view.ColumnChartView
                         android:id="@+id/chart_speaker_time"
                         android:layout_width="wrap_content"
                         android:layout_height="480dp"

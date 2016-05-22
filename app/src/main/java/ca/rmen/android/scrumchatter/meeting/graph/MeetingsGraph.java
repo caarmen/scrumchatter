@@ -19,21 +19,10 @@
 package ca.rmen.android.scrumchatter.meeting.graph;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.support.v4.content.res.ResourcesCompat;
 
-import java.util.List;
-
 import ca.rmen.android.scrumchatter.R;
-import lecho.lib.hellocharts.gesture.ZoomType;
 import lecho.lib.hellocharts.model.Axis;
-import lecho.lib.hellocharts.model.AxisValue;
-import lecho.lib.hellocharts.model.Line;
-import lecho.lib.hellocharts.model.LineChartData;
-import lecho.lib.hellocharts.model.PointValue;
-import lecho.lib.hellocharts.model.ValueShape;
-import lecho.lib.hellocharts.model.Viewport;
-import lecho.lib.hellocharts.view.LineChartView;
 
 
 /**
@@ -45,58 +34,18 @@ final class MeetingsGraph {
         // prevent instantiation
     }
 
-    /**
-     * Create a Line with the given values.  The style of the line (color and shape) will be determined by the lineIndex
-     * @param values the points of the line
-     * @param lineIndex the index of the line in the graph.
-     * @return a Line containing the given values, and formatted according to its position.
-     */
-    static Line createLine(Context context, List<PointValue> values, int lineIndex) {
-        String[] lineColors = context.getResources().getStringArray(R.array.chart_colors);
-        String lineColorString = lineColors[lineIndex % lineColors.length];
-        int lineColor = Color.parseColor(lineColorString);
-        ValueShape shape = ValueShape.values()[lineIndex % ValueShape.values().length];
-        Line line = new Line(values);
-        line.setColor(lineColor);
-        line.setShape(shape);
-        return line;
-    }
-
-    static void setupChart(Context context, LineChartView chart, List<AxisValue> xAxisValues, String yAxisLabel, List<Line> lines) {
-        Axis xAxis = new Axis(xAxisValues);
-        setupXAxis(context, xAxis);
-        Axis yAxis = new Axis();
-        setupYAxis(context, yAxisLabel, yAxis);
-        LineChartData lineChartData = new LineChartData();
-        lineChartData.setAxisXBottom(xAxis);
-        lineChartData.setAxisYLeft(yAxis);
-        lineChartData.setLines(lines);
-
-        chart.setZoomEnabled(true);
-        chart.setZoomType(ZoomType.HORIZONTAL);
-        chart.setLineChartData(lineChartData);
-        resetViewport(chart);
-    }
-
-    private static void setupXAxis(Context context, Axis xAxis) {
+    static void setupXAxis(Context context, Axis xAxis) {
         xAxis.setTextColor(ResourcesCompat.getColor(context.getResources(), R.color.primary_text_color, null));
         xAxis.setHasTiltedLabels(true);
         xAxis.setName(context.getString(R.string.chart_date));
         xAxis.setMaxLabelChars(10);
     }
 
-    private static void setupYAxis(Context context, String yAxisLabel, Axis yAxis) {
+    static void setupYAxis(Context context, String yAxisLabel, Axis yAxis) {
         yAxis.setTextColor(ResourcesCompat.getColor(context.getResources(), R.color.primary_text_color, null));
         yAxis.setName(yAxisLabel);
+        yAxis.setHasLines(true);
     }
 
-    private static void resetViewport(LineChartView chart) {
-        Viewport viewport = chart.getMaximumViewport();
-        viewport.set(viewport.left, viewport.top, viewport.right, 0);
-        chart.setMaximumViewport(viewport);
-        viewport = chart.getCurrentViewport();
-        viewport.set(viewport.left, viewport.top, viewport.right, 0);
-        chart.setCurrentViewport(viewport);
-    }
 
 }

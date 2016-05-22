@@ -31,6 +31,7 @@ import java.util.List;
 
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.provider.MemberCursorWrapper;
+import lecho.lib.hellocharts.gesture.ZoomType;
 import lecho.lib.hellocharts.model.PieChartData;
 import lecho.lib.hellocharts.model.SliceValue;
 import lecho.lib.hellocharts.view.PieChartView;
@@ -87,7 +88,9 @@ final class MemberSpeakingTimePieChart {
 
         data.setValues(sliceValues);
         pieChartView.setPieChartData(data);
-        pieChartView.setInteractive(false);
+        pieChartView.setInteractive(true);
+        pieChartView.setZoomEnabled(true);
+        pieChartView.setZoomType(ZoomType.HORIZONTAL_AND_VERTICAL);
         // https://github.com/lecho/hellocharts-android/issues/268
         pieChartView.setCircleFillRatio(0.7f);
     }

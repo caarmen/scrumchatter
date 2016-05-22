@@ -20,6 +20,7 @@ package ca.rmen.android.scrumchatter.meeting.graph;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.text.format.DateUtils;
 
@@ -30,9 +31,15 @@ import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.meeting.detail.Meeting;
 import ca.rmen.android.scrumchatter.provider.MeetingCursorWrapper;
 import ca.rmen.android.scrumchatter.util.TextUtils;
+import lecho.lib.hellocharts.gesture.ZoomType;
+import lecho.lib.hellocharts.model.Axis;
 import lecho.lib.hellocharts.model.AxisValue;
 import lecho.lib.hellocharts.model.Line;
+import lecho.lib.hellocharts.model.LineChartData;
 import lecho.lib.hellocharts.model.PointValue;
+import lecho.lib.hellocharts.model.ValueShape;
+import lecho.lib.hellocharts.model.Viewport;
+import lecho.lib.hellocharts.view.AbstractChartView;
 import lecho.lib.hellocharts.view.LineChartView;
 
 /**
@@ -53,11 +60,13 @@ final class MeetingsDurationGraph {
         }
         cursor.moveToPosition(-1);
 
-        Line line = MeetingsGraph.createLine(context, points, 0);
+        Line line = createLine(context, points, 0);
         List<Line> lines = new ArrayList<>();
         lines.add(line);
 
-        MeetingsGraph.setupChart(context,
+        LineChartData lineChartData = new LineChartData();
+        lineChartData.setLines(lines);
+        setupChart(context,
                 chart,
                 xAxisValues,
                 context.getString(R.string.chart_duration),
@@ -78,4 +87,48 @@ final class MeetingsDurationGraph {
         xAxisValue.setLabel(dateString);
         return xAxisValue;
     }
+
+    /**
+     * Create a Line with the given values.  The style of the line (color and shape) will be determined by the lineIndex
+     *
+     * @param values    the points of the line
+     * @param lineIndex the index of the line in the graph.
+     * @return a Line containing the given values, and formatted according to its position.
+     */
+    private static Line createLine(Context context, List<PointValue> values, int lineIndex) {
+        String[] lineColors = context.getResources().getStringArray(R.array.chart_colors);
+        String lineColorString = lineColors[lineIndex % lineColors.length];
+        int lineColor = Color.parseColor(lineColorString);
+        ValueShape shape = ValueShape.values()[lineIndex % ValueShape.values().length];
+        Line line = new Line(values);
+        line.setColor(lineColor);
+        line.setShape(shape);
+        return line;
+    }
+
+    private static void setupChart(Context context, LineChartView chart, List<AxisValue> xAxisValues, String yAxisLabel, List<Line> lines) {
+        Axis xAxis = new Axis(xAxisValues);
+        MeetingsGraph.setupXAxis(context, xAxis);
+        Axis yAxis = new Axis();
+        MeetingsGraph.setupYAxis(context, yAxisLabel, yAxis);
+        LineChartData lineChartData = new LineChartData();
+        lineChartData.setAxisXBottom(xAxis);
+        lineChartData.setAxisYLeft(yAxis);
+        lineChartData.setLines(lines);
+        chart.setZoomEnabled(true);
+        chart.setZoomType(ZoomType.HORIZONTAL);
+        chart.setLineChartData(lineChartData);
+        resetViewport(chart);
+    }
+
+    private static void resetViewport(AbstractChartView chart) {
+        Viewport viewport = chart.getMaximumViewport();
+        viewport.set(viewport.left, viewport.top, viewport.right, 0);
+        chart.setMaximumViewport(viewport);
+        viewport = chart.getCurrentViewport();
+        viewport.set(viewport.left, viewport.top, viewport.right, 0);
+        chart.setCurrentViewport(viewport);
+    }
+
+
 }

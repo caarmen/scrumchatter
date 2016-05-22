@@ -97,14 +97,13 @@ public class MeetingsGraphActivity extends AppCompatActivity {
                 return new CursorLoader(getApplicationContext(),
                         MeetingMemberColumns.CONTENT_URI,
                         new String[]{
-                                MeetingMemberColumns._ID,
-                                MeetingMemberColumns.MEMBER_ID,
+                                MeetingMemberColumns.MEETING_ID,
                                 MeetingColumns.MEETING_DATE,
                                 MemberColumns.NAME,
                                 MeetingMemberColumns.DURATION},
                         MeetingMemberColumns.DURATION + ">0 AND " + MeetingColumns.TEAM_ID + "=?",
                         selectionArgs,
-                        MeetingMemberColumns.MEMBER_ID);
+                        MeetingMemberColumns.MEETING_ID + ", " + MemberColumns.NAME + " DESC");
             }
         }
 
