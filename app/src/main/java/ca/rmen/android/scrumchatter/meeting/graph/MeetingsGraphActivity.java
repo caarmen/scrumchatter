@@ -112,9 +112,9 @@ public class MeetingsGraphActivity extends AppCompatActivity {
         public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
             if (cursor != null) {
                 if (loader.getId() == LOADER_MEETING_DURATION) {
-                    MeetingsGraph.populateMeetingDurationGraph(getApplicationContext(), mBinding.chartMeetingDuration, cursor);
+                    MeetingsDurationGraph.populateMeetingDurationGraph(getApplicationContext(), mBinding.chartMeetingDuration, cursor);
                 } else {
-                    MeetingsGraph.populateMemberSpeakingTimeGraph(getApplicationContext(), mBinding.chartSpeakerTime, mBinding.legend, cursor);
+                    MemberSpeakingTimeGraph.populateMemberSpeakingTimeGraph(getApplicationContext(), mBinding.chartSpeakerTime, mBinding.legend, cursor);
                 }
             }
         }
