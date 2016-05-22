@@ -21,8 +21,7 @@
 
     <string name="title_section_meetings">Réunions</string>
     <string name="title_section_team">Équipe</string>
-    <string name="title_meetings_chart">Stats des réunions</string>
-    <string name="title_members_chart">Stats des membres</string>
+    <string name="title_chart">Stats</string>
     <string name="action_share">Partager</string>
     <string name="action_team_rename">Renommer l\'équipe</string>
     <string name="action_team_rename_name">Renommer %s</string>

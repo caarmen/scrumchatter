@@ -1,18 +1,18 @@
 /**
  * Copyright 2013 Carmen Alvarez
- *
+ * <p/>
  * This file is part of Scrum Chatter.
- *
+ * <p/>
  * Scrum Chatter is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p/>
  * Scrum Chatter is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- *
+ * <p/>
  * You should have received a copy of the GNU General Public License
  * along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -21,13 +21,12 @@ package ca.rmen.android.scrumchatter.member.list;
 /**
  * Displays the list of team members.
  */
+
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
@@ -36,11 +35,6 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-
-import ca.rmen.android.scrumchatter.databinding.MemberListBinding;
-import ca.rmen.android.scrumchatter.databinding.MemberListItemBinding;
-import ca.rmen.android.scrumchatter.chart.MembersChartsActivity;
-import ca.rmen.android.scrumchatter.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -52,9 +46,12 @@ import android.widget.ListView;
 
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
+import ca.rmen.android.scrumchatter.databinding.MemberListBinding;
+import ca.rmen.android.scrumchatter.databinding.MemberListItemBinding;
 import ca.rmen.android.scrumchatter.member.list.Members.Member;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberStatsColumns;
+import ca.rmen.android.scrumchatter.util.Log;
 
 public class MembersListFragment extends ListFragment {
 
@@ -108,20 +105,11 @@ public class MembersListFragment extends ListFragment {
     }
 
     @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        MenuItem menuItem = menu.findItem(R.id.action_charts);
-        menuItem.setVisible(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && mAdapter != null && mAdapter.getCount() > 0);
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Create a new team member
         if (item.getItemId() == R.id.action_new_member) {
             mMembers.promptCreateMember(mTeamId);
             return true;
-        } else if (item.getItemId() == R.id.action_charts) {
-            startActivity(new Intent(getActivity(), MembersChartsActivity.class));
         }
         return false;
     }
@@ -137,9 +125,9 @@ public class MembersListFragment extends ListFragment {
         @Override
         public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
             Log.v(TAG, "onCreateLoader, order by " + mOrderByField);
-            String[] projection = new String[] { MemberColumns._ID, MemberColumns.NAME, MemberStatsColumns.SUM_DURATION, MemberStatsColumns.AVG_DURATION };
+            String[] projection = new String[]{MemberColumns._ID, MemberColumns.NAME, MemberStatsColumns.SUM_DURATION, MemberStatsColumns.AVG_DURATION};
             String selection = MemberStatsColumns.TEAM_ID + " =? AND " + MemberColumns.DELETED + "=0 ";
-            String[] selectionArgs = new String[] { String.valueOf(mTeamId) };
+            String[] selectionArgs = new String[]{String.valueOf(mTeamId)};
             return new CursorLoader(getActivity(), MemberStatsColumns.CONTENT_URI, projection, selection, selectionArgs, mOrderByField);
         }
 
@@ -169,7 +157,7 @@ public class MembersListFragment extends ListFragment {
         public void onClick(View v) {
             Log.v(TAG, "onClick: " + v.getId());
             switch (v.getId()) {
-            // The user wants to delete a team member.
+                // The user wants to delete a team member.
                 case R.id.btn_delete_member:
                     if (v.getTag() instanceof Member) {
                         final Member member = (Member) v.getTag();
@@ -188,7 +176,7 @@ public class MembersListFragment extends ListFragment {
 
         /**
          * Resort the list of members by the given column
-         * 
+         *
          * @param viewId
          *            the header label on which the user clicked.
          */
@@ -220,7 +208,8 @@ public class MembersListFragment extends ListFragment {
                     break;
             }
             // Re-query if needed.
-            if (!oldOrderByField.equals(mOrderByField)) getLoaderManager().restartLoader(URL_LOADER, null, mLoaderCallbacks);
+            if (!oldOrderByField.equals(mOrderByField))
+                getLoaderManager().restartLoader(URL_LOADER, null, mLoaderCallbacks);
 
         }
     };
