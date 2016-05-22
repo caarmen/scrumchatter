@@ -89,6 +89,7 @@ final class MemberSpeakingTimePieChart {
 
         String[] lineColors = context.getResources().getStringArray(R.array.chart_colors);
         ViewGroup legendView = (ViewGroup) ((ViewGroup) pieChartView.getParent()).findViewById(R.id.legend);
+        legendView.removeAllViews();
         for (int i = 0; i < sliceValues.size(); i++) {
             String colorString = lineColors[i % lineColors.length];
             int color = Color.parseColor(colorString);

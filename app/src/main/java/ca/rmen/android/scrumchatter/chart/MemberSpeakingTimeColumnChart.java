@@ -89,6 +89,7 @@ final class MemberSpeakingTimeColumnChart {
         }
         cursor.moveToPosition(-1);
 
+        legendView.removeAllViews();
         for (String memberName : memberColors.keySet()) {
             ChartUtils.addLegendEntry(context, legendView, memberName, memberColors.get(memberName));
         }
