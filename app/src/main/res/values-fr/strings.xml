@@ -110,6 +110,7 @@
     <!-- Charts -->
     <string name="chart_meeting_duration_title">Durée des réunions pour %s</string>
     <string name="chart_speaker_time_title">Temps de parole pour %s</string>
+    <string name="chart_speaker_time_all_title">Temps de parole pour chaque membre</string>
     <string name="chart_duration">Durée de la reunión (m)</string>
     <string name="chart_speaking_time">Temps de parole (m)</string>
     <string name="chart_date">Date de la reunión</string>

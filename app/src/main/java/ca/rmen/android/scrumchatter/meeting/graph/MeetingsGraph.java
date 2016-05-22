@@ -20,6 +20,8 @@ package ca.rmen.android.scrumchatter.meeting.graph;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.databinding.DataBindingUtil;
+import android.databinding.ViewDataBinding;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
@@ -27,6 +29,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.text.format.DateUtils;
+import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
@@ -35,10 +38,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
+import ca.rmen.android.scrumchatter.databinding.GraphSpeakerTimeBinding;
 import ca.rmen.android.scrumchatter.meeting.detail.Meeting;
 import ca.rmen.android.scrumchatter.provider.MeetingCursorWrapper;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
+import ca.rmen.android.scrumchatter.util.Log;
 import ca.rmen.android.scrumchatter.util.TextUtils;
 import lecho.lib.hellocharts.gesture.ZoomType;
 import lecho.lib.hellocharts.model.Axis;
@@ -56,6 +62,7 @@ import lecho.lib.hellocharts.view.LineChartView;
  */
 final class MeetingsGraph {
 
+    private static final String TAG = Constants.TAG + "/" + MeetingsGraph.class.getSimpleName();
     private MeetingsGraph() {
         // prevent instantiation
     }
@@ -91,7 +98,7 @@ final class MeetingsGraph {
                 lines);
     }
 
-    public static void populateMemberSpeakingTimeGraph(Context context, LineChartView chart, ViewGroup legendView, @NonNull Cursor cursor) {
+    public static void populateMemberSpeakingTimeGraph(Context context, ViewGroup graphContainer, @NonNull Cursor cursor, MeetingsGraphActivity.FabListener listener) {
         List<AxisValue> axisValues = new ArrayList<>();
         Map<String, List<PointValue>> memberLines = new HashMap<>();
 
@@ -122,26 +129,49 @@ final class MeetingsGraph {
             } while (cursorWrapper.moveToNext());
         }
         cursor.moveToPosition(-1);
-        List<Line> lines = new ArrayList<>();
-        int i = 0;
-        String[] lineColors = context.getResources().getStringArray(R.array.chart_colors);
+        int i=0;
         for (Map.Entry<String, List<PointValue>> memberLine : memberLines.entrySet()) {
+            Map<String,List<PointValue>> singleMemberData = new HashMap<>();
+            singleMemberData.put(memberLine.getKey(), memberLine.getValue());
+            String title = context.getString(R.string.chart_speaker_time_title, memberLine.getKey());
+            createSpeakingTimeGraph(context, graphContainer, title, axisValues, singleMemberData, listener);
+            i++;
+            if (i > 3) break;
+        }
+        String title = context.getString(R.string.chart_speaker_time_all_title);
+        createSpeakingTimeGraph(context, graphContainer, title, axisValues, memberLines, listener);
+    }
+
+    private static void createSpeakingTimeGraph(Context context, ViewGroup graphContainer, String title, List<AxisValue> xAxisValues, Map<String,List<PointValue>> memberLines, MeetingsGraphActivity.FabListener listener) {
+        GraphSpeakerTimeBinding binding = DataBindingUtil.inflate(LayoutInflater.from(context),
+                R.layout.graph_speaker_time,
+                graphContainer,
+                false);
+        binding.setFabListener(listener);
+        binding.tvTitleSpeakerTimeGraph.setText(title);
+        binding.fabShareSpeakerTime.setTag(binding.speakerTimeGraph);
+        String[] lineColors = context.getResources().getStringArray(R.array.chart_colors);
+        List<Line> lines = new ArrayList<>();
+        for (Map.Entry<String, List<PointValue>> memberLine : memberLines.entrySet()) {
+            Log.v(TAG, "Generating speaker time graph for " + memberLine.getKey());
             Line line = new Line(memberLine.getValue());
             lines.add(line);
-            String lineColorString = lineColors[i % lineColors.length];
+            String memberName = memberLine.getKey();
+            int memberHash = Math.abs(memberName.hashCode());
+            String lineColorString = lineColors[memberHash % lineColors.length];
             int lineColor = Color.parseColor(lineColorString);
-            ValueShape shape = ValueShape.values()[i % ValueShape.values().length];
+            ValueShape shape = ValueShape.values()[memberHash % ValueShape.values().length];
             line.setColor(lineColor);
             line.setShape(shape);
-            addLegendEntry(context, legendView, memberLine.getKey(), lineColor, shape);
-            i++;
+            addLegendEntry(context, binding.legend, memberName, lineColor, shape);
         }
-        legendView.getParent().requestLayout();
         setupChart(context,
-                chart,
-                axisValues,
+                binding.chartSpeakerTime,
+                xAxisValues,
                 context.getString(R.string.chart_speaking_time),
                 lines);
+        graphContainer.addView(binding.getRoot());
+        graphContainer.requestLayout();
 
     }
 

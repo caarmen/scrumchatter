@@ -33,6 +33,7 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.ViewGroup;
 
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
@@ -55,6 +56,7 @@ public class MeetingsGraphActivity extends AppCompatActivity {
     private static final int LOADER_MEMBER_SPEAKING_TIME = 1;
 
     private MeetingsGraphActivityBinding mBinding;
+    private FabListener mFabListener;
 
 
     @Override
@@ -62,7 +64,8 @@ public class MeetingsGraphActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         mBinding = DataBindingUtil.setContentView(this, R.layout.meetings_graph_activity);
-        mBinding.setFabListener(new FabListener());
+        mFabListener = new FabListener();
+        mBinding.setFabListener(mFabListener);
         ActionBar supportActionBar = getSupportActionBar();
         if (supportActionBar != null) supportActionBar.setDisplayHomeAsUpEnabled(true);
         getSupportLoaderManager().initLoader(LOADER_MEETING_DURATION, null, mLoaderCallbacks);
@@ -113,7 +116,7 @@ public class MeetingsGraphActivity extends AppCompatActivity {
                 if (loader.getId() == LOADER_MEETING_DURATION) {
                     MeetingsGraph.populateMeetingDurationGraph(getApplicationContext(), mBinding.chartMeetingDuration, cursor);
                 } else {
-                    MeetingsGraph.populateMemberSpeakingTimeGraph(getApplicationContext(), mBinding.chartSpeakerTime, mBinding.legend, cursor);
+                    MeetingsGraph.populateMemberSpeakingTimeGraph(MeetingsGraphActivity.this, mBinding.graphContainer, cursor, mFabListener);
                 }
             }
         }
@@ -132,7 +135,7 @@ public class MeetingsGraphActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Teams.Team team) {
             mBinding.tvTitleMeetingDurationGraph.setText(getString(R.string.chart_meeting_duration_title, team.teamName));
-            mBinding.tvTitleSpeakerTimeGraph.setText(getString(R.string.chart_speaker_time_title, team.teamName));
+            //mBinding.tvTitleSpeakerTimeGraph.setText(getString(R.string.chart_speaker_time_title, team.teamName));
         }
     };
 
@@ -169,8 +172,10 @@ public class MeetingsGraphActivity extends AppCompatActivity {
 
         }
 
-        public void onShareSpeakerTime(@SuppressWarnings("UnusedParameters") View view) {
-            new GraphExportTask(mBinding.speakerTimeGraph).execute();
+        public void onShareSpeakerTime(View view) {
+            Log.v(TAG, "onShareSpeakerTime: " + view);
+            View graphView = (View) view.getTag();
+            new GraphExportTask(graphView).execute();
         }
     }
 }
