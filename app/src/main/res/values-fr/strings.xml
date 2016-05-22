@@ -94,6 +94,7 @@
     <string name="about_credit_jxl_lib_text">Andy Khan, pour sa bibliothèque Java Excel API.</string>
     <string name="about_credit_permissions_lib_text">Shintaro Katafuchi, pour sa bibliothèque PermissionsDispatcher.</string>
     <string name="about_credit_graph_lib_text">Leszek Wach, pour sa blbliothèque HelloCharts for Android.</string>
+    <string name="about_credit_flowlayout_lib_text">Artem Votincev, pour sa bibliothèque FlowLayout.</string>
 
     <string name="drawer_open">Ouvrir le menu à gauche</string>
     <string name="drawer_close">Fermer le menu à gauche</string>

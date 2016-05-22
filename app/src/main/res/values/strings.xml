@@ -100,6 +100,8 @@
     <string translatable="false" name="about_credit_permissions_lib_link">https://github.com/hotchemi/PermissionsDispatcher</string>
     <string name="about_credit_graph_lib_text">Leszek Wach, for his HelloCharts for Android library.</string>
     <string translatable="false" name="about_credit_graph_lib_link">https://github.com/lecho/hellocharts-android</string>
+    <string name="about_credit_flowlayout_lib_text">Artem Votincev, for his FlowLayout library.</string>
+    <string translatable="false" name="about_credit_flowlayout_lib_link">https://github.com/ApmeM/android-flowlayout</string>
 
     <string name="drawer_open">Open side menu</string>
     <string name="drawer_close">Close side menu</string>
