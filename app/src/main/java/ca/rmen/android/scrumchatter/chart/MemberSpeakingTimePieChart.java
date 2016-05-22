@@ -83,7 +83,7 @@ final class MemberSpeakingTimePieChart {
         //data.setHasLabelsOutside(true);
 
         Collections.sort(sliceValues, SLICE_VALUE_COMPARATOR);
-        while (sliceValues.size() >= MAX_VALUES) {
+        while (sliceValues.size() > MAX_VALUES) {
             sliceValues.remove(sliceValues.size() - 1);
         }
 
