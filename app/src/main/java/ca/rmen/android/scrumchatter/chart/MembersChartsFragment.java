@@ -38,6 +38,7 @@ import android.view.ViewGroup;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.databinding.MembersChartsFragmentBinding;
+import ca.rmen.android.scrumchatter.provider.MeetingColumns;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberStatsColumns;
 import ca.rmen.android.scrumchatter.team.Teams;
@@ -51,6 +52,7 @@ public class MembersChartsFragment extends Fragment {
 
     private static final String TAG = Constants.TAG + "/" + MembersChartsFragment.class.getSimpleName();
     private static final int LOADER_MEMBER_SPEAKING_TIME = 0;
+    private static final int LOADER_MEETING_DATES= 1;
 
     private MembersChartsFragmentBinding mBinding;
 
@@ -71,6 +73,7 @@ public class MembersChartsFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         getLoaderManager().initLoader(LOADER_MEMBER_SPEAKING_TIME, null, mLoaderCallbacks);
+        getLoaderManager().initLoader(LOADER_MEETING_DATES, null, mLoaderCallbacks);
         mTeamLoader.execute();
     }
 
@@ -83,19 +86,35 @@ public class MembersChartsFragment extends Fragment {
             long teamId = sharedPreferences.getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
             String[] selectionArgs = new String[]{String.valueOf(teamId)};
 
-            String[] projection = new String[]{MemberColumns._ID, MemberColumns.NAME, MemberStatsColumns.SUM_DURATION, MemberStatsColumns.AVG_DURATION};
-            String selection = MemberStatsColumns.TEAM_ID + " =? AND " + MemberColumns.DELETED + "=0 ";
-            return new CursorLoader(getContext(), MemberStatsColumns.CONTENT_URI, projection, selection, selectionArgs, null);
+            if (id == LOADER_MEMBER_SPEAKING_TIME) {
+                String[] projection = new String[]{MemberColumns._ID, MemberColumns.NAME, MemberStatsColumns.SUM_DURATION, MemberStatsColumns.AVG_DURATION};
+                String selection = MemberStatsColumns.TEAM_ID + " =? AND " + MemberColumns.DELETED + "=0 ";
+                return new CursorLoader(getContext(), MemberStatsColumns.CONTENT_URI, projection, selection, selectionArgs, null);
+            } else {
+                String[] projection = new String[]{
+                        "MIN(" + MeetingColumns.MEETING_DATE + ")",
+                        "MAX(" + MeetingColumns.MEETING_DATE + ")",
+                };
+                String selection = MeetingColumns.TEAM_ID + " = ?";
+                return new CursorLoader(getContext(), MeetingColumns.CONTENT_URI, projection, selection, selectionArgs, null);
+            }
 
         }
 
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
             if (cursor != null) {
-                MemberSpeakingTimePieChart.populateMemberSpeakingTimeChart(getContext(),
-                        mBinding.pieChartCardAvg.chartMemberSpeakingTime,
-                        mBinding.pieChartCardTotal.chartMemberSpeakingTime,
-                        cursor);
+                if (loader.getId() == LOADER_MEMBER_SPEAKING_TIME) {
+                    MemberSpeakingTimePieChart.populateMemberSpeakingTimeChart(getContext(),
+                            mBinding.pieChartCardAvg.chartMemberSpeakingTime,
+                            mBinding.pieChartCardTotal.chartMemberSpeakingTime,
+                            cursor);
+                } else {
+                    MemberSpeakingTimePieChart.updateMeetingDateRanges(getContext(),
+                            mBinding.pieChartCardAvg.tvSubtitleMemberSpeakingTimeChart,
+                            mBinding.pieChartCardTotal.tvSubtitleMemberSpeakingTimeChart,
+                            cursor);
+                }
             }
         }
 

@@ -24,6 +24,7 @@ import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.text.format.DateUtils;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,7 +32,10 @@ import java.util.Comparator;
 import java.util.List;
 
 import ca.rmen.android.scrumchatter.R;
+import ca.rmen.android.scrumchatter.provider.MeetingCursorWrapper;
+import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
 import ca.rmen.android.scrumchatter.provider.MemberCursorWrapper;
+import ca.rmen.android.scrumchatter.util.TextUtils;
 import lecho.lib.hellocharts.gesture.ZoomType;
 import lecho.lib.hellocharts.model.PieChartData;
 import lecho.lib.hellocharts.model.SliceValue;
@@ -66,6 +70,21 @@ final class MemberSpeakingTimePieChart {
         setupChart(context, pieChartAvg, sliceValuesAvgSpeakingTime);
         setupChart(context, pieChartTotal, sliceValuesTotalSpeakingTime);
 
+    }
+
+    static void updateMeetingDateRanges(Context context,
+                                        TextView tvPieChartAvgSubtitle,
+                                        TextView tvPieChartTotalSubtitle,
+                                        Cursor cursor) {
+        if (cursor.moveToFirst()) {
+            long minDate = cursor.getLong(0);
+            long maxDate = cursor.getLong(1);
+            String minDateStr = TextUtils.formatDate(context, minDate);
+            String maxDateStr = TextUtils.formatDate(context, maxDate);
+            String dateRange = String.format("%s - %s", minDateStr, maxDateStr);
+            tvPieChartAvgSubtitle.setText(dateRange);
+            tvPieChartTotalSubtitle.setText(dateRange);
+        }
     }
 
     private static SliceValue createSliceValue(int duration, String memberName) {

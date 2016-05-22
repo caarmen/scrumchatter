@@ -31,10 +31,21 @@
 
             <TextView
                 android:id="@+id/tv_title_member_speaking_time_chart"
-                android:textColor="@color/chart_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_horizontal" />
+                android:gravity="center_horizontal"
+                android:textColor="@color/chart_text"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/tv_subtitle_member_speaking_time_chart"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:gravity="center_horizontal"
+                android:textColor="@color/chart_text"
+                android:textSize="12sp"
+                android:textStyle="italic" />
 
             <lecho.lib.hellocharts.view.PieChartView
                 android:id="@+id/chart_member_speaking_time"
@@ -52,8 +63,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
-                    android:paddingBottom="64dp"
-                    android:orientation="horizontal" />
+                    android:orientation="horizontal"
+                    android:paddingBottom="64dp" />
 
 
             </LinearLayout>
