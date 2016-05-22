@@ -35,7 +35,7 @@
     <color name="meeting_state_default">@color/primary_text_color</color>
     <color name="chrono_not_started">@color/primary_text_disabled_color</color>
 
-    <string-array name="chart_colors">
+    <string-array translatable="false" name="chart_colors">
         <item>#9c27b0</item>
         <item>#2196f3</item>
         <item>#009688</item>

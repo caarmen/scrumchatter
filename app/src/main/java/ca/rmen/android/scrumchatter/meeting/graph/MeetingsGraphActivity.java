@@ -103,7 +103,7 @@ public class MeetingsGraphActivity extends AppCompatActivity {
                                 MeetingMemberColumns.DURATION},
                         MeetingMemberColumns.DURATION + ">0 AND " + MeetingColumns.TEAM_ID + "=?",
                         selectionArgs,
-                        MeetingMemberColumns.MEETING_ID);
+                        MeetingMemberColumns.MEMBER_ID);
             }
         }
 

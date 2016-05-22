@@ -62,7 +62,7 @@ final class MeetingsGraph {
 
     public static void populateMeetingDurationGraph(Context context, LineChartView chart, @NonNull Cursor cursor) {
         List<PointValue> points = new ArrayList<>();
-        List<AxisValue> axisValues = new ArrayList<>();
+        List<AxisValue> xAxisValues = new ArrayList<>();
 
         MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(cursor);
         while (cursorWrapper.moveToNext()) {
@@ -72,10 +72,10 @@ final class MeetingsGraph {
             point.set(meeting.getStartDate(), (float) meeting.getDuration() / (60));
             point.setLabel(duration);
             points.add(point);
-            AxisValue axisValue = new AxisValue(meeting.getStartDate());
+            AxisValue xAxisValue = new AxisValue(meeting.getStartDate());
             String dateString = TextUtils.formatDate(context, meeting.getStartDate());
-            axisValue.setLabel(dateString);
-            axisValues.add(axisValue);
+            xAxisValue.setLabel(dateString);
+            xAxisValues.add(xAxisValue);
         }
         cursor.moveToPosition(-1);
 
@@ -86,63 +86,68 @@ final class MeetingsGraph {
 
         setupChart(context,
                 chart,
-                axisValues,
+                xAxisValues,
                 context.getString(R.string.chart_duration),
                 lines);
     }
 
     public static void populateMemberSpeakingTimeGraph(Context context, LineChartView chart, ViewGroup legendView, @NonNull Cursor cursor) {
-        List<AxisValue> axisValues = new ArrayList<>();
+        List<AxisValue> xAxisValues = new ArrayList<>();
         Map<String, List<PointValue>> memberLines = new HashMap<>();
 
         MeetingMemberCursorWrapper cursorWrapper = new MeetingMemberCursorWrapper(cursor);
         while (cursorWrapper.moveToNext()) {
-            long currentMeetingId = cursorWrapper.getMeetingId();
             do {
-                long meetingId = cursorWrapper.getMeetingId();
-                if (meetingId != currentMeetingId) {
-                    cursorWrapper.move(-1);
-                    break;
-                }
                 String memberName = cursorWrapper.getMemberName();
                 List<PointValue> memberPoints = memberLines.get(memberName);
                 if (memberPoints == null) {
                     memberPoints = new ArrayList<>();
                     memberLines.put(memberName, memberPoints);
                 }
-                PointValue point = new PointValue();
-                point.set(cursorWrapper.getMeetingDate(), (float) cursorWrapper.getDuration() / 60);
-                String duration = DateUtils.formatElapsedTime(cursorWrapper.getDuration());
-                point.setLabel(duration);
-                memberPoints.add(point);
-                AxisValue axisValue = new AxisValue(cursorWrapper.getMeetingDate());
-                String dateString = TextUtils.formatDate(context, cursorWrapper.getMeetingDate());
-                axisValue.setLabel(dateString);
-                axisValues.add(axisValue);
+                memberPoints.add(getSpeakingTimePointValue(cursorWrapper));
+                xAxisValues.add(getSpeakingTimeXAxisValue(context, cursorWrapper));
             } while (cursorWrapper.moveToNext());
         }
         cursor.moveToPosition(-1);
         List<Line> lines = new ArrayList<>();
-        int i = 0;
-        String[] lineColors = context.getResources().getStringArray(R.array.chart_colors);
         for (Map.Entry<String, List<PointValue>> memberLine : memberLines.entrySet()) {
-            Line line = new Line(memberLine.getValue());
+            Line line = createLine(context, memberLine.getValue(), lines.size());
+            addLegendEntry(context, legendView, memberLine.getKey(), line.getColor(), line.getShape());
             lines.add(line);
-            String lineColorString = lineColors[i % lineColors.length];
-            int lineColor = Color.parseColor(lineColorString);
-            ValueShape shape = ValueShape.values()[i % ValueShape.values().length];
-            line.setColor(lineColor);
-            line.setShape(shape);
-            addLegendEntry(context, legendView, memberLine.getKey(), lineColor, shape);
-            i++;
         }
-        legendView.getParent().requestLayout();
+
         setupChart(context,
                 chart,
-                axisValues,
+                xAxisValues,
                 context.getString(R.string.chart_speaking_time),
                 lines);
 
+    }
+
+    private static PointValue getSpeakingTimePointValue(MeetingMemberCursorWrapper cursorWrapper) {
+        PointValue point = new PointValue();
+        point.set(cursorWrapper.getMeetingDate(), (float) cursorWrapper.getDuration() / 60);
+        String duration = DateUtils.formatElapsedTime(cursorWrapper.getDuration());
+        point.setLabel(duration);
+        return point;
+    }
+
+    private static AxisValue getSpeakingTimeXAxisValue(Context context, MeetingMemberCursorWrapper cursorWrapper) {
+        AxisValue xAxisValue = new AxisValue(cursorWrapper.getMeetingDate());
+        String dateString = TextUtils.formatDate(context, cursorWrapper.getMeetingDate());
+        xAxisValue.setLabel(dateString);
+        return xAxisValue;
+    }
+
+    private static Line createLine(Context context, List<PointValue> values, int lineIndex) {
+        String[] lineColors = context.getResources().getStringArray(R.array.chart_colors);
+        String lineColorString = lineColors[lineIndex % lineColors.length];
+        int lineColor = Color.parseColor(lineColorString);
+        ValueShape shape = ValueShape.values()[lineIndex % ValueShape.values().length];
+        Line line = new Line(values);
+        line.setColor(lineColor);
+        line.setShape(shape);
+        return line;
     }
 
     private static void addLegendEntry(Context context, ViewGroup legendView, String name, int color, ValueShape shape) {
@@ -181,7 +186,6 @@ final class MeetingsGraph {
         chart.setLineChartData(lineChartData);
         resetViewport(chart);
     }
-
 
     private static void setupXAxis(Context context, Axis xAxis) {
         xAxis.setTextColor(ResourcesCompat.getColor(context.getResources(), R.color.primary_text_color, null));
