@@ -43,7 +43,10 @@ import lecho.lib.hellocharts.view.PieChartView;
 final class MemberSpeakingTimePieChart {
     private static final int MAX_VALUES = 10;
 
-    // prevent instantiation
+    private MemberSpeakingTimePieChart() {
+        // prevent instantiation
+    }
+
     public static void populateMemberSpeakingTimeChart(Context context, PieChartView pieChartAvg, PieChartView pieChartTotal, @NonNull Cursor cursor) {
         List<SliceValue> sliceValuesAvgSpeakingTime = new ArrayList<>();
         List<SliceValue> sliceValuesTotalSpeakingTime = new ArrayList<>();

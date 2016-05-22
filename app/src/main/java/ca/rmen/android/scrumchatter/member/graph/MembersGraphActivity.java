@@ -40,7 +40,6 @@ import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.databinding.MembersGraphActivityBinding;
 import ca.rmen.android.scrumchatter.export.BitmapExport;
-import ca.rmen.android.scrumchatter.meeting.graph.MeetingsGraphActivity;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberStatsColumns;
 import ca.rmen.android.scrumchatter.team.Teams;
@@ -152,7 +151,7 @@ public class MembersGraphActivity extends AppCompatActivity {
 
     public class FabListener {
         public void onShareMemberSpeakingTime(View view) {
-            new GraphExportTask((View)view.getTag()).execute();
+            new GraphExportTask((View) view.getTag()).execute();
         }
     }
 }

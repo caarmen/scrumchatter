@@ -20,8 +20,8 @@ package ca.rmen.android.scrumchatter.meeting.graph;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.support.annotation.NonNull;
+import android.support.v4.content.res.ResourcesCompat;
 import android.text.format.DateUtils;
 
 import java.util.ArrayList;
@@ -37,7 +37,6 @@ import lecho.lib.hellocharts.model.AxisValue;
 import lecho.lib.hellocharts.model.Line;
 import lecho.lib.hellocharts.model.LineChartData;
 import lecho.lib.hellocharts.model.PointValue;
-import lecho.lib.hellocharts.model.ValueShape;
 import lecho.lib.hellocharts.model.Viewport;
 import lecho.lib.hellocharts.view.AbstractChartView;
 import lecho.lib.hellocharts.view.LineChartView;
@@ -60,7 +59,9 @@ final class MeetingsDurationGraph {
         }
         cursor.moveToPosition(-1);
 
-        Line line = createLine(context, points, 0);
+        int lineColor = ResourcesCompat.getColor(context.getResources(), R.color.scrum_chatter_primary_color, null);
+        Line line = new Line(points);
+        line.setColor(lineColor);
         List<Line> lines = new ArrayList<>();
         lines.add(line);
 
@@ -86,24 +87,6 @@ final class MeetingsDurationGraph {
         String dateString = TextUtils.formatDate(context, meeting.getStartDate());
         xAxisValue.setLabel(dateString);
         return xAxisValue;
-    }
-
-    /**
-     * Create a Line with the given values.  The style of the line (color and shape) will be determined by the lineIndex
-     *
-     * @param values    the points of the line
-     * @param lineIndex the index of the line in the graph.
-     * @return a Line containing the given values, and formatted according to its position.
-     */
-    private static Line createLine(Context context, List<PointValue> values, int lineIndex) {
-        String[] lineColors = context.getResources().getStringArray(R.array.chart_colors);
-        String lineColorString = lineColors[lineIndex % lineColors.length];
-        int lineColor = Color.parseColor(lineColorString);
-        ValueShape shape = ValueShape.values()[lineIndex % ValueShape.values().length];
-        Line line = new Line(values);
-        line.setColor(lineColor);
-        line.setShape(shape);
-        return line;
     }
 
     private static void setupChart(Context context, LineChartView chart, List<AxisValue> xAxisValues, String yAxisLabel, List<Line> lines) {
