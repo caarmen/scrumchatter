@@ -21,15 +21,15 @@
 
     <string name="title_section_meetings">Réunions</string>
     <string name="title_section_team">Équipe</string>
-    <string name="title_meetings_graph">Stats des réunions</string>
-    <string name="title_members_graph">Stats des membres</string>
+    <string name="title_meetings_chart">Stats des réunions</string>
+    <string name="title_members_chart">Stats des membres</string>
     <string name="action_share">Partager</string>
     <string name="action_team_rename">Renommer l\'équipe</string>
     <string name="action_team_rename_name">Renommer %s</string>
     <string name="action_team_delete">Supprimer l\'équipe</string>
     <string name="action_team_delete_name">Supprimer %s</string>
     <string name="action_import">Importer base de données</string>
-    <string name="action_graphs">Stats</string>
+    <string name="action_charts">Stats</string>
     <string name="action_new_member">Ajouter un membre</string>
     <string name="action_rename_member">Renommer un membre</string>
     <string name="action_new_meeting">Nouvelle réunion</string>
@@ -93,7 +93,7 @@
     <string name="about_credit_app_icon_text">qubodup pour l\'icône de la bulle, sur openclipart.</string>
     <string name="about_credit_jxl_lib_text">Andy Khan, pour sa bibliothèque Java Excel API.</string>
     <string name="about_credit_permissions_lib_text">Shintaro Katafuchi, pour sa bibliothèque PermissionsDispatcher.</string>
-    <string name="about_credit_graph_lib_text">Leszek Wach, pour sa blbliothèque HelloCharts for Android.</string>
+    <string name="about_credit_chart_lib_text">Leszek Wach, pour sa blbliothèque HelloCharts for Android.</string>
     <string name="about_credit_flowlayout_lib_text">Artem Votincev, pour sa bibliothèque FlowLayout.</string>
 
     <string name="drawer_open">Ouvrir le menu à gauche</string>

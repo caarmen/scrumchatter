@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
  */
-package ca.rmen.android.scrumchatter.member.graph;
+package ca.rmen.android.scrumchatter.member.chart;
 
 import android.annotation.TargetApi;
 import android.content.SharedPreferences;
@@ -38,7 +38,7 @@ import android.view.View;
 
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
-import ca.rmen.android.scrumchatter.databinding.MembersGraphActivityBinding;
+import ca.rmen.android.scrumchatter.databinding.MembersChartsActivityBinding;
 import ca.rmen.android.scrumchatter.export.BitmapExport;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberStatsColumns;
@@ -47,15 +47,15 @@ import ca.rmen.android.scrumchatter.util.Log;
 
 
 /**
- * Displays graphs for members.
+ * Displays charts for members.
  */
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-public class MembersGraphActivity extends AppCompatActivity {
+public class MembersChartsActivity extends AppCompatActivity {
 
-    private static final String TAG = Constants.TAG + "/" + MembersGraphActivity.class.getSimpleName();
+    private static final String TAG = Constants.TAG + "/" + MembersChartsActivity.class.getSimpleName();
     private static final int LOADER_MEMBER_SPEAKING_TIME = 0;
 
-    private MembersGraphActivityBinding mBinding;
+    private MembersChartsActivityBinding mBinding;
 
 
     @Override
@@ -63,11 +63,11 @@ public class MembersGraphActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         FabListener listener = new FabListener();
 
-        mBinding = DataBindingUtil.setContentView(this, R.layout.members_graph_activity);
+        mBinding = DataBindingUtil.setContentView(this, R.layout.members_charts_activity);
         mBinding.pieChartCardAvg.setFabListener(listener);
         mBinding.pieChartCardTotal.setFabListener(listener);
-        mBinding.pieChartCardAvg.fabShareMemberSpeakingTime.setTag(mBinding.pieChartCardAvg.memberSpeakingTimeGraph);
-        mBinding.pieChartCardTotal.fabShareMemberSpeakingTime.setTag(mBinding.pieChartCardTotal.memberSpeakingTimeGraph);
+        mBinding.pieChartCardAvg.fabShareMemberSpeakingTime.setTag(mBinding.pieChartCardAvg.memberSpeakingTimeChart);
+        mBinding.pieChartCardTotal.fabShareMemberSpeakingTime.setTag(mBinding.pieChartCardTotal.memberSpeakingTimeChart);
         ActionBar supportActionBar = getSupportActionBar();
         if (supportActionBar != null) supportActionBar.setDisplayHomeAsUpEnabled(true);
         getSupportLoaderManager().initLoader(LOADER_MEMBER_SPEAKING_TIME, null, mLoaderCallbacks);
@@ -112,22 +112,22 @@ public class MembersGraphActivity extends AppCompatActivity {
     private final AsyncTask<Void, Void, Teams.Team> mTeamLoader = new AsyncTask<Void, Void, Teams.Team>() {
         @Override
         protected Teams.Team doInBackground(Void... params) {
-            return new Teams(MembersGraphActivity.this).getCurrentTeam();
+            return new Teams(MembersChartsActivity.this).getCurrentTeam();
         }
 
         @Override
         protected void onPostExecute(Teams.Team team) {
-            mBinding.pieChartCardAvg.tvTitleMemberSpeakingTimeGraph.setText(getString(R.string.chart_member_average_speaking_time_title, team.teamName));
-            mBinding.pieChartCardTotal.tvTitleMemberSpeakingTimeGraph.setText(getString(R.string.chart_member_total_speaking_time_title, team.teamName));
+            mBinding.pieChartCardAvg.tvTitleMemberSpeakingTimeChart.setText(getString(R.string.chart_member_average_speaking_time_title, team.teamName));
+            mBinding.pieChartCardTotal.tvTitleMemberSpeakingTimeChart.setText(getString(R.string.chart_member_total_speaking_time_title, team.teamName));
         }
     };
 
-    private class GraphExportTask extends AsyncTask<Void, Void, Void> {
+    private class ChartExportTask extends AsyncTask<Void, Void, Void> {
 
         private final View mView;
         private Bitmap mBitmap;
 
-        GraphExportTask(View view) {
+        ChartExportTask(View view) {
             super();
             mView = view;
         }
@@ -142,7 +142,7 @@ public class MembersGraphActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            BitmapExport export = new BitmapExport(MembersGraphActivity.this, mBitmap);
+            BitmapExport export = new BitmapExport(MembersChartsActivity.this, mBitmap);
             export.export();
             return null;
         }
@@ -151,7 +151,7 @@ public class MembersGraphActivity extends AppCompatActivity {
 
     public class FabListener {
         public void onShareMemberSpeakingTime(View view) {
-            new GraphExportTask((View) view.getTag()).execute();
+            new ChartExportTask((View) view.getTag()).execute();
         }
     }
 }

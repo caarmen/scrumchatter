@@ -21,15 +21,15 @@
 
     <string name="title_section_meetings">Reuniones</string>
     <string name="title_section_team">Equipo</string>
-    <string name="title_meetings_graph">Estadísticas de reuniones</string>
-    <string name="title_members_graph">Estadísticas de miembros</string>
+    <string name="title_meetings_chart">Estadísticas de reuniones</string>
+    <string name="title_members_chart">Estadísticas de miembros</string>
     <string name="action_share">Compartir</string>
     <string name="action_team_rename">Renombrar el equipo</string>
     <string name="action_team_rename_name">Renombrar %s</string>
     <string name="action_team_delete">Borrar el equipo</string>
     <string name="action_team_delete_name">Borrar %s</string>
     <string name="action_import">Importar base de datos</string>
-    <string name="action_graphs">Estadísticas</string>
+    <string name="action_charts">Estadísticas</string>
     <string name="action_new_member">Añadir un miembro</string>
     <string name="action_rename_member">Renombrar un miembro</string>
     <string name="action_new_meeting">Nueva reunión</string>
@@ -93,7 +93,7 @@
     <string name="about_credit_app_icon_text">qubodup por el icono de bocadillo, en openclipart.</string>
     <string name="about_credit_jxl_lib_text">Andy Khan, para su biblioteca Java Excel API.</string>
     <string name="about_credit_permissions_lib_text">Shintaro Katafuchi, para su biblioteca PermissionsDispatcher.</string>
-    <string name="about_credit_graph_lib_text">Leszek Wach, para su blblioteca HelloCharts for Android.</string>
+    <string name="about_credit_chart_lib_text">Leszek Wach, para su blblioteca HelloCharts for Android.</string>
     <string name="about_credit_flowlayout_lib_text">Artem Votincev, para su biblioteca FlowLayout.</string>
 
     <string name="drawer_open">Abrir el menú lateral</string>

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
  */
-package ca.rmen.android.scrumchatter.meeting.graph;
+package ca.rmen.android.scrumchatter.meeting.chart;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -33,9 +33,9 @@ import lecho.lib.hellocharts.model.Axis;
 /**
  * Some utility methods common to the meetings duration and member speaking time chart generation.
  */
-public final class MeetingsGraph {
+public final class MeetingsCharts {
 
-    private MeetingsGraph() {
+    private MeetingsCharts() {
         // prevent instantiation
     }
 

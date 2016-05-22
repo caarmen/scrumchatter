@@ -33,7 +33,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 
 import ca.rmen.android.scrumchatter.databinding.MeetingListBinding;
-import ca.rmen.android.scrumchatter.meeting.graph.MeetingsGraphActivity;
+import ca.rmen.android.scrumchatter.meeting.chart.MeetingsChartsActivity;
 import ca.rmen.android.scrumchatter.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -101,7 +101,7 @@ public class MeetingsListFragment extends ListFragment {
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        MenuItem menuItem = menu.findItem(R.id.action_graphs);
+        MenuItem menuItem = menu.findItem(R.id.action_charts);
         menuItem.setVisible(mAdapter != null && mAdapter.getCount() > 0);
     }
 
@@ -112,8 +112,8 @@ public class MeetingsListFragment extends ListFragment {
         if (item.getItemId() == R.id.action_new_meeting) {
             mMeetings.createMeeting(mTeamId);
             return true;
-        } else if (item.getItemId() == R.id.action_graphs) {
-            startActivity(new Intent(getContext(), MeetingsGraphActivity.class));
+        } else if (item.getItemId() == R.id.action_charts) {
+            startActivity(new Intent(getContext(), MeetingsChartsActivity.class));
             return true;
         }
         return true;

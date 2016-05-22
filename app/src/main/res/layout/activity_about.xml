@@ -137,14 +137,14 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/about_credit_graph_lib_text" />
+                android:text="@string/about_credit_chart_lib_text" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
                 android:autoLink="web"
-                android:text="@string/about_credit_graph_lib_link" />
+                android:text="@string/about_credit_chart_lib_link" />
 
             <TextView
                 android:layout_width="wrap_content"

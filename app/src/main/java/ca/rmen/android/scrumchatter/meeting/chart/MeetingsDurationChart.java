@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
  */
-package ca.rmen.android.scrumchatter.meeting.graph;
+package ca.rmen.android.scrumchatter.meeting.chart;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -42,12 +42,12 @@ import lecho.lib.hellocharts.view.AbstractChartView;
 import lecho.lib.hellocharts.view.LineChartView;
 
 /**
- * The meetings duration graph has one single line.  This line plots the meeting duration in minutes
+ * The meetings duration chart has one single line.  This line plots the meeting duration in minutes
  * on the y-axis versus the meeting dates on the x-axis.
  */
-final class MeetingsDurationGraph {
+final class MeetingsDurationChart {
     // prevent instantiation
-    public static void populateMeetingDurationGraph(Context context, LineChartView chart, @NonNull Cursor cursor) {
+    public static void populateMeetingDurationChart(Context context, LineChartView chart, @NonNull Cursor cursor) {
         List<PointValue> points = new ArrayList<>();
         List<AxisValue> xAxisValues = new ArrayList<>();
 
@@ -91,9 +91,9 @@ final class MeetingsDurationGraph {
 
     private static void setupChart(Context context, LineChartView chart, List<AxisValue> xAxisValues, String yAxisLabel, List<Line> lines) {
         Axis xAxis = new Axis(xAxisValues);
-        MeetingsGraph.setupXAxis(context, xAxis);
+        MeetingsCharts.setupXAxis(context, xAxis);
         Axis yAxis = new Axis();
-        MeetingsGraph.setupYAxis(context, yAxisLabel, yAxis);
+        MeetingsCharts.setupYAxis(context, yAxisLabel, yAxis);
         LineChartData lineChartData = new LineChartData();
         lineChartData.setAxisXBottom(xAxis);
         lineChartData.setAxisYLeft(yAxis);

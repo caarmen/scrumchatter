@@ -41,10 +41,10 @@
         app:showAsAction="ifRoom"
         android:title="@string/action_import"/>
     <item
-        android:id="@+id/action_graphs"
+        android:id="@+id/action_charts"
         android:orderInCategory="122"
         app:showAsAction="never"
-        android:title="@string/action_graphs"
+        android:title="@string/action_charts"
         android:visible="false"/>
     <item
         android:id="@+id/action_settings"

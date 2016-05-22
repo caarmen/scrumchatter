@@ -24,7 +24,7 @@
 
         <variable
             name="fabListener"
-            type="ca.rmen.android.scrumchatter.meeting.graph.MeetingsGraphActivity.FabListener" />
+            type="ca.rmen.android.scrumchatter.meeting.chart.MeetingsChartsActivity.FabListener" />
     </data>
 
     <ScrollView
@@ -33,7 +33,7 @@
         android:fillViewport="true">
 
         <LinearLayout
-            android:id="@+id/graph_container"
+            android:id="@+id/chart_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
@@ -46,13 +46,13 @@
                 card_view:cardCornerRadius="4dp">
 
                 <RelativeLayout
-                    android:id="@+id/meeting_duration_graph"
+                    android:id="@+id/meeting_duration_chart"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@android:color/white">
 
                     <TextView
-                        android:id="@+id/tv_title_meeting_duration_graph"
+                        android:id="@+id/tv_title_meeting_duration_chart"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_alignParentTop="true"
@@ -62,7 +62,7 @@
                         android:id="@+id/chart_meeting_duration"
                         android:layout_width="wrap_content"
                         android:layout_height="480dp"
-                        android:layout_below="@id/tv_title_meeting_duration_graph"
+                        android:layout_below="@id/tv_title_meeting_duration_chart"
                         android:padding="8dp" />
 
                 </RelativeLayout>
@@ -87,13 +87,13 @@
                 card_view:cardCornerRadius="4dp">
 
                 <RelativeLayout
-                    android:id="@+id/speaker_time_graph"
+                    android:id="@+id/speaker_time_chart"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@android:color/white">
 
                     <TextView
-                        android:id="@+id/tv_title_speaker_time_graph"
+                        android:id="@+id/tv_title_speaker_time_chart"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_alignParentTop="true"
@@ -106,14 +106,14 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
                         android:layout_alignParentRight="true"
-                        android:layout_below="@id/tv_title_speaker_time_graph"
+                        android:layout_below="@id/tv_title_speaker_time_chart"
                         android:orientation="vertical" />
 
                     <lecho.lib.hellocharts.view.ColumnChartView
                         android:id="@+id/chart_speaker_time"
                         android:layout_width="wrap_content"
                         android:layout_height="480dp"
-                        android:layout_below="@id/tv_title_speaker_time_graph"
+                        android:layout_below="@id/tv_title_speaker_time_chart"
                         android:layout_toLeftOf="@id/legend"
                         android:layout_toStartOf="@id/legend"
                         android:padding="8dp" />

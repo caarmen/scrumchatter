@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
  */
-package ca.rmen.android.scrumchatter.meeting.graph;
+package ca.rmen.android.scrumchatter.meeting.chart;
 
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -36,7 +36,7 @@ import android.view.View;
 
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
-import ca.rmen.android.scrumchatter.databinding.MeetingsGraphActivityBinding;
+import ca.rmen.android.scrumchatter.databinding.MeetingsChartsActivityBinding;
 import ca.rmen.android.scrumchatter.export.BitmapExport;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberColumns;
@@ -46,22 +46,22 @@ import ca.rmen.android.scrumchatter.util.Log;
 
 
 /**
- * Displays graphs for all meetings.
+ * Displays charts for all meetings.
  */
-public class MeetingsGraphActivity extends AppCompatActivity {
+public class MeetingsChartsActivity extends AppCompatActivity {
 
-    private static final String TAG = Constants.TAG + "/" + MeetingsGraphActivity.class.getSimpleName();
+    private static final String TAG = Constants.TAG + "/" + MeetingsChartsActivity.class.getSimpleName();
     private static final int LOADER_MEETING_DURATION = 0;
     private static final int LOADER_MEMBER_SPEAKING_TIME = 1;
 
-    private MeetingsGraphActivityBinding mBinding;
+    private MeetingsChartsActivityBinding mBinding;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mBinding = DataBindingUtil.setContentView(this, R.layout.meetings_graph_activity);
+        mBinding = DataBindingUtil.setContentView(this, R.layout.meetings_charts_activity);
         mBinding.setFabListener(new FabListener());
         ActionBar supportActionBar = getSupportActionBar();
         if (supportActionBar != null) supportActionBar.setDisplayHomeAsUpEnabled(true);
@@ -111,9 +111,9 @@ public class MeetingsGraphActivity extends AppCompatActivity {
         public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
             if (cursor != null) {
                 if (loader.getId() == LOADER_MEETING_DURATION) {
-                    MeetingsDurationGraph.populateMeetingDurationGraph(getApplicationContext(), mBinding.chartMeetingDuration, cursor);
+                    MeetingsDurationChart.populateMeetingDurationChart(getApplicationContext(), mBinding.chartMeetingDuration, cursor);
                 } else {
-                    MemberSpeakingTimeGraph.populateMemberSpeakingTimeGraph(getApplicationContext(), mBinding.chartSpeakerTime, mBinding.legend, cursor);
+                    MemberSpeakingTimeChart.populateMemberSpeakingTimeChart(getApplicationContext(), mBinding.chartSpeakerTime, mBinding.legend, cursor);
                 }
             }
         }
@@ -126,22 +126,22 @@ public class MeetingsGraphActivity extends AppCompatActivity {
     private final AsyncTask<Void, Void, Teams.Team> mTeamLoader = new AsyncTask<Void, Void, Teams.Team>() {
         @Override
         protected Teams.Team doInBackground(Void... params) {
-            return new Teams(MeetingsGraphActivity.this).getCurrentTeam();
+            return new Teams(MeetingsChartsActivity.this).getCurrentTeam();
         }
 
         @Override
         protected void onPostExecute(Teams.Team team) {
-            mBinding.tvTitleMeetingDurationGraph.setText(getString(R.string.chart_meeting_duration_title, team.teamName));
-            mBinding.tvTitleSpeakerTimeGraph.setText(getString(R.string.chart_speaker_time_title, team.teamName));
+            mBinding.tvTitleMeetingDurationChart.setText(getString(R.string.chart_meeting_duration_title, team.teamName));
+            mBinding.tvTitleSpeakerTimeChart.setText(getString(R.string.chart_speaker_time_title, team.teamName));
         }
     };
 
-    private class GraphExportTask extends AsyncTask<Void, Void, Void> {
+    private class ChartExportTask extends AsyncTask<Void, Void, Void> {
 
         private final View mView;
         private Bitmap mBitmap;
 
-        GraphExportTask(View view) {
+        ChartExportTask(View view) {
             super();
             mView = view;
         }
@@ -156,7 +156,7 @@ public class MeetingsGraphActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            BitmapExport export = new BitmapExport(MeetingsGraphActivity.this, mBitmap);
+            BitmapExport export = new BitmapExport(MeetingsChartsActivity.this, mBitmap);
             export.export();
             return null;
         }
@@ -165,12 +165,12 @@ public class MeetingsGraphActivity extends AppCompatActivity {
 
     public class FabListener {
         public void onShareMeetingDuration(@SuppressWarnings("UnusedParameters") View view) {
-            new GraphExportTask(mBinding.meetingDurationGraph).execute();
+            new ChartExportTask(mBinding.meetingDurationChart).execute();
 
         }
 
         public void onShareSpeakerTime(@SuppressWarnings("UnusedParameters") View view) {
-            new GraphExportTask(mBinding.speakerTimeGraph).execute();
+            new ChartExportTask(mBinding.speakerTimeChart).execute();
         }
     }
 }

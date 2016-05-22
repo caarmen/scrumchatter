@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
  */
-package ca.rmen.android.scrumchatter.meeting.graph;
+package ca.rmen.android.scrumchatter.meeting.chart;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -46,16 +46,15 @@ import lecho.lib.hellocharts.model.SubcolumnValue;
 import lecho.lib.hellocharts.view.ColumnChartView;
 
 /**
- * The member speaking-time graph has one line per member. A line for a member contains points for
- * each meeting: the x-axis is the date of the meeting, and the y-axis is the time that member spoke
- * during that meeting.
+ * The member speaking-time chart has one stacked column per meeting, with each column having stacked
+ * boxes for each member (the time the member spoke during that meeting).
  */
-final class MemberSpeakingTimeGraph {
-    private MemberSpeakingTimeGraph() {
+final class MemberSpeakingTimeChart {
+    private MemberSpeakingTimeChart() {
         // prevent instantiation
     }
 
-    public static void populateMemberSpeakingTimeGraph(Context context, ColumnChartView chart, ViewGroup legendView, @NonNull Cursor cursor) {
+    public static void populateMemberSpeakingTimeChart(Context context, ColumnChartView chart, ViewGroup legendView, @NonNull Cursor cursor) {
         List<AxisValue> xAxisValues = new ArrayList<>();
         List<Column> columns = new ArrayList<>();
 
@@ -91,7 +90,7 @@ final class MemberSpeakingTimeGraph {
         cursor.moveToPosition(-1);
 
         for (String memberName : memberColors.keySet()) {
-            MeetingsGraph.addLegendEntry(context, legendView, memberName, memberColors.get(memberName));
+            MeetingsCharts.addLegendEntry(context, legendView, memberName, memberColors.get(memberName));
         }
 
         setupChart(context,
@@ -124,9 +123,9 @@ final class MemberSpeakingTimeGraph {
 
     private static void setupChart(Context context, ColumnChartView chart, List<AxisValue> xAxisValues, String yAxisLabel, List<Column> columns) {
         Axis xAxis = new Axis(xAxisValues);
-        MeetingsGraph.setupXAxis(context, xAxis);
+        MeetingsCharts.setupXAxis(context, xAxis);
         Axis yAxis = new Axis();
-        MeetingsGraph.setupYAxis(context, yAxisLabel, yAxis);
+        MeetingsCharts.setupYAxis(context, yAxisLabel, yAxis);
         ColumnChartData data = new ColumnChartData();
         data.setAxisXBottom(xAxis);
         data.setAxisYLeft(yAxis);

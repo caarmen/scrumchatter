@@ -39,7 +39,7 @@ import android.support.v4.content.Loader;
 
 import ca.rmen.android.scrumchatter.databinding.MemberListBinding;
 import ca.rmen.android.scrumchatter.databinding.MemberListItemBinding;
-import ca.rmen.android.scrumchatter.member.graph.MembersGraphActivity;
+import ca.rmen.android.scrumchatter.member.chart.MembersChartsActivity;
 import ca.rmen.android.scrumchatter.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -110,7 +110,7 @@ public class MembersListFragment extends ListFragment {
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        MenuItem menuItem = menu.findItem(R.id.action_graphs);
+        MenuItem menuItem = menu.findItem(R.id.action_charts);
         menuItem.setVisible(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && mAdapter != null && mAdapter.getCount() > 0);
     }
 
@@ -120,8 +120,8 @@ public class MembersListFragment extends ListFragment {
         if (item.getItemId() == R.id.action_new_member) {
             mMembers.promptCreateMember(mTeamId);
             return true;
-        } else if (item.getItemId() == R.id.action_graphs) {
-            startActivity(new Intent(getActivity(), MembersGraphActivity.class));
+        } else if (item.getItemId() == R.id.action_charts) {
+            startActivity(new Intent(getActivity(), MembersChartsActivity.class));
         }
         return false;
     }
