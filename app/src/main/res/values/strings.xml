@@ -127,7 +127,6 @@
     <!-- Charts -->
     <string name="chart_meeting_duration_title">Meeting duration for %s</string>
     <string name="chart_speaker_time_title">Speaker time for %s</string>
-    <string name="chart_speaker_time_all_title">Speaker time for all members</string>
     <string name="chart_duration">Meeting duration (m)</string>
     <string name="chart_speaking_time">Speaking time (m)</string>
     <string name="chart_date">Meeting date</string>
