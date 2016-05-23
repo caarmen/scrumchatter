@@ -59,7 +59,7 @@ public class MeetingChartFragment extends Fragment {
         mBinding = DataBindingUtil.inflate(inflater, R.layout.meeting_chart_fragment, container, false);
         FabListener listener = new FabListener(getContext());
         mBinding.setFabListener(listener);
-        mBinding.fabShareMemberSpeakingTime.setTag(mBinding.pieChartContent.memberSpeakingTimeChart);
+        mBinding.fabShareMemberSpeakingTime.setTag(mBinding.memberSpeakingTimeChart);
         return mBinding.getRoot();
     }
 
@@ -84,17 +84,18 @@ public class MeetingChartFragment extends Fragment {
                     MeetingMemberColumns.DURATION,
                     MeetingMemberColumns.TALK_START_TIME};
             String selection = MeetingMemberColumns.DURATION + ">0";
+            String orderBy = MeetingMemberColumns.DURATION + " DESC";
 
             Uri uri = Uri.withAppendedPath(MeetingMemberColumns.CONTENT_URI, String.valueOf(meetingId));
-            return new CursorLoader(getActivity(), uri, projection, selection, null, null);
+            return new CursorLoader(getActivity(), uri, projection, selection, null, orderBy);
         }
 
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
             if (cursor != null) {
                 if (loader.getId() == LOADER_MEMBER_SPEAKING_TIME) {
-                    MemberSpeakingTimePieChart.populateMemberSpeakingTimeChart(getContext(),
-                            mBinding.pieChartContent.chartMemberSpeakingTime,
+                    MeetingSpeakingTimeColumnChart.populateMeeting(getContext(),
+                            mBinding.chartMemberSpeakingTime,
                             cursor);
                 }
             }
@@ -118,10 +119,10 @@ public class MeetingChartFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Void result) {
-            mBinding.pieChartContent.tvTitleMemberSpeakingTimeChart.setText(
+            mBinding.tvTitleMemberSpeakingTimeChart.setText(
                     getString(R.string.chart_member_speaking_time_title, mTeam.teamName));
             String meetingDate = TextUtils.formatDateTime(getContext(), mMeeting.getStartDate());
-            mBinding.pieChartContent.tvSubtitleMemberSpeakingTimeChart.setText(meetingDate);
+            mBinding.tvSubtitleMemberSpeakingTimeChart.setText(meetingDate);
         }
     };
 }

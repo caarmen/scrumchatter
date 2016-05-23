@@ -31,27 +31,57 @@
         android:layout_height="wrap_content"
         android:fillViewport="true">
 
-        <FrameLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/white">
+            android:background="@android:color/white"
+            android:orientation="vertical">
 
-            <include
-                android:id="@+id/pie_chart_content"
-                layout="@layout/pie_chart_content" />
+            <LinearLayout
+                android:id="@+id/member_speaking_time_chart"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="8dp">
+
+                <TextView
+                    android:id="@+id/tv_title_member_speaking_time_chart"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:textColor="@color/chart_text"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tv_subtitle_member_speaking_time_chart"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center_horizontal"
+                    android:textColor="@color/chart_text"
+                    android:textSize="12sp"
+                    android:textStyle="italic" />
+
+                <!--
+                We add bottom padding to the chart because of a bug
+                where the labels are truncated.
+                -->
+                <lecho.lib.hellocharts.view.ColumnChartView
+                    android:id="@+id/chart_member_speaking_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="400dp"
+                    android:paddingBottom="16dp" />
+            </LinearLayout>
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/fab_share_member_speaking_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end|bottom"
-                android:layout_marginBottom="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginRight="8dp"
                 android:clickable="true"
                 android:onClick="@{fabListener.onShare}"
                 app:srcCompat="@drawable/ic_action_share" />
-        </FrameLayout>
+        </LinearLayout>
 
     </ScrollView>
 </layout>

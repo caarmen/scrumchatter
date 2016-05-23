@@ -71,18 +71,6 @@ final class MemberSpeakingTimePieChart {
 
     }
 
-    public static void populateMemberSpeakingTimeChart(Context context, PieChartView pieChartMeeting, @NonNull Cursor cursor) {
-        List<SliceValue> sliceValuesSpeakingTime = new ArrayList<>();
-        MeetingMemberCursorWrapper cursorWrapper = new MeetingMemberCursorWrapper(cursor);
-        while (cursorWrapper.moveToNext()) {
-            sliceValuesSpeakingTime.add(createSliceValue(
-                    cursorWrapper.getDuration(),
-                    cursorWrapper.getMemberName()));
-        }
-        cursor.moveToPosition(-1);
-        setupChart(context, pieChartMeeting, sliceValuesSpeakingTime);
-    }
-
     static void updateMeetingDateRanges(Context context,
                                         TextView tvPieChartAvgSubtitle,
                                         TextView tvPieChartTotalSubtitle,
