@@ -16,72 +16,52 @@
   You should have received a copy of the GNU General Public License
   along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
 -->
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <data>
-
-        <variable
-            name="fabListener"
-            type="ca.rmen.android.scrumchatter.chart.FabListener" />
-    </data>
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fillViewport="true">
 
+
         <LinearLayout
+            android:id="@+id/member_speaking_time_chart"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@android:color/white"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="8dp">
 
-            <LinearLayout
-                android:id="@+id/member_speaking_time_chart"
+            <TextView
+                android:id="@+id/tv_title_member_speaking_time_chart"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="8dp">
+                android:gravity="center_horizontal"
+                android:textColor="@color/chart_text"
+                android:textSize="16sp" />
 
-                <TextView
-                    android:id="@+id/tv_title_member_speaking_time_chart"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:textColor="@color/chart_text"
-                    android:textSize="16sp" />
-
-                <TextView
-                    android:id="@+id/tv_subtitle_member_speaking_time_chart"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:gravity="center_horizontal"
-                    android:textColor="@color/chart_text"
-                    android:textSize="12sp"
-                    android:textStyle="italic" />
-
-                <!--
-                We add bottom padding to the chart because of a bug
-                where the labels are truncated.
-                -->
-                <lecho.lib.hellocharts.view.ColumnChartView
-                    android:id="@+id/chart_member_speaking_time"
-                    android:layout_width="match_parent"
-                    android:layout_height="400dp"
-                    android:paddingBottom="16dp" />
-            </LinearLayout>
-
-            <android.support.design.widget.FloatingActionButton
-                android:id="@+id/fab_share_member_speaking_time"
-                android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/tv_subtitle_member_speaking_time_chart"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end|bottom"
-                android:clickable="true"
-                android:onClick="@{fabListener.onShare}"
-                app:srcCompat="@drawable/ic_action_share" />
+                android:layout_marginTop="4dp"
+                android:gravity="center_horizontal"
+                android:textColor="@color/chart_text"
+                android:textSize="12sp"
+                android:textStyle="italic" />
+
+            <!--
+            We add bottom padding to the chart because of a bug
+            where the labels are truncated.
+            -->
+            <lecho.lib.hellocharts.view.ColumnChartView
+                android:id="@+id/chart_member_speaking_time"
+                android:layout_width="match_parent"
+                android:layout_height="400dp"
+                android:paddingBottom="16dp" />
         </LinearLayout>
+
 
     </ScrollView>
 </layout>

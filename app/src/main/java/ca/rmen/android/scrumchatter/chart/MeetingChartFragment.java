@@ -29,6 +29,9 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -57,9 +60,6 @@ public class MeetingChartFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.v(TAG, "onCreateView");
         mBinding = DataBindingUtil.inflate(inflater, R.layout.meeting_chart_fragment, container, false);
-        FabListener listener = new FabListener(getContext());
-        mBinding.setFabListener(listener);
-        mBinding.fabShareMemberSpeakingTime.setTag(mBinding.memberSpeakingTimeChart);
         return mBinding.getRoot();
     }
 
@@ -67,7 +67,23 @@ public class MeetingChartFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         getLoaderManager().initLoader(LOADER_MEMBER_SPEAKING_TIME, null, mLoaderCallbacks);
+        setHasOptionsMenu(true);
         mMeetingLoader.execute(getActivity().getIntent().getLongExtra(Meetings.EXTRA_MEETING_ID, -1));
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.meeting_chart_menu, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_share) {
+            new ChartExportTask(getContext(), mBinding.memberSpeakingTimeChart).execute();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private final LoaderManager.LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderManager.LoaderCallbacks<Cursor>() {
