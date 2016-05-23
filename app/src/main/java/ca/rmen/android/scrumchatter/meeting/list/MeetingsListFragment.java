@@ -1,25 +1,24 @@
 /**
  * Copyright 2013 Carmen Alvarez
- *
+ * <p/>
  * This file is part of Scrum Chatter.
- *
+ * <p/>
  * Scrum Chatter is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p/>
  * Scrum Chatter is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- *
+ * <p/>
  * You should have received a copy of the GNU General Public License
  * along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
  */
 package ca.rmen.android.scrumchatter.meeting.list;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
@@ -31,10 +30,6 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-
-import ca.rmen.android.scrumchatter.databinding.MeetingListBinding;
-import ca.rmen.android.scrumchatter.chart.ChartsActivity;
-import ca.rmen.android.scrumchatter.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -43,12 +38,15 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ListView;
+
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
+import ca.rmen.android.scrumchatter.databinding.MeetingListBinding;
 import ca.rmen.android.scrumchatter.meeting.Meetings;
 import ca.rmen.android.scrumchatter.meeting.detail.Meeting;
 import ca.rmen.android.scrumchatter.meeting.detail.MeetingActivity;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
+import ca.rmen.android.scrumchatter.util.Log;
 
 /**
  * Displays the list of meetings that have taken place.
@@ -130,7 +128,7 @@ public class MeetingsListFragment extends ListFragment {
         public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
             Log.v(TAG, "onCreateLoader, loaderId = " + loaderId + ", bundle = " + bundle);
             String selection = MeetingColumns.TEAM_ID + "=?";
-            String[] selectionArgs = new String[] { String.valueOf(mTeamId) };
+            String[] selectionArgs = new String[]{String.valueOf(mTeamId)};
             return new CursorLoader(getActivity(), MeetingColumns.CONTENT_URI, null, selection, selectionArgs, MeetingColumns.MEETING_DATE
                     + " DESC");
         }
@@ -161,7 +159,7 @@ public class MeetingsListFragment extends ListFragment {
             Log.v(TAG, "onClick: view = " + v);
             final Meeting meeting = (Meeting) v.getTag();
             switch (v.getId()) {
-            // The user wants to delete a meeting
+                // The user wants to delete a meeting
                 case R.id.btn_delete_meeting:
                     mMeetings.confirmDelete(meeting);
                     break;

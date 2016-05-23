@@ -36,6 +36,7 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateUtils;
 
+import ca.rmen.android.scrumchatter.chart.MeetingChartActivity;
 import ca.rmen.android.scrumchatter.databinding.MeetingFragmentBinding;
 import ca.rmen.android.scrumchatter.util.Log;
 import android.view.LayoutInflater;
@@ -108,9 +109,11 @@ public class MeetingFragment extends ListFragment {
         Log.v(TAG, "onCreateOptionsMenu: mMeeting =" + mMeeting);
 
         inflater.inflate(R.menu.meeting_menu, menu);
-        // Only share finished meetings
+        // Only share and show charts for finished meetings
         final MenuItem shareItem = menu.findItem(R.id.action_share);
         shareItem.setVisible(mMeeting != null && mMeeting.getState() == State.FINISHED);
+        final MenuItem chartItem = menu.findItem(R.id.action_charts);
+        chartItem.setVisible(mMeeting != null && mMeeting.getState() == State.FINISHED);
         // Delete a meeting in any state.
         final MenuItem deleteItem = menu.findItem(R.id.action_delete_meeting);
         deleteItem.setVisible(mMeeting != null);
@@ -130,6 +133,9 @@ public class MeetingFragment extends ListFragment {
                 return true;
             case R.id.action_share:
                 mMeetings.export(mMeeting.getId());
+                return true;
+            case R.id.action_charts:
+                MeetingChartActivity.start(getContext(), mMeeting.getId());
                 return true;
             case R.id.action_delete_meeting:
                 mMeetings.confirmDelete(mMeeting);

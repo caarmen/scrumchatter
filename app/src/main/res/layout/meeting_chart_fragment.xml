@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright 2016 Carmen Alvarez
+ 
+  This file is part of Scrum Chatter.
+ 
+  Scrum Chatter is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+ 
+  Scrum Chatter is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+ 
+  You should have received a copy of the GNU General Public License
+  along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
+-->
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="fabListener"
+            type="ca.rmen.android.scrumchatter.chart.FabListener" />
+    </data>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fillViewport="true">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white">
+
+            <include
+                android:id="@+id/pie_chart_content"
+                layout="@layout/pie_chart_content" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fab_share_member_speaking_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|bottom"
+                android:layout_marginBottom="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:clickable="true"
+                android:onClick="@{fabListener.onShare}"
+                app:srcCompat="@drawable/ic_action_share" />
+        </FrameLayout>
+
+    </ScrollView>
+</layout>

@@ -32,7 +32,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import ca.rmen.android.scrumchatter.R;
-import ca.rmen.android.scrumchatter.provider.MeetingCursorWrapper;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
 import ca.rmen.android.scrumchatter.provider.MemberCursorWrapper;
 import ca.rmen.android.scrumchatter.util.TextUtils;
@@ -72,6 +71,18 @@ final class MemberSpeakingTimePieChart {
 
     }
 
+    public static void populateMemberSpeakingTimeChart(Context context, PieChartView pieChartMeeting, @NonNull Cursor cursor) {
+        List<SliceValue> sliceValuesSpeakingTime = new ArrayList<>();
+        MeetingMemberCursorWrapper cursorWrapper = new MeetingMemberCursorWrapper(cursor);
+        while (cursorWrapper.moveToNext()) {
+            sliceValuesSpeakingTime.add(createSliceValue(
+                    cursorWrapper.getDuration(),
+                    cursorWrapper.getMemberName()));
+        }
+        cursor.moveToPosition(-1);
+        setupChart(context, pieChartMeeting, sliceValuesSpeakingTime);
+    }
+
     static void updateMeetingDateRanges(Context context,
                                         TextView tvPieChartAvgSubtitle,
                                         TextView tvPieChartTotalSubtitle,
@@ -87,7 +98,7 @@ final class MemberSpeakingTimePieChart {
         }
     }
 
-    private static SliceValue createSliceValue(int duration, String memberName) {
+    private static SliceValue createSliceValue(long duration, String memberName) {
         SliceValue sliceValue = new SliceValue();
         sliceValue.setValue(duration);
         String durationString = DateUtils.formatElapsedTime(duration);

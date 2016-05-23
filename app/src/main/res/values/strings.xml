@@ -131,6 +131,7 @@
     <string name="chart_speaker_time_title">Speaker time for %s</string>
     <string name="chart_member_average_speaking_time_title">Average speaking time for %s members</string>
     <string name="chart_member_total_speaking_time_title">Total speaking time for %s members</string>
+    <string name="chart_member_speaking_time_title">Speaking time for %s meeting</string>
     <string name="chart_duration">Meeting duration (minutes)</string>
     <string name="chart_speaking_time">Speaking time (minutes)</string>
     <string name="chart_date">Meeting date</string>

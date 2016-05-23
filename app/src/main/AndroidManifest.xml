@@ -77,6 +77,18 @@
                 android:value="ca.rmen.android.scrumchatter.main.MainActivity" />
         </activity>
         <activity
+            android:name=".chart.MeetingChartActivity"
+            android:label="@string/title_chart"
+            android:parentActivityName="ca.rmen.android.scrumchatter.meeting.detail.MeetingActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            tools:ignore="UnusedAttribute">
+
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ca.rmen.android.scrumchatter.meeting.detail.MeetingActivity" />
+        </activity>
+        <activity
             android:name=".settings.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".main.MainActivity"
