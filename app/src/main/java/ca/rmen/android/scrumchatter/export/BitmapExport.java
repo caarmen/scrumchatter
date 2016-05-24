@@ -19,7 +19,9 @@
 package ca.rmen.android.scrumchatter.export;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -27,21 +29,23 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import ca.rmen.android.scrumchatter.Constants;
+import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.util.Log;
 
 /**
- * Export data for all meetings to an Excel file.
+ * Export a bitmap as a png file.
  */
-public class BitmapExport extends FileExport {
+public class BitmapExport {
     private static final String TAG = Constants.TAG + "/" + BitmapExport.class.getSimpleName();
 
     private static final String FILE = "scrumchatter.png";
     private static final String MIME_TYPE = "image/png";
+    private final Context mContext;
     private final Bitmap mBitmap;
 
     public BitmapExport(Context context, Bitmap bitmap) {
-        super(context, MIME_TYPE);
         mBitmap = bitmap;
+        mContext = context;
     }
 
     /**
@@ -49,8 +53,7 @@ public class BitmapExport extends FileExport {
      *
      * @see FileExport#createFile()
      */
-    @Override
-    protected File createFile() {
+    private File createFile() {
         Log.v(TAG, "export");
 
         File file = new File(mContext.getExternalFilesDir(null), FILE);
@@ -72,6 +75,28 @@ public class BitmapExport extends FileExport {
         }
 
         return file;
+    }
+
+    /**
+     * Export the file.
+     */
+    public void export() {
+        Log.v(TAG, "export");
+        File file = createFile();
+        Log.v(TAG, "export: created file " + file);
+        if (file != null && file.exists()) showChooser(file);
+    }
+
+    /**
+     * Bring up the chooser to send the file.
+     */
+    private void showChooser(File file) {
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, mContext.getString(R.string.export_message_body));
+        sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + file.getAbsolutePath()));
+        sendIntent.setType(MIME_TYPE);
+        mContext.startActivity(Intent.createChooser(sendIntent, mContext.getResources().getText(R.string.action_share)));
     }
 
 }
