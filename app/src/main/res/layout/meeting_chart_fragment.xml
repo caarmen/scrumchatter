@@ -26,7 +26,7 @@
 
 
         <LinearLayout
-            android:id="@+id/member_speaking_time_chart"
+            android:id="@+id/member_speaking_time_chart_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@android:color/white"
@@ -56,7 +56,7 @@
             where the labels are truncated.
             -->
             <lecho.lib.hellocharts.view.ColumnChartView
-                android:id="@+id/chart_member_speaking_time"
+                android:id="@+id/member_speaking_time_chart"
                 android:layout_width="match_parent"
                 android:layout_height="400dp"
                 android:paddingBottom="16dp" />

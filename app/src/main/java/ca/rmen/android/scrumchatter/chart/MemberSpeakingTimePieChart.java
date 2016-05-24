@@ -32,7 +32,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import ca.rmen.android.scrumchatter.R;
-import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
 import ca.rmen.android.scrumchatter.provider.MemberCursorWrapper;
 import ca.rmen.android.scrumchatter.util.TextUtils;
 import lecho.lib.hellocharts.gesture.ZoomType;

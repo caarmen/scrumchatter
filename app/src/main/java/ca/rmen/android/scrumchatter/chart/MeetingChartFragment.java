@@ -111,7 +111,7 @@ public class MeetingChartFragment extends Fragment {
             if (cursor != null) {
                 if (loader.getId() == LOADER_MEMBER_SPEAKING_TIME) {
                     MeetingSpeakingTimeColumnChart.populateMeeting(getContext(),
-                            mBinding.chartMemberSpeakingTime,
+                            mBinding.memberSpeakingTimeChart,
                             cursor);
                 }
             }
