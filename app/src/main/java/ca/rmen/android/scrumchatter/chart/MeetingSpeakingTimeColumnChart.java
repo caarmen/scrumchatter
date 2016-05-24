@@ -39,8 +39,9 @@ import lecho.lib.hellocharts.model.SubcolumnValue;
 import lecho.lib.hellocharts.view.ColumnChartView;
 
 /**
- * The member speaking-time chart has one stacked column per meeting, with each column having stacked
- * boxes for each member (the time the member spoke during that meeting).
+ * The meeting speaking-time chart displays the speaking time for each
+ * member, in one meeting.  Each column in the chart corresponds to the speaking time for one member,
+ * in that meeting.
  */
 final class MeetingSpeakingTimeColumnChart {
     private MeetingSpeakingTimeColumnChart() {
