@@ -46,7 +46,7 @@
                 card_view:cardCornerRadius="4dp">
 
                 <RelativeLayout
-                    android:id="@+id/meeting_duration_chart"
+                    android:id="@+id/meeting_duration_chart_content"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@android:color/white">
@@ -60,7 +60,7 @@
                         android:textColor="@color/chart_text" />
 
                     <lecho.lib.hellocharts.view.LineChartView
-                        android:id="@+id/chart_meeting_duration"
+                        android:id="@+id/meeting_duration_chart"
                         android:layout_width="wrap_content"
                         android:layout_height="480dp"
                         android:layout_below="@id/tv_title_meeting_duration_chart"
@@ -88,7 +88,7 @@
                 card_view:cardCornerRadius="4dp">
 
                 <RelativeLayout
-                    android:id="@+id/speaker_time_chart"
+                    android:id="@+id/speaker_time_chart_content"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@android:color/white">
@@ -112,7 +112,7 @@
                         android:orientation="vertical" />
 
                     <lecho.lib.hellocharts.view.ColumnChartView
-                        android:id="@+id/chart_speaker_time"
+                        android:id="@+id/speaker_time_chart"
                         android:layout_width="wrap_content"
                         android:layout_height="480dp"
                         android:layout_below="@id/tv_title_speaker_time_chart"

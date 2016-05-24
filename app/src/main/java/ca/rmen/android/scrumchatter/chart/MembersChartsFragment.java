@@ -61,8 +61,8 @@ public class MembersChartsFragment extends Fragment {
 
         mBinding.pieChartCardAvg.setFabListener(listener);
         mBinding.pieChartCardTotal.setFabListener(listener);
-        mBinding.pieChartCardAvg.fabShareMemberSpeakingTime.setTag(mBinding.pieChartCardAvg.pieChartContent.memberSpeakingTimeChart);
-        mBinding.pieChartCardTotal.fabShareMemberSpeakingTime.setTag(mBinding.pieChartCardTotal.pieChartContent.memberSpeakingTimeChart);
+        mBinding.pieChartCardAvg.fabShareMemberSpeakingTime.setTag(mBinding.pieChartCardAvg.pieChartContent.memberSpeakingTimeChartContent);
+        mBinding.pieChartCardTotal.fabShareMemberSpeakingTime.setTag(mBinding.pieChartCardTotal.pieChartContent.memberSpeakingTimeChartContent);
         return mBinding.getRoot();
     }
 

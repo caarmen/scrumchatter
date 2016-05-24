@@ -81,7 +81,7 @@ public class MeetingChartFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_share) {
-            new ChartExportTask(getContext(), mBinding.memberSpeakingTimeChart).execute();
+            new ChartExportTask(getContext(), mBinding.memberSpeakingTimeChartContent).execute();
             return true;
         }
         return super.onOptionsItemSelected(item);

@@ -58,8 +58,8 @@ public class MeetingsChartsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.v(TAG, "onCreateView");
         mBinding = DataBindingUtil.inflate(inflater, R.layout.meetings_charts_fragment, container, false);
-        mBinding.fabShareMeetingDuration.setTag(mBinding.meetingDurationChart);
-        mBinding.fabShareSpeakerTime.setTag(mBinding.speakerTimeChart);
+        mBinding.fabShareMeetingDuration.setTag(mBinding.meetingDurationChartContent);
+        mBinding.fabShareSpeakerTime.setTag(mBinding.speakerTimeChartContent);
         mBinding.setFabListener(new FabListener(getContext()));
         mTeamLoader.execute();
         return mBinding.getRoot();
@@ -107,9 +107,9 @@ public class MeetingsChartsFragment extends Fragment {
         public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
             if (cursor != null) {
                 if (loader.getId() == LOADER_MEETING_DURATION) {
-                    MeetingDurationLineChart.populateMeetingDurationChart(getContext(), mBinding.chartMeetingDuration, cursor);
+                    MeetingDurationLineChart.populateMeetingDurationChart(getContext(), mBinding.meetingDurationChart, cursor);
                 } else {
-                    MemberSpeakingTimeColumnChart.populateMemberSpeakingTimeChart(getContext(), mBinding.chartSpeakerTime, mBinding.legend, cursor);
+                    MemberSpeakingTimeColumnChart.populateMemberSpeakingTimeChart(getContext(), mBinding.speakerTimeChart, mBinding.legend, cursor);
                 }
             }
         }

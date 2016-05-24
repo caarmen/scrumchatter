@@ -21,7 +21,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <LinearLayout
-        android:id="@+id/member_speaking_time_chart_container"
+        android:id="@+id/member_speaking_time_chart_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/white"
