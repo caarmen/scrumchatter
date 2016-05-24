@@ -24,7 +24,7 @@
 
         <variable
             name="fabListener"
-            type="ca.rmen.android.scrumchatter.chart.MeetingsChartsFragment.FabListener" />
+            type="ca.rmen.android.scrumchatter.chart.FabListener" />
     </data>
 
     <ScrollView
@@ -76,7 +76,7 @@
                     android:layout_marginEnd="16dp"
                     android:layout_marginRight="16dp"
                     android:clickable="true"
-                    android:onClick="@{fabListener.onShareMeetingDuration}"
+                    android:onClick="@{fabListener.onShare}"
                     app:srcCompat="@drawable/ic_action_share" />
             </android.support.v7.widget.CardView>
 
@@ -130,7 +130,7 @@
                     android:layout_marginEnd="16dp"
                     android:layout_marginRight="16dp"
                     android:clickable="true"
-                    android:onClick="@{fabListener.onShareSpeakerTime}"
+                    android:onClick="@{fabListener.onShare}"
                     app:srcCompat="@drawable/ic_action_share" />
             </android.support.v7.widget.CardView>
         </LinearLayout>

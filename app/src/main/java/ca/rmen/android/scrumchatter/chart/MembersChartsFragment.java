@@ -18,12 +18,10 @@
  */
 package ca.rmen.android.scrumchatter.chart;
 
-import android.annotation.TargetApi;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -47,7 +45,6 @@ import ca.rmen.android.scrumchatter.util.Log;
 /**
  * Displays charts for members.
  */
-@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class MembersChartsFragment extends Fragment {
 
     private static final String TAG = Constants.TAG + "/" + MembersChartsFragment.class.getSimpleName();
@@ -60,12 +57,12 @@ public class MembersChartsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.v(TAG, "onCreateView");
         mBinding = DataBindingUtil.inflate(inflater, R.layout.members_charts_fragment, container, false);
-        FabListener listener = new FabListener();
+        FabListener listener = new FabListener(getContext());
 
         mBinding.pieChartCardAvg.setFabListener(listener);
         mBinding.pieChartCardTotal.setFabListener(listener);
-        mBinding.pieChartCardAvg.fabShareMemberSpeakingTime.setTag(mBinding.pieChartCardAvg.memberSpeakingTimeChart);
-        mBinding.pieChartCardTotal.fabShareMemberSpeakingTime.setTag(mBinding.pieChartCardTotal.memberSpeakingTimeChart);
+        mBinding.pieChartCardAvg.fabShareMemberSpeakingTime.setTag(mBinding.pieChartCardAvg.pieChartContent.memberSpeakingTimeChart);
+        mBinding.pieChartCardTotal.fabShareMemberSpeakingTime.setTag(mBinding.pieChartCardTotal.pieChartContent.memberSpeakingTimeChart);
         return mBinding.getRoot();
     }
 
@@ -106,13 +103,13 @@ public class MembersChartsFragment extends Fragment {
             if (cursor != null) {
                 if (loader.getId() == LOADER_MEMBER_SPEAKING_TIME) {
                     MemberSpeakingTimePieChart.populateMemberSpeakingTimeChart(getContext(),
-                            mBinding.pieChartCardAvg.chartMemberSpeakingTime,
-                            mBinding.pieChartCardTotal.chartMemberSpeakingTime,
+                            mBinding.pieChartCardAvg.pieChartContent.memberSpeakingTimeChart,
+                            mBinding.pieChartCardTotal.pieChartContent.memberSpeakingTimeChart,
                             cursor);
                 } else {
                     MemberSpeakingTimePieChart.updateMeetingDateRanges(getContext(),
-                            mBinding.pieChartCardAvg.tvSubtitleMemberSpeakingTimeChart,
-                            mBinding.pieChartCardTotal.tvSubtitleMemberSpeakingTimeChart,
+                            mBinding.pieChartCardAvg.pieChartContent.tvSubtitleDateMemberSpeakingTimeChart,
+                            mBinding.pieChartCardTotal.pieChartContent.tvSubtitleDateMemberSpeakingTimeChart,
                             cursor);
                 }
             }
@@ -131,14 +128,9 @@ public class MembersChartsFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Teams.Team team) {
-            mBinding.pieChartCardAvg.tvTitleMemberSpeakingTimeChart.setText(getString(R.string.chart_member_average_speaking_time_title, team.teamName));
-            mBinding.pieChartCardTotal.tvTitleMemberSpeakingTimeChart.setText(getString(R.string.chart_member_total_speaking_time_title, team.teamName));
+            mBinding.pieChartCardAvg.pieChartContent.tvTitleMemberSpeakingTimeChart.setText(getString(R.string.chart_member_average_speaking_time_title, team.teamName));
+            mBinding.pieChartCardTotal.pieChartContent.tvTitleMemberSpeakingTimeChart.setText(getString(R.string.chart_member_total_speaking_time_title, team.teamName));
         }
     };
 
-    public class FabListener {
-        public void onShareMemberSpeakingTime(View view) {
-            new ChartExportTask(getContext(), (View) view.getTag()).execute();
-        }
-    }
 }

@@ -58,7 +58,9 @@ public class MeetingsChartsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.v(TAG, "onCreateView");
         mBinding = DataBindingUtil.inflate(inflater, R.layout.meetings_charts_fragment, container, false);
-        mBinding.setFabListener(new FabListener());
+        mBinding.fabShareMeetingDuration.setTag(mBinding.meetingDurationChart);
+        mBinding.fabShareSpeakerTime.setTag(mBinding.speakerTimeChart);
+        mBinding.setFabListener(new FabListener(getContext()));
         mTeamLoader.execute();
         return mBinding.getRoot();
     }
@@ -130,14 +132,4 @@ public class MeetingsChartsFragment extends Fragment {
         }
     };
 
-    public class FabListener {
-        public void onShareMeetingDuration(@SuppressWarnings("UnusedParameters") View view) {
-            new ChartExportTask(getContext(), mBinding.meetingDurationChart).execute();
-
-        }
-
-        public void onShareSpeakerTime(@SuppressWarnings("UnusedParameters") View view) {
-            new ChartExportTask(getContext(), mBinding.speakerTimeChart).execute();
-        }
-    }
 }

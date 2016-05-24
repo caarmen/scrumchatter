@@ -113,6 +113,8 @@
     <string name="chart_speaker_time_title">Tiempo de palabra para %s</string>
     <string name="chart_member_average_speaking_time_title">Tiempo medio de palabra para los miembros de %s</string>
     <string name="chart_member_total_speaking_time_title">Tiempo total de palabra para los miembros de %s</string>
+    <string name="chart_member_speaking_time_title">Tiempo de palabra para %s</string>
+    <string name="chart_total_duration">Duración total: %s</string>
     <string name="chart_duration">Tiempo de la reunión (minutos)</string>
     <string name="chart_speaking_time">Tiempo de palabra (minutos)</string>
     <string name="chart_date">Fecha de la reunión</string>

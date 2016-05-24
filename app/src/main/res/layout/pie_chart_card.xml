@@ -1,5 +1,21 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright 2016 Carmen Alvarez
 
+  This file is part of Scrum Chatter.
+
+  Scrum Chatter is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  Scrum Chatter is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
+-->
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -10,7 +26,7 @@
 
         <variable
             name="fabListener"
-            type="ca.rmen.android.scrumchatter.chart.MembersChartsFragment.FabListener" />
+            type="ca.rmen.android.scrumchatter.chart.FabListener" />
     </data>
 
     <android.support.v7.widget.CardView
@@ -21,55 +37,9 @@
         card_view:cardCornerRadius="4dp"
         tools:showIn="@layout/members_charts_fragment">
 
-        <LinearLayout
-            android:id="@+id/member_speaking_time_chart"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/white"
-            android:orientation="vertical"
-            android:padding="8dp">
-
-            <TextView
-                android:id="@+id/tv_title_member_speaking_time_chart"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:textColor="@color/chart_text"
-                android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/tv_subtitle_member_speaking_time_chart"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:gravity="center_horizontal"
-                android:textColor="@color/chart_text"
-                android:textSize="12sp"
-                android:textStyle="italic" />
-
-            <lecho.lib.hellocharts.view.PieChartView
-                android:id="@+id/chart_member_speaking_time"
-                android:layout_width="match_parent"
-                android:layout_height="400dp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <org.apmem.tools.layouts.FlowLayout
-                    android:id="@+id/legend"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:orientation="horizontal"
-                    android:paddingBottom="64dp" />
-
-
-            </LinearLayout>
-
-        </LinearLayout>
+        <include
+            android:id="@+id/pie_chart_content"
+            layout="@layout/pie_chart_content" />
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab_share_member_speaking_time"
@@ -80,7 +50,7 @@
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
             android:clickable="true"
-            android:onClick="@{fabListener.onShareMemberSpeakingTime}"
+            android:onClick="@{fabListener.onShare}"
             app:srcCompat="@drawable/ic_action_share" />
 
     </android.support.v7.widget.CardView>

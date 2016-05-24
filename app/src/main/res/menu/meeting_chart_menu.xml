@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2013 Carmen Alvarez
+  Copyright 2016 Carmen Alvarez
  
   This file is part of Scrum Chatter.
  
@@ -24,18 +24,6 @@
         android:id="@+id/action_share"
         android:icon="@drawable/ic_action_share"
         app:showAsAction="ifRoom"
-        android:title="@string/action_share"
-        android:visible="false" />
-
-    <item
-        android:id="@+id/action_charts"
-        app:showAsAction="never"
-        android:title="@string/action_charts" />
-
-    <item
-        android:id="@+id/action_delete_meeting"
-        app:showAsAction="never"
-        android:title="@string/action_delete_meeting"
-        android:visible="false" />
+        android:title="@string/action_share" />
 
 </menu>

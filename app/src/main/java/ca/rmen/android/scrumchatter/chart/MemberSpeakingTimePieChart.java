@@ -32,8 +32,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import ca.rmen.android.scrumchatter.R;
-import ca.rmen.android.scrumchatter.provider.MeetingCursorWrapper;
-import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
 import ca.rmen.android.scrumchatter.provider.MemberCursorWrapper;
 import ca.rmen.android.scrumchatter.util.TextUtils;
 import lecho.lib.hellocharts.gesture.ZoomType;
@@ -87,7 +85,7 @@ final class MemberSpeakingTimePieChart {
         }
     }
 
-    private static SliceValue createSliceValue(int duration, String memberName) {
+    private static SliceValue createSliceValue(long duration, String memberName) {
         SliceValue sliceValue = new SliceValue();
         sliceValue.setValue(duration);
         String durationString = DateUtils.formatElapsedTime(duration);
