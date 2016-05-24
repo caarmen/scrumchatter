@@ -28,6 +28,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -138,7 +139,9 @@ public class MeetingChartFragment extends Fragment {
             mBinding.tvTitleMemberSpeakingTimeChart.setText(
                     getString(R.string.chart_member_speaking_time_title, mTeam.teamName));
             String meetingDate = TextUtils.formatDateTime(getContext(), mMeeting.getStartDate());
-            mBinding.tvSubtitleMemberSpeakingTimeChart.setText(meetingDate);
+            String meetingDuration = DateUtils.formatElapsedTime(mMeeting.getDuration());
+            mBinding.tvSubtitleDateMemberSpeakingTimeChart.setText(meetingDate);
+            mBinding.tvSubtitleDurationMemberSpeakingTimeChart.setText(getString(R.string.chart_total_duration, meetingDuration));
         }
     };
 }

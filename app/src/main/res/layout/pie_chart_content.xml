@@ -38,7 +38,7 @@
             android:textSize="16sp" />
 
         <TextView
-            android:id="@+id/tv_subtitle_member_speaking_time_chart"
+            android:id="@+id/tv_subtitle_date_member_speaking_time_chart"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"

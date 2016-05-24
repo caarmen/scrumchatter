@@ -42,14 +42,23 @@
                 android:textSize="16sp" />
 
             <TextView
-                android:id="@+id/tv_subtitle_member_speaking_time_chart"
+                android:id="@+id/tv_subtitle_date_member_speaking_time_chart"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:gravity="center_horizontal"
                 android:textColor="@color/chart_text"
-                android:textSize="12sp"
+                android:textSize="14sp"
                 android:textStyle="italic" />
+
+            <TextView
+                android:id="@+id/tv_subtitle_duration_member_speaking_time_chart"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:gravity="center_horizontal"
+                android:textColor="@color/chart_subtitle"
+                android:textSize="12sp" />
 
             <!--
             We add bottom padding to the chart because of a bug

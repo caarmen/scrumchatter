@@ -108,8 +108,8 @@ public class MembersChartsFragment extends Fragment {
                             cursor);
                 } else {
                     MemberSpeakingTimePieChart.updateMeetingDateRanges(getContext(),
-                            mBinding.pieChartCardAvg.pieChartContent.tvSubtitleMemberSpeakingTimeChart,
-                            mBinding.pieChartCardTotal.pieChartContent.tvSubtitleMemberSpeakingTimeChart,
+                            mBinding.pieChartCardAvg.pieChartContent.tvSubtitleDateMemberSpeakingTimeChart,
+                            mBinding.pieChartCardTotal.pieChartContent.tvSubtitleDateMemberSpeakingTimeChart,
                             cursor);
                 }
             }

@@ -27,6 +27,7 @@
     <color name="drawer_background">#e0e0e0</color>
     <color name="toolbar_title_color">#fff</color>
     <color name="chart_text">#222</color>
+    <color name="chart_subtitle">#666</color>
 
     <color name="selected_header">@color/scrum_chatter_primary_color</color>
     <color name="chrono_active">@color/scrum_chatter_primary_color</color>
