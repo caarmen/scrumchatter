@@ -1,37 +1,35 @@
 /**
  * Copyright 2013 Carmen Alvarez
- *
+ * <p/>
  * This file is part of Scrum Chatter.
- *
+ * <p/>
  * Scrum Chatter is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p/>
  * Scrum Chatter is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- *
+ * <p/>
  * You should have received a copy of the GNU General Public License
  * along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
  */
 package ca.rmen.android.scrumchatter.team;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
-import ca.rmen.android.scrumchatter.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.CheckedTextView;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.provider.TeamColumns;
+import ca.rmen.android.scrumchatter.util.Log;
 
 /**
  * Adapter for the list of teams. The adapter contains all the team names, sorted alphabetically. In addition, one additional item is added to the end, which is
@@ -45,13 +43,12 @@ public class TeamArrayAdapter extends ArrayAdapter<CharSequence> {
         super(context, R.layout.scrum_chatter_select_singlechoice_material);
         Log.v(TAG, "Constructor");
         mContext = context;
-        reload();
     }
 
     /**
      * Query the DB for the list of team names, then add the team names to the adapter.
      */
-    public void reload() {
+    public void reload(final String currentTeamName) {
         new AsyncTask<Void, Void, List<CharSequence>>() {
 
             /**
@@ -61,7 +58,9 @@ public class TeamArrayAdapter extends ArrayAdapter<CharSequence> {
             protected List<CharSequence> doInBackground(Void... params) {
                 Log.v(TAG, "doInBackground");
                 List<CharSequence> teamNames = new ArrayList<>();
-                Cursor c = mContext.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { TeamColumns.TEAM_NAME }, null, null,
+                String selection = TeamColumns.TEAM_NAME + " <> ?";
+                String[] selectionArgs = new String[]{currentTeamName};
+                Cursor c = mContext.getContentResolver().query(TeamColumns.CONTENT_URI, new String[]{TeamColumns.TEAM_NAME}, selection, selectionArgs,
                         TeamColumns.TEAM_NAME + " COLLATE NOCASE");
 
                 if (c != null) {
@@ -91,20 +90,6 @@ public class TeamArrayAdapter extends ArrayAdapter<CharSequence> {
                 notifyDataSetChanged();
             }
         }.execute();
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        View result = super.getView(position, convertView, parent);
-        if (result instanceof CheckedTextView) {
-            CheckedTextView ctv = (CheckedTextView) result;
-            // The last item is the special "New team..." item. Don't show a radio button for this item
-            if (position == getCount() - 1) ctv.setCheckMarkDrawable(null);
-            // Hack for Android 2.x: replace the radio button. See {@link DialogStyleHacks}
-            //else
-            //    ctv.setCheckMarkDrawable(R.drawable.btn_radio_holo_light);
-        }
-        return result;
     }
 
     @Override

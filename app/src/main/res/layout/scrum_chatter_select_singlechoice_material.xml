@@ -37,17 +37,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-<android.support.v7.widget.AppCompatCheckedTextView xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.AppCompatTextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@android:id/text1"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:checkMark="?android:attr/listChoiceIndicatorSingle"
     android:ellipsize="marquee"
     android:gravity="center_vertical"
-    android:minHeight="?attr/listPreferredItemHeightSmall"
+    android:minHeight="48dp"
     android:paddingLeft="?attr/listPreferredItemPaddingLeft"
     android:paddingStart="?attr/listPreferredItemPaddingLeft"
     android:paddingRight="?attr/listPreferredItemPaddingRight"
     android:paddingEnd="?attr/listPreferredItemPaddingRight"
-    android:textAppearance="?attr/textAppearanceListItemSmall"
-    android:textColor="?attr/textColorAlertDialogListItem" />
+    android:textSize="14sp"
+    android:fontFamily="medium"
+    android:textColor="#DE000000"/>

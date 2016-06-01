@@ -145,9 +145,9 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
 
         // Set up the left drawer
         mTeamsAdapter = new TeamArrayAdapter(this);
-        mBinding.leftDrawerList.setAdapter(mTeamsAdapter);
-        mBinding.leftDrawerList.setOnItemClickListener(mOnItemClickListener);
-        mBinding.leftDrawerTitle.setText(mBinding.leftDrawerTitle.getText().toString().toUpperCase(Locale.getDefault()));
+        mBinding.navigationView.leftDrawerList.setAdapter(mTeamsAdapter);
+        mBinding.navigationView.leftDrawerList.setOnItemClickListener(mOnItemClickListener);
+        mBinding.navigationView.leftDrawerTitle.setText(mBinding.navigationView.leftDrawerTitle.getText().toString().toUpperCase(Locale.getDefault()));
 
         mDrawerToggle = new ActionBarDrawerToggle(this, /* host Activity */
                 mBinding.drawerLayout, /* DrawerLayout object */
@@ -416,7 +416,8 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
                         supportActionBar.setTitle(R.string.app_name);
                     }
                 }
-                mTeamsAdapter.reload();
+                mTeamsAdapter.reload(mTeam.teamName);
+                mBinding.navigationView.leftDrawerTitle.setText(mTeam.teamName);
                 supportInvalidateOptionsMenu();
             }
         };
@@ -587,6 +588,7 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
     };
 
     private final OnSharedPreferenceChangeListener mSharedPrefsListener = new OnSharedPreferenceChangeListener() {
+
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
             onTeamChanged();
@@ -653,7 +655,7 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
             if (mTeam != null) {
                 int teamPosition = mTeamsAdapter.getPosition(mTeam.teamName);
                 Log.v(TAG, "Team position: " + teamPosition);
-                mBinding.leftDrawerList.setItemChecked(teamPosition, true);
+                mBinding.navigationView.leftDrawerList.setItemChecked(teamPosition, true);
             }
         }
     };

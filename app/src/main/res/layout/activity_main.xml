@@ -16,8 +16,7 @@
   You should have received a copy of the GNU General Public License
   along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
 -->
-<layout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" >
 <android.support.v4.widget.DrawerLayout
     android:id="@+id/drawer_layout"
@@ -45,40 +44,7 @@
         android:layout_width="240dp"
         android:layout_height="match_parent"
         android:layout_gravity="start">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:background="@color/drawer_background"
-            android:layout_height="match_parent"
-            android:paddingTop="48dp"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/left_drawer_title"
-                style="@style/sectionHeadingStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/dialog_message_switch_team" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/selected_header" />
-
-            <ListView
-                android:id="@+id/left_drawer_list"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/list_inner_horizontal_margin"
-                android:layout_marginRight="@dimen/list_inner_horizontal_margin"
-                android:cacheColorHint="@color/drawer_background"
-                android:choiceMode="singleChoice"
-                android:dividerHeight="0dp" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/selected_header" />
-        </LinearLayout>
+        <include android:id="@+id/navigation_view" layout="@layout/drawer" />
     </android.support.design.widget.NavigationView>
 </android.support.v4.widget.DrawerLayout>
 </layout>
