@@ -49,6 +49,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.graphics.drawable.DrawerArrowDrawable;
 import android.text.TextUtils;
 
 import ca.rmen.android.scrumchatter.chart.ChartsActivity;
@@ -151,20 +152,24 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
         mDrawerToggle = new ActionBarDrawerToggle(this, /* host Activity */
                 mBinding.drawerLayout, /* DrawerLayout object */
                 R.string.drawer_open, /* "open drawer" description */
-                R.string.drawer_close /* "close drawer" description */
-        ) {
+                R.string.drawer_close /* "close drawer" description */);
 
-            /** Called when a drawer has settled in a completely closed state. */
-            public void onDrawerClosed(View view) {
-                mBinding.leftDrawerList.setItemChecked(mTeamsAdapter.getPosition(mTeam.teamName), true);
-            }
+        // Explanation of setDrawerIndicatorEnabled and setHomeAsUpIndicator:
+        // We want to only have a hamburger icon, always, without any animation.
 
-            /** Called when a drawer has settled in a completely open state. */
-            public void onDrawerOpened(View drawerView) { }
-        };
+        // If we don't call either of these methods, we use the default indicator,
+        // which is the hamburger icon transitioning to a left-arrow icon, as the drawer is opened.
 
-        // Set the drawer toggle as the DrawerListener
-        mBinding.drawerLayout.addDrawerListener(mDrawerToggle);
+        // If we only call setDrawerIndicatorUpEnabled, we'll have the left arrow icon always.
+
+        // If we only call setHomeAsUpIndicator (with a hamburger icon), we'll have a hamburger icon
+        // but with a bug: If you open the drawer, rotate, and close it, you'll have the left arrow
+        // again.
+
+        // With the combination of both setDrawerIndicatorEnabled and setHomeAsUpIndicator, we
+        // have a hamburger icon always.
+        mDrawerToggle.setDrawerIndicatorEnabled(false);
+        mDrawerToggle.setHomeAsUpIndicator(new DrawerArrowDrawable(this));
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the app.
@@ -235,7 +240,6 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
         getContentResolver().unregisterContentObserver(mContentObserver);
         LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(mBroadcastReceiver);
         mTeamsAdapter.unregisterDataSetObserver(mTeamsObserver);
-        mBinding.drawerLayout.removeDrawerListener(mDrawerToggle);
         super.onDestroy();
     }
 
