@@ -22,7 +22,7 @@
 
     <style name="AppTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">
         <item name="colorPrimary">@color/scrum_chatter_primary_color</item>
-        <item name="colorPrimaryDark">@color/scrum_chatter_primary_color</item>
+        <item name="colorPrimaryDark">@color/scrum_chatter_primary_color_dark</item>
         <item name="colorAccent">@color/scrum_chatter_accent_color</item>
         <item name="android:listViewStyle">@style/AppListView</item>
         <item name="drawerArrowStyle">@style/AppDrawerArrowStyle</item>

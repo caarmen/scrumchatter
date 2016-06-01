@@ -22,6 +22,7 @@
     <color name="primary_text_disabled_color">#39000000</color>
     <color name="item_pressed">#33d25fd2</color>
     <color name="scrum_chatter_primary_color">#9c27b0</color>
+    <color name="scrum_chatter_primary_color_dark">#6a1b9a</color>
     <color name="scrum_chatter_accent_color">#ea80fc</color>
     <color name="tab_text_color">#aaa</color>
     <color name="drawer_background">#e0e0e0</color>
