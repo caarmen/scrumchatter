@@ -43,13 +43,6 @@
         <item name="android:textColor">@color/unselected_header</item>
         <item name="android:textStyle">italic</item>
     </style>
-     <style name="sectionHeadingStyle">
-         <item name="android:textStyle">bold</item>
-         <item name="android:textSize">14sp</item>
-         <item name="android:paddingLeft">@dimen/section_heading_horizontal_padding</item>
-         <item name="android:paddingRight">@dimen/section_heading_horizontal_padding</item>
-         <item name="android:paddingTop">@dimen/section_heading_top_padding</item>
-    </style>
 
     <style name="AppListView" parent="Base.Widget.AppCompat.ListView">
         <item name="android:listSelector">@drawable/selector</item>

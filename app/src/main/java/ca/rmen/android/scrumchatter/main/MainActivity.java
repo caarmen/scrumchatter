@@ -26,11 +26,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
-import android.database.ContentObserver;
-import android.database.DataSetObserver;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -38,8 +34,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -51,17 +47,8 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.drawable.DrawerArrowDrawable;
 import android.text.TextUtils;
-
-import ca.rmen.android.scrumchatter.chart.ChartsActivity;
-import ca.rmen.android.scrumchatter.databinding.ActivityMainBinding;
-import ca.rmen.android.scrumchatter.settings.SettingsActivity;
-import ca.rmen.android.scrumchatter.settings.Theme;
-import ca.rmen.android.scrumchatter.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
 
 import java.io.File;
 import java.util.Arrays;
@@ -70,6 +57,8 @@ import java.util.Locale;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.about.AboutActivity;
+import ca.rmen.android.scrumchatter.chart.ChartsActivity;
+import ca.rmen.android.scrumchatter.databinding.ActivityMainBinding;
 import ca.rmen.android.scrumchatter.dialog.ChoiceDialogFragment.DialogItemListener;
 import ca.rmen.android.scrumchatter.dialog.ConfirmDialogFragment.DialogButtonListener;
 import ca.rmen.android.scrumchatter.dialog.DialogFragmentFactory;
@@ -83,10 +72,12 @@ import ca.rmen.android.scrumchatter.meeting.list.MeetingsListFragment;
 import ca.rmen.android.scrumchatter.member.list.Members;
 import ca.rmen.android.scrumchatter.member.list.MembersListFragment;
 import ca.rmen.android.scrumchatter.provider.DBImport;
-import ca.rmen.android.scrumchatter.provider.TeamColumns;
-import ca.rmen.android.scrumchatter.team.TeamArrayAdapter;
+import ca.rmen.android.scrumchatter.settings.SettingsActivity;
+import ca.rmen.android.scrumchatter.settings.Theme;
+import ca.rmen.android.scrumchatter.team.TeamObserver;
 import ca.rmen.android.scrumchatter.team.Teams;
 import ca.rmen.android.scrumchatter.team.Teams.Team;
+import ca.rmen.android.scrumchatter.util.Log;
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.OnShowRationale;
 import permissions.dispatcher.PermissionRequest;
@@ -114,7 +105,6 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
      * UI elements for the side menu (left drawer).
      */
     private ActionBarDrawerToggle mDrawerToggle;
-    private TeamArrayAdapter mTeamsAdapter;
 
     private final Teams mTeams = new Teams(this);
     private final Meetings mMeetings = new Meetings(this);
@@ -122,6 +112,8 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
     private Team mTeam = null;
     private int mTeamCount = 0;
     private ActivityMainBinding mBinding;
+    private TeamNavigationView mTeamNavigationView;
+    private TeamObserver mTeamObserver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,11 +135,6 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
         supportActionBar.setDisplayHomeAsUpEnabled(true);
         supportActionBar.setHomeButtonEnabled(true);
 
-        // Set up the left drawer
-        mTeamsAdapter = new TeamArrayAdapter(this);
-        mBinding.navigationView.leftDrawerList.setAdapter(mTeamsAdapter);
-        mBinding.navigationView.leftDrawerList.setOnItemClickListener(mOnItemClickListener);
-        mBinding.navigationView.leftDrawerTitle.setText(mBinding.navigationView.leftDrawerTitle.getText().toString().toUpperCase(Locale.getDefault()));
 
         mDrawerToggle = new ActionBarDrawerToggle(this, /* host Activity */
                 mBinding.drawerLayout, /* DrawerLayout object */
@@ -194,9 +181,16 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
         }
 
         // Register various observers.
-        mTeamsAdapter.registerDataSetObserver(mTeamsObserver);
-        getContentResolver().registerContentObserver(TeamColumns.CONTENT_URI, true, mContentObserver);
-        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(mSharedPrefsListener);
+        mTeamObserver = new TeamObserver(this, new TeamObserver.OnTeamsChangedListener() {
+            @Override
+            public void onTeamsChanged() {
+                onTeamChanged();
+            }
+        });
+        mTeamObserver.register();
+        mTeamNavigationView = new TeamNavigationView(this, mBinding.leftDrawer);
+        mTeamNavigationView.load();
+        mBinding.leftDrawer.setNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         IntentFilter filter = new IntentFilter(ACTION_IMPORT_COMPLETE);
         filter.addAction(ACTION_EXPORT_COMPLETE);
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mBroadcastReceiver, filter);
@@ -236,10 +230,8 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
     @Override
     protected void onDestroy() {
         Log.v(TAG, "onDestroy");
-        PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(mSharedPrefsListener);
-        getContentResolver().unregisterContentObserver(mContentObserver);
-        LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(mBroadcastReceiver);
-        mTeamsAdapter.unregisterDataSetObserver(mTeamsObserver);
+        mTeamObserver.destroy();
+        mTeamNavigationView.destroy();
         super.onDestroy();
     }
 
@@ -394,11 +386,6 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
             @Override
             protected Void doInBackground(Void... arg0) {
                 mTeam = mTeams.getCurrentTeam();
-                // If for some reason we have no current team, select any available team
-                // Should not really happen, so perhaps this check should be removed?
-                if (mTeam == null) {
-                    mTeams.selectFirstTeam();
-                }
                 mTeamCount = mTeams.getTeamCount();
                 return null;
             }
@@ -416,8 +403,6 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
                         supportActionBar.setTitle(R.string.app_name);
                     }
                 }
-                mTeamsAdapter.reload(mTeam.teamName);
-                mBinding.navigationView.leftDrawerTitle.setText(mTeam.teamName);
                 supportInvalidateOptionsMenu();
             }
         };
@@ -428,7 +413,7 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
      * The user tapped on the OK button of a confirmation dialog. Execute the action requested by the user.
      *
      * @param actionId the action id which was provided to the {@link DialogFragmentFactory} when creating the dialog.
-     * @param extras any extras which were provided to the {@link DialogFragmentFactory} when creating the dialog.
+     * @param extras   any extras which were provided to the {@link DialogFragmentFactory} when creating the dialog.
      * @see ca.rmen.android.scrumchatter.dialog.ConfirmDialogFragment.DialogButtonListener#onOkClicked(int, android.os.Bundle)
      */
     @Override
@@ -478,8 +463,8 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
      * The user selected an item in a choice dialog. Perform the action for the selected item.
      *
      * @param actionId the action id which was provided to the {@link DialogFragmentFactory} when creating the dialog.
-     * @param choices the localized labels of the items.
-     * @param which the index of the item which was selected
+     * @param choices  the localized labels of the items.
+     * @param which    the index of the item which was selected
      * @see ca.rmen.android.scrumchatter.dialog.ChoiceDialogFragment.DialogItemListener#onItemSelected(int, java.lang.CharSequence[], int)
      */
     @Override
@@ -497,9 +482,8 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
      * The user tapped on the OK button on a dialog in which s/he entered text.
      *
      * @param actionId the action id which was provided to the {@link DialogFragmentFactory} when creating the dialog.
-     * @param input the text entered by the user.
-     * @param extras any extras which were provided to the {@link DialogFragmentFactory} when creating the dialog.
-     *
+     * @param input    the text entered by the user.
+     * @param extras   any extras which were provided to the {@link DialogFragmentFactory} when creating the dialog.
      * @see ca.rmen.android.scrumchatter.dialog.InputDialogFragment.DialogInputListener#onInputEntered(int, java.lang.String, android.os.Bundle)
      */
     @Override
@@ -580,21 +564,6 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
         }
     }
 
-    private final ContentObserver mContentObserver = new ContentObserver(null) {
-        @Override
-        public void onChange(boolean selfChange) {
-            onTeamChanged();
-        }
-    };
-
-    private final OnSharedPreferenceChangeListener mSharedPrefsListener = new OnSharedPreferenceChangeListener() {
-
-        @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            onTeamChanged();
-        }
-    };
-
     private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
 
         @Override
@@ -621,42 +590,29 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
     /**
      * Select a team the user picked from the left drawer.
      */
-    private final ListView.OnItemClickListener mOnItemClickListener = new ListView.OnItemClickListener() {
-
+    private final NavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = new NavigationView.OnNavigationItemSelectedListener() {
         @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            Log.v(TAG, "onItemClick: parent=" + parent + ", position = " + position + ", id = " + id);
-
-            // When running monkey tests, we should load a DB with enough members and some meetings, 
-            // before running the tests.  If the monkey tries to switch teams, and creates a new team, 
-            // it will require many random clicks before he creates a member, and therefore many random 
+        public boolean onNavigationItemSelected(MenuItem item) {
+            Log.v(TAG, "onNavigationItemSelected: " + item.getTitle());
+            // When running monkey tests, we should load a DB with enough members and some meetings,
+            // before running the tests.  If the monkey tries to switch teams, and creates a new team,
+            // it will require many random clicks before he creates a member, and therefore many random
             // clicks before he is able to create meetings.  So, we force the monkey to stay within the existing team.
-            CharSequence selectedTeamName = (CharSequence) parent.getItemAtPosition(position);
             if (ActivityManager.isUserAMonkey()) {
                 Log.v(TAG, "Sorry, monkeys are not allowed to switch teams");
-                return;
+                return false;
             }
-            // The user clicked on the "new team" item.
-            if (position == parent.getCount() - 1) mTeams.promptCreateTeam();
-            else
+
+            if (item.getItemId() == TeamNavigationView.MENU_ID_TEAM) {
+                CharSequence selectedTeamName = item.getTitle();
                 mTeams.switchTeam(selectedTeamName);
-            mBinding.drawerLayout.closeDrawers();
-        }
-    };
-
-    /**
-     * Once the list of teams is loaded, we need to select our current team in the list.
-     */
-    private final DataSetObserver mTeamsObserver = new DataSetObserver() {
-
-        @Override
-        public void onChanged() {
-            Log.v(TAG, "TeamObserver: onChanged: team = " + mTeam);
-            if (mTeam != null) {
-                int teamPosition = mTeamsAdapter.getPosition(mTeam.teamName);
-                Log.v(TAG, "Team position: " + teamPosition);
-                mBinding.navigationView.leftDrawerList.setItemChecked(teamPosition, true);
+            } else if (item.getItemId() == R.id.action_new_team) {
+                mTeams.promptCreateTeam();
             }
+            mBinding.drawerLayout.closeDrawers();
+            return false;
         }
     };
+
 }

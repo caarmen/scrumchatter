@@ -27,6 +27,10 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import ca.rmen.android.scrumchatter.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
@@ -58,6 +62,16 @@ public class Teams {
             return "Team [teamUri=" + teamUri + ", teamName=" + teamName + "]";
         }
 
+    }
+
+    public static final class TeamsData {
+        public final Team currentTeam;
+        public final List<Team> teams;
+
+        private TeamsData(Team currentTeam, List<Team> teams) {
+            this.currentTeam = currentTeam;
+            this.teams = teams;
+        }
     }
 
     public Teams(FragmentActivity activity) {
@@ -214,22 +228,24 @@ public class Teams {
         deleteTask.execute();
     }
 
-    /**
-     * Select the first team in our DB.
-     */
-    public void selectFirstTeam() {
-        Log.v(TAG, "selectFirstTeam");
-        Cursor c = mActivity.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { TeamColumns._ID }, null, null, null);
+    private Team selectFirstTeam() {
+        Cursor c = mActivity.getContentResolver().query(
+                TeamColumns.CONTENT_URI,
+                new String[] { TeamColumns._ID },
+                null,
+                null,
+                null);
         if (c != null) {
             try {
                 if (c.moveToFirst()) {
                     int teamId = c.getInt(0);
-                    PreferenceManager.getDefaultSharedPreferences(mActivity).edit().putInt(Constants.PREF_TEAM_ID, teamId).commit();
+                    PreferenceManager.getDefaultSharedPreferences(mActivity).edit().putInt(Constants.PREF_TEAM_ID, teamId).apply();
                 }
             } finally {
                 c.close();
             }
         }
+        return null;
     }
 
     /**
@@ -239,7 +255,8 @@ public class Teams {
         // Retrieve the current team name and construct a uri for the team based on the current team id.
         int teamId = PreferenceManager.getDefaultSharedPreferences(mActivity).getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
         Uri teamUri = Uri.withAppendedPath(TeamColumns.CONTENT_URI, String.valueOf(teamId));
-        Cursor c = mActivity.getContentResolver().query(teamUri, new String[] { TeamColumns.TEAM_NAME }, null, null, null);
+        String[] projection = new String[]{TeamColumns.TEAM_NAME};
+        Cursor c = mActivity.getContentResolver().query(teamUri, projection, null, null, null);
         if (c != null) {
             try {
                 if (c.moveToFirst()) {
@@ -251,7 +268,32 @@ public class Teams {
             }
         }
         Log.wtf(TAG, "Could not get the current team", new Throwable());
-        return null;
+        return selectFirstTeam();
+    }
+
+
+    public TeamsData getAllTeams() {
+        List<Team> teams = new ArrayList<>();
+        Cursor c = mActivity.getContentResolver().query(
+                TeamColumns.CONTENT_URI,
+                new String[]{TeamColumns._ID, TeamColumns.TEAM_NAME},
+                null, null,
+                TeamColumns.TEAM_NAME + " COLLATE NOCASE");
+
+        if (c != null) {
+            try {
+                // Add the names of all the teams
+                while (c.moveToNext()) {
+                    int teamId = c.getInt(0);
+                    String teamName = c.getString(1);
+                    Uri teamUri = Uri.withAppendedPath(TeamColumns.CONTENT_URI, String.valueOf(teamId));
+                    teams.add(new Team(teamUri, teamName));
+                }
+            } finally {
+                c.close();
+            }
+        }
+        return new TeamsData(getCurrentTeam(), teams);
     }
 
     /**

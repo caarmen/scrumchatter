@@ -3,66 +3,40 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <LinearLayout
+
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/drawer_background"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:background="@color/scrum_chatter_primary_color"
+        android:paddingBottom="8dp"
+        android:paddingLeft="@dimen/drawer_margin"
+        android:paddingRight="@dimen/drawer_margin"
+        android:paddingTop="48dp"
+        tools:showIn="@layout/drawer">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/scrum_chatter_primary_color"
-            android:orientation="vertical"
-            android:paddingLeft="@dimen/drawer_margin"
-            android:paddingRight="@dimen/drawer_margin"
-            android:paddingTop="48dp"
-            tools:showIn="@layout/drawer">
-
-            <ImageView
-                android:layout_width="72dp"
-                android:layout_height="72dp"
-                android:background="@drawable/avatar_group" />
-
-            <TextView
-                android:id="@+id/left_drawer_title"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:fontFamily="medium"
-                android:gravity="center_vertical"
-                android:textColor="@color/toolbar_title_color"
-                android:textSize="14sp"
-                tools:text="My team" />
-        </LinearLayout>
+        <ImageView
+            android:id="@+id/app_logo"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:background="@drawable/ic_launcher"
+            android:contentDescription="@string/app_name" />
 
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginLeft="@dimen/drawer_margin"
-            android:layout_marginStart="@dimen/drawer_margin"
-            android:layout_marginTop="8dp"
-            android:fontFamily="medium"
-            android:gravity="center_vertical"
-            android:text="@string/dialog_message_switch_team"
-            android:textColor="#8A000000"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_toEndOf="@id/app_logo"
+            android:layout_toRightOf="@id/app_logo"
+            android:gravity="bottom|end"
+            android:text="@string/app_name"
+            android:textColor="@color/toolbar_title_color"
             android:textSize="14sp" />
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/selected_header" />
+    </RelativeLayout>
 
-        <ListView
-            android:id="@+id/left_drawer_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:cacheColorHint="@color/drawer_background"
-            android:choiceMode="singleChoice"
-            android:dividerHeight="0dp" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/selected_header" />
-    </LinearLayout>
 </layout>

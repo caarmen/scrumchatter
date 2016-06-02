@@ -16,7 +16,8 @@
   You should have received a copy of the GNU General Public License
   along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
 -->
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" >
 <android.support.v4.widget.DrawerLayout
     android:id="@+id/drawer_layout"
@@ -43,8 +44,10 @@
         android:id="@+id/left_drawer"
         android:layout_width="240dp"
         android:layout_height="match_parent"
-        android:layout_gravity="start">
-        <include android:id="@+id/navigation_view" layout="@layout/drawer" />
+        android:layout_gravity="start"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        app:headerLayout="@layout/drawer"
+        app:menu="@menu/drawer_menu">
     </android.support.design.widget.NavigationView>
 </android.support.v4.widget.DrawerLayout>
 </layout>
