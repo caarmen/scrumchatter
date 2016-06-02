@@ -74,7 +74,7 @@ import ca.rmen.android.scrumchatter.member.list.MembersListFragment;
 import ca.rmen.android.scrumchatter.provider.DBImport;
 import ca.rmen.android.scrumchatter.settings.SettingsActivity;
 import ca.rmen.android.scrumchatter.settings.Theme;
-import ca.rmen.android.scrumchatter.team.TeamObserver;
+import ca.rmen.android.scrumchatter.team.TeamsObserver;
 import ca.rmen.android.scrumchatter.team.Teams;
 import ca.rmen.android.scrumchatter.team.Teams.Team;
 import ca.rmen.android.scrumchatter.util.Log;
@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
     private int mTeamCount = 0;
     private ActivityMainBinding mBinding;
     private TeamNavigationMenu mTeamNavigationMenu;
-    private TeamObserver mTeamObserver;
+    private TeamsObserver mTeamsObserver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -181,13 +181,13 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
         }
 
         // Register various observers.
-        mTeamObserver = new TeamObserver(this, new TeamObserver.OnTeamsChangedListener() {
+        mTeamsObserver = new TeamsObserver(this, new TeamsObserver.OnTeamsChangedListener() {
             @Override
             public void onTeamsChanged() {
                 onTeamChanged();
             }
         });
-        mTeamObserver.register();
+        mTeamsObserver.register();
         mTeamNavigationMenu = new TeamNavigationMenu(this, mBinding.leftDrawer.getMenu());
         mTeamNavigationMenu.load();
         mBinding.leftDrawer.setNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
@@ -230,7 +230,7 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
     @Override
     protected void onDestroy() {
         Log.v(TAG, "onDestroy");
-        mTeamObserver.destroy();
+        mTeamsObserver.destroy();
         mTeamNavigationMenu.destroy();
         super.onDestroy();
     }

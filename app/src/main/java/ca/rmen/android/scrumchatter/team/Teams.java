@@ -94,7 +94,7 @@ public class Teams {
                         c.moveToFirst();
                         if (c.getCount() == 1) {
                             int teamId = c.getInt(0);
-                            PreferenceManager.getDefaultSharedPreferences(mActivity).edit().putInt(Constants.PREF_TEAM_ID, teamId).commit();
+                            PreferenceManager.getDefaultSharedPreferences(mActivity).edit().putInt(Constants.PREF_TEAM_ID, teamId).apply();
                         } else {
                             Log.wtf(TAG, "Found " + c.getCount() + " teams for " + teamName);
                         }
@@ -132,7 +132,7 @@ public class Teams {
                     Uri newTeamUri = mActivity.getContentResolver().insert(TeamColumns.CONTENT_URI, values);
                     if (newTeamUri != null) {
                         int newTeamId = Integer.valueOf(newTeamUri.getLastPathSegment());
-                        PreferenceManager.getDefaultSharedPreferences(mActivity).edit().putInt(Constants.PREF_TEAM_ID, newTeamId).commit();
+                        PreferenceManager.getDefaultSharedPreferences(mActivity).edit().putInt(Constants.PREF_TEAM_ID, newTeamId).apply();
                     }
                     return null;
                 }
@@ -228,13 +228,11 @@ public class Teams {
         deleteTask.execute();
     }
 
+    /**
+     * Select the first team in our DB.
+     */
     private Team selectFirstTeam() {
-        Cursor c = mActivity.getContentResolver().query(
-                TeamColumns.CONTENT_URI,
-                new String[] { TeamColumns._ID },
-                null,
-                null,
-                null);
+        Cursor c = mActivity.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { TeamColumns._ID }, null, null, null);
         if (c != null) {
             try {
                 if (c.moveToFirst()) {
@@ -255,8 +253,7 @@ public class Teams {
         // Retrieve the current team name and construct a uri for the team based on the current team id.
         int teamId = PreferenceManager.getDefaultSharedPreferences(mActivity).getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
         Uri teamUri = Uri.withAppendedPath(TeamColumns.CONTENT_URI, String.valueOf(teamId));
-        String[] projection = new String[]{TeamColumns.TEAM_NAME};
-        Cursor c = mActivity.getContentResolver().query(teamUri, projection, null, null, null);
+        Cursor c = mActivity.getContentResolver().query(teamUri, new String[] { TeamColumns.TEAM_NAME }, null, null, null);
         if (c != null) {
             try {
                 if (c.moveToFirst()) {

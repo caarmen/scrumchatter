@@ -19,7 +19,6 @@
 package ca.rmen.android.scrumchatter.main;
 
 import android.os.AsyncTask;
-import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,7 +26,7 @@ import android.view.SubMenu;
 
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
-import ca.rmen.android.scrumchatter.team.TeamObserver;
+import ca.rmen.android.scrumchatter.team.TeamsObserver;
 import ca.rmen.android.scrumchatter.team.Teams;
 import ca.rmen.android.scrumchatter.util.Log;
 
@@ -40,22 +39,22 @@ class TeamNavigationMenu {
 
     private final Teams mTeams;
     private final Menu mNavigationMenu;
-    private final TeamObserver mTeamObserver;
+    private final TeamsObserver mTeamsObserver;
 
     TeamNavigationMenu(FragmentActivity activity, Menu navigationMenu) {
         mTeams = new Teams(activity);
         mNavigationMenu = navigationMenu;
-        mTeamObserver = new TeamObserver(activity, new TeamObserver.OnTeamsChangedListener() {
+        mTeamsObserver = new TeamsObserver(activity, new TeamsObserver.OnTeamsChangedListener() {
             @Override
             public void onTeamsChanged() {
                 load();
             }
         });
-        mTeamObserver.register();
+        mTeamsObserver.register();
     }
 
     void destroy() {
-        mTeamObserver.destroy();
+        mTeamsObserver.destroy();
     }
 
     void load() {

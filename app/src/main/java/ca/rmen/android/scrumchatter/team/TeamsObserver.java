@@ -27,7 +27,10 @@ import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.provider.TeamColumns;
 
 
-public class TeamObserver {
+/**
+ * Notifies listeners of changes to teams: teams added, removed, renamed, or the current team selection changed.
+ */
+public class TeamsObserver {
 
     public interface OnTeamsChangedListener {
         void onTeamsChanged();
@@ -36,7 +39,7 @@ public class TeamObserver {
     private final Context mContext;
     private final OnTeamsChangedListener mListener;
 
-    public TeamObserver(Context context, OnTeamsChangedListener listener) {
+    public TeamsObserver(Context context, OnTeamsChangedListener listener) {
         mContext = context;
         mListener = listener;
     }
