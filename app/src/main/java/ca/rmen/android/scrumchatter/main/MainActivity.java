@@ -37,9 +37,6 @@ import android.os.StrictMode.ThreadPolicy;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.ActionBar;
@@ -52,7 +49,6 @@ import android.view.MenuItem;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.Locale;
 
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
@@ -68,15 +64,13 @@ import ca.rmen.android.scrumchatter.export.DBExport;
 import ca.rmen.android.scrumchatter.export.FileExport;
 import ca.rmen.android.scrumchatter.export.MeetingsExport;
 import ca.rmen.android.scrumchatter.meeting.Meetings;
-import ca.rmen.android.scrumchatter.meeting.list.MeetingsListFragment;
 import ca.rmen.android.scrumchatter.member.list.Members;
-import ca.rmen.android.scrumchatter.member.list.MembersListFragment;
 import ca.rmen.android.scrumchatter.provider.DBImport;
 import ca.rmen.android.scrumchatter.settings.SettingsActivity;
 import ca.rmen.android.scrumchatter.settings.Theme;
-import ca.rmen.android.scrumchatter.team.TeamsObserver;
 import ca.rmen.android.scrumchatter.team.Teams;
 import ca.rmen.android.scrumchatter.team.Teams.Team;
+import ca.rmen.android.scrumchatter.team.TeamsObserver;
 import ca.rmen.android.scrumchatter.util.Log;
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.OnShowRationale;
@@ -158,22 +152,13 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
         mDrawerToggle.setDrawerIndicatorEnabled(false);
         mDrawerToggle.setHomeAsUpIndicator(new DrawerArrowDrawable(this));
 
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the app.
-        /*
-      The {@link android.support.v4.view.PagerAdapter} that will provide
-      fragments for each of the sections. We use a {@link android.support.v4.app.FragmentPagerAdapter} derivative, which
-      will keep every loaded fragment in memory. If this becomes too memory
-      intensive, it may be best to switch to a {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
-        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        MainPagerAdapter mainPagerAdapter = new MainPagerAdapter(this, getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-        mBinding.pager.setAdapter(sectionsPagerAdapter);
+        mBinding.pager.setAdapter(mainPagerAdapter);
         mBinding.toolbarTabs.tabs.setupWithViewPager(mBinding.pager);
 
-        onTeamChanged();
-        // If our activity was opened by choosing a file from a mail attachment, file browser, or other program, 
+        // If our activity was opened by choosing a file from a mail attachment, file browser, or other program,
         // import the database from this file.
         Intent intent = getIntent();
         if (intent != null) {
@@ -181,12 +166,8 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
         }
 
         // Register various observers.
-        mTeamsObserver = new TeamsObserver(this, new TeamsObserver.OnTeamsChangedListener() {
-            @Override
-            public void onTeamsChanged() {
-                onTeamChanged();
-            }
-        });
+        mTeamsObserver = new TeamsObserver(this, mOnTeamsChangedListener);
+        mOnTeamsChangedListener.onTeamsChanged();
         mTeamsObserver.register();
         mTeamNavigationMenu = new TeamNavigationMenu(this, mBinding.leftDrawer.getMenu());
         mTeamNavigationMenu.load();
@@ -380,34 +361,39 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
     /**
      * Called when the current team was changed. Update our cache of the current team and update the ui (menu items, action bar title).
      */
-    private void onTeamChanged() {
-        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+    private final TeamsObserver.OnTeamsChangedListener mOnTeamsChangedListener
+            = new TeamsObserver.OnTeamsChangedListener() {
+        @Override
+        public void onTeamsChanged() {
 
-            @Override
-            protected Void doInBackground(Void... arg0) {
-                mTeam = mTeams.getCurrentTeam();
-                mTeamCount = mTeams.getTeamCount();
-                return null;
-            }
+            AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
 
-            @Override
-            protected void onPostExecute(Void result) {
-                ActionBar supportActionBar = getSupportActionBar();
-                if (supportActionBar != null) {
-                    // If the user has renamed the default team or added other teams, show the current team name in the title
-                    if (mTeamCount > 1 || (mTeam != null && !mTeam.teamName.equals(Constants.DEFAULT_TEAM_NAME))) {
-                        supportActionBar.setTitle(mTeam.teamName);
-                    }
-                    // otherwise the user doesn't care about team management: just show the app title.
-                    else {
-                        supportActionBar.setTitle(R.string.app_name);
-                    }
+                @Override
+                protected Void doInBackground(Void... arg0) {
+                    mTeam = mTeams.getCurrentTeam();
+                    mTeamCount = mTeams.getTeamCount();
+                    return null;
                 }
-                supportInvalidateOptionsMenu();
-            }
-        };
-        task.execute();
-    }
+
+                @Override
+                protected void onPostExecute(Void result) {
+                    ActionBar supportActionBar = getSupportActionBar();
+                    if (supportActionBar != null) {
+                        // If the user has renamed the default team or added other teams, show the current team name in the title
+                        if (mTeamCount > 1 || (mTeam != null && !mTeam.teamName.equals(Constants.DEFAULT_TEAM_NAME))) {
+                            supportActionBar.setTitle(mTeam.teamName);
+                        }
+                        // otherwise the user doesn't care about team management: just show the app title.
+                        else {
+                            supportActionBar.setTitle(R.string.app_name);
+                        }
+                    }
+                    supportInvalidateOptionsMenu();
+                }
+            };
+            task.execute();
+        }
+    };
 
     /**
      * The user tapped on the OK button of a confirmation dialog. Execute the action requested by the user.
@@ -472,8 +458,10 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
         Log.v(TAG, "onItemSelected: actionId = " + actionId + ", choices = " + Arrays.toString(choices) + ", which = " + which);
         if (actionId == R.id.action_share) {
             FileExport fileExport = null;
-            if (getString(R.string.export_format_excel).equals(choices[which])) fileExport = new MeetingsExport(MainActivity.this);
-            else if (getString(R.string.export_format_db).equals(choices[which])) fileExport = new DBExport(MainActivity.this);
+            if (getString(R.string.export_format_excel).equals(choices[which]))
+                fileExport = new MeetingsExport(MainActivity.this);
+            else if (getString(R.string.export_format_db).equals(choices[which]))
+                fileExport = new DBExport(MainActivity.this);
             shareFile(fileExport);
         }
     }
@@ -523,47 +511,6 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
         MainActivityPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
     }
 
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
-    private class SectionsPagerAdapter extends FragmentPagerAdapter {
-
-        public SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a DummySectionFragment (defined as a static inner class
-            // below) with the page number as its lone argument.
-            Fragment fragment;
-            if (position == 1) fragment = new MembersListFragment();
-            else
-                fragment = new MeetingsListFragment();
-            return fragment;
-        }
-
-        @Override
-        public int getCount() {
-            // Show 2 total pages.
-            return 2;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            Locale l = Locale.getDefault();
-            switch (position) {
-                case 0:
-                    return getString(R.string.title_section_meetings).toUpperCase(l);
-                case 1:
-                    return getString(R.string.title_section_team).toUpperCase(l);
-            }
-            return null;
-        }
-    }
-
     private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
 
         @Override
@@ -581,7 +528,8 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
                 Boolean result = intent.getExtras().getBoolean(EXTRA_EXPORT_RESULT);
                 ProgressDialogFragment dialogFragment = (ProgressDialogFragment) getSupportFragmentManager().findFragmentByTag(PROGRESS_DIALOG_FRAGMENT_TAG);
                 if (dialogFragment != null) dialogFragment.dismiss();
-                if (!result) Snackbar.make(mBinding.getRoot(), R.string.export_error, Snackbar.LENGTH_LONG).show();
+                if (!result)
+                    Snackbar.make(mBinding.getRoot(), R.string.export_error, Snackbar.LENGTH_LONG).show();
 
             }
         }
