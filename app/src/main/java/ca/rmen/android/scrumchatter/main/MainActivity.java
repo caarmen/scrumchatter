@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
     private Team mTeam = null;
     private int mTeamCount = 0;
     private ActivityMainBinding mBinding;
-    private TeamNavigationView mTeamNavigationView;
+    private TeamNavigationMenu mTeamNavigationMenu;
     private TeamObserver mTeamObserver;
 
     @Override
@@ -188,8 +188,8 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
             }
         });
         mTeamObserver.register();
-        mTeamNavigationView = new TeamNavigationView(this, mBinding.leftDrawer);
-        mTeamNavigationView.load();
+        mTeamNavigationMenu = new TeamNavigationMenu(this, mBinding.leftDrawer.getMenu());
+        mTeamNavigationMenu.load();
         mBinding.leftDrawer.setNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         IntentFilter filter = new IntentFilter(ACTION_IMPORT_COMPLETE);
         filter.addAction(ACTION_EXPORT_COMPLETE);
@@ -231,7 +231,7 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
     protected void onDestroy() {
         Log.v(TAG, "onDestroy");
         mTeamObserver.destroy();
-        mTeamNavigationView.destroy();
+        mTeamNavigationMenu.destroy();
         super.onDestroy();
     }
 
@@ -604,7 +604,7 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
                 return false;
             }
 
-            if (item.getItemId() == TeamNavigationView.MENU_ID_TEAM) {
+            if (item.getItemId() == TeamNavigationMenu.MENU_ID_TEAM) {
                 CharSequence selectedTeamName = item.getTitle();
                 mTeams.switchTeam(selectedTeamName);
             } else if (item.getItemId() == R.id.action_new_team) {

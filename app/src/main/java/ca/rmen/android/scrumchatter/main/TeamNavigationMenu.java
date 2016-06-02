@@ -32,19 +32,19 @@ import ca.rmen.android.scrumchatter.team.Teams;
 import ca.rmen.android.scrumchatter.util.Log;
 
 
-class TeamNavigationView {
+class TeamNavigationMenu {
 
     static final int MENU_ID_TEAM = 1000;
 
-    private static final String TAG = Constants.TAG + "/" + TeamNavigationView.class.getSimpleName();
+    private static final String TAG = Constants.TAG + "/" + TeamNavigationMenu.class.getSimpleName();
 
     private final Teams mTeams;
-    private final NavigationView mNavigationView;
+    private final Menu mNavigationMenu;
     private final TeamObserver mTeamObserver;
 
-    TeamNavigationView(FragmentActivity activity, NavigationView navigationView) {
+    TeamNavigationMenu(FragmentActivity activity, Menu navigationMenu) {
         mTeams = new Teams(activity);
-        mNavigationView = navigationView;
+        mNavigationMenu = navigationMenu;
         mTeamObserver = new TeamObserver(activity, new TeamObserver.OnTeamsChangedListener() {
             @Override
             public void onTeamsChanged() {
@@ -76,8 +76,7 @@ class TeamNavigationView {
              */
             @Override
             protected void onPostExecute(Teams.TeamsData teamsData) {
-                Menu menu = mNavigationView.getMenu();
-                SubMenu teamsMenu = menu.findItem(R.id.teams_list).getSubMenu();
+                SubMenu teamsMenu = mNavigationMenu.findItem(R.id.teams_list).getSubMenu();
                 teamsMenu.clear();
                 for (Teams.Team team : teamsData.teams) {
                     MenuItem teamMenuItem = teamsMenu.add(Menu.NONE, MENU_ID_TEAM, Menu.NONE, team.teamName);
