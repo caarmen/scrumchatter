@@ -33,8 +33,6 @@ import ca.rmen.android.scrumchatter.util.Log;
 
 class TeamNavigationMenu {
 
-    static final int MENU_ID_TEAM = 1000;
-
     private static final String TAG = Constants.TAG + "/" + TeamNavigationMenu.class.getSimpleName();
 
     private final Teams mTeams;
@@ -78,7 +76,7 @@ class TeamNavigationMenu {
                 SubMenu teamsMenu = mNavigationMenu.findItem(R.id.teams_list).getSubMenu();
                 teamsMenu.clear();
                 for (Teams.Team team : teamsData.teams) {
-                    MenuItem teamMenuItem = teamsMenu.add(Menu.NONE, MENU_ID_TEAM, Menu.NONE, team.teamName);
+                    MenuItem teamMenuItem = teamsMenu.add(R.id.teams_list_items, Menu.NONE, Menu.NONE, team.teamName);
                     if (team.teamName.equals(teamsData.currentTeam.teamName)) {
                         teamMenuItem.setChecked(true);
                     }

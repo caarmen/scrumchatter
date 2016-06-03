@@ -43,12 +43,12 @@
     <string name="dialog_message_delete_member_confirm">Delete %s?</string>
     <string name="dialog_message_delete_meeting_confirm">Delete meeting from %s?</string>
     <string name="dialog_message_delete_team_confirm">Delete %s?</string>
-    <string name="dialog_message_switch_team">Switch teams:</string>
+    <string name="drawer_switch_team">Switch teams:</string>
     <string name="hint_team_name">Team name</string>
     <string name="dialog_error_one_team_required">Sorry, you need at least one team!</string>
     <string name="dialog_error_title_one_member_required">Can\'t start meeting</string>
     <string name="dialog_error_message_one_member_required">Sorry, you need at least one team member to have a meeting.</string>
-    <string name="new_team">New team&#8230;</string>
+    <string name="drawer_new_team">New team&#8230;</string>
     <string name="member_list_header_name">Name</string>
     <string name="member_list_header_avg_duration">Average Time</string>
     <string name="member_list_header_sum_duration">Total Time</string>

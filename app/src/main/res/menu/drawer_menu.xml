@@ -20,11 +20,13 @@
 
     <item
         android:id="@+id/teams_list"
-        android:title="@string/dialog_message_switch_team">
-        <menu />
+        android:title="@string/drawer_switch_team">
+        <menu>
+            <group android:id="@+id/teams_list_items"/>
+        </menu>
     </item>
     <item
         android:id="@+id/action_new_team"
-        android:title="@string/new_team">
+        android:title="@string/drawer_new_team">
     </item>
 </menu>

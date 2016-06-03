@@ -31,7 +31,8 @@
             android:id="@+id/meeting_chart_fragment"
             android:name="ca.rmen.android.scrumchatter.chart.MeetingChartFragment"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            tools:layout="@layout/meeting_chart_fragment" />
 
     </ScrollView>
 </layout>

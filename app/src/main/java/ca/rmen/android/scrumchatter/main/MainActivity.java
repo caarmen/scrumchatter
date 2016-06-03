@@ -552,7 +552,7 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
                 return false;
             }
 
-            if (item.getItemId() == TeamNavigationMenu.MENU_ID_TEAM) {
+            if (item.getGroupId() == R.id.teams_list_items) {
                 CharSequence selectedTeamName = item.getTitle();
                 mTeams.switchTeam(selectedTeamName);
             } else if (item.getItemId() == R.id.action_new_team) {
