@@ -42,12 +42,12 @@
     <string name="dialog_message_delete_member_confirm">Borrar %s?</string>
     <string name="dialog_message_delete_meeting_confirm">Borrar la reunión del %s?</string>
     <string name="dialog_message_delete_team_confirm">Borrar %s?</string>
-    <string name="dialog_message_switch_team">Seleccionar un equipo</string>
+    <string name="drawer_switch_team">Cambiar equipo:</string>
     <string name="hint_team_name">Nombre del equipo</string>
     <string name="dialog_error_one_team_required">¡Necesitas al menos un equipo!</string>
     <string name="dialog_error_title_one_member_required">Es imposible comenzar la reunión</string>
     <string name="dialog_error_message_one_member_required">Se necesita al menos un miembro para tener una reunión.</string>
-    <string name="new_team">Nuevo equipo&#8230;</string>
+    <string name="drawer_new_team">Nuevo equipo&#8230;</string>
     <string name="member_list_header_name">Nombre</string>
     <string name="member_list_header_avg_duration">Tiempo medio</string>
     <string name="member_list_header_sum_duration">Tiempo total</string>

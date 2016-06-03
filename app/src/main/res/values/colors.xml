@@ -38,6 +38,9 @@
     <color name="meeting_state_default">@color/primary_text_color</color>
     <color name="chrono_not_started">@color/primary_text_disabled_color</color>
 
+    <color name="navigation_menu_item_normal">@color/primary_text_color</color>
+    <color name="navigation_menu_item_selected">@color/scrum_chatter_primary_color</color>
+
     <string-array translatable="false" name="chart_colors">
         <item>#9c27b0</item>
         <item>#2196f3</item>
