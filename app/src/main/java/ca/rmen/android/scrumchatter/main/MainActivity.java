@@ -298,13 +298,8 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
                 Snackbar.make(mBinding.getRoot(), R.string.import_result_no_file, Snackbar.LENGTH_SHORT).show();
                 return;
             }
-            final File file = new File(filePath);
-            if (!file.exists()) {
-                Snackbar.make(mBinding.getRoot(), getString(R.string.import_result_file_does_not_exist, file.getName()), Snackbar.LENGTH_SHORT).show();
-                return;
-            }
             // Save the uri of the file.  We will import it in onResumeFragments.
-            getIntent().putExtra(EXTRA_IMPORT_URI, Uri.fromFile(file));
+            getIntent().putExtra(EXTRA_IMPORT_URI, intent.getData());
         } else {
             super.onActivityResult(requestCode, resultCode, intent);
         }
@@ -495,7 +490,8 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
     @NeedsPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
     void startFileChooser() {
         Intent importIntent = new Intent(Intent.ACTION_GET_CONTENT);
-        importIntent.setType("file/*");
+        importIntent.setType("*/*");
+        importIntent.addCategory(Intent.CATEGORY_OPENABLE);
         startActivityForResult(Intent.createChooser(importIntent, getResources().getText(R.string.action_import)), ACTIVITY_REQUEST_CODE_IMPORT);
     }
 
