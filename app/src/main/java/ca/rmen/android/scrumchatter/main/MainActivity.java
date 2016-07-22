@@ -249,10 +249,10 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                if (mBinding.drawerLayout.isDrawerVisible(GravityCompat.START)) {
-                    mBinding.drawerLayout.closeDrawer(GravityCompat.START);
+                if (mBinding.drawerLayout.isDrawerVisible(GravityCompat.END)) {
+                    mBinding.drawerLayout.closeDrawer(GravityCompat.END);
                 } else {
-                    mBinding.drawerLayout.openDrawer(GravityCompat.START);
+                    mBinding.drawerLayout.openDrawer(GravityCompat.END);
                 }
                 return true;
             case R.id.action_team_rename:

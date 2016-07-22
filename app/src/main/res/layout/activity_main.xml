@@ -44,7 +44,7 @@
         android:id="@+id/left_drawer"
         android:layout_width="@dimen/drawer_width"
         android:layout_height="match_parent"
-        android:layout_gravity="start"
+        android:layout_gravity="end"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         app:headerLayout="@layout/drawer_header"
         app:itemTextColor="@color/navigation_menu_item"
