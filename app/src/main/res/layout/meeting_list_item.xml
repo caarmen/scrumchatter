@@ -28,6 +28,7 @@
             type="ca.rmen.android.scrumchatter.meeting.detail.Meeting"/>
     </data>
 <RelativeLayout
+    android:background="@drawable/selector"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:descendantFocusability="blocksDescendants"

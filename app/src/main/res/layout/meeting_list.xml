@@ -82,8 +82,8 @@
         android:background="@color/selected_header" />
 
     <include
-        android:id="@+id/list_content"
-        layout="@layout/list_content"
+        android:id="@+id/recycler_view_content"
+        layout="@layout/recycler_view_content"
         tools:listitem="@android:layout/simple_list_item_2" />
 
 </LinearLayout>
