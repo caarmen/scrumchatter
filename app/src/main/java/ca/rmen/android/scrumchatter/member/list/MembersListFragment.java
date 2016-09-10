@@ -29,12 +29,13 @@ import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -50,7 +51,7 @@ import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberStatsColumns;
 import ca.rmen.android.scrumchatter.util.Log;
 
-public class MembersListFragment extends ListFragment {
+public class MembersListFragment extends Fragment {
 
     private static final String TAG = Constants.TAG + "/" + MembersListFragment.class.getSimpleName();
 
@@ -73,7 +74,8 @@ public class MembersListFragment extends ListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mBinding = DataBindingUtil.inflate(inflater, R.layout.member_list, container, false);
         mBinding.setColumnHeaderListener(new ColumnHeaderListener());
-        mBinding.listContent.empty.setText(R.string.empty_list_members);
+        mBinding.recyclerViewContent.empty.setText(R.string.empty_list_members);
+        mBinding.recyclerViewContent.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
         return mBinding.getRoot();
     }
 
@@ -123,11 +125,18 @@ public class MembersListFragment extends ListFragment {
         public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
             Log.v(TAG, "onLoadFinished");
             if (mAdapter == null) {
-                mAdapter = new MembersCursorAdapter(getActivity(), mMemberClickListener);
-                setListAdapter(mAdapter);
+                mAdapter = new MembersCursorAdapter(mMemberClickListener);
+                mBinding.recyclerViewContent.recyclerView.setAdapter(mAdapter);
             }
-            mBinding.listContent.progressContainer.setVisibility(View.GONE);
+            mBinding.recyclerViewContent.progressContainer.setVisibility(View.GONE);
             mAdapter.changeCursor(cursor);
+            if (mAdapter.getItemCount() > 0) {
+                mBinding.recyclerViewContent.recyclerView.setVisibility(View.VISIBLE);
+                mBinding.recyclerViewContent.empty.setVisibility(View.GONE);
+            } else {
+                mBinding.recyclerViewContent.recyclerView.setVisibility(View.GONE);
+                mBinding.recyclerViewContent.empty.setVisibility(View.VISIBLE);
+            }
             getActivity().supportInvalidateOptionsMenu();
         }
 
@@ -135,6 +144,8 @@ public class MembersListFragment extends ListFragment {
         public void onLoaderReset(Loader<Cursor> loader) {
             Log.v(TAG, "onLoaderReset");
             mAdapter.changeCursor(null);
+            mBinding.recyclerViewContent.recyclerView.setVisibility(View.GONE);
+            mBinding.recyclerViewContent.empty.setVisibility(View.VISIBLE);
         }
 
     };

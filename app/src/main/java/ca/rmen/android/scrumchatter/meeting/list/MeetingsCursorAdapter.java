@@ -19,9 +19,7 @@
 package ca.rmen.android.scrumchatter.meeting.list;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.databinding.DataBindingUtil;
-import android.provider.BaseColumns;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
@@ -35,46 +33,24 @@ import ca.rmen.android.scrumchatter.meeting.detail.Meeting;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.provider.MeetingCursorWrapper;
 import ca.rmen.android.scrumchatter.util.TextUtils;
+import ca.rmen.android.scrumchatter.widget.ScrumChatterCursorAdapter;
 
 /**
  * Adapter for the list of meetings.
  */
-public class MeetingsCursorAdapter extends RecyclerView.Adapter<MeetingsCursorAdapter.MeetingViewHolder>{
+public class MeetingsCursorAdapter extends ScrumChatterCursorAdapter<MeetingsCursorAdapter.MeetingViewHolder> {
     private final MeetingListener mMeetingListener;
     private final int mColorStateInProgress;
     private final int mColorStateDefault;
     private final String[] mMeetingStateNames;
-    private Cursor mCursor;
 
     MeetingsCursorAdapter(Context context, MeetingListener meetingListener) {
         mMeetingListener = meetingListener;
         mColorStateInProgress = ContextCompat.getColor(context, R.color.meeting_state_in_progress);
         mColorStateDefault = ContextCompat.getColor(context, R.color.meeting_state_default);
         mMeetingStateNames = context.getResources().getStringArray(R.array.meeting_states);
-        setHasStableIds(true);
     }
 
-    public void changeCursor(Cursor cursor) {
-        if (mCursor == cursor) return;
-        if (mCursor != null) mCursor.close();
-        mCursor = cursor;
-        notifyDataSetChanged();
-    }
-
-
-    @Override
-    public long getItemId(int position) {
-        if (mCursor == null || !mCursor.moveToPosition(position)) {
-            return RecyclerView.NO_ID;
-        }
-        return mCursor.getLong(mCursor.getColumnIndex(BaseColumns._ID));
-    }
-
-    @Override
-    public int getItemCount() {
-        if (mCursor == null) return 0;
-        else return mCursor.getCount();
-    }
 
     public interface MeetingListener {
         void onMeetingDelete(Meeting meeting);
@@ -94,10 +70,10 @@ public class MeetingsCursorAdapter extends RecyclerView.Adapter<MeetingsCursorAd
      */
     @Override
     public void onBindViewHolder(MeetingViewHolder holder, int position) {
-        mCursor.moveToPosition(position);
+        getCursor().moveToPosition(position);
         Context context = holder.binding.getRoot().getContext();
         // Get the data from the cursor
-        MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(mCursor);
+        MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(getCursor());
         Meeting meeting = Meeting.read(context, cursorWrapper);
         String dateString = TextUtils.formatDateTime(context, meeting.getStartDate());
         String duration = DateUtils.formatElapsedTime(meeting.getDuration());

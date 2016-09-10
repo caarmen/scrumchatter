@@ -1,5 +1,5 @@
 /**
- * Copyright 2013 Carmen Alvarez
+ * Copyright 2013-2016 Carmen Alvarez
  *
  * This file is part of Scrum Chatter.
  *
@@ -18,27 +18,25 @@
  */
 package ca.rmen.android.scrumchatter.member.list;
 
-import android.content.Context;
-import android.database.Cursor;
 import android.databinding.DataBindingUtil;
-import android.support.v4.widget.CursorAdapter;
+import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.databinding.MemberListItemBinding;
 import ca.rmen.android.scrumchatter.member.list.Members.Member;
 import ca.rmen.android.scrumchatter.provider.MemberCursorWrapper;
+import ca.rmen.android.scrumchatter.widget.ScrumChatterCursorAdapter;
 
 /**
  * Adapter for the list of team members.
  */
-public class MembersCursorAdapter extends CursorAdapter {
+public class MembersCursorAdapter extends ScrumChatterCursorAdapter<MembersCursorAdapter.MemberViewHolder> {
     private final MemberListener mMemberListener;
 
-    MembersCursorAdapter(Context context, MemberListener memberListener) {
-        super(context, null, false);
+    MembersCursorAdapter(MemberListener memberListener) {
+        super();
         mMemberListener = memberListener;
     }
 
@@ -48,26 +46,22 @@ public class MembersCursorAdapter extends CursorAdapter {
     }
 
     @Override
-    public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
-        MemberListItemBinding binding = DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.member_list_item, viewGroup, false);
+    public MemberViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        MemberListItemBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.member_list_item, parent, false);
         binding.getRoot().setTag(binding);
         binding.setMemberListener(mMemberListener);
-        return binding.getRoot();
+        return new MemberViewHolder(binding);
     }
 
     /**
      * Set up the view with the data from the given team member
-     * 
-     * @param view
-     *            a newly created, or recycled view
-     * @param cursor
-     *            a row for a given team member.
      */
     @Override
-    public void bindView(View view, Context context, Cursor cursor) {
+    public void onBindViewHolder(MemberViewHolder holder, int position) {
+
         // Get the data from the cursor
         @SuppressWarnings("resource")
-        MemberCursorWrapper memberCursorWrapper = new MemberCursorWrapper(cursor);
+        MemberCursorWrapper memberCursorWrapper = new MemberCursorWrapper(getCursor());
         Long memberId = memberCursorWrapper.getId();
         String memberName = memberCursorWrapper.getName();
         Integer avgDuration = memberCursorWrapper.getAverageDuration();
@@ -75,7 +69,7 @@ public class MembersCursorAdapter extends CursorAdapter {
         Member cache = new Member(memberId, memberName);
 
         // Find the views we need to update
-        MemberListItemBinding binding = (MemberListItemBinding) view.getTag();
+        MemberListItemBinding binding = holder.binding;
         binding.setMember(cache);
 
         // Setup our views with the member data
@@ -83,5 +77,15 @@ public class MembersCursorAdapter extends CursorAdapter {
         binding.tvAvgDuration.setText(DateUtils.formatElapsedTime(avgDuration));
         binding.tvSumDuration.setText(DateUtils.formatElapsedTime(sumDuration));
 
+    }
+
+    public static class MemberViewHolder extends RecyclerView.ViewHolder {
+
+        public final MemberListItemBinding binding;
+
+        public MemberViewHolder(MemberListItemBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+        }
     }
 }
