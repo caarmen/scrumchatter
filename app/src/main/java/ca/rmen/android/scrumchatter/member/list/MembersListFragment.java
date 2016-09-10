@@ -1,5 +1,5 @@
 /**
- * Copyright 2013 Carmen Alvarez
+ * Copyright 2013-2016 Carmen Alvarez
  * <p/>
  * This file is part of Scrum Chatter.
  * <p/>
@@ -75,9 +75,7 @@ public class MembersListFragment extends ListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mBinding = DataBindingUtil.inflate(inflater, R.layout.member_list, container, false);
-        mBinding.tvName.setOnClickListener(mOnClickListener);
-        mBinding.tvAvgDuration.setOnClickListener(mOnClickListener);
-        mBinding.tvSumDuration.setOnClickListener(mOnClickListener);
+        mBinding.setColumnHeaderListener(new ColumnHeaderListener());
         mBinding.listContent.empty.setText(R.string.empty_list_members);
         return mBinding.getRoot();
     }
@@ -164,23 +162,33 @@ public class MembersListFragment extends ListFragment {
                         mMembers.confirmDeleteMember(member);
                     }
                     break;
-                case R.id.tv_name:
-                case R.id.tv_avg_duration:
-                case R.id.tv_sum_duration:
-                    setSortField(v.getId());
-                    break;
                 default:
                     break;
             }
         }
 
+    };
+
+    /**
+     * Refresh the list when the selected team changes.
+     */
+    private final OnSharedPreferenceChangeListener mPrefsListener = new OnSharedPreferenceChangeListener() {
+
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+            mTeamId = sharedPreferences.getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
+            getLoaderManager().restartLoader(URL_LOADER, null, mLoaderCallbacks);
+        }
+    };
+
+    public class ColumnHeaderListener {
         /**
          * Resort the list of members by the given column
          *
-         * @param viewId
+         * @param view
          *            the header label on which the user clicked.
          */
-        private void setSortField(int viewId) {
+        public void onColumnHeaderClicked(View view) {
             String oldOrderByField = mOrderByField;
             int selectedHeaderColor = ContextCompat.getColor(getActivity(), R.color.selected_header);
             int unselectedHeaderColor = ContextCompat.getColor(getActivity(), R.color.unselected_header);
@@ -191,7 +199,7 @@ public class MembersListFragment extends ListFragment {
 
             // Depending on the header column selected, change the sort order
             // field and highlight that header column.
-            switch (viewId) {
+            switch (view.getId()) {
                 case R.id.tv_name:
                     mOrderByField = MemberColumns.NAME + " COLLATE NOCASE";
                     mBinding.tvName.setTextColor(selectedHeaderColor);
@@ -212,17 +220,5 @@ public class MembersListFragment extends ListFragment {
                 getLoaderManager().restartLoader(URL_LOADER, null, mLoaderCallbacks);
 
         }
-    };
-
-    /**
-     * Refresh the list when the selected team changes.
-     */
-    private final OnSharedPreferenceChangeListener mPrefsListener = new OnSharedPreferenceChangeListener() {
-
-        @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            mTeamId = sharedPreferences.getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
-            getLoaderManager().restartLoader(URL_LOADER, null, mLoaderCallbacks);
-        }
-    };
+    }
 }

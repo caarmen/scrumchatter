@@ -19,6 +19,11 @@
 -->
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+   <data>
+       <variable
+           name="columnHeaderListener"
+           type="ca.rmen.android.scrumchatter.member.list.MembersListFragment.ColumnHeaderListener"/>
+   </data>
 <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -46,6 +51,7 @@
             android:layout_toLeftOf="@+id/tv_avg_duration"
             android:layout_toStartOf="@+id/tv_avg_duration"
             android:clickable="true"
+            android:onClick="@{columnHeaderListener.onColumnHeaderClicked}"
             android:text="@string/member_list_header_name"
             android:textColor="@color/selected_header"
             tools:targetApi="jelly_bean_mr1"/>
@@ -61,6 +67,7 @@
             android:layout_toLeftOf="@+id/tv_sum_duration"
             android:layout_toStartOf="@+id/tv_sum_duration"
             android:clickable="true"
+            android:onClick="@{columnHeaderListener.onColumnHeaderClicked}"
             android:text="@string/member_list_header_avg_duration"
             tools:targetApi="jelly_bean_mr1"/>
 
@@ -75,6 +82,7 @@
             android:layout_toLeftOf="@+id/btn_delete_member"
             android:layout_toStartOf="@+id/btn_delete_member"
             android:clickable="true"
+            android:onClick="@{columnHeaderListener.onColumnHeaderClicked}"
             android:text="@string/member_list_header_sum_duration"
             tools:targetApi="jelly_bean_mr1"/>
 
