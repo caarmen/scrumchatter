@@ -27,13 +27,14 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.text.format.DateUtils;
 
 import ca.rmen.android.scrumchatter.chart.MeetingChartActivity;
@@ -57,7 +58,7 @@ import ca.rmen.android.scrumchatter.provider.MemberColumns;
 /**
  * Displays info about a meeting (the duration) as well as the list of members participating in a particular meeting.
  */
-public class MeetingFragment extends ListFragment {
+public class MeetingFragment extends Fragment {
 
     private String TAG = Constants.TAG + "/" + MeetingFragment.class.getSimpleName() + "/" + System.currentTimeMillis();
 
@@ -86,6 +87,7 @@ public class MeetingFragment extends ListFragment {
         // Create our views
         mBinding = DataBindingUtil.inflate(inflater, R.layout.meeting_fragment, container, false);
         mBinding.setMeetingStopListener(new MeetingStopListener());
+        mBinding.recyclerViewContent.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
         mMeetingId = getArguments().getLong(Meetings.EXTRA_MEETING_ID);
         if (!TAG.endsWith("" + mMeetingId)) TAG += "/" + mMeetingId;
 
@@ -170,6 +172,7 @@ public class MeetingFragment extends ListFragment {
         bundle.putSerializable(Meetings.EXTRA_MEETING_STATE, meetingState);
         if (mAdapter == null) {
             mAdapter = new MeetingCursorAdapter(context, mMemberStartStopListener);
+            mBinding.recyclerViewContent.recyclerView.setAdapter(mAdapter);
             getLoaderManager().initLoader((int) mMeetingId, bundle, mLoaderCallbacks);
         } else {
             getLoaderManager().restartLoader((int) mMeetingId, bundle, mLoaderCallbacks);
@@ -313,17 +316,23 @@ public class MeetingFragment extends ListFragment {
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
             Log.v(TAG, "onLoadFinished");
-            if (getListAdapter() == null) {
-                setListAdapter(mAdapter);
-                mBinding.listContent.progressContainer.setVisibility(View.GONE);
-            }
+            mBinding.recyclerViewContent.progressContainer.setVisibility(View.GONE);
             mAdapter.changeCursor(cursor);
+            if (mAdapter.getItemCount() > 0) {
+                mBinding.recyclerViewContent.recyclerView.setVisibility(View.VISIBLE);
+                mBinding.recyclerViewContent.empty.setVisibility(View.GONE);
+            } else {
+                mBinding.recyclerViewContent.recyclerView.setVisibility(View.GONE);
+                mBinding.recyclerViewContent.empty.setVisibility(View.VISIBLE);
+            }
         }
 
         @Override
         public void onLoaderReset(Loader<Cursor> loader) {
             Log.v(TAG, "onLoaderReset");
             mAdapter.changeCursor(null);
+            mBinding.recyclerViewContent.recyclerView.setVisibility(View.GONE);
+            mBinding.recyclerViewContent.empty.setVisibility(View.VISIBLE);
         }
     };
 

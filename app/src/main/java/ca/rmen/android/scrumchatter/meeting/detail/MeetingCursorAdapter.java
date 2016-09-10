@@ -19,12 +19,11 @@
 package ca.rmen.android.scrumchatter.meeting.detail;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.SystemClock;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.CursorAdapter;
+import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
 
 import ca.rmen.android.scrumchatter.databinding.MeetingMemberListItemBinding;
@@ -38,12 +37,13 @@ import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
+import ca.rmen.android.scrumchatter.widget.ScrumChatterCursorAdapter;
 
 /**
  * Adapter for the list of members in one meeting, and their speaking durations
  * for that meeting.
  */
-public class MeetingCursorAdapter extends CursorAdapter {
+public class MeetingCursorAdapter extends ScrumChatterCursorAdapter<MeetingCursorAdapter.MeetingViewHolder> {
     private static final String TAG = Constants.TAG + "/" + MeetingCursorAdapter.class.getSimpleName();
     private final MemberStartStopListener mMemberStartStopListener;
     private final int mColorChronoActive;
@@ -60,7 +60,7 @@ public class MeetingCursorAdapter extends CursorAdapter {
      *            listener.
      */
     MeetingCursorAdapter(Context context, MemberStartStopListener memberStartStopListener) {
-        super(context, null, false);
+        super();
         Log.v(TAG, "Constructor");
         mMemberStartStopListener = memberStartStopListener;
         mColorChronoActive = ContextCompat.getColor(context, R.color.chrono_active);
@@ -69,27 +69,22 @@ public class MeetingCursorAdapter extends CursorAdapter {
     }
 
     @Override
-    public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
-        MeetingMemberListItemBinding binding = DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.meeting_member_list_item, viewGroup, false);
+    public MeetingViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        MeetingMemberListItemBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.meeting_member_list_item, parent, false);
         binding.getRoot().setTag(binding);
         binding.setListener(mMemberStartStopListener);
-        return binding.getRoot();
+        return new MeetingViewHolder(binding);
     }
 
     /**
      * Set the view elements (TextView text, etc) for the given member of a
      * meeting.
-     * 
-     * @param view
-     *            a view we just created or recycled
-     * @param cursor
-     *            a row for one member in one meeting.
      */
     @Override
-    public void bindView(View view, Context context, Cursor cursor) {
+    public void onBindViewHolder(MeetingViewHolder holder, int position) {
         // Extract the fields we need from this cursor
         @SuppressWarnings("resource")
-        MeetingMemberCursorWrapper cursorWrapper = new MeetingMemberCursorWrapper(cursor);
+        MeetingMemberCursorWrapper cursorWrapper = new MeetingMemberCursorWrapper(getCursor());
         Long memberId = cursorWrapper.getMemberId();
         String memberName = cursorWrapper.getMemberName();
         long duration = cursorWrapper.getDuration();
@@ -97,7 +92,7 @@ public class MeetingCursorAdapter extends CursorAdapter {
         Long talkStartTime = cursorWrapper.getTalkStartTime();
 
         // Find the Views we need to set up
-        MeetingMemberListItemBinding binding = (MeetingMemberListItemBinding) view.getTag();
+        MeetingMemberListItemBinding binding = holder.binding;
         // Set up the member's name
         binding.tvName.setText(memberName);
 
@@ -176,6 +171,16 @@ public class MeetingCursorAdapter extends CursorAdapter {
             imageView.setVisibility(View.INVISIBLE);
             final AnimationDrawable animationDrawable = (AnimationDrawable) imageView.getDrawable();
             animationDrawable.setVisible(false, false);
+        }
+    }
+
+    public static class MeetingViewHolder extends RecyclerView.ViewHolder{
+
+        public final MeetingMemberListItemBinding binding;
+
+        public MeetingViewHolder(MeetingMemberListItemBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
         }
     }
 

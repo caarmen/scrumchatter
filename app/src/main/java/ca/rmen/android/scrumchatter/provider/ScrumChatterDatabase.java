@@ -22,6 +22,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.provider.BaseColumns;
 
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.util.Log;
@@ -34,7 +35,7 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
     private static final String TAG = Constants.TAG + ScrumChatterDatabase.class.getSimpleName();
 
     public static final String DATABASE_NAME = "scrumchatter.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
     private static final String TEMP_SUFFIX = "_temp";
 
@@ -49,6 +50,8 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
     private static final String SQL_CREATE_TABLE_MEETING_MEMBER = "CREATE TABLE IF NOT EXISTS "
             + MeetingMemberColumns.TABLE_NAME
             + " ( "
+            + BaseColumns._ID
+            + " INTEGER PRIMARY KEY AUTOINCREMENT, "
             + MeetingMemberColumns.MEETING_ID
             + " INTEGER, "
             + MeetingMemberColumns.MEMBER_ID
@@ -106,8 +109,27 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
             + " ADD COLUMN "
             + MemberColumns.DELETED + " INTEGER NOT NULL DEFAULT 0";
 
+    private static final String SQL_COPY_TABLE_MEETING_MEMBER_V4 = "INSERT INTO "
+            + MeetingMemberColumns.TABLE_NAME
+            + "("
+            + MeetingMemberColumns.MEETING_ID + ","
+            + MeetingMemberColumns.MEMBER_ID + ","
+            + MeetingMemberColumns.DURATION + ","
+            + MeetingMemberColumns.TALK_START_TIME
+            + ")"
+            + " SELECT "
+            + MeetingMemberColumns.MEETING_ID + ","
+            + MeetingMemberColumns.MEMBER_ID + ","
+            + MeetingMemberColumns.DURATION + ","
+            + MeetingMemberColumns.TALK_START_TIME
+            + " FROM " + MeetingMemberColumns.TABLE_NAME + TEMP_SUFFIX;
+
     private static final String SQL_DROP_TABLE_MEMBER = "DROP TABLE " + MemberColumns.TABLE_NAME;
     private static final String SQL_DROP_TABLE_MEMBER_TEMP = "DROP TABLE " + MemberColumns.TABLE_NAME + TEMP_SUFFIX;
+    private static final String SQL_CREATE_TABLE_MEETING_MEMBER_TEMP = "CREATE TEMP TABLE " + MeetingMemberColumns.TABLE_NAME + TEMP_SUFFIX
+            + " AS SELECT * FROM " + MeetingMemberColumns.TABLE_NAME;
+    private static final String SQL_DROP_TABLE_MEETING_MEMBER = "DROP TABLE " + MeetingMemberColumns.TABLE_NAME;
+    private static final String SQL_DROP_TABLE_MEETING_MEMBER_TEMP = "DROP TABLE " + MeetingMemberColumns.TABLE_NAME + TEMP_SUFFIX;
 
     private static final String SQL_CREATE_TABLE_MEETING = "CREATE TABLE IF NOT EXISTS "
             + MeetingColumns.TABLE_NAME
@@ -228,6 +250,10 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
             execSQL(db, SQL_DROP_VIEW_MEMBER_STATS);
             execSQL(db, SQL_CREATE_VIEW_MEMBER_STATS);
         }
+
+        if (oldVersion < 4) {
+            upgradeV4(db);
+        }
     }
 
     @Override
@@ -263,5 +289,22 @@ public class ScrumChatterDatabase extends SQLiteOpenHelper {
     private void execSQL(SQLiteDatabase db, String sql) {
         Log.v(TAG, sql);
         db.execSQL(sql);
+    }
+
+    private void upgradeV4(SQLiteDatabase db) {
+        // copy the meeting members to a temp table
+        db.execSQL(SQL_CREATE_TABLE_MEETING_MEMBER_TEMP);
+
+        // delete the meeting members table
+        db.execSQL(SQL_DROP_TABLE_MEETING_MEMBER);
+
+        // create the new meeting members table
+        db.execSQL(SQL_CREATE_TABLE_MEETING_MEMBER);
+
+        // populate the new meeting members table
+        db.execSQL(SQL_COPY_TABLE_MEETING_MEMBER_V4);
+
+        // delete the temp table
+        db.execSQL(SQL_DROP_TABLE_MEETING_MEMBER_TEMP);
     }
 }
