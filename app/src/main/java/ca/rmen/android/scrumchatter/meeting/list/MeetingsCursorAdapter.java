@@ -26,7 +26,6 @@ import android.support.v4.widget.CursorAdapter;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -40,25 +39,31 @@ import ca.rmen.android.scrumchatter.util.TextUtils;
 /**
  * Adapter for the list of meetings.
  */
-class MeetingsCursorAdapter extends CursorAdapter {
-    private final OnClickListener mOnClickListener;
+public class MeetingsCursorAdapter extends CursorAdapter {
+    private final MeetingListener mMeetingListener;
     private final int mColorStateInProgress;
     private final int mColorStateDefault;
     private final String[] mMeetingStateNames;
 
-    MeetingsCursorAdapter(Context context, OnClickListener onClickListener) {
+    MeetingsCursorAdapter(Context context, MeetingListener meetingListener) {
         super(context, null, false);
-        mOnClickListener = onClickListener;
+        mMeetingListener = meetingListener;
         mColorStateInProgress = ContextCompat.getColor(context, R.color.meeting_state_in_progress);
         mColorStateDefault = ContextCompat.getColor(context, R.color.meeting_state_default);
         mMeetingStateNames = context.getResources().getStringArray(R.array.meeting_states);
 
     }
 
+    public interface MeetingListener {
+        void onMeetingDelete(Meeting meeting);
+        void onMeetingOpen(Meeting meeting);
+    }
+
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
         MeetingListItemBinding binding = DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.meeting_list_item, viewGroup, false);
         binding.getRoot().setTag(binding);
+        binding.setMeetingListener(mMeetingListener);
         return binding.getRoot();
     }
 
@@ -82,6 +87,7 @@ class MeetingsCursorAdapter extends CursorAdapter {
 
         // Find the views we need to set up.
         MeetingListItemBinding binding = (MeetingListItemBinding) view.getTag();
+        binding.setMeeting(meeting);
 
         // Fill the date view.
         binding.tvMeetingDate.setText(dateString);
@@ -106,12 +112,5 @@ class MeetingsCursorAdapter extends CursorAdapter {
             }
             binding.tvMeetingDuration.setTextColor(mColorStateDefault);
         }
-
-        // Forward clicks to our OnClickListener. We put the cache in the tag
-        // so the listener can have access to data it needs to display
-        // (showing the meeting date in the confirmation dialog to delete
-        // a meeting).
-        binding.btnDeleteMeeting.setTag(meeting);
-        binding.btnDeleteMeeting.setOnClickListener(mOnClickListener);
     }
 }

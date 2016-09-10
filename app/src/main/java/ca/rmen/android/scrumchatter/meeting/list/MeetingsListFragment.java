@@ -35,7 +35,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
@@ -114,15 +113,6 @@ public class MeetingsListFragment extends ListFragment {
         return true;
     }
 
-    @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        Log.v(TAG, "onListItemClick, position=" + position + ", id" + id);
-        super.onListItemClick(l, v, position, id);
-        // The user clicked on the meeting. Let's go to the
-        // details of that meeting.
-        MeetingActivity.startMeeting(getActivity(), id);
-    }
-
     private final LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
         @Override
         public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
@@ -137,7 +127,7 @@ public class MeetingsListFragment extends ListFragment {
         public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
             Log.v(TAG, "onLoadFinished, loader = " + loader + ", cursor = " + cursor);
             if (mAdapter == null) {
-                mAdapter = new MeetingsCursorAdapter(getActivity(), mOnClickListener);
+                mAdapter = new MeetingsCursorAdapter(getActivity(), mMeetingListener);
                 setListAdapter(mAdapter);
             }
             mBinding.listContent.progressContainer.setVisibility(View.GONE);
@@ -152,21 +142,18 @@ public class MeetingsListFragment extends ListFragment {
         }
     };
 
-    private final OnClickListener mOnClickListener = new OnClickListener() {
+    private final MeetingsCursorAdapter.MeetingListener mMeetingListener= new MeetingsCursorAdapter.MeetingListener() {
 
         @Override
-        public void onClick(View v) {
-            Log.v(TAG, "onClick: view = " + v);
-            final Meeting meeting = (Meeting) v.getTag();
-            switch (v.getId()) {
-                // The user wants to delete a meeting
-                case R.id.btn_delete_meeting:
-                    mMeetings.confirmDelete(meeting);
-                    break;
-                default:
-                    break;
-            }
+        public void onMeetingOpen(Meeting meeting) {
+            MeetingActivity.startMeeting(getActivity(), meeting.getId());
         }
+
+        @Override
+        public void onMeetingDelete(Meeting meeting) {
+            mMeetings.confirmDelete(meeting);
+        }
+
     };
 
     private final OnSharedPreferenceChangeListener mPrefsListener = new OnSharedPreferenceChangeListener() {
