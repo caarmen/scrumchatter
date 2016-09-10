@@ -25,7 +25,6 @@ import android.support.v4.widget.CursorAdapter;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.databinding.MemberListItemBinding;
@@ -35,18 +34,24 @@ import ca.rmen.android.scrumchatter.provider.MemberCursorWrapper;
 /**
  * Adapter for the list of team members.
  */
-class MembersCursorAdapter extends CursorAdapter {
-    private final OnClickListener mOnClickListener;
+public class MembersCursorAdapter extends CursorAdapter {
+    private final MemberListener mMemberListener;
 
-    MembersCursorAdapter(Context context, OnClickListener onClickListener) {
+    MembersCursorAdapter(Context context, MemberListener memberListener) {
         super(context, null, false);
-        mOnClickListener = onClickListener;
+        mMemberListener = memberListener;
+    }
+
+    public interface MemberListener {
+        void onMemberEdit(Member member);
+        void onMemberDelete(Member member);
     }
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
         MemberListItemBinding binding = DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.member_list_item, viewGroup, false);
         binding.getRoot().setTag(binding);
+        binding.setMemberListener(mMemberListener);
         return binding.getRoot();
     }
 
@@ -71,15 +76,12 @@ class MembersCursorAdapter extends CursorAdapter {
 
         // Find the views we need to update
         MemberListItemBinding binding = (MemberListItemBinding) view.getTag();
+        binding.setMember(cache);
 
         // Setup our views with the member data
         binding.tvName.setText(memberName);
         binding.tvAvgDuration.setText(DateUtils.formatElapsedTime(avgDuration));
         binding.tvSumDuration.setText(DateUtils.formatElapsedTime(sumDuration));
 
-        // Forward clicks to our OnClickListener, and use the tag
-        // to pass data about the member that the OnClickListener needs.
-        binding.btnDeleteMember.setOnClickListener(mOnClickListener);
-        binding.btnDeleteMember.setTag(cache);
     }
 }

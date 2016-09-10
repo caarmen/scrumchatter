@@ -40,14 +40,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.ListView;
 
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.databinding.MemberListBinding;
-import ca.rmen.android.scrumchatter.databinding.MemberListItemBinding;
 import ca.rmen.android.scrumchatter.member.list.Members.Member;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberStatsColumns;
@@ -112,13 +109,6 @@ public class MembersListFragment extends ListFragment {
         return false;
     }
 
-    @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-        MemberListItemBinding binding = (MemberListItemBinding) v.getTag();
-        mMembers.promptRenameMember(mTeamId, id, binding.tvName.getText().toString());
-    }
-
     private final LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
         @Override
         public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
@@ -133,7 +123,7 @@ public class MembersListFragment extends ListFragment {
         public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
             Log.v(TAG, "onLoadFinished");
             if (mAdapter == null) {
-                mAdapter = new MembersCursorAdapter(getActivity(), mOnClickListener);
+                mAdapter = new MembersCursorAdapter(getActivity(), mMemberClickListener);
                 setListAdapter(mAdapter);
             }
             mBinding.listContent.progressContainer.setVisibility(View.GONE);
@@ -149,24 +139,19 @@ public class MembersListFragment extends ListFragment {
 
     };
 
-    private final OnClickListener mOnClickListener = new OnClickListener() {
+    private final MembersCursorAdapter.MemberListener mMemberClickListener = new MembersCursorAdapter.MemberListener() {
 
         @Override
-        public void onClick(View v) {
-            Log.v(TAG, "onClick: " + v.getId());
-            switch (v.getId()) {
-                // The user wants to delete a team member.
-                case R.id.btn_delete_member:
-                    if (v.getTag() instanceof Member) {
-                        final Member member = (Member) v.getTag();
-                        mMembers.confirmDeleteMember(member);
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
+        public void onMemberEdit(Member member) {
+            Log.v(TAG, "onMemberEdit: " + member);
+            mMembers.promptRenameMember(mTeamId, member);
 
+        }
+        @Override
+        public void onMemberDelete(Member member) {
+            Log.v(TAG, "onMemberDelete: " + member);
+            mMembers.confirmDeleteMember(member);
+        }
     };
 
     /**

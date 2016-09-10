@@ -43,7 +43,7 @@ public class Members {
     private static final String EXTRA_MEMBER_NAME = "member_name";
     private final FragmentActivity mActivity;
 
-    static class Member {
+    public static class Member {
         private final long id;
         private final String name;
 
@@ -100,16 +100,15 @@ public class Members {
      * name of the member.
      *
      * @param teamId the id of the member's team
-     * @param memberId the id of the team member to rename
-     * @param memberName the current name of the team member
+     * @param member the team member to rename
      */
-    void promptRenameMember(final long teamId, final long memberId, final String memberName) {
-        Log.v(TAG, "promptRenameMember, teamId = " + teamId + ", memberId = " + memberId + ", memberName = " + memberName);
+    void promptRenameMember(final long teamId, final Member member) {
+        Log.v(TAG, "promptRenameMember, teamId = " + teamId + ", member = " + member);
         Bundle extras = new Bundle(1);
         extras.putLong(Teams.EXTRA_TEAM_ID, teamId);
-        extras.putLong(EXTRA_MEMBER_ID, memberId);
-        extras.putString(EXTRA_MEMBER_NAME, memberName);
-        DialogFragmentFactory.showInputDialog(mActivity, mActivity.getString(R.string.action_rename_member), mActivity.getString(R.string.hint_new_member), memberName,
+        extras.putLong(EXTRA_MEMBER_ID, member.id);
+        extras.putString(EXTRA_MEMBER_NAME, member.name);
+        DialogFragmentFactory.showInputDialog(mActivity, mActivity.getString(R.string.action_rename_member), mActivity.getString(R.string.hint_new_member), member.name,
                 MemberNameValidator.class, R.id.action_rename_member, extras);
     }
 
