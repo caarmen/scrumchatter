@@ -102,6 +102,7 @@
     <string name="pref_theme_title">Tema</string>
     <string name="pref_theme_value_dark">Oscuro</string>
     <string name="pref_theme_value_light">Claro</string>
+    <string name="pref_theme_value_auto">Automático</string>
 
     <!-- Default team members -->
     <string name="default_team_member1">Álvaro</string>

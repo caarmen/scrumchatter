@@ -34,6 +34,7 @@ public class Theme {
     static final String PREF_THEME = "PREF_THEME";
     private static final String THEME_DARK = "Dark";
     private static final String THEME_LIGHT = "Light";
+    private static final String THEME_AUTO = "Auto";
 
     /**
      * If the app isn't using the theme in the shared preferences, this
@@ -52,12 +53,19 @@ public class Theme {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
                 activity.recreate();
             }
-        } else {
+        } else if (THEME_LIGHT.equals(theme)){
             if (AppCompatDelegate.getDefaultNightMode() != AppCompatDelegate.MODE_NIGHT_NO) {
                 Log.v(TAG, "Restarting in light mode");
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
                 activity.recreate();
             }
+        } else if (THEME_AUTO.equals(theme)) {
+            if (AppCompatDelegate.getDefaultNightMode() != AppCompatDelegate.MODE_NIGHT_AUTO) {
+                Log.v(TAG, "Restarting in auto mode");
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO);
+                activity.recreate();
+            }
+
         }
     }
 }
