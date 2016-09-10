@@ -1,5 +1,5 @@
 /**
- * Copyright 2013 Carmen Alvarez
+ * Copyright 2013-2016 Carmen Alvarez
  *
  * This file is part of Scrum Chatter.
  *
@@ -31,7 +31,6 @@ import ca.rmen.android.scrumchatter.databinding.MeetingMemberListItemBinding;
 import ca.rmen.android.scrumchatter.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.ImageView;
@@ -44,22 +43,26 @@ import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
  * Adapter for the list of members in one meeting, and their speaking durations
  * for that meeting.
  */
-class MeetingCursorAdapter extends CursorAdapter {
+public class MeetingCursorAdapter extends CursorAdapter {
     private static final String TAG = Constants.TAG + "/" + MeetingCursorAdapter.class.getSimpleName();
-    private final OnClickListener mOnClickListener;
+    private final MemberStartStopListener mMemberStartStopListener;
     private final int mColorChronoActive;
     private final int mColorChronoInactive;
     private final int mColorChronoNotStarted;
 
+    public interface MemberStartStopListener {
+        void toggleTalkingMember(long memberId);
+    }
+
     /**
-     * @param onClickListener
-     *            clicks on widgets on each list item will be forwarded to this
+     * @param memberStartStopListener
+     *            clicks on the start/stop button on each list item will be forwarded to this
      *            listener.
      */
-    MeetingCursorAdapter(Context context, OnClickListener onClickListener) {
+    MeetingCursorAdapter(Context context, MemberStartStopListener memberStartStopListener) {
         super(context, null, false);
         Log.v(TAG, "Constructor");
-        mOnClickListener = onClickListener;
+        mMemberStartStopListener = memberStartStopListener;
         mColorChronoActive = ContextCompat.getColor(context, R.color.chrono_active);
         mColorChronoInactive = ContextCompat.getColor(context, R.color.chrono_inactive);
         mColorChronoNotStarted = ContextCompat.getColor(context, R.color.chrono_not_started);
@@ -69,6 +72,7 @@ class MeetingCursorAdapter extends CursorAdapter {
     public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
         MeetingMemberListItemBinding binding = DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.meeting_member_list_item, viewGroup, false);
         binding.getRoot().setTag(binding);
+        binding.setListener(mMemberStartStopListener);
         return binding.getRoot();
     }
 
@@ -110,7 +114,6 @@ class MeetingCursorAdapter extends CursorAdapter {
         // or start, depending on whether the member is already talking
         // or not.
         else {
-            binding.btnStartStopMember.setOnClickListener(mOnClickListener);
             binding.btnStartStopMember.setImageResource(memberIsTalking ? R.drawable.ic_action_stop : R.drawable.ic_action_start);
         }
 
@@ -129,9 +132,9 @@ class MeetingCursorAdapter extends CursorAdapter {
             stopAnimation(binding.ivChatterFace);
         }
 
-        // Set the member id as a tag, so when the OnClickListener receives the
+        // Set the member id as a tag, so when the listener receives the
         // click action, it knows for which member the user clicked.
-        binding.btnStartStopMember.setTag(memberId);
+        binding.setMemberId(memberId);
     }
 
     /**
@@ -175,4 +178,5 @@ class MeetingCursorAdapter extends CursorAdapter {
             animationDrawable.setVisible(false, false);
         }
     }
+
 }
