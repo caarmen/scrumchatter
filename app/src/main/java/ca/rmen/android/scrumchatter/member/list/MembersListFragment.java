@@ -1,5 +1,5 @@
 /**
- * Copyright 2013 Carmen Alvarez
+ * Copyright 2013-2016 Carmen Alvarez
  * <p/>
  * This file is part of Scrum Chatter.
  * <p/>
@@ -29,31 +29,29 @@ import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.ListView;
 
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.databinding.MemberListBinding;
-import ca.rmen.android.scrumchatter.databinding.MemberListItemBinding;
 import ca.rmen.android.scrumchatter.member.list.Members.Member;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberStatsColumns;
 import ca.rmen.android.scrumchatter.util.Log;
 
-public class MembersListFragment extends ListFragment {
+public class MembersListFragment extends Fragment {
 
     private static final String TAG = Constants.TAG + "/" + MembersListFragment.class.getSimpleName();
 
@@ -75,10 +73,9 @@ public class MembersListFragment extends ListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mBinding = DataBindingUtil.inflate(inflater, R.layout.member_list, container, false);
-        mBinding.tvName.setOnClickListener(mOnClickListener);
-        mBinding.tvAvgDuration.setOnClickListener(mOnClickListener);
-        mBinding.tvSumDuration.setOnClickListener(mOnClickListener);
-        mBinding.listContent.empty.setText(R.string.empty_list_members);
+        mBinding.setColumnHeaderListener(new ColumnHeaderListener());
+        mBinding.recyclerViewContent.empty.setText(R.string.empty_list_members);
+        mBinding.recyclerViewContent.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
         return mBinding.getRoot();
     }
 
@@ -114,13 +111,6 @@ public class MembersListFragment extends ListFragment {
         return false;
     }
 
-    @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-        MemberListItemBinding binding = (MemberListItemBinding) v.getTag();
-        mMembers.promptRenameMember(mTeamId, id, binding.tvName.getText().toString());
-    }
-
     private final LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
         @Override
         public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
@@ -135,11 +125,18 @@ public class MembersListFragment extends ListFragment {
         public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
             Log.v(TAG, "onLoadFinished");
             if (mAdapter == null) {
-                mAdapter = new MembersCursorAdapter(getActivity(), mOnClickListener);
-                setListAdapter(mAdapter);
+                mAdapter = new MembersCursorAdapter(mMemberClickListener);
+                mBinding.recyclerViewContent.recyclerView.setAdapter(mAdapter);
             }
-            mBinding.listContent.progressContainer.setVisibility(View.GONE);
+            mBinding.recyclerViewContent.progressContainer.setVisibility(View.GONE);
             mAdapter.changeCursor(cursor);
+            if (mAdapter.getItemCount() > 0) {
+                mBinding.recyclerViewContent.recyclerView.setVisibility(View.VISIBLE);
+                mBinding.recyclerViewContent.empty.setVisibility(View.GONE);
+            } else {
+                mBinding.recyclerViewContent.recyclerView.setVisibility(View.GONE);
+                mBinding.recyclerViewContent.empty.setVisibility(View.VISIBLE);
+            }
             getActivity().supportInvalidateOptionsMenu();
         }
 
@@ -147,40 +144,47 @@ public class MembersListFragment extends ListFragment {
         public void onLoaderReset(Loader<Cursor> loader) {
             Log.v(TAG, "onLoaderReset");
             mAdapter.changeCursor(null);
+            mBinding.recyclerViewContent.recyclerView.setVisibility(View.GONE);
+            mBinding.recyclerViewContent.empty.setVisibility(View.VISIBLE);
         }
 
     };
 
-    private final OnClickListener mOnClickListener = new OnClickListener() {
+    private final MembersCursorAdapter.MemberListener mMemberClickListener = new MembersCursorAdapter.MemberListener() {
 
         @Override
-        public void onClick(View v) {
-            Log.v(TAG, "onClick: " + v.getId());
-            switch (v.getId()) {
-                // The user wants to delete a team member.
-                case R.id.btn_delete_member:
-                    if (v.getTag() instanceof Member) {
-                        final Member member = (Member) v.getTag();
-                        mMembers.confirmDeleteMember(member);
-                    }
-                    break;
-                case R.id.tv_name:
-                case R.id.tv_avg_duration:
-                case R.id.tv_sum_duration:
-                    setSortField(v.getId());
-                    break;
-                default:
-                    break;
-            }
-        }
+        public void onMemberEdit(Member member) {
+            Log.v(TAG, "onMemberEdit: " + member);
+            mMembers.promptRenameMember(mTeamId, member);
 
+        }
+        @Override
+        public void onMemberDelete(Member member) {
+            Log.v(TAG, "onMemberDelete: " + member);
+            mMembers.confirmDeleteMember(member);
+        }
+    };
+
+    /**
+     * Refresh the list when the selected team changes.
+     */
+    private final OnSharedPreferenceChangeListener mPrefsListener = new OnSharedPreferenceChangeListener() {
+
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+            mTeamId = sharedPreferences.getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
+            getLoaderManager().restartLoader(URL_LOADER, null, mLoaderCallbacks);
+        }
+    };
+
+    public class ColumnHeaderListener {
         /**
          * Resort the list of members by the given column
          *
-         * @param viewId
+         * @param view
          *            the header label on which the user clicked.
          */
-        private void setSortField(int viewId) {
+        public void onColumnHeaderClicked(View view) {
             String oldOrderByField = mOrderByField;
             int selectedHeaderColor = ContextCompat.getColor(getActivity(), R.color.selected_header);
             int unselectedHeaderColor = ContextCompat.getColor(getActivity(), R.color.unselected_header);
@@ -191,7 +195,7 @@ public class MembersListFragment extends ListFragment {
 
             // Depending on the header column selected, change the sort order
             // field and highlight that header column.
-            switch (viewId) {
+            switch (view.getId()) {
                 case R.id.tv_name:
                     mOrderByField = MemberColumns.NAME + " COLLATE NOCASE";
                     mBinding.tvName.setTextColor(selectedHeaderColor);
@@ -212,17 +216,5 @@ public class MembersListFragment extends ListFragment {
                 getLoaderManager().restartLoader(URL_LOADER, null, mLoaderCallbacks);
 
         }
-    };
-
-    /**
-     * Refresh the list when the selected team changes.
-     */
-    private final OnSharedPreferenceChangeListener mPrefsListener = new OnSharedPreferenceChangeListener() {
-
-        @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            mTeamId = sharedPreferences.getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
-            getLoaderManager().restartLoader(URL_LOADER, null, mLoaderCallbacks);
-        }
-    };
+    }
 }

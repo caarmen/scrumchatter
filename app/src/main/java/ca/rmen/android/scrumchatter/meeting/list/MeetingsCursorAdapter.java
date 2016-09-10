@@ -1,5 +1,5 @@
 /**
- * Copyright 2013 Carmen Alvarez
+ * Copyright 2013-2016 Carmen Alvarez
  *
  * This file is part of Scrum Chatter.
  *
@@ -19,14 +19,11 @@
 package ca.rmen.android.scrumchatter.meeting.list;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.CursorAdapter;
+import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -36,52 +33,56 @@ import ca.rmen.android.scrumchatter.meeting.detail.Meeting;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.provider.MeetingCursorWrapper;
 import ca.rmen.android.scrumchatter.util.TextUtils;
+import ca.rmen.android.scrumchatter.widget.ScrumChatterCursorAdapter;
 
 /**
  * Adapter for the list of meetings.
  */
-class MeetingsCursorAdapter extends CursorAdapter {
-    private final OnClickListener mOnClickListener;
+public class MeetingsCursorAdapter extends ScrumChatterCursorAdapter<MeetingsCursorAdapter.MeetingViewHolder> {
+    private final MeetingListener mMeetingListener;
     private final int mColorStateInProgress;
     private final int mColorStateDefault;
     private final String[] mMeetingStateNames;
 
-    MeetingsCursorAdapter(Context context, OnClickListener onClickListener) {
-        super(context, null, false);
-        mOnClickListener = onClickListener;
+    MeetingsCursorAdapter(Context context, MeetingListener meetingListener) {
+        mMeetingListener = meetingListener;
         mColorStateInProgress = ContextCompat.getColor(context, R.color.meeting_state_in_progress);
         mColorStateDefault = ContextCompat.getColor(context, R.color.meeting_state_default);
         mMeetingStateNames = context.getResources().getStringArray(R.array.meeting_states);
+    }
 
+
+    public interface MeetingListener {
+        void onMeetingDelete(Meeting meeting);
+        void onMeetingOpen(Meeting meeting);
     }
 
     @Override
-    public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
-        MeetingListItemBinding binding = DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.meeting_list_item, viewGroup, false);
+    public MeetingViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        MeetingListItemBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.meeting_list_item, parent, false);
         binding.getRoot().setTag(binding);
-        return binding.getRoot();
+        binding.setMeetingListener(mMeetingListener);
+        return new MeetingViewHolder(binding);
     }
 
     /**
-     * Fill the view's fields with data from the given meeting.
-     * 
-     * @param view
-     *            a recently created view, or a recycled view
-     * @param cursor
-     *            a row for one meeting
+     * Fill the view holder's fields with data from the given meeting.
      */
     @Override
-    public void bindView(View view, Context context, Cursor cursor) {
+    public void onBindViewHolder(MeetingViewHolder holder, int position) {
+        getCursor().moveToPosition(position);
+        Context context = holder.binding.getRoot().getContext();
         // Get the data from the cursor
-        MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(cursor);
+        MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(getCursor());
         Meeting meeting = Meeting.read(context, cursorWrapper);
         String dateString = TextUtils.formatDateTime(context, meeting.getStartDate());
         String duration = DateUtils.formatElapsedTime(meeting.getDuration());
 
         String stateName = mMeetingStateNames[meeting.getState().ordinal()];
 
+        MeetingListItemBinding binding = holder.binding;
         // Find the views we need to set up.
-        MeetingListItemBinding binding = (MeetingListItemBinding) view.getTag();
+        binding.setMeeting(meeting);
 
         // Fill the date view.
         binding.tvMeetingDate.setText(dateString);
@@ -93,7 +94,7 @@ class MeetingsCursorAdapter extends CursorAdapter {
         else
             binding.tvMeetingDuration.setText(stateName);
         if (meeting.getState() == State.IN_PROGRESS) {
-            Animation animBlink = AnimationUtils.loadAnimation(mContext, R.anim.blink);
+            Animation animBlink = AnimationUtils.loadAnimation(context, R.anim.blink);
             binding.tvMeetingDuration.startAnimation(animBlink);
             binding.tvMeetingDuration.setTextColor(mColorStateInProgress);
         } else {
@@ -101,17 +102,19 @@ class MeetingsCursorAdapter extends CursorAdapter {
             if (anim != null) {
                 anim.cancel();
                 // Need to make sure the animation doesn't stay faded out.
-                anim = AnimationUtils.loadAnimation(mContext, R.anim.show);
+                anim = AnimationUtils.loadAnimation(context, R.anim.show);
                 binding.tvMeetingDuration.startAnimation(anim);
             }
             binding.tvMeetingDuration.setTextColor(mColorStateDefault);
         }
+    }
 
-        // Forward clicks to our OnClickListener. We put the cache in the tag
-        // so the listener can have access to data it needs to display
-        // (showing the meeting date in the confirmation dialog to delete
-        // a meeting).
-        binding.btnDeleteMeeting.setTag(meeting);
-        binding.btnDeleteMeeting.setOnClickListener(mOnClickListener);
+    public static class MeetingViewHolder extends RecyclerView.ViewHolder {
+        public final MeetingListItemBinding binding;
+
+        public MeetingViewHolder(MeetingListItemBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+        }
     }
 }

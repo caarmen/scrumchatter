@@ -19,9 +19,17 @@
 -->
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="meetingStopListener"
+            type="ca.rmen.android.scrumchatter.meeting.detail.MeetingFragment.MeetingStopListener" />
+    </data>
 <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:clickable="true"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     android:orientation="vertical" >
 
     <RelativeLayout
@@ -71,6 +79,7 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:contentDescription="@string/action_stop_meeting"
+            android:onClick="@{meetingStopListener.onMeetingStopped}"
             android:src="@drawable/ic_action_stop"
             android:visibility="invisible" />
     </RelativeLayout>
@@ -90,7 +99,7 @@
         android:indeterminate="true"
         android:visibility="invisible" />
 
-    <include android:id="@+id/list_content" layout="@layout/list_content" />
+    <include android:id="@+id/recycler_view_content" layout="@layout/recycler_view_content" />
 
 </LinearLayout>
 </layout>

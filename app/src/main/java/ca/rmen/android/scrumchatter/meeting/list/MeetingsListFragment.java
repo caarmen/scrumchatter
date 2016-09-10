@@ -1,5 +1,5 @@
 /**
- * Copyright 2013 Carmen Alvarez
+ * Copyright 2013-2016 Carmen Alvarez
  * <p/>
  * This file is part of Scrum Chatter.
  * <p/>
@@ -25,19 +25,18 @@ import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.ListView;
 
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
@@ -51,7 +50,7 @@ import ca.rmen.android.scrumchatter.util.Log;
 /**
  * Displays the list of meetings that have taken place.
  */
-public class MeetingsListFragment extends ListFragment {
+public class MeetingsListFragment extends Fragment {
     private static final String TAG = Constants.TAG + "/" + MeetingsListFragment.class.getSimpleName();
     private static final int URL_LOADER = 0;
 
@@ -69,7 +68,8 @@ public class MeetingsListFragment extends ListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mBinding = DataBindingUtil.inflate(inflater, R.layout.meeting_list, container, false);
-        mBinding.listContent.empty.setText(R.string.empty_list_meetings);
+        mBinding.recyclerViewContent.empty.setText(R.string.empty_list_meetings);
+        mBinding.recyclerViewContent.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
         return mBinding.getRoot();
     }
 
@@ -100,7 +100,7 @@ public class MeetingsListFragment extends ListFragment {
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         MenuItem menuItem = menu.findItem(R.id.action_charts);
-        menuItem.setVisible(mAdapter != null && mAdapter.getCount() > 0);
+        menuItem.setVisible(mAdapter != null && mAdapter.getItemCount() > 0);
     }
 
     @Override
@@ -112,15 +112,6 @@ public class MeetingsListFragment extends ListFragment {
             return true;
         }
         return true;
-    }
-
-    @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        Log.v(TAG, "onListItemClick, position=" + position + ", id" + id);
-        super.onListItemClick(l, v, position, id);
-        // The user clicked on the meeting. Let's go to the
-        // details of that meeting.
-        MeetingActivity.startMeeting(getActivity(), id);
     }
 
     private final LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
@@ -137,11 +128,18 @@ public class MeetingsListFragment extends ListFragment {
         public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
             Log.v(TAG, "onLoadFinished, loader = " + loader + ", cursor = " + cursor);
             if (mAdapter == null) {
-                mAdapter = new MeetingsCursorAdapter(getActivity(), mOnClickListener);
-                setListAdapter(mAdapter);
+                mAdapter = new MeetingsCursorAdapter(getActivity(), mMeetingListener);
+                mBinding.recyclerViewContent.recyclerView.setAdapter(mAdapter);
             }
-            mBinding.listContent.progressContainer.setVisibility(View.GONE);
+            mBinding.recyclerViewContent.progressContainer.setVisibility(View.GONE);
             mAdapter.changeCursor(cursor);
+            if (mAdapter.getItemCount() > 0) {
+                mBinding.recyclerViewContent.recyclerView.setVisibility(View.VISIBLE);
+                mBinding.recyclerViewContent.empty.setVisibility(View.GONE);
+            } else {
+                mBinding.recyclerViewContent.recyclerView.setVisibility(View.GONE);
+                mBinding.recyclerViewContent.empty.setVisibility(View.VISIBLE);
+            }
             getActivity().supportInvalidateOptionsMenu();
         }
 
@@ -149,24 +147,23 @@ public class MeetingsListFragment extends ListFragment {
         public void onLoaderReset(Loader<Cursor> loader) {
             Log.v(TAG, "onLoaderReset " + loader);
             if (mAdapter != null) mAdapter.changeCursor(null);
+            mBinding.recyclerViewContent.recyclerView.setVisibility(View.GONE);
+            mBinding.recyclerViewContent.empty.setVisibility(View.VISIBLE);
         }
     };
 
-    private final OnClickListener mOnClickListener = new OnClickListener() {
+    private final MeetingsCursorAdapter.MeetingListener mMeetingListener= new MeetingsCursorAdapter.MeetingListener() {
 
         @Override
-        public void onClick(View v) {
-            Log.v(TAG, "onClick: view = " + v);
-            final Meeting meeting = (Meeting) v.getTag();
-            switch (v.getId()) {
-                // The user wants to delete a meeting
-                case R.id.btn_delete_meeting:
-                    mMeetings.confirmDelete(meeting);
-                    break;
-                default:
-                    break;
-            }
+        public void onMeetingOpen(Meeting meeting) {
+            MeetingActivity.startMeeting(getActivity(), meeting.getId());
         }
+
+        @Override
+        public void onMeetingDelete(Meeting meeting) {
+            mMeetings.confirmDelete(meeting);
+        }
+
     };
 
     private final OnSharedPreferenceChangeListener mPrefsListener = new OnSharedPreferenceChangeListener() {

@@ -1,5 +1,5 @@
 /**
- * Copyright 2013 Carmen Alvarez
+ * Copyright 2013-2016 Carmen Alvarez
  *
  * This file is part of Scrum Chatter.
  *
@@ -27,13 +27,14 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.text.format.DateUtils;
 
 import ca.rmen.android.scrumchatter.chart.MeetingChartActivity;
@@ -44,7 +45,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
@@ -58,7 +58,7 @@ import ca.rmen.android.scrumchatter.provider.MemberColumns;
 /**
  * Displays info about a meeting (the duration) as well as the list of members participating in a particular meeting.
  */
-public class MeetingFragment extends ListFragment {
+public class MeetingFragment extends Fragment {
 
     private String TAG = Constants.TAG + "/" + MeetingFragment.class.getSimpleName() + "/" + System.currentTimeMillis();
 
@@ -86,7 +86,8 @@ public class MeetingFragment extends ListFragment {
         Log.v(TAG, "onCreateView: savedInstanceState = " + savedInstanceState);
         // Create our views
         mBinding = DataBindingUtil.inflate(inflater, R.layout.meeting_fragment, container, false);
-        mBinding.btnStopMeeting.setOnClickListener(mOnClickListener);
+        mBinding.setMeetingStopListener(new MeetingStopListener());
+        mBinding.recyclerViewContent.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
         mMeetingId = getArguments().getLong(Meetings.EXTRA_MEETING_ID);
         if (!TAG.endsWith("" + mMeetingId)) TAG += "/" + mMeetingId;
 
@@ -170,7 +171,8 @@ public class MeetingFragment extends ListFragment {
         Bundle bundle = new Bundle(1);
         bundle.putSerializable(Meetings.EXTRA_MEETING_STATE, meetingState);
         if (mAdapter == null) {
-            mAdapter = new MeetingCursorAdapter(context, mOnClickListener);
+            mAdapter = new MeetingCursorAdapter(context, mMemberStartStopListener);
+            mBinding.recyclerViewContent.recyclerView.setAdapter(mAdapter);
             getLoaderManager().initLoader((int) mMeetingId, bundle, mLoaderCallbacks);
         } else {
             getLoaderManager().restartLoader((int) mMeetingId, bundle, mLoaderCallbacks);
@@ -314,17 +316,23 @@ public class MeetingFragment extends ListFragment {
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
             Log.v(TAG, "onLoadFinished");
-            if (getListAdapter() == null) {
-                setListAdapter(mAdapter);
-                mBinding.listContent.progressContainer.setVisibility(View.GONE);
-            }
+            mBinding.recyclerViewContent.progressContainer.setVisibility(View.GONE);
             mAdapter.changeCursor(cursor);
+            if (mAdapter.getItemCount() > 0) {
+                mBinding.recyclerViewContent.recyclerView.setVisibility(View.VISIBLE);
+                mBinding.recyclerViewContent.empty.setVisibility(View.GONE);
+            } else {
+                mBinding.recyclerViewContent.recyclerView.setVisibility(View.GONE);
+                mBinding.recyclerViewContent.empty.setVisibility(View.VISIBLE);
+            }
         }
 
         @Override
         public void onLoaderReset(Loader<Cursor> loader) {
             Log.v(TAG, "onLoaderReset");
             mAdapter.changeCursor(null);
+            mBinding.recyclerViewContent.recyclerView.setVisibility(View.GONE);
+            mBinding.recyclerViewContent.empty.setVisibility(View.VISIBLE);
         }
     };
 
@@ -353,7 +361,7 @@ public class MeetingFragment extends ListFragment {
     /**
      * Manage clicks on items inside the meeting fragment.
      */
-    private final OnClickListener mOnClickListener = new OnClickListener() {
+    private final MeetingCursorAdapter.MemberStartStopListener mMemberStartStopListener = new MeetingCursorAdapter.MemberStartStopListener() {
 
         /**
          * Switch a member from the talking to non-talking state:
@@ -361,7 +369,7 @@ public class MeetingFragment extends ListFragment {
          * If they were talking, they will no longer be talking, and their button will go back to a "start" button.
          * If they were not talking, they will start talking, and their button will be a "stop" button.
          */
-        private void toggleTalkingMember(final long memberId) {
+        public void toggleTalkingMember(final long memberId) {
             Log.v(TAG, "toggleTalkingMember " + memberId);
             AsyncTask<Meeting, Void, Void> task = new AsyncTask<Meeting, Void, Void>() {
 
@@ -374,23 +382,15 @@ public class MeetingFragment extends ListFragment {
             };
             task.execute(mMeeting);
         }
-
-        @Override
-        public void onClick(View v) {
-            Log.v(TAG, "onClick, view: " + v);
-            switch (v.getId()) {
-            // Start or stop the team member talking
-                case R.id.btn_start_stop_member:
-                    long memberId = (Long) v.getTag();
-                    toggleTalkingMember(memberId);
-                    break;
-                // Stop the whole meeting.
-                case R.id.btn_stop_meeting:
-                    // Let's ask him if he's sure.
-                    DialogFragmentFactory.showConfirmDialog(getActivity(), getString(R.string.action_stop_meeting), getString(R.string.dialog_confirm),
-                            R.id.btn_stop_meeting, null);
-                    break;
-            }
-        }
     };
+
+    public class MeetingStopListener {
+        public void onMeetingStopped(@SuppressWarnings("UnusedParameters") View view) {
+            // Let's ask him if he's sure.
+            DialogFragmentFactory.showConfirmDialog(getActivity(), getString(R.string.action_stop_meeting), getString(R.string.dialog_confirm),
+                    R.id.btn_stop_meeting, null);
+
+        }
+    }
+
 }
