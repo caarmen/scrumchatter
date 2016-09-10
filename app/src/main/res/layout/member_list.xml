@@ -29,9 +29,11 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
         android:background="@color/drawer_background"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin" >
@@ -41,15 +43,11 @@
             style="@style/listHeader"
             android:gravity="start"
             android:textAlignment="viewStart"
-            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_marginLeft="@dimen/list_inner_horizontal_margin"
             android:layout_marginStart="@dimen/list_inner_horizontal_margin"
-            android:layout_toLeftOf="@+id/tv_avg_duration"
-            android:layout_toStartOf="@+id/tv_avg_duration"
             android:clickable="true"
             android:onClick="@{columnHeaderListener.onColumnHeaderClicked}"
             android:text="@string/member_list_header_name"
@@ -57,41 +55,34 @@
             tools:targetApi="jelly_bean_mr1"/>
 
         <TextView
-            android:id="@id/tv_avg_duration"
+            android:id="@+id/tv_avg_duration"
             style="@style/listHeader"
             android:gravity="start"
             android:textAlignment="viewStart"
             android:layout_width="70dp"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toLeftOf="@+id/tv_sum_duration"
-            android:layout_toStartOf="@+id/tv_sum_duration"
             android:clickable="true"
             android:onClick="@{columnHeaderListener.onColumnHeaderClicked}"
             android:text="@string/member_list_header_avg_duration"
             tools:targetApi="jelly_bean_mr1"/>
 
         <TextView
-            android:id="@id/tv_sum_duration"
+            android:id="@+id/tv_sum_duration"
             style="@style/listHeader"
             android:gravity="start"
             android:textAlignment="viewStart"
             android:layout_width="70dp"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toLeftOf="@+id/btn_delete_member"
-            android:layout_toStartOf="@+id/btn_delete_member"
             android:clickable="true"
             android:onClick="@{columnHeaderListener.onColumnHeaderClicked}"
             android:text="@string/member_list_header_sum_duration"
             tools:targetApi="jelly_bean_mr1"/>
 
         <ImageButton
-            android:id="@id/btn_delete_member"
+            android:id="@+id/btn_delete_member"
             android:background="?selectableItemBackgroundBorderless"
             android:padding="8dp"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
+            android:layout_gravity="end"
             android:layout_marginRight="@dimen/list_inner_horizontal_margin"
             android:layout_marginEnd="@dimen/list_inner_horizontal_margin"
             android:layout_width="wrap_content"
@@ -99,7 +90,7 @@
             android:contentDescription="@string/action_delete_member"
             android:src="@drawable/ic_action_delete"
             android:visibility="invisible" />
-    </RelativeLayout>
+    </LinearLayout>
 
     <View
         android:layout_width="match_parent"
