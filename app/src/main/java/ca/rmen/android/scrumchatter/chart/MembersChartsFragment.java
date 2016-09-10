@@ -103,8 +103,8 @@ public class MembersChartsFragment extends Fragment {
             if (cursor != null) {
                 if (loader.getId() == LOADER_MEMBER_SPEAKING_TIME) {
                     MemberSpeakingTimePieChart.populateMemberSpeakingTimeChart(getContext(),
-                            mBinding.pieChartCardAvg.pieChartContent.memberSpeakingTimeChart,
-                            mBinding.pieChartCardTotal.pieChartContent.memberSpeakingTimeChart,
+                            mBinding.pieChartCardAvg.pieChartContent,
+                            mBinding.pieChartCardTotal.pieChartContent,
                             cursor);
                 } else {
                     MemberSpeakingTimePieChart.updateMeetingDateRanges(getContext(),

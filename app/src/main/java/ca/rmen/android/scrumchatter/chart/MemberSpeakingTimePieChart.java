@@ -23,7 +23,6 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.text.format.DateUtils;
-import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -32,6 +31,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import ca.rmen.android.scrumchatter.R;
+import ca.rmen.android.scrumchatter.databinding.PieChartContentBinding;
 import ca.rmen.android.scrumchatter.provider.MemberCursorWrapper;
 import ca.rmen.android.scrumchatter.util.TextUtils;
 import lecho.lib.hellocharts.gesture.ZoomType;
@@ -48,7 +48,7 @@ final class MemberSpeakingTimePieChart {
         // prevent instantiation
     }
 
-    public static void populateMemberSpeakingTimeChart(Context context, PieChartView pieChartAvg, PieChartView pieChartTotal, @NonNull Cursor cursor) {
+    public static void populateMemberSpeakingTimeChart(Context context, PieChartContentBinding pieChartAvgBinding, PieChartContentBinding pieChartTotalBinding, @NonNull Cursor cursor) {
         List<SliceValue> sliceValuesAvgSpeakingTime = new ArrayList<>();
         List<SliceValue> sliceValuesTotalSpeakingTime = new ArrayList<>();
         MemberCursorWrapper cursorWrapper = new MemberCursorWrapper(cursor);
@@ -65,8 +65,8 @@ final class MemberSpeakingTimePieChart {
         }
         cursor.moveToPosition(-1);
 
-        setupChart(context, pieChartAvg, sliceValuesAvgSpeakingTime);
-        setupChart(context, pieChartTotal, sliceValuesTotalSpeakingTime);
+        setupChart(context, pieChartAvgBinding, sliceValuesAvgSpeakingTime);
+        setupChart(context, pieChartTotalBinding, sliceValuesTotalSpeakingTime);
 
     }
 
@@ -94,7 +94,7 @@ final class MemberSpeakingTimePieChart {
         return sliceValue;
     }
 
-    private static void setupChart(Context context, PieChartView pieChartView, List<SliceValue> sliceValues) {
+    private static void setupChart(Context context, PieChartContentBinding pieChartBinding , List<SliceValue> sliceValues) {
         PieChartData data = new PieChartData();
         data.setHasLabels(true);
         //data.setHasLabelsOutside(true);
@@ -105,8 +105,7 @@ final class MemberSpeakingTimePieChart {
         }
 
         String[] lineColors = context.getResources().getStringArray(R.array.chart_colors);
-        ViewGroup legendView = (ViewGroup) ((ViewGroup) pieChartView.getParent()).findViewById(R.id.legend);
-        legendView.removeAllViews();
+        pieChartBinding.legend.removeAllViews();
         for (int i = 0; i < sliceValues.size(); i++) {
             String colorString = lineColors[i % lineColors.length];
             int color = Color.parseColor(colorString);
@@ -116,11 +115,12 @@ final class MemberSpeakingTimePieChart {
             String duration = label.substring(label.indexOf("###") + 3);
             sliceValue.setColor(color);
 
-            ChartUtils.addLegendEntry(context, legendView, memberName, color);
+            ChartUtils.addLegendEntry(context, pieChartBinding.legend, memberName, color);
             sliceValue.setLabel(duration);
         }
 
         data.setValues(sliceValues);
+        PieChartView pieChartView = pieChartBinding.memberSpeakingTimeChart;
         pieChartView.setPieChartData(data);
         pieChartView.setInteractive(false);
         pieChartView.setZoomEnabled(true);

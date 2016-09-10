@@ -18,15 +18,16 @@
  */
 package ca.rmen.android.scrumchatter.about;
 
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
-import android.widget.TextView;
 
 import ca.rmen.android.scrumchatter.BuildConfig;
 import ca.rmen.android.scrumchatter.R;
+import ca.rmen.android.scrumchatter.databinding.ActivityAboutBinding;
 
 
 public class AboutActivity extends AppCompatActivity {
@@ -34,12 +35,10 @@ public class AboutActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_about);
+        ActivityAboutBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_about);
         ActionBar supportActionBar = getSupportActionBar();
         if (supportActionBar != null) supportActionBar.setDisplayHomeAsUpEnabled(true);
-        TextView appVersion = (TextView) findViewById(R.id.tv_app_version);
-        assert appVersion != null;
-        appVersion.setText(BuildConfig.VERSION_NAME);
+        binding.tvAppVersion.setText(BuildConfig.VERSION_NAME);
     }
 
     @Override
