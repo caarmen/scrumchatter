@@ -32,9 +32,11 @@
     android:focusableInTouchMode="true"
     android:orientation="vertical" >
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
         android:background="@color/drawer_background"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin" >
@@ -43,38 +45,30 @@
             style="@style/listHeader"
             android:gravity="start"
             android:textAlignment="viewStart"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:layout_toLeftOf="@+id/tv_meeting_duration"
-            android:layout_toStartOf="@+id/tv_meeting_duration"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
             android:layout_marginLeft="@dimen/list_inner_horizontal_margin"
             android:layout_marginStart="@dimen/list_inner_horizontal_margin"
             android:text="@string/meeting_header_total_duration"
             tools:targetApi="jelly_bean_mr1"/>
 
         <Chronometer
-            android:id="@id/tv_meeting_duration"
+            android:id="@+id/tv_meeting_duration"
             android:gravity="start"
             android:textAlignment="viewStart"
             android:layout_width="70dp"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toLeftOf="@+id/btn_stop_meeting"
-            android:layout_toStartOf="@+id/btn_stop_meeting"
             android:textStyle="bold"
             android:color="@color/selected_header"
             tools:targetApi="jelly_bean_mr1"/>
 
         <ImageButton
-            android:id="@id/btn_stop_meeting"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
+            android:id="@+id/btn_stop_meeting"
             android:layout_marginRight="@dimen/list_inner_horizontal_margin"
             android:layout_marginEnd="@dimen/list_inner_horizontal_margin"
             android:background="?selectableItemBackgroundBorderless"
+            android:layout_gravity="end"
             android:padding="8dp"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
@@ -82,7 +76,7 @@
             android:onClick="@{meetingStopListener.onMeetingStopped}"
             android:src="@drawable/ic_action_stop"
             android:visibility="invisible" />
-    </RelativeLayout>
+    </LinearLayout>
 
     <View
         android:layout_width="match_parent"

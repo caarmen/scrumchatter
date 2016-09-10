@@ -27,51 +27,45 @@
             name="meeting"
             type="ca.rmen.android.scrumchatter.meeting.detail.Meeting"/>
     </data>
-<RelativeLayout
+<LinearLayout
     android:background="?attr/selectableItemBackground"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
     android:onClick="@{() -> meetingListener.onMeetingOpen(meeting)}"
     android:paddingLeft="@dimen/list_inner_horizontal_margin"
-    android:paddingRight="@dimen/list_inner_horizontal_margin" >
+    android:paddingRight="@dimen/list_inner_horizontal_margin">
 
     <TextView
         android:id="@+id/tv_meeting_date"
         tools:text="August 25, 2015 08:15"
         android:textAlignment="viewStart"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
-        android:layout_toLeftOf="@+id/tv_meeting_duration"
-        android:layout_toStartOf="@+id/tv_meeting_duration"
         tools:targetApi="jelly_bean_mr1"
         android:gravity="start" />
 
     <TextView
-        android:id="@id/tv_meeting_duration"
+        android:id="@+id/tv_meeting_duration"
         tools:text="10:23"
         android:textAlignment="viewStart"
         android:gravity="start"
         android:layout_width="80dp"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_toLeftOf="@+id/btn_delete_meeting"
-        android:layout_toStartOf="@+id/btn_delete_meeting"
         tools:targetApi="jelly_bean_mr1" />
 
     <ImageButton
-        android:id="@id/btn_delete_meeting"
+        android:id="@+id/btn_delete_meeting"
         android:background="?selectableItemBackgroundBorderless"
         android:padding="8dp"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
+        android:layout_gravity="end"
         android:onClick="@{() -> meetingListener.onMeetingDelete(meeting)}"
         android:contentDescription="@string/action_delete_meeting"
         android:src="@drawable/ic_action_delete" />
 
-</RelativeLayout>
+</LinearLayout>
 </layout>
