@@ -47,7 +47,6 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import java.io.File;
 import java.util.Arrays;
 
 import ca.rmen.android.scrumchatter.Constants;
@@ -537,7 +536,7 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
     private final NavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new NavigationView.OnNavigationItemSelectedListener() {
         @Override
-        public boolean onNavigationItemSelected(MenuItem item) {
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             Log.v(TAG, "onNavigationItemSelected: " + item.getTitle());
             // When running monkey tests, we should load a DB with enough members and some meetings,
             // before running the tests.  If the monkey tries to switch teams, and creates a new team,

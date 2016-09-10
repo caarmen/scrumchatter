@@ -231,7 +231,7 @@ public class Teams {
     /**
      * Select the first team in our DB.
      */
-    private Team selectFirstTeam() {
+    private void selectFirstTeam() {
         Cursor c = mActivity.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { TeamColumns._ID }, null, null, null);
         if (c != null) {
             try {
@@ -243,7 +243,6 @@ public class Teams {
                 c.close();
             }
         }
-        return null;
     }
 
     /**
@@ -265,7 +264,8 @@ public class Teams {
             }
         }
         Log.wtf(TAG, "Could not get the current team", new Throwable());
-        return selectFirstTeam();
+        selectFirstTeam();
+        return null;
     }
 
 

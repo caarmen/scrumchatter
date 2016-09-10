@@ -81,7 +81,6 @@
     <string name="import_result_success">Importation réussie</string>
     <string name="import_result_failed">Échec de l\'importation</string>
     <string name="import_result_no_file">Aucun fichier sélectionner à importer</string>
-    <string name="import_result_file_does_not_exist">%s n\'existe pas.  Impossible de l\'importer.</string>
     <string name="about">À propos</string>
     <string name="about_author">Par Carmen Alvarez</string>
     <string name="about_version">v</string>

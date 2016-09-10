@@ -40,7 +40,7 @@ import ca.rmen.android.scrumchatter.team.Teams;
 public class Members {
     private static final String TAG = Constants.TAG + "/" + Members.class.getSimpleName();
     public static final String EXTRA_MEMBER_ID = "member_id";
-    public static final String EXTRA_MEMBER_NAME = "member_name";
+    private static final String EXTRA_MEMBER_NAME = "member_name";
     private final FragmentActivity mActivity;
 
     static class Member {
