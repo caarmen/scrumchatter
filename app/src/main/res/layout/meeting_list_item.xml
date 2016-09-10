@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2013 Carmen Alvarez
+  Copyright 2013-2016 Carmen Alvarez
  
   This file is part of Scrum Chatter.
  
@@ -28,8 +28,9 @@
             type="ca.rmen.android.scrumchatter.meeting.detail.Meeting"/>
     </data>
 <RelativeLayout
+    android:background="@drawable/selector"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:descendantFocusability="blocksDescendants"
     android:onClick="@{() -> meetingListener.onMeetingOpen(meeting)}"
     android:paddingLeft="@dimen/list_inner_horizontal_margin"

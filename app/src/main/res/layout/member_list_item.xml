@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2013 Carmen Alvarez
+  Copyright 2013-2016 Carmen Alvarez
  
   This file is part of Scrum Chatter.
  
@@ -29,7 +29,11 @@
     </data>
 <RelativeLayout
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/selector"
+    android:clickable="true"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     android:descendantFocusability="blocksDescendants"
     android:paddingLeft="@dimen/list_inner_horizontal_margin"
     android:paddingRight="@dimen/list_inner_horizontal_margin" >
