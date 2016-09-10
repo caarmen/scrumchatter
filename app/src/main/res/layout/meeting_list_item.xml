@@ -28,10 +28,9 @@
             type="ca.rmen.android.scrumchatter.meeting.detail.Meeting"/>
     </data>
 <RelativeLayout
-    android:background="@drawable/selector"
+    android:background="?attr/selectableItemBackground"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:descendantFocusability="blocksDescendants"
     android:onClick="@{() -> meetingListener.onMeetingOpen(meeting)}"
     android:paddingLeft="@dimen/list_inner_horizontal_margin"
     android:paddingRight="@dimen/list_inner_horizontal_margin" >

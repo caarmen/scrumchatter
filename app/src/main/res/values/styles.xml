@@ -24,7 +24,6 @@
         <item name="colorPrimary">@color/scrum_chatter_primary_color</item>
         <item name="colorPrimaryDark">@color/scrum_chatter_primary_color_dark</item>
         <item name="colorAccent">@color/scrum_chatter_accent_color</item>
-        <item name="android:listViewStyle">@style/AppListView</item>
         <item name="drawerArrowStyle">@style/AppDrawerArrowStyle</item>
         <item name="alertDialogTheme">@style/AppAlertDialog</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
@@ -44,16 +43,10 @@
         <item name="android:textStyle">italic</item>
     </style>
 
-    <style name="AppListView" parent="Base.Widget.AppCompat.ListView">
-        <item name="android:listSelector">@drawable/selector</item>
-        <item name="android:divider">@null</item>
-    </style>
-
     <style name="AppAlertDialog" parent="Theme.AppCompat.DayNight.Dialog">
         <item name="colorPrimary">@color/scrum_chatter_primary_color</item>
         <item name="colorPrimaryDark">@color/scrum_chatter_primary_color</item>
         <item name="colorAccent">@color/scrum_chatter_accent_color</item>
-        <item name="android:listViewStyle">@style/AppListView</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
