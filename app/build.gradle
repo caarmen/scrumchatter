@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'android-apt'
+apply plugin: 'kotlin-android'
 
 buildscript {
     repositories {
@@ -49,6 +50,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
         }
     }
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
 }
 
 dependencies {
@@ -63,6 +67,7 @@ dependencies {
         exclude group: "log4j"
     }
     compile 'org.apmem.tools:layouts:1.10@aar'
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
 
 // Only show real releases with the ben-manes plugin.
