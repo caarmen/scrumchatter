@@ -110,7 +110,7 @@ public class Meetings {
 
             @Override
             protected Void doInBackground(Void... params) {
-                Meeting meeting = Meeting.read(mActivity, meetingId);
+                Meeting meeting = Meeting.Companion.read(mActivity, meetingId);
                 if (meeting == null) {
                     Log.v(TAG, "Tried to delete non-existing meeting " + meetingId);
                     return null;

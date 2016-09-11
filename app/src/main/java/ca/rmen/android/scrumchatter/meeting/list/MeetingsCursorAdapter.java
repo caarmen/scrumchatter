@@ -74,7 +74,7 @@ public class MeetingsCursorAdapter extends ScrumChatterCursorAdapter<MeetingsCur
         Context context = holder.binding.getRoot().getContext();
         // Get the data from the cursor
         MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(getCursor());
-        Meeting meeting = Meeting.read(context, cursorWrapper);
+        Meeting meeting = Meeting.Companion.read(context, cursorWrapper);
         String dateString = TextUtils.formatDateTime(context, meeting.getStartDate());
         String duration = DateUtils.formatElapsedTime(meeting.getDuration());
 

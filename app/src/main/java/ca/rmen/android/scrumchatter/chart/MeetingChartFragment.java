@@ -130,7 +130,7 @@ public class MeetingChartFragment extends Fragment {
         @Override
         protected Void doInBackground(Long... meetingId) {
             mTeam = new Teams(getActivity()).getCurrentTeam();
-            mMeeting = Meeting.read(getContext(), meetingId[0]);
+            mMeeting = Meeting.Companion.read(getContext(), meetingId[0]);
             return null;
         }
 

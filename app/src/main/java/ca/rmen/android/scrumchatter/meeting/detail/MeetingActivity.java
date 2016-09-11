@@ -94,7 +94,7 @@ public class MeetingActivity extends AppCompatActivity implements DialogButtonLi
             @Override
             protected MeetingPagerAdapter doInBackground(Void... param) {
                 if (meetingId < 0) {
-                    Meeting newMeeting = Meeting.createNewMeeting(MeetingActivity.this);
+                    Meeting newMeeting = Meeting.Companion.createNewMeeting(MeetingActivity.this);
                     if (newMeeting != null) mMeetingId = newMeeting.getId();
                 } else {
                     mMeetingId = meetingId;
