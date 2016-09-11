@@ -191,7 +191,7 @@ public class MeetingFragment extends Fragment {
                     cancel(false);
                     return null;
                 }
-                return Meeting.read(activity, meetingId);
+                return Meeting.Companion.read(activity, meetingId);
             }
 
             @Override

@@ -56,7 +56,7 @@ final class MeetingDurationLineChart {
 
         MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(cursor);
         while (cursorWrapper.moveToNext()) {
-            Meeting meeting = Meeting.read(context, cursorWrapper);
+            Meeting meeting = Meeting.Companion.read(context, cursorWrapper);
             points.add(getMeetingDurationPointValue(meeting));
             xAxisValues.add(getMeetingDurationXAxisValue(context, meeting));
         }

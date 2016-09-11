@@ -92,7 +92,7 @@ class MeetingPagerAdapter extends FragmentStatePagerAdapter {
 
     Meeting getMeetingAt(int position) {
         mCursor.moveToPosition(position);
-        return Meeting.read(mContext, mCursor);
+        return Meeting.Companion.read(mContext, mCursor);
     }
 
     void destroy() {
