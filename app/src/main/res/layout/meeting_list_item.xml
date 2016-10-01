@@ -26,6 +26,7 @@
     </data>
 <LinearLayout
     android:background="@drawable/meeting_list_selector"
+    android:foreground="?attr/selectableItemBackground"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
