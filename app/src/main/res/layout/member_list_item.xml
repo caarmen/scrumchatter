@@ -54,7 +54,7 @@
         android:id="@+id/tv_avg_duration"
         android:gravity="start"
         android:textAlignment="viewStart"
-        android:layout_width="70dp"
+        android:layout_width="@dimen/member_time_width"
         android:layout_height="wrap_content"
         tools:text="01:33"
         tools:targetApi="jelly_bean_mr1" />
@@ -63,7 +63,7 @@
         android:id="@+id/tv_sum_duration"
         android:gravity="start"
         android:textAlignment="viewStart"
-        android:layout_width="70dp"
+        android:layout_width="@dimen/member_time_width"
         android:layout_height="wrap_content"
         tools:text="1:33:22"
         tools:targetApi="jelly_bean_mr1"/>

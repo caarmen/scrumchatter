@@ -20,87 +20,95 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <data>
-       <variable
-           name="columnHeaderListener"
-           type="ca.rmen.android.scrumchatter.member.list.MembersListFragment.ColumnHeaderListener"/>
+        <variable
+            name="columnHeaderListener"
+            type="ca.rmen.android.scrumchatter.member.list.MembersListFragment.ColumnHeaderListener"/>
     </data>
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
+    <FrameLayout
+        android:layout_height="match_parent"
+        android:layout_width="match_parent">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:background="@color/drawer_background"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin" >
+        <LinearLayout
+            android:layout_gravity="center_horizontal"
+            android:layout_width="@dimen/member_list_width"
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
 
-        <TextView
-            android:id="@+id/tv_name"
-            style="@style/listHeader"
-            android:gravity="start"
-            android:textAlignment="viewStart"
-            android:layout_height="wrap_content"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_marginLeft="@dimen/list_inner_horizontal_margin"
-            android:layout_marginStart="@dimen/list_inner_horizontal_margin"
-            android:clickable="true"
-            android:onClick="@{columnHeaderListener.onColumnHeaderClicked}"
-            android:text="@string/member_list_header_name"
-            android:textColor="@color/selected_header"
-            tools:targetApi="jelly_bean_mr1"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:background="@color/drawer_background">
 
-        <TextView
-            android:id="@+id/tv_avg_duration"
-            style="@style/listHeader"
-            android:gravity="start"
-            android:textAlignment="viewStart"
-            android:layout_width="70dp"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:onClick="@{columnHeaderListener.onColumnHeaderClicked}"
-            android:text="@string/member_list_header_avg_duration"
-            tools:targetApi="jelly_bean_mr1"/>
+                <TextView
+                    android:id="@+id/tv_name"
+                    style="@style/listHeader"
+                    android:gravity="start"
+                    android:textAlignment="viewStart"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginLeft="@dimen/list_inner_horizontal_margin"
+                    android:layout_marginStart="@dimen/list_inner_horizontal_margin"
+                    android:clickable="true"
+                    android:onClick="@{columnHeaderListener.onColumnHeaderClicked}"
+                    android:text="@string/member_list_header_name"
+                    android:textColor="@color/selected_header"
+                    tools:targetApi="jelly_bean_mr1"/>
 
-        <TextView
-            android:id="@+id/tv_sum_duration"
-            style="@style/listHeader"
-            android:gravity="start"
-            android:textAlignment="viewStart"
-            android:layout_width="70dp"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:onClick="@{columnHeaderListener.onColumnHeaderClicked}"
-            android:text="@string/member_list_header_sum_duration"
-            tools:targetApi="jelly_bean_mr1"/>
+                <TextView
+                    android:id="@+id/tv_avg_duration"
+                    style="@style/listHeader"
+                    android:gravity="start"
+                    android:textAlignment="viewStart"
+                    android:layout_width="@dimen/member_time_width"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:onClick="@{columnHeaderListener.onColumnHeaderClicked}"
+                    android:text="@string/member_list_header_avg_duration"
+                    tools:targetApi="jelly_bean_mr1"/>
 
-        <ImageButton
-            android:id="@+id/btn_delete_member"
-            android:background="?selectableItemBackgroundBorderless"
-            android:padding="8dp"
-            android:layout_gravity="end"
-            android:layout_marginRight="@dimen/list_inner_horizontal_margin"
-            android:layout_marginEnd="@dimen/list_inner_horizontal_margin"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:contentDescription="@string/action_delete_member"
-            android:src="@drawable/ic_action_delete"
-            android:visibility="invisible" />
-    </LinearLayout>
+                <TextView
+                    android:id="@+id/tv_sum_duration"
+                    style="@style/listHeader"
+                    android:gravity="start"
+                    android:textAlignment="viewStart"
+                    android:layout_width="@dimen/member_time_width"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:onClick="@{columnHeaderListener.onColumnHeaderClicked}"
+                    android:text="@string/member_list_header_sum_duration"
+                    tools:targetApi="jelly_bean_mr1"/>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/selected_header" />
+                <ImageButton
+                    android:id="@+id/btn_delete_member"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:padding="8dp"
+                    android:layout_gravity="end"
+                    android:layout_marginRight="@dimen/list_inner_horizontal_margin"
+                    android:layout_marginEnd="@dimen/list_inner_horizontal_margin"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/action_delete_member"
+                    android:src="@drawable/ic_action_delete"
+                    android:visibility="invisible" />
+            </LinearLayout>
 
-    <include
-        android:id="@+id/recycler_view_content"
-        layout="@layout/recycler_view_content"
-        tools:listitem="@android:layout/simple_list_item_2" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/selected_header" />
 
-</LinearLayout>
+            <include
+                android:id="@+id/recycler_view_content"
+                layout="@layout/recycler_view_content"
+                tools:listitem="@android:layout/simple_list_item_2" />
+
+        </LinearLayout>
+    </FrameLayout>
 </layout>
