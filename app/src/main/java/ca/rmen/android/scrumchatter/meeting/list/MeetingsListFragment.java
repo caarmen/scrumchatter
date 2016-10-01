@@ -159,14 +159,7 @@ public class MeetingsListFragment extends Fragment {
         public void onMeetingOpen(Meeting meeting) {
 
             if (mBinding.meetingFragmentPlaceholder != null) {
-                Bundle bundle = new Bundle(1);
-                bundle.putLong(Meetings.EXTRA_MEETING_ID, meeting.getId());
-                MeetingFragment meetingFragment = new MeetingFragment();
-                meetingFragment.setArguments(bundle);
-                getFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.meeting_fragment_placeholder, meetingFragment)
-                        .commit();
+                MeetingFragment.create(getFragmentManager(), meeting.getId());
             } else {
                 MeetingActivity.startMeeting(getActivity(), meeting.getId());
             }

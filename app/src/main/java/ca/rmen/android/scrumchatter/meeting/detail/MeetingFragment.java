@@ -29,6 +29,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.CursorLoader;
@@ -68,6 +69,18 @@ public class MeetingFragment extends Fragment {
     private long mMeetingId;
     private Meetings mMeetings;
     private MeetingFragmentBinding mBinding;
+
+    public static MeetingFragment create(FragmentManager fragmentManager, long meetingId) {
+        Bundle bundle = new Bundle(1);
+        bundle.putLong(Meetings.EXTRA_MEETING_ID, meetingId);
+        MeetingFragment meetingFragment = new MeetingFragment();
+        meetingFragment.setArguments(bundle);
+        fragmentManager
+                .beginTransaction()
+                .replace(R.id.meeting_fragment_placeholder, meetingFragment)
+                .commit();
+        return meetingFragment;
+    }
 
     public MeetingFragment() {
         super();
