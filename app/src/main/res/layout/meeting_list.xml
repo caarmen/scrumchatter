@@ -21,6 +21,7 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 <LinearLayout
     xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/meeting_list_background"
     android:layout_width="@dimen/meeting_list_width"
     android:layout_height="match_parent"
     android:orientation="vertical" >

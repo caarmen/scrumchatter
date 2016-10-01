@@ -25,6 +25,7 @@
     <color name="scrum_chatter_accent_color">#ea80fc</color>
     <color name="tab_text_color">#aaa</color>
     <color name="drawer_background">#e0e0e0</color>
+    <color name="meeting_list_background">#fff</color>
     <color name="toolbar_title_color">#fff</color>
     <color name="chart_text">#222</color>
     <color name="chart_subtitle">#666</color>
