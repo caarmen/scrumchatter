@@ -249,7 +249,7 @@ public class MeetingFragment extends Fragment {
      * Stop the meeting. Set the state to finished, stop the chronometer, hide the "stop meeting" button, persist the meeting duration, and stop the
      * chronometers for all team members who are still talking.
      */
-    void stopMeeting() {
+    public void stopMeeting() {
         AsyncTask<Meeting, Void, Void> task = new AsyncTask<Meeting, Void, Void>() {
 
             @Override

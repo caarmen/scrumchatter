@@ -40,10 +40,11 @@ import android.view.ViewGroup;
 
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
-import ca.rmen.android.scrumchatter.databinding.MeetingListBinding;
+import ca.rmen.android.scrumchatter.databinding.MeetingsBinding;
 import ca.rmen.android.scrumchatter.meeting.Meetings;
 import ca.rmen.android.scrumchatter.meeting.detail.Meeting;
 import ca.rmen.android.scrumchatter.meeting.detail.MeetingActivity;
+import ca.rmen.android.scrumchatter.meeting.detail.MeetingFragment;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
 import ca.rmen.android.scrumchatter.util.Log;
 
@@ -58,7 +59,7 @@ public class MeetingsListFragment extends Fragment {
     private SharedPreferences mPrefs;
     private Meetings mMeetings;
     private int mTeamId;
-    private MeetingListBinding mBinding;
+    private MeetingsBinding mBinding;
 
     public MeetingsListFragment() {
         super();
@@ -67,9 +68,9 @@ public class MeetingsListFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mBinding = DataBindingUtil.inflate(inflater, R.layout.meeting_list, container, false);
-        mBinding.recyclerViewContent.empty.setText(R.string.empty_list_meetings);
-        mBinding.recyclerViewContent.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+        mBinding = DataBindingUtil.inflate(inflater, R.layout.meetings, container, false);
+        mBinding.meetingList.recyclerViewContent.empty.setText(R.string.empty_list_meetings);
+        mBinding.meetingList.recyclerViewContent.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
         return mBinding.getRoot();
     }
 
@@ -129,16 +130,16 @@ public class MeetingsListFragment extends Fragment {
             Log.v(TAG, "onLoadFinished, loader = " + loader + ", cursor = " + cursor);
             if (mAdapter == null) {
                 mAdapter = new MeetingsCursorAdapter(getActivity(), mMeetingListener);
-                mBinding.recyclerViewContent.recyclerView.setAdapter(mAdapter);
+                mBinding.meetingList.recyclerViewContent.recyclerView.setAdapter(mAdapter);
             }
-            mBinding.recyclerViewContent.progressContainer.setVisibility(View.GONE);
+            mBinding.meetingList.recyclerViewContent.progressContainer.setVisibility(View.GONE);
             mAdapter.changeCursor(cursor);
             if (mAdapter.getItemCount() > 0) {
-                mBinding.recyclerViewContent.recyclerView.setVisibility(View.VISIBLE);
-                mBinding.recyclerViewContent.empty.setVisibility(View.GONE);
+                mBinding.meetingList.recyclerViewContent.recyclerView.setVisibility(View.VISIBLE);
+                mBinding.meetingList.recyclerViewContent.empty.setVisibility(View.GONE);
             } else {
-                mBinding.recyclerViewContent.recyclerView.setVisibility(View.GONE);
-                mBinding.recyclerViewContent.empty.setVisibility(View.VISIBLE);
+                mBinding.meetingList.recyclerViewContent.recyclerView.setVisibility(View.GONE);
+                mBinding.meetingList.recyclerViewContent.empty.setVisibility(View.VISIBLE);
             }
             getActivity().supportInvalidateOptionsMenu();
         }
@@ -147,8 +148,8 @@ public class MeetingsListFragment extends Fragment {
         public void onLoaderReset(Loader<Cursor> loader) {
             Log.v(TAG, "onLoaderReset " + loader);
             if (mAdapter != null) mAdapter.changeCursor(null);
-            mBinding.recyclerViewContent.recyclerView.setVisibility(View.GONE);
-            mBinding.recyclerViewContent.empty.setVisibility(View.VISIBLE);
+            mBinding.meetingList.recyclerViewContent.recyclerView.setVisibility(View.GONE);
+            mBinding.meetingList.recyclerViewContent.empty.setVisibility(View.VISIBLE);
         }
     };
 
@@ -156,7 +157,19 @@ public class MeetingsListFragment extends Fragment {
 
         @Override
         public void onMeetingOpen(Meeting meeting) {
-            MeetingActivity.startMeeting(getActivity(), meeting.getId());
+
+            if (mBinding.meetingFragmentPlaceholder != null) {
+                Bundle bundle = new Bundle(1);
+                bundle.putLong(Meetings.EXTRA_MEETING_ID, meeting.getId());
+                MeetingFragment meetingFragment = new MeetingFragment();
+                meetingFragment.setArguments(bundle);
+                getFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.meeting_fragment_placeholder, meetingFragment)
+                        .commit();
+            } else {
+                MeetingActivity.startMeeting(getActivity(), meeting.getId());
+            }
         }
 
         @Override

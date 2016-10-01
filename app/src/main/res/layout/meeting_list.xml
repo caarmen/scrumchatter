@@ -21,7 +21,7 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 <LinearLayout
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+    android:layout_width="@dimen/meeting_list_width"
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
@@ -79,6 +79,6 @@
         android:id="@+id/recycler_view_content"
         layout="@layout/recycler_view_content"
         tools:listitem="@android:layout/simple_list_item_2" />
+    </LinearLayout>
 
-</LinearLayout>
 </layout>

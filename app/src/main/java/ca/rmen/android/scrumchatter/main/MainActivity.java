@@ -63,6 +63,7 @@ import ca.rmen.android.scrumchatter.export.DBExport;
 import ca.rmen.android.scrumchatter.export.FileExport;
 import ca.rmen.android.scrumchatter.export.MeetingsExport;
 import ca.rmen.android.scrumchatter.meeting.Meetings;
+import ca.rmen.android.scrumchatter.meeting.detail.MeetingFragment;
 import ca.rmen.android.scrumchatter.member.list.Members;
 import ca.rmen.android.scrumchatter.provider.DBImport;
 import ca.rmen.android.scrumchatter.settings.SettingsActivity;
@@ -402,6 +403,9 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
         if (actionId == R.id.action_delete_meeting) {
             long meetingId = extras.getLong(Meetings.EXTRA_MEETING_ID);
             mMeetings.delete(meetingId);
+        } else if (actionId == R.id.btn_stop_meeting) {
+            MeetingFragment meetingFragment = (MeetingFragment) getSupportFragmentManager().findFragmentById(R.id.meeting_fragment_placeholder);
+            if (meetingFragment != null) meetingFragment.stopMeeting();
         } else if (actionId == R.id.action_delete_member) {
             long memberId = extras.getLong(Members.EXTRA_MEMBER_ID);
             mMembers.deleteMember(memberId);
