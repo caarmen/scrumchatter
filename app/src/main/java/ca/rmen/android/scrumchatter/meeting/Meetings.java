@@ -46,39 +46,36 @@ public class Meetings {
         mActivity = activity;
     }
 
+    public interface MeetingCreationCallback {
+        void onMeetingCreated(Meeting meeting);
+    }
     /**
      * Checks if there are any team members in the given team id. If not, an error dialog is shown. If the team does have members, then we start
      * the MeetingActivity class for a new meeting.
      */
-    public void createMeeting(final int teamId) {
+    public void createMeeting(final int teamId, final MeetingCreationCallback callback) {
         Log.v(TAG, "createMeeting in team " + teamId);
-        AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>() {
+        AsyncTask<Void, Void, Meeting> task = new AsyncTask<Void, Void, Meeting>() {
 
             @Override
-            protected Boolean doInBackground(Void... params) {
+            protected Meeting doInBackground(Void... params) {
                 Cursor c = mActivity.getContentResolver().query(MemberColumns.CONTENT_URI, new String[] { "count(*)" },
                         MemberColumns.TEAM_ID + "=? AND " + MemberColumns.DELETED + "= 0", new String[] { String.valueOf(teamId) }, null);
                 if (c != null) {
                     try {
                         c.moveToFirst();
                         int memberCount = c.getInt(0);
-                        return memberCount > 0;
+                        return Meeting.createNewMeeting(mActivity);
                     } finally {
                         c.close();
                     }
                 }
-                return false;
+                return null;
             }
 
             @Override
-            protected void onPostExecute(Boolean result) {
-                if (result) {
-                    MeetingActivity.startNewMeeting(mActivity);
-                } else {
-                    DialogFragmentFactory.showInfoDialog(mActivity, R.string.dialog_error_title_one_member_required,
-                            R.string.dialog_error_message_one_member_required);
-
-                }
+            protected void onPostExecute(Meeting result) {
+                callback.onMeetingCreated(result);
             }
 
         };

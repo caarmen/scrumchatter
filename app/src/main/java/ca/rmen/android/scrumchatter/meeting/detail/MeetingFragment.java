@@ -204,7 +204,11 @@ public class MeetingFragment extends Fragment {
                     cancel(false);
                     return null;
                 }
-                return Meeting.read(activity, meetingId);
+                if (meetingId < 0) {
+                    return Meeting.createNewMeeting(getContext());
+                } else {
+                    return Meeting.read(activity, meetingId);
+                }
             }
 
             @Override
@@ -256,6 +260,10 @@ public class MeetingFragment extends Fragment {
             }
         };
         task.execute(mMeetingId);
+    }
+
+    public long getMeetingId() {
+        return mMeetingId;
     }
 
     /**

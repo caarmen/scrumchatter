@@ -42,6 +42,7 @@ import android.view.ViewGroup;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.databinding.MeetingsBinding;
+import ca.rmen.android.scrumchatter.dialog.DialogFragmentFactory;
 import ca.rmen.android.scrumchatter.meeting.Meetings;
 import ca.rmen.android.scrumchatter.meeting.detail.Meeting;
 import ca.rmen.android.scrumchatter.meeting.detail.MeetingActivity;
@@ -110,7 +111,23 @@ public class MeetingsListFragment extends Fragment {
         // Start a new meeting.
         // Check if we have any members first.  A meeting with no members is not much fun.
         if (item.getItemId() == R.id.action_new_meeting) {
-            mMeetings.createMeeting(mTeamId);
+            mMeetings.createMeeting(mTeamId, new Meetings.MeetingCreationCallback() {
+                @Override
+                public void onMeetingCreated(Meeting meeting) {
+                    if (meeting != null) {
+                        if (mBinding.meetingFragmentPlaceholder != null) {
+                            final MeetingsCursorAdapter adapter
+                                    = (MeetingsCursorAdapter) mBinding.meetingList.recyclerViewContent.recyclerView.getAdapter();
+                            adapter.selectItem(0);
+                        }
+                        mMeetingListener.onMeetingOpen(meeting);
+                    } else {
+                        DialogFragmentFactory.showInfoDialog(getActivity(), R.string.dialog_error_title_one_member_required,
+                                R.string.dialog_error_message_one_member_required);
+                    }
+
+                }
+            });
             return true;
         }
         return true;
@@ -153,25 +170,35 @@ public class MeetingsListFragment extends Fragment {
                     = (MeetingsCursorAdapter) mBinding.meetingList.recyclerViewContent.recyclerView.getAdapter();
 
             if (adapter.getItemCount() > 0) {
+                MeetingFragment meetingFragment = (MeetingFragment) getFragmentManager().findFragmentById(R.id.meeting_fragment_placeholder);
                 final int positionToSelect;
                 // No meeting selected yet: select the first one
                 if (adapter.getSelectedPosition() < 0) {
                     positionToSelect = 0;
                 }
                 // A meeting out of bounds is selected: select the last one
+                // Ex: the user deleted the last meeting
                 else if (adapter.getSelectedPosition() >= adapter.getItemCount()) {
                     positionToSelect = adapter.getItemCount() - 1;
                 }
-                // Keep the current selected position
-                else {
+                // Keep the current selected position, but reopen the meeting
+                // Ex: the user deleted a meeting in the middle. We will select the previous meeting
+                else if (meetingFragment.getMeetingId() != adapter.getItemId(adapter.getSelectedPosition())){
                     positionToSelect = adapter.getSelectedPosition();
                 }
-                new Handler().post(new Runnable(){
-                    @Override
-                    public void run() {
-                        adapter.selectItem(positionToSelect);
-                    }
-                });
+                // Keep the current selected position and don't reopen the meeting
+                // Ex: the user stopped the meeting.  No need to reopen it.
+                else {
+                    positionToSelect = -1;
+                }
+                if (positionToSelect >= 0) {
+                    new Handler().post(new Runnable() {
+                        @Override
+                        public void run() {
+                            adapter.selectItem(positionToSelect);
+                        }
+                    });
+                }
             }
         }
 
@@ -184,7 +211,7 @@ public class MeetingsListFragment extends Fragment {
         }
     };
 
-    private final MeetingsCursorAdapter.MeetingListener mMeetingListener= new MeetingsCursorAdapter.MeetingListener() {
+    private final MeetingsCursorAdapter.MeetingListener mMeetingListener = new MeetingsCursorAdapter.MeetingListener() {
 
         @Override
         public void onMeetingOpen(Meeting meeting) {
