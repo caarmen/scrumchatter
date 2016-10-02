@@ -95,10 +95,10 @@
             android:id="@+id/fab_new_meeting"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="end|bottom"
+            android:layout_gravity="start|bottom"
             android:layout_marginBottom="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
             android:clickable="true"
             android:onClick="@{fabListener.onNewMeeting}"
             android:src="@drawable/ic_action_new_meeting" />
