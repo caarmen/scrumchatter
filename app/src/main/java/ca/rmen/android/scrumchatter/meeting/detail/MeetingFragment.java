@@ -70,7 +70,7 @@ public class MeetingFragment extends Fragment {
     private Meetings mMeetings;
     private MeetingFragmentBinding mBinding;
 
-    public static MeetingFragment create(FragmentManager fragmentManager, long meetingId) {
+    public static void startMeeting(FragmentManager fragmentManager, long meetingId) {
         Bundle bundle = new Bundle(1);
         bundle.putLong(Meetings.EXTRA_MEETING_ID, meetingId);
         MeetingFragment meetingFragment = new MeetingFragment();
@@ -79,7 +79,6 @@ public class MeetingFragment extends Fragment {
                 .beginTransaction()
                 .replace(R.id.meeting_fragment_placeholder, meetingFragment)
                 .commit();
-        return meetingFragment;
     }
 
     public MeetingFragment() {

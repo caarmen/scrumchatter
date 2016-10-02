@@ -49,12 +49,6 @@ public class MeetingActivity extends AppCompatActivity implements DialogButtonLi
     private MeetingPagerAdapter mMeetingPagerAdapter;
     private MeetingActivityBinding mBinding;
 
-    public static void startNewMeeting(Context context) {
-        Intent intent = new Intent(context, MeetingActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        context.startActivity(intent);
-    }
-
     public static void startMeeting(Context context, long meetingId) {
         Intent intent = new Intent(context, MeetingActivity.class);
         intent.putExtra(Meetings.EXTRA_MEETING_ID, meetingId);

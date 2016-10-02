@@ -53,7 +53,6 @@ import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.about.AboutActivity;
 import ca.rmen.android.scrumchatter.chart.ChartsActivity;
-import ca.rmen.android.scrumchatter.chart.MeetingChartActivity;
 import ca.rmen.android.scrumchatter.databinding.ActivityMainBinding;
 import ca.rmen.android.scrumchatter.dialog.ChoiceDialogFragment.DialogItemListener;
 import ca.rmen.android.scrumchatter.dialog.ConfirmDialogFragment.DialogButtonListener;
