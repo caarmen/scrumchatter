@@ -67,7 +67,6 @@ public class MembersListFragment extends Fragment {
 
     public MembersListFragment() {
         super();
-        setHasOptionsMenu(true);
     }
 
     @Override
@@ -76,6 +75,7 @@ public class MembersListFragment extends Fragment {
         mBinding.setColumnHeaderListener(new ColumnHeaderListener());
         mBinding.recyclerViewContent.empty.setText(R.string.empty_list_members);
         mBinding.recyclerViewContent.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+        mBinding.setFabListener(mFabListener);
         return mBinding.getRoot();
     }
 
@@ -93,23 +93,6 @@ public class MembersListFragment extends Fragment {
     public void onDetach() {
         mPrefs.unregisterOnSharedPreferenceChangeListener(mPrefsListener);
         super.onDetach();
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.members_menu, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Create a new team member
-        if (item.getItemId() == R.id.action_new_member) {
-            mMembers.promptCreateMember(mTeamId);
-            return true;
-        }
-        super.onOptionsItemSelected(item);
-        return false;
     }
 
     private final LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
@@ -220,4 +203,14 @@ public class MembersListFragment extends Fragment {
 
         }
     }
+    public interface FabListener {
+        void onNewMember(View view);
+    }
+
+    private final FabListener mFabListener = new FabListener() {
+        @Override
+        public void onNewMember(View view) {
+            mMembers.promptCreateMember(mTeamId);
+        }
+    };
 }

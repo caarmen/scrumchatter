@@ -65,7 +65,6 @@ public class MeetingsListFragment extends Fragment {
 
     public MeetingsListFragment() {
         super();
-        setHasOptionsMenu(true);
     }
 
     @Override
@@ -73,6 +72,7 @@ public class MeetingsListFragment extends Fragment {
         mBinding = DataBindingUtil.inflate(inflater, R.layout.meetings, container, false);
         mBinding.meetingList.recyclerViewContent.empty.setText(R.string.empty_list_meetings);
         mBinding.meetingList.recyclerViewContent.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+        mBinding.meetingList.setFabListener(mFabListener);
         return mBinding.getRoot();
     }
 
@@ -93,41 +93,8 @@ public class MeetingsListFragment extends Fragment {
         super.onDetach();
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.meetings_menu, menu);
-    }
-
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        boolean hasMeetings = mAdapter != null && mAdapter.getItemCount() > 0;
-        menu.findItem(R.id.action_share).setVisible(hasMeetings);
-        menu.findItem(R.id.action_charts).setVisible(hasMeetings);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Start a new meeting.
-        // Check if we have any members first.  A meeting with no members is not much fun.
-        if (item.getItemId() == R.id.action_new_meeting) {
-            mMeetings.createMeeting(mTeamId, new Meetings.MeetingCreationCallback() {
-                @Override
-                public void onMeetingCreated(Meeting meeting) {
-                    if (meeting != null) {
-                        mMeetingListener.onMeetingOpen(meeting);
-                    } else {
-                        DialogFragmentFactory.showInfoDialog(getActivity(), R.string.dialog_error_title_one_member_required,
-                                R.string.dialog_error_message_one_member_required);
-                    }
-
-                }
-            });
-            return true;
-        }
-        super.onOptionsItemSelected(item);
-        return false;
+    public boolean hasMeetings() {
+        return mAdapter != null && mAdapter.getItemCount() > 0;
     }
 
     private final LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
@@ -233,6 +200,29 @@ public class MeetingsListFragment extends Fragment {
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
             mTeamId = sharedPreferences.getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
             getLoaderManager().restartLoader(URL_LOADER, null, mLoaderCallbacks);
+        }
+    };
+
+    public interface FabListener {
+        void onNewMeeting(View view);
+    }
+
+    private final FabListener mFabListener = new FabListener() {
+        @Override
+        public void onNewMeeting(View view) {
+            mMeetings.createMeeting(mTeamId, new Meetings.MeetingCreationCallback() {
+                @Override
+                public void onMeetingCreated(Meeting meeting) {
+                    if (meeting != null) {
+                        mMeetingListener.onMeetingOpen(meeting);
+                    } else {
+                        DialogFragmentFactory.showInfoDialog(getActivity(), R.string.dialog_error_title_one_member_required,
+                                R.string.dialog_error_message_one_member_required);
+                    }
+
+                }
+            });
+
         }
     };
 }

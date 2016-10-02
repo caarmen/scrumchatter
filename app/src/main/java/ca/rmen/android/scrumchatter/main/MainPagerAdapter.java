@@ -37,6 +37,8 @@ import ca.rmen.android.scrumchatter.member.list.MembersListFragment;
 class MainPagerAdapter extends FragmentPagerAdapter {
 
     private final Context mContext;
+    private MeetingsListFragment mMeetingsListFragment;
+    private MembersListFragment mMembersListFragment;
 
     public MainPagerAdapter(Context context, FragmentManager fm) {
         super(fm);
@@ -48,11 +50,14 @@ class MainPagerAdapter extends FragmentPagerAdapter {
         // getItem is called to instantiate the fragment for the given page.
         // Return a DummySectionFragment (defined as a static inner class
         // below) with the page number as its lone argument.
-        Fragment fragment;
-        if (position == 1) fragment = new MembersListFragment();
-        else
-            fragment = new MeetingsListFragment();
-        return fragment;
+        if (position == 1) {
+            mMembersListFragment = new MembersListFragment();
+            return mMembersListFragment;
+        }
+        else {
+            mMeetingsListFragment = new MeetingsListFragment();
+            return mMeetingsListFragment;
+        }
     }
 
     @Override
@@ -71,6 +76,14 @@ class MainPagerAdapter extends FragmentPagerAdapter {
                 return mContext.getString(R.string.title_section_team).toUpperCase(l);
         }
         return null;
+    }
+
+    public MeetingsListFragment getMeetingsListFragment() {
+        return mMeetingsListFragment;
+    }
+
+    public MembersListFragment getMembersListFragment() {
+        return mMembersListFragment;
     }
 }
 

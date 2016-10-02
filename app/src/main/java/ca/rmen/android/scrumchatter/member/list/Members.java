@@ -68,7 +68,7 @@ public class Members {
         Bundle extras = new Bundle(1);
         extras.putLong(Teams.EXTRA_TEAM_ID, teamId);
         DialogFragmentFactory.showInputDialog(mActivity, mActivity.getString(R.string.action_new_member), mActivity.getString(R.string.hint_new_member), null,
-                MemberNameValidator.class, R.id.action_new_member, extras);
+                MemberNameValidator.class, R.id.fab_new_member, extras);
     }
 
     /**
