@@ -248,8 +248,6 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Some of the menu items require the MeetingFragment
-        MeetingFragment meetingFragment = (MeetingFragment) getSupportFragmentManager().findFragmentById(R.id.meeting_fragment_placeholder);
         switch (item.getItemId()) {
             case android.R.id.home:
                 if (mBinding.drawerLayout.isDrawerVisible(GravityCompat.START)) {
@@ -270,16 +268,10 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
             case R.id.action_charts:
                 startActivity(new Intent(this, ChartsActivity.class));
                 return true;
-            case R.id.action_charts_meeting:
-                if (meetingFragment != null) MeetingChartActivity.start(this, meetingFragment.getMeetingId());
-                return true;
             case R.id.action_share:
                 // Build a chooser dialog for the file format.
                 DialogFragmentFactory.showChoiceDialog(this, getString(R.string.export_choice_title), getResources().getStringArray(R.array.export_choices),
                         -1, R.id.action_share);
-                return true;
-            case R.id.action_share_meeting:
-                if (meetingFragment != null) meetingFragment.shareMeeting();
                 return true;
             case R.id.action_settings:
                 Intent settingsIntent = new Intent(this, SettingsActivity.class);
@@ -290,7 +282,8 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
                 startActivity(aboutIntent);
                 return true;
         }
-        return super.onOptionsItemSelected(item);
+        super.onOptionsItemSelected(item);
+        return false;
     }
 
     @Override

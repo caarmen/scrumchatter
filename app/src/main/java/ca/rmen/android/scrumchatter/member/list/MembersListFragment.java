@@ -108,6 +108,7 @@ public class MembersListFragment extends Fragment {
             mMembers.promptCreateMember(mTeamId);
             return true;
         }
+        super.onOptionsItemSelected(item);
         return false;
     }
 

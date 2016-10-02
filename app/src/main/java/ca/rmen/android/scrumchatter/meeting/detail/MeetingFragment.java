@@ -124,9 +124,9 @@ public class MeetingFragment extends Fragment {
 
         inflater.inflate(R.menu.meeting_menu, menu);
         // Only share and show charts for finished meetings
-        final MenuItem shareItem = menu.findItem(R.id.action_share);
+        final MenuItem shareItem = menu.findItem(R.id.action_share_meeting);
         if (shareItem != null) shareItem.setVisible(mMeeting != null && mMeeting.getState() == State.FINISHED);
-        final MenuItem chartItem = menu.findItem(R.id.action_charts);
+        final MenuItem chartItem = menu.findItem(R.id.action_charts_meeting);
         if (chartItem != null) chartItem.setVisible(mMeeting != null && mMeeting.getState() == State.FINISHED);
         // Delete a meeting in any state.
         final MenuItem deleteItem = menu.findItem(R.id.action_delete_meeting);
@@ -145,17 +145,18 @@ public class MeetingFragment extends Fragment {
             case android.R.id.home:
                 NavUtils.navigateUpFromSameTask(getActivity());
                 return true;
-            case R.id.action_share:
+            case R.id.action_share_meeting:
                 shareMeeting();
                 return true;
-            case R.id.action_charts:
+            case R.id.action_charts_meeting:
                 MeetingChartActivity.start(getContext(), mMeeting.getId());
                 return true;
             case R.id.action_delete_meeting:
                 mMeetings.confirmDelete(mMeeting);
                 return true;
             default:
-                return super.onOptionsItemSelected(item);
+                super.onOptionsItemSelected(item);
+                return false;
         }
     }
 

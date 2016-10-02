@@ -21,14 +21,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/action_share"
+        android:id="@+id/action_share_meeting"
         android:icon="@drawable/ic_action_share"
         app:showAsAction="ifRoom"
         android:title="@string/action_share"
         android:visible="false" />
 
     <item
-        android:id="@+id/action_charts"
+        android:id="@+id/action_charts_meeting"
         app:showAsAction="never"
         android:title="@string/action_charts" />
 

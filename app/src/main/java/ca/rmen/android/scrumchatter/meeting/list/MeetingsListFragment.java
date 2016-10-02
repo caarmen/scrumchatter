@@ -125,7 +125,8 @@ public class MeetingsListFragment extends Fragment {
             });
             return true;
         }
-        return true;
+        super.onOptionsItemSelected(item);
+        return false;
     }
 
     private final LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderCallbacks<Cursor>() {
