@@ -115,11 +115,6 @@ public class MeetingsListFragment extends Fragment {
                 @Override
                 public void onMeetingCreated(Meeting meeting) {
                     if (meeting != null) {
-                        if (mBinding.meetingFragmentPlaceholder != null) {
-                            final MeetingsCursorAdapter adapter
-                                    = (MeetingsCursorAdapter) mBinding.meetingList.recyclerViewContent.recyclerView.getAdapter();
-                            adapter.selectItem(0);
-                        }
                         mMeetingListener.onMeetingOpen(meeting);
                     } else {
                         DialogFragmentFactory.showInfoDialog(getActivity(), R.string.dialog_error_title_one_member_required,
