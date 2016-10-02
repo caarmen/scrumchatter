@@ -72,7 +72,7 @@ public class MeetingsListFragment extends Fragment {
         mBinding = DataBindingUtil.inflate(inflater, R.layout.meetings, container, false);
         mBinding.meetingList.recyclerViewContent.empty.setText(R.string.empty_list_meetings);
         mBinding.meetingList.recyclerViewContent.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-        mBinding.setFabListener(mFabListener);
+        mBinding.meetingList.setFabListener(mFabListener);
         return mBinding.getRoot();
     }
 
