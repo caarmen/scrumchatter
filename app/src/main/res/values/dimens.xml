@@ -24,7 +24,7 @@
     <item name="wrap_content" format="integer" type="dimen">-2</item>
 
     <dimen name="meeting_list_width">@dimen/match_parent</dimen>
-    <dimen name="member_list_width">@dimen/wrap_content</dimen>
+    <dimen name="member_list_width">@dimen/match_parent</dimen>
     <dimen name="member_time_width">70dp</dimen>
 
     <dimen name="activity_horizontal_margin">16dp</dimen>
