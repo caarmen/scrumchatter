@@ -32,6 +32,8 @@
     <string name="action_team_delete_name">Delete %s</string>
     <string name="action_import">Import database</string>
     <string name="action_charts">Stats</string>
+    <string name="action_charts_global">Stats for all meetings</string>
+    <string name="action_charts_meeting">Stats for selected meeting</string>
     <string name="action_new_member">Add team member</string>
     <string name="action_rename_member">Rename team member</string>
     <string name="action_new_meeting">New meeting</string>

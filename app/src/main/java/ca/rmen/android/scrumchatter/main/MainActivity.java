@@ -53,6 +53,7 @@ import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.about.AboutActivity;
 import ca.rmen.android.scrumchatter.chart.ChartsActivity;
+import ca.rmen.android.scrumchatter.chart.MeetingChartActivity;
 import ca.rmen.android.scrumchatter.databinding.ActivityMainBinding;
 import ca.rmen.android.scrumchatter.dialog.ChoiceDialogFragment.DialogItemListener;
 import ca.rmen.android.scrumchatter.dialog.ConfirmDialogFragment.DialogButtonListener;
@@ -267,14 +268,18 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
             case R.id.action_charts:
                 startActivity(new Intent(this, ChartsActivity.class));
                 return true;
+            case R.id.action_charts_meeting:
+                MeetingFragment meetingFragmentForCharts = (MeetingFragment) getSupportFragmentManager().findFragmentById(R.id.meeting_fragment_placeholder);
+                if (meetingFragmentForCharts != null) MeetingChartActivity.start(this, meetingFragmentForCharts.getMeetingId());
+                return true;
             case R.id.action_share:
                 // Build a chooser dialog for the file format.
                 DialogFragmentFactory.showChoiceDialog(this, getString(R.string.export_choice_title), getResources().getStringArray(R.array.export_choices),
                         -1, R.id.action_share);
                 return true;
             case R.id.action_share_meeting:
-                MeetingFragment meetingFragment = (MeetingFragment) getSupportFragmentManager().findFragmentById(R.id.meeting_fragment_placeholder);
-                if (meetingFragment != null) meetingFragment.shareMeeting();
+                MeetingFragment meetingFragmentForShare = (MeetingFragment) getSupportFragmentManager().findFragmentById(R.id.meeting_fragment_placeholder);
+                if (meetingFragmentForShare != null) meetingFragmentForShare.shareMeeting();
                 return true;
             case R.id.action_settings:
                 Intent settingsIntent = new Intent(this, SettingsActivity.class);

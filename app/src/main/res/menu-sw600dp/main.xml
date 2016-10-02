@@ -55,10 +55,24 @@
         app:showAsAction="ifRoom"
         android:title="@string/action_import"/>
     <item
-        android:id="@+id/action_charts"
+        android:id="@+id/action_charts_submenu"
         android:orderInCategory="122"
         app:showAsAction="never"
-        android:title="@string/action_charts"/>
+        android:title="@string/action_charts">
+        <menu>
+            <item
+                android:id="@+id/action_charts"
+                android:orderInCategory="122"
+                app:showAsAction="never"
+                android:title="@string/action_charts_global"/>
+            <item
+                android:id="@+id/action_charts_meeting"
+                android:orderInCategory="122"
+                app:showAsAction="never"
+                android:title="@string/action_charts_meeting"/>
+
+        </menu>
+    </item>
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="125"
