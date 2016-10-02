@@ -102,8 +102,9 @@ public class MeetingsListFragment extends Fragment {
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        MenuItem menuItem = menu.findItem(R.id.action_charts);
-        menuItem.setVisible(mAdapter != null && mAdapter.getItemCount() > 0);
+        boolean hasMeetings = mAdapter != null && mAdapter.getItemCount() > 0;
+        menu.findItem(R.id.action_share).setVisible(hasMeetings);
+        menu.findItem(R.id.action_charts).setVisible(hasMeetings);
     }
 
     @Override
@@ -166,7 +167,7 @@ public class MeetingsListFragment extends Fragment {
                     = (MeetingsCursorAdapter) mBinding.meetingList.recyclerViewContent.recyclerView.getAdapter();
 
             if (adapter.getItemCount() > 0) {
-                MeetingFragment meetingFragment = (MeetingFragment) getFragmentManager().findFragmentById(R.id.meeting_fragment_placeholder);
+                MeetingFragment meetingFragment = MeetingFragment.lookupMeetingFragment(getFragmentManager());
                 final int positionToSelect;
                 // No meeting selected yet: select the first one
                 if (adapter.getSelectedPosition() < 0) {

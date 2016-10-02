@@ -70,6 +70,16 @@ public class MeetingFragment extends Fragment {
     private Meetings mMeetings;
     private MeetingFragmentBinding mBinding;
 
+    /**
+     * @return the {@link MeetingFragment} added to the given {@link FragmentManager}, if any.
+     */
+    public static MeetingFragment lookupMeetingFragment(FragmentManager fragmentManager) {
+        return (MeetingFragment) fragmentManager.findFragmentById(R.id.meeting_fragment_placeholder);
+    }
+
+    /**
+     * Add a new {@link MeetingFragment} to the given {@link FragmentManager}, for the given meetingId.
+     */
     public static void startMeeting(FragmentManager fragmentManager, long meetingId) {
         Bundle bundle = new Bundle(1);
         bundle.putLong(Meetings.EXTRA_MEETING_ID, meetingId);
@@ -260,6 +270,10 @@ public class MeetingFragment extends Fragment {
 
     public long getMeetingId() {
         return mMeetingId;
+    }
+
+    public State getState() {
+        return mMeeting == null ? State.NOT_STARTED : mMeeting.getState();
     }
 
     /**

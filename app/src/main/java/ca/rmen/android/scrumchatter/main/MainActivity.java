@@ -66,6 +66,7 @@ import ca.rmen.android.scrumchatter.meeting.Meetings;
 import ca.rmen.android.scrumchatter.meeting.detail.MeetingFragment;
 import ca.rmen.android.scrumchatter.member.list.Members;
 import ca.rmen.android.scrumchatter.provider.DBImport;
+import ca.rmen.android.scrumchatter.provider.MeetingColumns;
 import ca.rmen.android.scrumchatter.settings.SettingsActivity;
 import ca.rmen.android.scrumchatter.settings.Theme;
 import ca.rmen.android.scrumchatter.team.Teams;
@@ -242,6 +243,14 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
             MenuItem settingsItem = menu.findItem(R.id.action_settings);
             settingsItem.setVisible(false);
         }
+
+        // Only show the menu items for sharing a meeting and stats for a meeting, if the selected meeting is finished.
+        MeetingFragment meetingFragment = MeetingFragment.lookupMeetingFragment(getSupportFragmentManager());
+        boolean meetingIsFinished = meetingFragment != null && meetingFragment.getState() == MeetingColumns.State.FINISHED;
+        MenuItem menuItem = menu.findItem(R.id.action_share_meeting);
+        if (menuItem != null) menuItem.setVisible(meetingIsFinished);
+        menuItem = menu.findItem(R.id.action_charts_meeting);
+        if (menuItem != null) menuItem.setVisible(meetingIsFinished);
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -405,7 +414,7 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
             long meetingId = extras.getLong(Meetings.EXTRA_MEETING_ID);
             mMeetings.delete(meetingId);
         } else if (actionId == R.id.btn_stop_meeting) {
-            MeetingFragment meetingFragment = (MeetingFragment) getSupportFragmentManager().findFragmentById(R.id.meeting_fragment_placeholder);
+            MeetingFragment meetingFragment = MeetingFragment.lookupMeetingFragment(getSupportFragmentManager());
             if (meetingFragment != null) meetingFragment.stopMeeting();
         } else if (actionId == R.id.action_delete_member) {
             long memberId = extras.getLong(Members.EXTRA_MEMBER_ID);
