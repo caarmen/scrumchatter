@@ -39,6 +39,9 @@
     <color name="meeting_state_default">@color/primary_text_color</color>
     <color name="chrono_not_started">@color/primary_text_disabled_color</color>
 
+    <color name="row_background_color_even">@android:color/transparent</color>
+    <color name="row_background_color_odd">@android:color/transparent</color>
+
     <color name="navigation_menu_item_normal">@color/primary_text_color</color>
     <color name="navigation_menu_item_selected">@color/scrum_chatter_primary_color</color>
 

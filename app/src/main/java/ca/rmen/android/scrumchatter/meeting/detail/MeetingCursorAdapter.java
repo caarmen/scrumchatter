@@ -22,6 +22,9 @@ import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.SystemClock;
+import android.support.annotation.ColorInt;
+import android.support.annotation.ColorRes;
+import android.support.annotation.DrawableRes;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
@@ -46,9 +49,9 @@ import ca.rmen.android.scrumchatter.widget.ScrumChatterCursorAdapter;
 public class MeetingCursorAdapter extends ScrumChatterCursorAdapter<MeetingCursorAdapter.MeetingViewHolder> {
     private static final String TAG = Constants.TAG + "/" + MeetingCursorAdapter.class.getSimpleName();
     private final MemberStartStopListener mMemberStartStopListener;
-    private final int mColorChronoActive;
-    private final int mColorChronoInactive;
-    private final int mColorChronoNotStarted;
+    private final @ColorInt int mColorChronoActive;
+    private final @ColorInt int mColorChronoInactive;
+    private final @ColorInt int mColorChronoNotStarted;
 
     public interface MemberStartStopListener {
         void toggleTalkingMember(long memberId);
@@ -85,51 +88,57 @@ public class MeetingCursorAdapter extends ScrumChatterCursorAdapter<MeetingCurso
         // Extract the fields we need from this cursor
         @SuppressWarnings("resource")
         MeetingMemberCursorWrapper cursorWrapper = new MeetingMemberCursorWrapper(getCursor());
-        Long memberId = cursorWrapper.getMemberId();
-        String memberName = cursorWrapper.getMemberName();
+        MeetingMemberItemData meetingMemberItemData = new MeetingMemberItemData();
+        meetingMemberItemData.memberId = cursorWrapper.getMemberId();
+        meetingMemberItemData.memberName = cursorWrapper.getMemberName();
         long duration = cursorWrapper.getDuration();
         State meetingState = cursorWrapper.getMeetingState();
         Long talkStartTime = cursorWrapper.getTalkStartTime();
 
         // Find the Views we need to set up
         MeetingMemberListItemBinding binding = holder.binding;
-        // Set up the member's name
-        binding.tvName.setText(memberName);
 
         // if the talkStartTime is non-zero, this means the
         // member is talking (and started talking that long ago).
-        boolean memberIsTalking = talkStartTime > 0;
+        meetingMemberItemData.isTalking = talkStartTime > 0;
 
         // Set up the start/stop button for this member.
         // If the meeting is finished, we hide the start/stop button.
         if (meetingState == State.FINISHED) {
-            binding.btnStartStopMember.setVisibility(View.INVISIBLE);
-        }
-        // If the meeting is in progress, set the button to stop
-        // or start, depending on whether the member is already talking
-        // or not.
-        else {
-            binding.btnStartStopMember.setImageResource(memberIsTalking ? R.drawable.ic_action_stop : R.drawable.ic_action_start);
+            meetingMemberItemData.startStopButtonVisibility = View.INVISIBLE;
         }
 
         // If the member is currently talking, show the chronometer.
         // Otherwise, show the duration that they talked (if any).
-        if (memberIsTalking) {
+        if (meetingMemberItemData.isTalking) {
             long hasBeenTalkingFor = duration * 1000 + (System.currentTimeMillis() - talkStartTime);
             binding.tvDuration.setBase(SystemClock.elapsedRealtime() - hasBeenTalkingFor);
             binding.tvDuration.start();
-            binding.tvDuration.setTextColor(mColorChronoActive);
+            meetingMemberItemData.durationColor = mColorChronoActive;
             startAnimation(binding.ivChatterFace);
         } else {
             binding.tvDuration.stop();
             binding.tvDuration.setText(DateUtils.formatElapsedTime(duration));
-            binding.tvDuration.setTextColor(duration > 0 ? mColorChronoInactive : mColorChronoNotStarted);
+            meetingMemberItemData.durationColor = duration > 0 ? mColorChronoInactive : mColorChronoNotStarted;
             stopAnimation(binding.ivChatterFace);
         }
 
+        @ColorRes int backgroundColorRes = (position % 2 == 0)? R.color.row_background_color_even : R.color.row_background_color_odd;
+        meetingMemberItemData.backgroundColor = ContextCompat.getColor(binding.getRoot().getContext(), backgroundColorRes);
         // Set the member id as a tag, so when the listener receives the
         // click action, it knows for which member the user clicked.
-        binding.setMemberId(memberId);
+        binding.setItemData(meetingMemberItemData);
+        binding.executePendingBindings();
+    }
+
+    public static class MeetingMemberItemData {
+        public @ColorInt int backgroundColor;
+        public long memberId;
+        public String memberName;
+        public @ColorInt int durationColor;
+        public boolean isTalking;
+        public int startStopButtonVisibility = View.VISIBLE;
+
     }
 
     /**
@@ -174,11 +183,11 @@ public class MeetingCursorAdapter extends ScrumChatterCursorAdapter<MeetingCurso
         }
     }
 
-    public static class MeetingViewHolder extends RecyclerView.ViewHolder{
+    static class MeetingViewHolder extends RecyclerView.ViewHolder{
 
         public final MeetingMemberListItemBinding binding;
 
-        public MeetingViewHolder(MeetingMemberListItemBinding binding) {
+        MeetingViewHolder(MeetingMemberListItemBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }

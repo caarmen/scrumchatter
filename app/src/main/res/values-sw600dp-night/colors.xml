@@ -19,5 +19,6 @@
 -->
 <resources>
     <color name="meeting_list_background">#222</color>
-
+    <color name="row_background_color_even">#383838</color>
+    <color name="row_background_color_odd">#303030</color>
 </resources>
