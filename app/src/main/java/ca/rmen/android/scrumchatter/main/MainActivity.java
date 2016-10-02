@@ -64,6 +64,7 @@ import ca.rmen.android.scrumchatter.export.FileExport;
 import ca.rmen.android.scrumchatter.export.MeetingsExport;
 import ca.rmen.android.scrumchatter.meeting.Meetings;
 import ca.rmen.android.scrumchatter.meeting.detail.MeetingFragment;
+import ca.rmen.android.scrumchatter.meeting.list.MeetingsListFragment;
 import ca.rmen.android.scrumchatter.member.list.Members;
 import ca.rmen.android.scrumchatter.provider.DBImport;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
@@ -109,6 +110,7 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
     private ActivityMainBinding mBinding;
     private TeamNavigationMenu mTeamNavigationMenu;
     private TeamsObserver mTeamsObserver;
+    private MainPagerAdapter mMainPagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -153,10 +155,10 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
         mDrawerToggle.setDrawerIndicatorEnabled(false);
         mDrawerToggle.setHomeAsUpIndicator(new DrawerArrowDrawable(this));
 
-        MainPagerAdapter mainPagerAdapter = new MainPagerAdapter(this, getSupportFragmentManager());
+        mMainPagerAdapter = new MainPagerAdapter(this, getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-        mBinding.pager.setAdapter(mainPagerAdapter);
+        mBinding.pager.setAdapter(mMainPagerAdapter);
         mBinding.toolbarTabs.tabs.setupWithViewPager(mBinding.pager);
 
         // If our activity was opened by choosing a file from a mail attachment, file browser, or other program,
@@ -251,6 +253,16 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
         if (menuItem != null) menuItem.setVisible(meetingIsFinished);
         menuItem = menu.findItem(R.id.action_charts_meeting);
         if (menuItem != null) menuItem.setVisible(meetingIsFinished);
+
+        // Don't show the global share/stats menu items unless we have at least one meeting
+        MeetingsListFragment meetingsListFragment = mMainPagerAdapter.getMeetingsListFragment();
+        boolean hasMeetings = meetingsListFragment != null && meetingsListFragment.hasMeetings();
+        menu.findItem(R.id.action_share).setVisible(hasMeetings);
+        menu.findItem(R.id.action_charts).setVisible(hasMeetings);
+        menuItem = menu.findItem(R.id.action_share_submenu);
+        if (menuItem != null) menuItem.setVisible(hasMeetings);
+        menuItem = menu.findItem(R.id.action_charts_submenu);
+        if (menuItem != null) menuItem.setVisible(hasMeetings);
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -485,7 +497,7 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
     @Override
     public void onInputEntered(int actionId, String input, Bundle extras) {
         Log.v(TAG, "onInputEntered: actionId = " + actionId + ", input = " + input + ", extras = " + extras);
-        if (actionId == R.id.action_new_member) {
+        if (actionId == R.id.fab_new_member) {
             long teamId = extras.getLong(Teams.EXTRA_TEAM_ID);
             mMembers.createMember(teamId, input);
         } else if (actionId == R.id.action_rename_member) {
