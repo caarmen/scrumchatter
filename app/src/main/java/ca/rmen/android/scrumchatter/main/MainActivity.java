@@ -255,7 +255,7 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
         if (menuItem != null) menuItem.setVisible(meetingIsFinished);
 
         // Don't show the global share/stats menu items unless we have at least one meeting
-        MeetingsListFragment meetingsListFragment = mMainPagerAdapter.getMeetingsListFragment();
+        MeetingsListFragment meetingsListFragment = (MeetingsListFragment) mMainPagerAdapter.instantiateItem(mBinding.pager, 0);
         boolean hasMeetings = meetingsListFragment != null && meetingsListFragment.hasMeetings();
         menu.findItem(R.id.action_share).setVisible(hasMeetings);
         menu.findItem(R.id.action_charts).setVisible(hasMeetings);
