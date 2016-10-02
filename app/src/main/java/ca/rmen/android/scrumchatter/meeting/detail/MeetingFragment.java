@@ -146,7 +146,7 @@ public class MeetingFragment extends Fragment {
                 NavUtils.navigateUpFromSameTask(getActivity());
                 return true;
             case R.id.action_share_meeting:
-                shareMeeting();
+                mMeetings.export(mMeeting.getId());
                 return true;
             case R.id.action_charts_meeting:
                 MeetingChartActivity.start(getContext(), mMeeting.getId());
@@ -277,13 +277,6 @@ public class MeetingFragment extends Fragment {
             }
         };
         task.execute(mMeeting);
-    }
-
-    /**
-     * Share the current meeting as text.
-     */
-    public void shareMeeting() {
-        mMeetings.export(mMeeting.getId());
     }
 
     /**
