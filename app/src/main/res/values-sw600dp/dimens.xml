@@ -10,4 +10,6 @@
     <dimen name="member_list_width">600dp</dimen>
     <dimen name="member_time_width">140dp</dimen>
 
+    <dimen name="fab_margin">24dp</dimen>
+
 </resources>

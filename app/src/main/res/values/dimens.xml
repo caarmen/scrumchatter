@@ -36,4 +36,6 @@
     <dimen name="column_chart_column_width">64dp</dimen>
     <dimen name="chart_legend_entry_padding">8dp</dimen>
 
+    <dimen name="fab_margin">16dp</dimen>
+
 </resources>
