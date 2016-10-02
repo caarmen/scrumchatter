@@ -125,12 +125,12 @@ public class MeetingFragment extends Fragment {
         inflater.inflate(R.menu.meeting_menu, menu);
         // Only share and show charts for finished meetings
         final MenuItem shareItem = menu.findItem(R.id.action_share);
-        shareItem.setVisible(mMeeting != null && mMeeting.getState() == State.FINISHED);
+        if (shareItem != null) shareItem.setVisible(mMeeting != null && mMeeting.getState() == State.FINISHED);
         final MenuItem chartItem = menu.findItem(R.id.action_charts);
-        chartItem.setVisible(mMeeting != null && mMeeting.getState() == State.FINISHED);
+        if (chartItem != null) chartItem.setVisible(mMeeting != null && mMeeting.getState() == State.FINISHED);
         // Delete a meeting in any state.
         final MenuItem deleteItem = menu.findItem(R.id.action_delete_meeting);
-        deleteItem.setVisible(mMeeting != null);
+        if (deleteItem != null) deleteItem.setVisible(mMeeting != null);
     }
 
     @Override
