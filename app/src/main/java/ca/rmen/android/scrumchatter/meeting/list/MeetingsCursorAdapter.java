@@ -47,8 +47,10 @@ public class MeetingsCursorAdapter extends ScrumChatterCursorAdapter<MeetingsCur
     private final int mColorStateDefault;
     private final String[] mMeetingStateNames;
     private int mSelectedPosition = -1;
+    private final Context mContext;
 
     MeetingsCursorAdapter(Context context, MeetingListener meetingListener) {
+        mContext = context.getApplicationContext();
         mMeetingListener = meetingListener;
         mColorStateInProgress = ContextCompat.getColor(context, R.color.meeting_state_in_progress);
         mColorStateDefault = ContextCompat.getColor(context, R.color.meeting_state_default);
@@ -128,6 +130,21 @@ public class MeetingsCursorAdapter extends ScrumChatterCursorAdapter<MeetingsCur
                 notifyDataSetChanged();
             }
         });
+    }
+
+
+
+    public int getSelectedPosition() {
+        return mSelectedPosition;
+    }
+
+    public void selectItem(int selectedPosition) {
+        mSelectedPosition = selectedPosition;
+        getCursor().moveToPosition(selectedPosition);
+        MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(getCursor());
+        final Meeting meeting = Meeting.read(mContext, cursorWrapper);
+        mMeetingListener.onMeetingOpen(meeting);
+        notifyDataSetChanged();
     }
 
     static class MeetingViewHolder extends RecyclerView.ViewHolder {

@@ -24,6 +24,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -141,7 +142,37 @@ public class MeetingsListFragment extends Fragment {
                 mBinding.meetingList.recyclerViewContent.recyclerView.setVisibility(View.GONE);
                 mBinding.meetingList.recyclerViewContent.empty.setVisibility(View.VISIBLE);
             }
+            if (mBinding.meetingFragmentPlaceholder != null) {
+                autoSelectMeeting();
+            }
             getActivity().supportInvalidateOptionsMenu();
+        }
+
+        private void autoSelectMeeting() {
+            final MeetingsCursorAdapter adapter
+                    = (MeetingsCursorAdapter) mBinding.meetingList.recyclerViewContent.recyclerView.getAdapter();
+
+            if (adapter.getItemCount() > 0) {
+                final int positionToSelect;
+                // No meeting selected yet: select the first one
+                if (adapter.getSelectedPosition() < 0) {
+                    positionToSelect = 0;
+                }
+                // A meeting out of bounds is selected: select the last one
+                else if (adapter.getSelectedPosition() >= adapter.getItemCount()) {
+                    positionToSelect = adapter.getItemCount() - 1;
+                }
+                // Keep the current selected position
+                else {
+                    positionToSelect = adapter.getSelectedPosition();
+                }
+                new Handler().post(new Runnable(){
+                    @Override
+                    public void run() {
+                        adapter.selectItem(positionToSelect);
+                    }
+                });
+            }
         }
 
         @Override
