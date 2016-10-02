@@ -99,7 +99,7 @@ public class Meeting {
     /**
      * Create a new Meeting. This persists the new meeting to the DB.
      */
-    static Meeting createNewMeeting(Context context) {
+    public static Meeting createNewMeeting(Context context) {
         Log.v(TAG, "create new meeting");
         int teamId = PreferenceManager.getDefaultSharedPreferences(context).getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
         ContentValues values = new ContentValues();

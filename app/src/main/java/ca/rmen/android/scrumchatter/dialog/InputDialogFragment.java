@@ -40,6 +40,7 @@ import ca.rmen.android.scrumchatter.util.Log;
 
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -123,7 +124,10 @@ public class InputDialogFragment extends DialogFragment { // NO_UCD (use default
         binding.edit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                    Window window = dialog.getWindow();
+                    if (window != null) {
+                        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                    }
                 }
             }
         });

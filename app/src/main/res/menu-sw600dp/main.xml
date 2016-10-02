@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2016 Carmen Alvarez
+ 
+  This file is part of Scrum Chatter.
+ 
+  Scrum Chatter is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+ 
+  Scrum Chatter is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+ 
+  You should have received a copy of the GNU General Public License
+  along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
+-->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_share_submenu"
+        android:icon="@drawable/ic_action_share"
+        android:orderInCategory="100"
+        app:showAsAction="ifRoom"
+        android:title="@string/action_share">
+        <menu>
+            <item
+                android:id="@+id/action_share"
+                android:orderInCategory="100"
+                app:showAsAction="never"
+                android:title="@string/action_share_global"/>
+            <item
+                android:id="@+id/action_share_meeting"
+                android:orderInCategory="100"
+                app:showAsAction="never"
+                android:title="@string/action_share_meeting"/>
+
+        </menu>
+    </item>
+    <item
+        android:id="@+id/action_team_rename"
+        app:showAsAction="never"
+        android:title="@string/action_team_rename"/>
+    <item
+        android:id="@+id/action_team_delete"
+        app:showAsAction="never"
+        android:title="@string/action_team_delete"/>
+    <item
+        android:id="@+id/action_import"
+        android:icon="@drawable/ic_action_import"
+        android:orderInCategory="120"
+        app:showAsAction="ifRoom"
+        android:title="@string/action_import"/>
+    <item
+        android:id="@+id/action_charts_submenu"
+        android:orderInCategory="122"
+        app:showAsAction="never"
+        android:title="@string/action_charts">
+        <menu>
+            <item
+                android:id="@+id/action_charts"
+                android:orderInCategory="122"
+                app:showAsAction="never"
+                android:title="@string/action_charts_global"/>
+            <item
+                android:id="@+id/action_charts_meeting"
+                android:orderInCategory="122"
+                app:showAsAction="never"
+                android:title="@string/action_charts_meeting"/>
+
+        </menu>
+    </item>
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="125"
+        app:showAsAction="never"
+        android:title="@string/title_activity_settings"/>
+    <item
+        android:id="@+id/action_about"
+        android:orderInCategory="130"
+        app:showAsAction="never"
+        android:title="@string/about"/>
+
+</menu>

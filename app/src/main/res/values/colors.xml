@@ -24,7 +24,9 @@
     <color name="scrum_chatter_primary_color_dark">#6a1b9a</color>
     <color name="scrum_chatter_accent_color">#ea80fc</color>
     <color name="tab_text_color">#aaa</color>
+    <color name="selected_meeting_color">#ddd</color>
     <color name="drawer_background">#e0e0e0</color>
+    <color name="meeting_list_background">#fff</color>
     <color name="toolbar_title_color">#fff</color>
     <color name="chart_text">#222</color>
     <color name="chart_subtitle">#666</color>
@@ -36,6 +38,9 @@
     <color name="chrono_inactive">@color/primary_text_color</color>
     <color name="meeting_state_default">@color/primary_text_color</color>
     <color name="chrono_not_started">@color/primary_text_disabled_color</color>
+
+    <color name="row_background_color_even">@android:color/transparent</color>
+    <color name="row_background_color_odd">@android:color/transparent</color>
 
     <color name="navigation_menu_item_normal">@color/primary_text_color</color>
     <color name="navigation_menu_item_selected">@color/scrum_chatter_primary_color</color>

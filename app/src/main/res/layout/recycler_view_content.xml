@@ -20,8 +20,10 @@
 <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin">
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp" >
     
     <LinearLayout android:id="@+id/progressContainer"
             android:orientation="vertical"
@@ -38,7 +40,7 @@
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text="@string/loading"
                 android:paddingTop="4dip"
-                android:singleLine="true" />
+                android:maxLines="1" />
             
     </LinearLayout>
         
@@ -49,7 +51,7 @@
         <android.support.v7.widget.RecyclerView android:id="@+id/recycler_view"
                 android:layout_width="match_parent" 
                 android:layout_height="match_parent" />
-        <TextView android:id="@android:id/empty"
+        <TextView android:id="@+id/empty"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"

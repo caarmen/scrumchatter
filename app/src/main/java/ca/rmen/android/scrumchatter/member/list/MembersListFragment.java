@@ -108,6 +108,7 @@ public class MembersListFragment extends Fragment {
             mMembers.promptCreateMember(mTeamId);
             return true;
         }
+        super.onOptionsItemSelected(item);
         return false;
     }
 
@@ -177,6 +178,8 @@ public class MembersListFragment extends Fragment {
         }
     };
 
+    // Used from xml with data binding
+    @SuppressWarnings("WeakerAccess")
     public class ColumnHeaderListener {
         /**
          * Resort the list of members by the given column

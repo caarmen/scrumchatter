@@ -20,13 +20,16 @@ package ca.rmen.android.scrumchatter.meeting.list;
 
 import android.content.Context;
 import android.databinding.DataBindingUtil;
+import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.databinding.MeetingListItemBinding;
 import ca.rmen.android.scrumchatter.meeting.detail.Meeting;
@@ -43,8 +46,11 @@ public class MeetingsCursorAdapter extends ScrumChatterCursorAdapter<MeetingsCur
     private final int mColorStateInProgress;
     private final int mColorStateDefault;
     private final String[] mMeetingStateNames;
+    private int mSelectedPosition = -1;
+    private final Context mContext;
 
     MeetingsCursorAdapter(Context context, MeetingListener meetingListener) {
+        mContext = context.getApplicationContext();
         mMeetingListener = meetingListener;
         mColorStateInProgress = ContextCompat.getColor(context, R.color.meeting_state_in_progress);
         mColorStateDefault = ContextCompat.getColor(context, R.color.meeting_state_default);
@@ -61,7 +67,6 @@ public class MeetingsCursorAdapter extends ScrumChatterCursorAdapter<MeetingsCur
     public MeetingViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         MeetingListItemBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.meeting_list_item, parent, false);
         binding.getRoot().setTag(binding);
-        binding.setMeetingListener(mMeetingListener);
         return new MeetingViewHolder(binding);
     }
 
@@ -69,18 +74,18 @@ public class MeetingsCursorAdapter extends ScrumChatterCursorAdapter<MeetingsCur
      * Fill the view holder's fields with data from the given meeting.
      */
     @Override
-    public void onBindViewHolder(MeetingViewHolder holder, int position) {
+    public void onBindViewHolder(final MeetingViewHolder holder, int position) {
         getCursor().moveToPosition(position);
         Context context = holder.binding.getRoot().getContext();
         // Get the data from the cursor
         MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(getCursor());
-        Meeting meeting = Meeting.read(context, cursorWrapper);
+        final Meeting meeting = Meeting.read(context, cursorWrapper);
         String dateString = TextUtils.formatDateTime(context, meeting.getStartDate());
         String duration = DateUtils.formatElapsedTime(meeting.getDuration());
 
         String stateName = mMeetingStateNames[meeting.getState().ordinal()];
 
-        MeetingListItemBinding binding = holder.binding;
+        final MeetingListItemBinding binding = holder.binding;
         // Find the views we need to set up.
         binding.setMeeting(meeting);
 
@@ -107,12 +112,45 @@ public class MeetingsCursorAdapter extends ScrumChatterCursorAdapter<MeetingsCur
             }
             binding.tvMeetingDuration.setTextColor(mColorStateDefault);
         }
+        if (binding.getRoot().getContext().getResources().getBoolean(R.bool.is_tablet)
+                && Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB) {
+            binding.getRoot().setActivated(mSelectedPosition == position);
+        }
+        binding.btnDeleteMeeting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mMeetingListener.onMeetingDelete(meeting);
+            }
+        });
+        binding.getRoot().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSelectedPosition = holder.getAdapterPosition();
+                mMeetingListener.onMeetingOpen(meeting);
+                notifyDataSetChanged();
+            }
+        });
     }
 
-    public static class MeetingViewHolder extends RecyclerView.ViewHolder {
+
+
+    public int getSelectedPosition() {
+        return mSelectedPosition;
+    }
+
+    public void selectItem(int selectedPosition) {
+        mSelectedPosition = selectedPosition;
+        getCursor().moveToPosition(selectedPosition);
+        MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(getCursor());
+        final Meeting meeting = Meeting.read(mContext, cursorWrapper);
+        mMeetingListener.onMeetingOpen(meeting);
+        notifyDataSetChanged();
+    }
+
+    static class MeetingViewHolder extends RecyclerView.ViewHolder {
         public final MeetingListItemBinding binding;
 
-        public MeetingViewHolder(MeetingListItemBinding binding) {
+        MeetingViewHolder(MeetingListItemBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }

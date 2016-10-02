@@ -17,9 +17,16 @@
   You should have received a copy of the GNU General Public License
   along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
 -->
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Default screen margins, per the Android Design guidelines. -->
+    <item name="match_parent" format="integer" type="dimen">-1</item>
+    <item name="wrap_content" format="integer" type="dimen" tools:ignore="UnusedResources">-2</item>
+
+    <dimen name="meeting_list_width">@dimen/match_parent</dimen>
+    <dimen name="member_list_width">@dimen/match_parent</dimen>
+    <dimen name="member_time_width">70dp</dimen>
+
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="list_inner_horizontal_margin">10dp</dimen>

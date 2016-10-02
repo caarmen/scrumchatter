@@ -29,6 +29,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.CursorLoader;
@@ -68,6 +69,27 @@ public class MeetingFragment extends Fragment {
     private long mMeetingId;
     private Meetings mMeetings;
     private MeetingFragmentBinding mBinding;
+
+    /**
+     * @return the {@link MeetingFragment} added to the given {@link FragmentManager}, if any.
+     */
+    public static MeetingFragment lookupMeetingFragment(FragmentManager fragmentManager) {
+        return (MeetingFragment) fragmentManager.findFragmentById(R.id.meeting_fragment_placeholder);
+    }
+
+    /**
+     * Add a new {@link MeetingFragment} to the given {@link FragmentManager}, for the given meetingId.
+     */
+    public static void startMeeting(FragmentManager fragmentManager, long meetingId) {
+        Bundle bundle = new Bundle(1);
+        bundle.putLong(Meetings.EXTRA_MEETING_ID, meetingId);
+        MeetingFragment meetingFragment = new MeetingFragment();
+        meetingFragment.setArguments(bundle);
+        fragmentManager
+                .beginTransaction()
+                .replace(R.id.meeting_fragment_placeholder, meetingFragment)
+                .commit();
+    }
 
     public MeetingFragment() {
         super();
@@ -111,13 +133,13 @@ public class MeetingFragment extends Fragment {
 
         inflater.inflate(R.menu.meeting_menu, menu);
         // Only share and show charts for finished meetings
-        final MenuItem shareItem = menu.findItem(R.id.action_share);
-        shareItem.setVisible(mMeeting != null && mMeeting.getState() == State.FINISHED);
-        final MenuItem chartItem = menu.findItem(R.id.action_charts);
-        chartItem.setVisible(mMeeting != null && mMeeting.getState() == State.FINISHED);
+        final MenuItem shareItem = menu.findItem(R.id.action_share_meeting);
+        if (shareItem != null) shareItem.setVisible(mMeeting != null && mMeeting.getState() == State.FINISHED);
+        final MenuItem chartItem = menu.findItem(R.id.action_charts_meeting);
+        if (chartItem != null) chartItem.setVisible(mMeeting != null && mMeeting.getState() == State.FINISHED);
         // Delete a meeting in any state.
         final MenuItem deleteItem = menu.findItem(R.id.action_delete_meeting);
-        deleteItem.setVisible(mMeeting != null);
+        if (deleteItem != null) deleteItem.setVisible(mMeeting != null);
     }
 
     @Override
@@ -132,17 +154,18 @@ public class MeetingFragment extends Fragment {
             case android.R.id.home:
                 NavUtils.navigateUpFromSameTask(getActivity());
                 return true;
-            case R.id.action_share:
+            case R.id.action_share_meeting:
                 mMeetings.export(mMeeting.getId());
                 return true;
-            case R.id.action_charts:
+            case R.id.action_charts_meeting:
                 MeetingChartActivity.start(getContext(), mMeeting.getId());
                 return true;
             case R.id.action_delete_meeting:
                 mMeetings.confirmDelete(mMeeting);
                 return true;
             default:
-                return super.onOptionsItemSelected(item);
+                super.onOptionsItemSelected(item);
+                return false;
         }
     }
 
@@ -245,11 +268,19 @@ public class MeetingFragment extends Fragment {
         task.execute(mMeetingId);
     }
 
+    public long getMeetingId() {
+        return mMeetingId;
+    }
+
+    public State getState() {
+        return mMeeting == null ? State.NOT_STARTED : mMeeting.getState();
+    }
+
     /**
      * Stop the meeting. Set the state to finished, stop the chronometer, hide the "stop meeting" button, persist the meeting duration, and stop the
      * chronometers for all team members who are still talking.
      */
-    void stopMeeting() {
+    public void stopMeeting() {
         AsyncTask<Meeting, Void, Void> task = new AsyncTask<Meeting, Void, Void>() {
 
             @Override
@@ -384,6 +415,8 @@ public class MeetingFragment extends Fragment {
         }
     };
 
+    // Used from xml for data binding
+    @SuppressWarnings("WeakerAccess")
     public class MeetingStopListener {
         public void onMeetingStopped(@SuppressWarnings("UnusedParameters") View view) {
             // Let's ask him if he's sure.

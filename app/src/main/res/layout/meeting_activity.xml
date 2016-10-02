@@ -38,7 +38,7 @@
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text="@string/loading"
                 android:paddingTop="4dip"
-                android:singleLine="true" />
+                android:maxLines="1" />
             
     </LinearLayout>
     <android.support.v4.view.ViewPager

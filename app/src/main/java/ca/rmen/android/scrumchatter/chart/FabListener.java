@@ -21,6 +21,8 @@ package ca.rmen.android.scrumchatter.chart;
 import android.content.Context;
 import android.view.View;
 
+// Used from xml with data binding
+@SuppressWarnings("WeakerAccess")
 public class FabListener {
     private final Context mContext;
 

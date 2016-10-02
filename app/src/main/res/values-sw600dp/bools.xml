@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2013 Carmen Alvarez
+  Copyright 2016 Carmen Alvarez
  
   This file is part of Scrum Chatter.
  
@@ -17,25 +17,7 @@
   You should have received a copy of the GNU General Public License
   along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
 -->
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<resources>
 
-    <item
-        android:id="@+id/action_share_meeting"
-        android:icon="@drawable/ic_action_share"
-        app:showAsAction="ifRoom"
-        android:title="@string/action_share"
-        android:visible="false" />
-
-    <item
-        android:id="@+id/action_charts_meeting"
-        app:showAsAction="never"
-        android:title="@string/action_charts" />
-
-    <item
-        android:id="@+id/action_delete_meeting"
-        app:showAsAction="never"
-        android:title="@string/action_delete_meeting"
-        android:visible="false" />
-
-</menu>
+    <bool name="is_tablet">true</bool>
+</resources>

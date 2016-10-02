@@ -23,12 +23,16 @@
     <string name="title_section_team">Équipe</string>
     <string name="title_chart">Stats</string>
     <string name="action_share">Partager</string>
+    <string name="action_share_global">Toutes les réunions</string>
+    <string name="action_share_meeting">Réunion sélectionnée</string>
     <string name="action_team_rename">Renommer l\'équipe</string>
     <string name="action_team_rename_name">Renommer %s</string>
     <string name="action_team_delete">Supprimer l\'équipe</string>
     <string name="action_team_delete_name">Supprimer %s</string>
     <string name="action_import">Importer base de données</string>
     <string name="action_charts">Stats</string>
+    <string name="action_charts_global">Toutes les réunions</string>
+    <string name="action_charts_meeting">Réunion sélectionnée</string>
     <string name="action_new_member">Ajouter un membre</string>
     <string name="action_rename_member">Renommer un membre</string>
     <string name="action_new_meeting">Nouvelle réunion</string>

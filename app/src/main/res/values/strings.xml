@@ -24,12 +24,16 @@
     <string name="title_section_team">Team</string>
     <string name="title_chart">Stats</string>
     <string name="action_share">Share</string>
+    <string name="action_share_global">Share all meetings</string>
+    <string name="action_share_meeting">Share selected meeting</string>
     <string name="action_team_rename">Rename team</string>
     <string name="action_team_rename_name">Rename %s</string>
     <string name="action_team_delete">Delete team</string>
     <string name="action_team_delete_name">Delete %s</string>
     <string name="action_import">Import database</string>
     <string name="action_charts">Stats</string>
+    <string name="action_charts_global">Stats for all meetings</string>
+    <string name="action_charts_meeting">Stats for selected meeting</string>
     <string name="action_new_member">Add team member</string>
     <string name="action_rename_member">Rename team member</string>
     <string name="action_new_meeting">New meeting</string>

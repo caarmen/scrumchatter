@@ -18,7 +18,6 @@
 -->
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
@@ -51,7 +50,7 @@
             android:layout_marginRight="8dp"
             android:clickable="true"
             android:onClick="@{fabListener.onShare}"
-            app:srcCompat="@drawable/ic_action_share" />
+            android:src="@drawable/ic_action_share" />
 
     </android.support.v7.widget.CardView>
 </layout>
