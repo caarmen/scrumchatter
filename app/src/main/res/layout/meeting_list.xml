@@ -18,90 +18,68 @@
 -->
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
-    <data>
 
-        <variable
-            name="fabListener"
-            type="ca.rmen.android.scrumchatter.meeting.list.MeetingsListFragment.FabListener" />
-    </data>
-
-    <FrameLayout
+    <LinearLayout xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="@dimen/meeting_list_width"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/meeting_list_background"
+        android:orientation="vertical">
 
-        <LinearLayout xmlns:tools="http://schemas.android.com/tools"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/meeting_list_background"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            android:background="@color/drawer_background"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp">
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                style="@style/listHeader"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:background="@color/drawer_background"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp">
+                android:layout_marginLeft="@dimen/list_inner_horizontal_margin"
+                android:layout_marginStart="@dimen/list_inner_horizontal_margin"
+                android:layout_weight="1"
+                android:gravity="start"
+                android:text="@string/meeting_list_header_date"
+                android:textAlignment="viewStart"
+                tools:targetApi="JELLY_BEAN_MR1" />
 
-                <TextView
-                    style="@style/listHeader"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/list_inner_horizontal_margin"
-                    android:layout_marginStart="@dimen/list_inner_horizontal_margin"
-                    android:layout_weight="1"
-                    android:gravity="start"
-                    android:text="@string/meeting_list_header_date"
-                    android:textAlignment="viewStart"
-                    tools:targetApi="JELLY_BEAN_MR1" />
+            <TextView
+                android:id="@+id/tv_duration"
+                style="@style/listHeader"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:text="@string/meeting_list_header_duration"
+                android:textAlignment="viewStart"
+                tools:targetApi="jelly_bean_mr1" />
 
-                <TextView
-                    android:id="@+id/tv_duration"
-                    style="@style/listHeader"
-                    android:layout_width="80dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="start"
-                    android:text="@string/meeting_list_header_duration"
-                    android:textAlignment="viewStart"
-                    tools:targetApi="jelly_bean_mr1" />
-
-                <ImageButton
-                    android:id="@+id/btn_delete_meeting"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:layout_marginEnd="@dimen/list_inner_horizontal_margin"
-                    android:layout_marginRight="@dimen/list_inner_horizontal_margin"
-                    android:background="?selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/action_delete_meeting"
-                    android:padding="8dp"
-                    android:src="@drawable/ic_action_delete"
-                    android:visibility="invisible" />
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/selected_header" />
-
-            <include
-                android:id="@+id/recycler_view_content"
-                layout="@layout/recycler_view_content"
-                tools:listitem="@android:layout/simple_list_item_2" />
+            <ImageButton
+                android:id="@+id/btn_delete_meeting"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginEnd="@dimen/list_inner_horizontal_margin"
+                android:layout_marginRight="@dimen/list_inner_horizontal_margin"
+                android:background="?selectableItemBackgroundBorderless"
+                android:contentDescription="@string/action_delete_meeting"
+                android:padding="8dp"
+                android:src="@drawable/ic_action_delete"
+                android:visibility="invisible" />
         </LinearLayout>
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fab_new_meeting"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end|bottom"
-            android:layout_marginBottom="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:clickable="true"
-            android:onClick="@{fabListener.onNewMeeting}"
-            android:src="@drawable/ic_action_new_meeting" />
-    </FrameLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/selected_header" />
+
+        <include
+            android:id="@+id/recycler_view_content"
+            layout="@layout/recycler_view_content"
+            tools:listitem="@android:layout/simple_list_item_2" />
+    </LinearLayout>
+
 
 </layout>

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright 2016 Carmen Alvarez
  
   This file is part of Scrum Chatter.
@@ -18,29 +17,55 @@
   along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<layout xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android">
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="horizontal" >
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <include
-        android:id="@+id/meeting_list"
-        layout="@layout/meeting_list"
-        tools:listitem="@android:layout/simple_list_item_2" />
+    <data>
 
-    <View
-        android:background="@color/scrum_chatter_primary_color"
-        android:layout_width="1dp"
-        android:layout_height="match_parent"/>
+        <variable
+            name="fabListener"
+            type="ca.rmen.android.scrumchatter.meeting.list.MeetingsListFragment.FabListener" />
+    </data>
 
     <FrameLayout
-        android:id="@+id/meeting_fragment_placeholder"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:layout="@layout/meeting_fragment"
-        tools:ignore="InconsistentLayout" />
+        android:layout_height="match_parent">
 
-</LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <include
+                android:id="@+id/meeting_list"
+                layout="@layout/meeting_list"
+                tools:listitem="@android:layout/simple_list_item_2" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="@color/scrum_chatter_primary_color" />
+
+            <FrameLayout
+                android:id="@+id/meeting_fragment_placeholder"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:ignore="InconsistentLayout"
+                tools:layout="@layout/meeting_fragment" />
+
+        </LinearLayout>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab_new_meeting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:clickable="true"
+            android:onClick="@{fabListener.onNewMeeting}"
+            android:src="@drawable/ic_action_new_meeting" />
+    </FrameLayout>
 </layout>
