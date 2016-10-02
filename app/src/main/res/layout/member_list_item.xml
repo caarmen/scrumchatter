@@ -29,7 +29,7 @@
     </data>
 <LinearLayout
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="48dp"
     android:background="?attr/selectableItemBackground"
     android:gravity="center_vertical"
     android:clickable="true"
@@ -39,6 +39,7 @@
 
     <Button
         android:id="@+id/tv_name"
+        android:textSize="16sp"
         android:background="?attr/selectableItemBackground"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:gravity="start|center_vertical"
@@ -52,6 +53,7 @@
 
     <TextView
         android:id="@+id/tv_avg_duration"
+        android:textSize="16sp"
         android:gravity="start"
         android:textAlignment="viewStart"
         android:layout_width="@dimen/member_time_width"
@@ -61,6 +63,7 @@
 
     <TextView
         android:id="@+id/tv_sum_duration"
+        android:textSize="16sp"
         android:gravity="start"
         android:textAlignment="viewStart"
         android:layout_width="@dimen/member_time_width"

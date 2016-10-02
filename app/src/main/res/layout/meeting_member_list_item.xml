@@ -32,7 +32,7 @@
     <LinearLayout
         android:background="@{itemData.backgroundColor}"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:clickable="true"
@@ -43,11 +43,13 @@
         <TextView
             android:id="@+id/tv_name"
             android:text="@{itemData.memberName}"
+            android:textSize="16sp"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:gravity="start"
             android:textAlignment="viewStart"
+            tools:text="John Doe"
             tools:targetApi="jelly_bean_mr1" />
 
         <ImageView
@@ -63,6 +65,7 @@
         <Chronometer
             android:id="@+id/tv_duration"
             android:textColor="@{itemData.durationColor}"
+            android:textSize="16sp"
             android:layout_width="70dp"
             android:layout_height="wrap_content"
             android:gravity="start"
