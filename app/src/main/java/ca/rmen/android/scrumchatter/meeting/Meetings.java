@@ -65,7 +65,7 @@ public class Meetings {
                     try {
                         c.moveToFirst();
                         int memberCount = c.getInt(0);
-                        return Meeting.createNewMeeting(mActivity);
+                        if (memberCount > 0) return Meeting.createNewMeeting(mActivity);
                     } finally {
                         c.close();
                     }

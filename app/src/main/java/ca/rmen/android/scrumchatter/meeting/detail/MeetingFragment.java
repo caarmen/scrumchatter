@@ -204,11 +204,7 @@ public class MeetingFragment extends Fragment {
                     cancel(false);
                     return null;
                 }
-                if (meetingId < 0) {
-                    return Meeting.createNewMeeting(getContext());
-                } else {
-                    return Meeting.read(activity, meetingId);
-                }
+                return Meeting.read(activity, meetingId);
             }
 
             @Override
