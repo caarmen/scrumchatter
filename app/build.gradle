@@ -38,10 +38,11 @@ android {
     }
     defaultConfig {
         applicationId "ca.rmen.android.scrumchatter"
-        versionCode 10400
-        versionName "1.4.0"
+        versionCode 10500
+        versionName "1.5.0"
         minSdkVersion 9
         targetSdkVersion 24
+        return true; // Avoid "Not all execution paths return a value"
     }
     buildTypes {
         release {
@@ -49,6 +50,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
         }
     }
+    return true;
 }
 
 dependencies {
