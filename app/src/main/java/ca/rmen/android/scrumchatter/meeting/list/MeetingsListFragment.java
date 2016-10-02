@@ -181,7 +181,7 @@ public class MeetingsListFragment extends Fragment {
         public void onMeetingOpen(Meeting meeting) {
 
             if (mBinding.meetingFragmentPlaceholder != null) {
-                MeetingFragment.startMeeting(getFragmentManager(), meeting.getId());
+                MeetingFragment.startMeeting(getFragmentManager(), meeting);
             } else {
                 MeetingActivity.startMeeting(getActivity(), meeting.getId());
             }

@@ -78,11 +78,12 @@ public class MeetingFragment extends Fragment {
     }
 
     /**
-     * Add a new {@link MeetingFragment} to the given {@link FragmentManager}, for the given meetingId.
+     * Add a new {@link MeetingFragment} to the given {@link FragmentManager}, for the given meeting.
      */
-    public static void startMeeting(FragmentManager fragmentManager, long meetingId) {
+    public static void startMeeting(FragmentManager fragmentManager, Meeting meeting) {
         Bundle bundle = new Bundle(1);
-        bundle.putLong(Meetings.EXTRA_MEETING_ID, meetingId);
+        bundle.putLong(Meetings.EXTRA_MEETING_ID, meeting.getId());
+        bundle.putSerializable(Meetings.EXTRA_MEETING_STATE, meeting.getState());
         MeetingFragment meetingFragment = new MeetingFragment();
         meetingFragment.setArguments(bundle);
         fragmentManager
