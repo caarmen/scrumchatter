@@ -17,7 +17,6 @@
   along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
 -->
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:card_view="http://schemas.android.com/apk/res-auto">
 
     <data>
@@ -77,7 +76,7 @@
                     android:layout_marginRight="16dp"
                     android:clickable="true"
                     android:onClick="@{fabListener.onShare}"
-                    app:srcCompat="@drawable/ic_action_share" />
+                    android:src="@drawable/ic_action_share" />
             </android.support.v7.widget.CardView>
 
             <android.support.v7.widget.CardView
@@ -131,7 +130,7 @@
                     android:layout_marginRight="16dp"
                     android:clickable="true"
                     android:onClick="@{fabListener.onShare}"
-                    app:srcCompat="@drawable/ic_action_share" />
+                    android:src="@drawable/ic_action_share" />
             </android.support.v7.widget.CardView>
         </LinearLayout>
 
