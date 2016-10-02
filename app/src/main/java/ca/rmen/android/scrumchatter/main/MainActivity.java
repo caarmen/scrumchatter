@@ -272,6 +272,10 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
                 DialogFragmentFactory.showChoiceDialog(this, getString(R.string.export_choice_title), getResources().getStringArray(R.array.export_choices),
                         -1, R.id.action_share);
                 return true;
+            case R.id.action_share_meeting:
+                MeetingFragment meetingFragment = (MeetingFragment) getSupportFragmentManager().findFragmentById(R.id.meeting_fragment_placeholder);
+                if (meetingFragment != null) meetingFragment.shareMeeting();
+                return true;
             case R.id.action_settings:
                 Intent settingsIntent = new Intent(this, SettingsActivity.class);
                 startActivity(settingsIntent);

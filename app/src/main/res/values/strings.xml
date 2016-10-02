@@ -24,6 +24,8 @@
     <string name="title_section_team">Team</string>
     <string name="title_chart">Stats</string>
     <string name="action_share">Share</string>
+    <string name="action_share_global">Share all meetings</string>
+    <string name="action_share_meeting">Share selected meeting</string>
     <string name="action_team_rename">Rename team</string>
     <string name="action_team_rename_name">Rename %s</string>
     <string name="action_team_delete">Delete team</string>
