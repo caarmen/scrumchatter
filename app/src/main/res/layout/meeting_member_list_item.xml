@@ -20,7 +20,6 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-        <import type="android.view.View"/>
         <!-- need concise variable names: https://code.google.com/p/android/issues/detail?id=212492 -->
         <variable
             name="listener"
