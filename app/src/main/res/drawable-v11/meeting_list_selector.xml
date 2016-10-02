@@ -18,6 +18,6 @@
   along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
 -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@color/selected_meeting_color" android:state_pressed="true" />
+    <item android:drawable="@color/selected_meeting_color" android:state_activated="true" />
     <item android:drawable="@android:color/transparent" />
 </selector>
