@@ -38,8 +38,8 @@
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:background="@color/drawer_background"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin" >
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp" >
 
         <TextView
             style="@style/listHeader"

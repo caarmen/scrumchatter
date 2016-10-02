@@ -4,9 +4,6 @@
          Customize dimensions originally defined in res/values/dimens.xml (such as
          screen margins) for sw720dp devices (e.g. 10" tablets) in landscape here.
     -->
-    <dimen name="activity_horizontal_margin">128dp</dimen>
-    <dimen name="meeting_list_width">480dp</dimen>
-    <dimen name="drawer_width">320dp</dimen>
-    <dimen name="drawer_margin">24dp</dimen>
+    <dimen name="meeting_list_width">360dp</dimen>
 
 </resources>

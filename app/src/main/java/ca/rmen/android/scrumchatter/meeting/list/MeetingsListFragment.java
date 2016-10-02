@@ -180,7 +180,7 @@ public class MeetingsListFragment extends Fragment {
                 }
                 // Keep the current selected position, but reopen the meeting
                 // Ex: the user deleted a meeting in the middle. We will select the previous meeting
-                else if (meetingFragment.getMeetingId() != adapter.getItemId(adapter.getSelectedPosition())){
+                else if (meetingFragment != null && meetingFragment.getMeetingId() != adapter.getItemId(adapter.getSelectedPosition())){
                     positionToSelect = adapter.getSelectedPosition();
                 }
                 // Keep the current selected position and don't reopen the meeting
