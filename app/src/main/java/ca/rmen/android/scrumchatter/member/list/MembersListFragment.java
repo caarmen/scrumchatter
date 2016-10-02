@@ -178,6 +178,8 @@ public class MembersListFragment extends Fragment {
         }
     };
 
+    // Used from xml with data binding
+    @SuppressWarnings("WeakerAccess")
     public class ColumnHeaderListener {
         /**
          * Resort the list of members by the given column

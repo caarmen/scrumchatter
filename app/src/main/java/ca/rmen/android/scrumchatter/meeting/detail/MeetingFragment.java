@@ -401,6 +401,8 @@ public class MeetingFragment extends Fragment {
         }
     };
 
+    // Used from xml for data binding
+    @SuppressWarnings("WeakerAccess")
     public class MeetingStopListener {
         public void onMeetingStopped(@SuppressWarnings("UnusedParameters") View view) {
             // Let's ask him if he's sure.
