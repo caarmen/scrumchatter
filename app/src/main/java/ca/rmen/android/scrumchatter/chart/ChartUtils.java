@@ -66,9 +66,9 @@ final class ChartUtils {
         legendView.addView(memberLegendEntry);
     }
 
-    static @ColorInt int getMemberColor(Context context, String memberName) {
+    static @ColorInt int getMemberColor(Context context, long memberId) {
         String[] colors = context.getResources().getStringArray(R.array.chart_colors);
-        String colorString = colors[Math.abs(memberName.hashCode() % colors.length)];
+        String colorString = colors[(int) memberId % colors.length];
         @ColorInt int color = Color.parseColor(colorString);
         return color;
     }

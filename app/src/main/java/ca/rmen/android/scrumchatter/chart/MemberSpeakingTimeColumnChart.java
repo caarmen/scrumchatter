@@ -30,8 +30,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.TreeMap;
 
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
@@ -53,7 +52,7 @@ final class MemberSpeakingTimeColumnChart {
         // prevent instantiation
     }
 
-    public static void populateMemberSpeakingTimeChart(Context context, ColumnChartView chart, ViewGroup legendView, @NonNull Cursor cursor) {
+    static void populateMemberSpeakingTimeChart(Context context, ColumnChartView chart, ViewGroup legendView, @NonNull Cursor cursor) {
         List<AxisValue> xAxisValues = new ArrayList<>();
         List<Column> columns = new ArrayList<>();
 
@@ -102,14 +101,15 @@ final class MemberSpeakingTimeColumnChart {
     }
 
     private static Map<String, Integer> buildMemberColorMap(Context context, MeetingMemberCursorWrapper cursorWrapper) {
-        Set<String> memberNames = new TreeSet<>();
+        Map<String, Long> memberIds = new TreeMap<>();
+        LinkedHashMap<String, Integer> memberColors = new LinkedHashMap<>();
         while (cursorWrapper.moveToNext()) {
-            memberNames.add(cursorWrapper.getMemberName());
+            memberIds.put(cursorWrapper.getMemberName(), cursorWrapper.getMemberId());
         }
         cursorWrapper.moveToPosition(-1);
-        LinkedHashMap<String, Integer> memberColors = new LinkedHashMap<>();
-        for (String memberName : memberNames) {
-            memberColors.put(memberName, ChartUtils.getMemberColor(context, memberName));
+
+        for (String memberName : memberIds.keySet()) {
+            memberColors.put(memberName, ChartUtils.getMemberColor(context, memberIds.get(memberName)));
         }
         return memberColors;
     }

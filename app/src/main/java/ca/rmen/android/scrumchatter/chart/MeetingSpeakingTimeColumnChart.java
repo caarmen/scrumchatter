@@ -57,6 +57,7 @@ final class MeetingSpeakingTimeColumnChart {
             List<SubcolumnValue> subcolumnValues = new ArrayList<>();
             Column column = new Column(subcolumnValues);
 
+            Long memberId = cursorWrapper.getMemberId();
             String memberName = cursorWrapper.getMemberName();
             float durationInMinutes = (float) cursorWrapper.getDuration() / 60;
             String durationLabel = DateUtils.formatElapsedTime(cursorWrapper.getDuration());
@@ -64,7 +65,7 @@ final class MeetingSpeakingTimeColumnChart {
             SubcolumnValue subcolumnValue = new SubcolumnValue();
             subcolumnValue.setValue(durationInMinutes);
             subcolumnValue.setLabel(durationLabel);
-            int color = ChartUtils.getMemberColor(context, memberName);
+            int color = ChartUtils.getMemberColor(context, memberId);
             subcolumnValue.setColor(color);
             subcolumnValues.add(subcolumnValue);
 

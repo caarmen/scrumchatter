@@ -93,6 +93,7 @@ public class MeetingsChartsFragment extends Fragment {
                 return new CursorLoader(getContext(),
                         MeetingMemberColumns.CONTENT_URI,
                         new String[]{
+                                MeetingMemberColumns.MEMBER_ID,
                                 MeetingMemberColumns.MEETING_ID,
                                 MeetingColumns.MEETING_DATE,
                                 MemberColumns.NAME,
