@@ -20,7 +20,7 @@ package ca.rmen.android.scrumchatter.chart;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Color;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.text.format.DateUtils;
 import android.widget.TextView;
@@ -30,7 +30,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.databinding.PieChartContentBinding;
 import ca.rmen.android.scrumchatter.provider.MemberCursorWrapper;
 import ca.rmen.android.scrumchatter.util.TextUtils;
@@ -104,14 +103,12 @@ final class MemberSpeakingTimePieChart {
             sliceValues.remove(sliceValues.size() - 1);
         }
 
-        String[] lineColors = context.getResources().getStringArray(R.array.chart_colors);
         pieChartBinding.legend.removeAllViews();
         for (int i = 0; i < sliceValues.size(); i++) {
-            String colorString = lineColors[i % lineColors.length];
-            int color = Color.parseColor(colorString);
             SliceValue sliceValue = sliceValues.get(i);
             String label = new String(sliceValue.getLabelAsChars());
             String memberName = label.substring(0, label.indexOf("###"));
+            @ColorInt int color = ChartUtils.getMemberColor(context, memberName);
             String duration = label.substring(label.indexOf("###") + 3);
             sliceValue.setColor(color);
 

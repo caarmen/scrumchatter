@@ -19,7 +19,9 @@
 package ca.rmen.android.scrumchatter.chart;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.ColorInt;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
@@ -54,14 +56,20 @@ final class ChartUtils {
 
     static void addLegendEntry(Context context, ViewGroup legendView, String name, int color) {
         TextView memberLegendEntry = new TextView(context);
-        memberLegendEntry.setTextColor(color);
         memberLegendEntry.setText(name);
         memberLegendEntry.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         memberLegendEntry.setPadding(0, 0, context.getResources().getDimensionPixelSize(R.dimen.chart_legend_entry_padding), 0);
 
-        Drawable icon = ContextCompat.getDrawable(context, R.drawable.ic_legend_square);
+        Drawable icon = ContextCompat.getDrawable(context, R.drawable.ic_legend_square).mutate();
         DrawableCompat.setTint(icon, color);
         memberLegendEntry.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
         legendView.addView(memberLegendEntry);
+    }
+
+    static @ColorInt int getMemberColor(Context context, String memberName) {
+        String[] colors = context.getResources().getStringArray(R.array.chart_colors);
+        String colorString = colors[Math.abs(memberName.hashCode() % colors.length)];
+        @ColorInt int color = Color.parseColor(colorString);
+        return color;
     }
 }

@@ -20,7 +20,6 @@ package ca.rmen.android.scrumchatter.chart;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.text.format.DateUtils;
 import android.util.DisplayMetrics;
@@ -109,17 +108,10 @@ final class MemberSpeakingTimeColumnChart {
         }
         cursorWrapper.moveToPosition(-1);
         LinkedHashMap<String, Integer> memberColors = new LinkedHashMap<>();
-        int index = 0;
         for (String memberName : memberNames) {
-            memberColors.put(memberName, getColor(context, index++));
+            memberColors.put(memberName, ChartUtils.getMemberColor(context, memberName));
         }
         return memberColors;
-    }
-
-    private static int getColor(Context context, int index) {
-        String[] colors = context.getResources().getStringArray(R.array.chart_colors);
-        String colorString = colors[index % colors.length];
-        return Color.parseColor(colorString);
     }
 
     private static void setupChart(Context context, ColumnChartView chart, List<AxisValue> xAxisValues, String yAxisLabel, List<Column> columns) {
