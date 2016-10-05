@@ -21,6 +21,7 @@ package ca.rmen.android.scrumchatter.chart;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.annotation.ColorInt;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
@@ -60,8 +61,14 @@ final class ChartUtils {
         memberLegendEntry.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         memberLegendEntry.setPadding(0, 0, context.getResources().getDimensionPixelSize(R.dimen.chart_legend_entry_padding), 0);
 
-        Drawable icon = ContextCompat.getDrawable(context, R.drawable.ic_legend_square).mutate();
-        DrawableCompat.setTint(icon, color);
+        final Drawable icon;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            icon = ContextCompat.getDrawable(context, R.drawable.ic_legend_square);
+            memberLegendEntry.setTextColor(color);
+        } else {
+            icon = ContextCompat.getDrawable(context, R.drawable.ic_legend_square).mutate();
+            DrawableCompat.setTint(icon, color);
+        }
         memberLegendEntry.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
         legendView.addView(memberLegendEntry);
     }
