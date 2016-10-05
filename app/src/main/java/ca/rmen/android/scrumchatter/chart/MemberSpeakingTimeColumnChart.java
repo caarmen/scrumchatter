@@ -27,7 +27,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -57,7 +56,7 @@ final class MemberSpeakingTimeColumnChart {
         List<Column> columns = new ArrayList<>();
 
         MeetingMemberCursorWrapper cursorWrapper = new MeetingMemberCursorWrapper(cursor);
-        Map<String, Integer> memberColors = buildMemberColorMap(context, cursorWrapper);
+        Map<String, Integer> memberColors = new TreeMap<>();
         long lastMeetingId = -1;
         List<SubcolumnValue> subcolumnValues = new ArrayList<>();
         while (cursorWrapper.moveToNext()) {
@@ -75,11 +74,14 @@ final class MemberSpeakingTimeColumnChart {
                     }
                     subcolumnValues = new ArrayList<>();
                 }
+                Long memberId = cursorWrapper.getMemberId();
                 String memberName = cursorWrapper.getMemberName();
                 SubcolumnValue subcolumnValue = new SubcolumnValue();
                 String durationString = DateUtils.formatElapsedTime(cursorWrapper.getDuration());
                 subcolumnValue.setLabel(String.format("%s (%s)", memberName, durationString));
-                subcolumnValue.setColor(memberColors.get(memberName));
+                int color = ChartUtils.getMemberColor(context, memberId);
+                subcolumnValue.setColor(color);
+                memberColors.put(cursorWrapper.getMemberName(), color);
                 subcolumnValue.setValue((float) cursorWrapper.getDuration() / 60);
                 subcolumnValues.add(subcolumnValue);
                 lastMeetingId = currentMeetingId;
@@ -98,20 +100,6 @@ final class MemberSpeakingTimeColumnChart {
                 context.getString(R.string.chart_speaking_time),
                 columns);
 
-    }
-
-    private static Map<String, Integer> buildMemberColorMap(Context context, MeetingMemberCursorWrapper cursorWrapper) {
-        Map<String, Long> memberIds = new TreeMap<>();
-        LinkedHashMap<String, Integer> memberColors = new LinkedHashMap<>();
-        while (cursorWrapper.moveToNext()) {
-            memberIds.put(cursorWrapper.getMemberName(), cursorWrapper.getMemberId());
-        }
-        cursorWrapper.moveToPosition(-1);
-
-        for (String memberName : memberIds.keySet()) {
-            memberColors.put(memberName, ChartUtils.getMemberColor(context, memberIds.get(memberName)));
-        }
-        return memberColors;
     }
 
     private static void setupChart(Context context, ColumnChartView chart, List<AxisValue> xAxisValues, String yAxisLabel, List<Column> columns) {
