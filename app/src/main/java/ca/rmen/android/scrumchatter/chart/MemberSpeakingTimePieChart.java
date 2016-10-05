@@ -20,7 +20,6 @@ package ca.rmen.android.scrumchatter.chart;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.text.format.DateUtils;
 import android.widget.TextView;
@@ -30,7 +29,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.databinding.PieChartContentBinding;
 import ca.rmen.android.scrumchatter.provider.MemberCursorWrapper;
 import ca.rmen.android.scrumchatter.util.TextUtils;
@@ -48,19 +46,37 @@ final class MemberSpeakingTimePieChart {
         // prevent instantiation
     }
 
+    /**
+     * The library's SliceValue doesn't have a field for what to display in the legend for a slice.
+     * So, we create our own class containing both the SliceValue and the legend label for a given slice.
+     */
+    private static class PieChartSlice {
+        final SliceValue sliceValue;
+        final String legendLabel;
+
+        public PieChartSlice(SliceValue sliceValue, String legendLabel) {
+            this.sliceValue = sliceValue;
+            this.legendLabel = legendLabel;
+        }
+    }
+
     public static void populateMemberSpeakingTimeChart(Context context, PieChartContentBinding pieChartAvgBinding, PieChartContentBinding pieChartTotalBinding, @NonNull Cursor cursor) {
-        List<SliceValue> sliceValuesAvgSpeakingTime = new ArrayList<>();
-        List<SliceValue> sliceValuesTotalSpeakingTime = new ArrayList<>();
+        List<PieChartSlice> sliceValuesAvgSpeakingTime = new ArrayList<>();
+        List<PieChartSlice> sliceValuesTotalSpeakingTime = new ArrayList<>();
         MemberCursorWrapper cursorWrapper = new MemberCursorWrapper(cursor);
         while (cursorWrapper.moveToNext()) {
             String memberName = cursorWrapper.getName();
 
-            sliceValuesAvgSpeakingTime.add(createSliceValue(
+            sliceValuesAvgSpeakingTime.add(createPieChartSlice(
+                    context,
                     cursorWrapper.getAverageDuration(),
+                    cursorWrapper.getId(),
                     memberName));
 
-            sliceValuesTotalSpeakingTime.add(createSliceValue(
+            sliceValuesTotalSpeakingTime.add(createPieChartSlice(
+                    context,
                     cursorWrapper.getSumDuration(),
+                    cursorWrapper.getId(),
                     memberName));
         }
         cursor.moveToPosition(-1);
@@ -85,38 +101,35 @@ final class MemberSpeakingTimePieChart {
         }
     }
 
-    private static SliceValue createSliceValue(long duration, String memberName) {
+    private static PieChartSlice createPieChartSlice(Context context, long duration, long memberId, String memberName) {
         SliceValue sliceValue = new SliceValue();
         sliceValue.setValue(duration);
         String durationString = DateUtils.formatElapsedTime(duration);
-        String label = String.format("%s###%s", memberName, durationString);
-        sliceValue.setLabel(label);
-        return sliceValue;
+        sliceValue.setLabel(durationString);
+        sliceValue.setColor(ChartUtils.getMemberColor(context, memberId));
+        return new PieChartSlice(sliceValue, memberName);
     }
 
-    private static void setupChart(Context context, PieChartContentBinding pieChartBinding , List<SliceValue> sliceValues) {
+    private static void setupChart(Context context,
+                                   PieChartContentBinding pieChartBinding,
+                                   List<PieChartSlice> pieChartSlices) {
         PieChartData data = new PieChartData();
         data.setHasLabels(true);
         //data.setHasLabelsOutside(true);
 
-        Collections.sort(sliceValues, SLICE_VALUE_COMPARATOR);
-        while (sliceValues.size() > MAX_VALUES) {
-            sliceValues.remove(sliceValues.size() - 1);
+        Collections.sort(pieChartSlices, PIE_CHART_SLICE_COMPARATOR);
+        while (pieChartSlices.size() > MAX_VALUES) {
+            pieChartSlices.remove(pieChartSlices.size() - 1);
         }
 
-        String[] lineColors = context.getResources().getStringArray(R.array.chart_colors);
+        List<SliceValue> sliceValues = new ArrayList<>();
         pieChartBinding.legend.removeAllViews();
-        for (int i = 0; i < sliceValues.size(); i++) {
-            String colorString = lineColors[i % lineColors.length];
-            int color = Color.parseColor(colorString);
-            SliceValue sliceValue = sliceValues.get(i);
-            String label = new String(sliceValue.getLabelAsChars());
-            String memberName = label.substring(0, label.indexOf("###"));
-            String duration = label.substring(label.indexOf("###") + 3);
-            sliceValue.setColor(color);
-
-            ChartUtils.addLegendEntry(context, pieChartBinding.legend, memberName, color);
-            sliceValue.setLabel(duration);
+        for (PieChartSlice pieChartSlice : pieChartSlices) {
+            sliceValues.add(pieChartSlice.sliceValue);
+            ChartUtils.addLegendEntry(context,
+                    pieChartBinding.legend,
+                    pieChartSlice.legendLabel,
+                    pieChartSlice.sliceValue.getColor());
         }
 
         data.setValues(sliceValues);
@@ -129,10 +142,10 @@ final class MemberSpeakingTimePieChart {
         //pieChartView.setCircleFillRatio(0.4f);
     }
 
-    private static final Comparator<SliceValue> SLICE_VALUE_COMPARATOR = new Comparator<SliceValue>() {
+    private static final Comparator<PieChartSlice> PIE_CHART_SLICE_COMPARATOR = new Comparator<PieChartSlice>() {
         @Override
-        public int compare(SliceValue lhs, SliceValue rhs) {
-            return (int) (rhs.getValue() - lhs.getValue());
+        public int compare(PieChartSlice lhs, PieChartSlice rhs) {
+            return (int) (rhs.sliceValue.getValue() - lhs.sliceValue.getValue());
         }
     };
 

@@ -20,7 +20,6 @@ package ca.rmen.android.scrumchatter.chart;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.text.format.DateUtils;
 import android.util.DisplayMetrics;
@@ -31,8 +30,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.TreeMap;
 
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
@@ -54,7 +52,7 @@ final class MemberSpeakingTimeColumnChart {
         // prevent instantiation
     }
 
-    public static void populateMemberSpeakingTimeChart(Context context, ColumnChartView chart, ViewGroup legendView, @NonNull Cursor cursor) {
+    static void populateMemberSpeakingTimeChart(Context context, ColumnChartView chart, ViewGroup legendView, @NonNull Cursor cursor) {
         List<AxisValue> xAxisValues = new ArrayList<>();
         List<Column> columns = new ArrayList<>();
 
@@ -103,23 +101,17 @@ final class MemberSpeakingTimeColumnChart {
     }
 
     private static Map<String, Integer> buildMemberColorMap(Context context, MeetingMemberCursorWrapper cursorWrapper) {
-        Set<String> memberNames = new TreeSet<>();
+        Map<String, Long> memberIds = new TreeMap<>();
+        LinkedHashMap<String, Integer> memberColors = new LinkedHashMap<>();
         while (cursorWrapper.moveToNext()) {
-            memberNames.add(cursorWrapper.getMemberName());
+            memberIds.put(cursorWrapper.getMemberName(), cursorWrapper.getMemberId());
         }
         cursorWrapper.moveToPosition(-1);
-        LinkedHashMap<String, Integer> memberColors = new LinkedHashMap<>();
-        int index = 0;
-        for (String memberName : memberNames) {
-            memberColors.put(memberName, getColor(context, index++));
+
+        for (String memberName : memberIds.keySet()) {
+            memberColors.put(memberName, ChartUtils.getMemberColor(context, memberIds.get(memberName)));
         }
         return memberColors;
-    }
-
-    private static int getColor(Context context, int index) {
-        String[] colors = context.getResources().getStringArray(R.array.chart_colors);
-        String colorString = colors[index % colors.length];
-        return Color.parseColor(colorString);
     }
 
     private static void setupChart(Context context, ColumnChartView chart, List<AxisValue> xAxisValues, String yAxisLabel, List<Column> columns) {

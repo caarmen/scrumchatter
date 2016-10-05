@@ -20,7 +20,6 @@ package ca.rmen.android.scrumchatter.chart;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v4.content.res.ResourcesCompat;
 import android.text.format.DateUtils;
@@ -53,12 +52,12 @@ final class MeetingSpeakingTimeColumnChart {
         List<Column> columns = new ArrayList<>();
 
         MeetingMemberCursorWrapper cursorWrapper = new MeetingMemberCursorWrapper(cursor);
-        String[] colors = context.getResources().getStringArray(R.array.chart_colors);
         int maxLabelLength = 0;
         while (cursorWrapper.moveToNext()) {
             List<SubcolumnValue> subcolumnValues = new ArrayList<>();
             Column column = new Column(subcolumnValues);
 
+            Long memberId = cursorWrapper.getMemberId();
             String memberName = cursorWrapper.getMemberName();
             float durationInMinutes = (float) cursorWrapper.getDuration() / 60;
             String durationLabel = DateUtils.formatElapsedTime(cursorWrapper.getDuration());
@@ -66,8 +65,8 @@ final class MeetingSpeakingTimeColumnChart {
             SubcolumnValue subcolumnValue = new SubcolumnValue();
             subcolumnValue.setValue(durationInMinutes);
             subcolumnValue.setLabel(durationLabel);
-            String colorString = colors[cursorWrapper.getPosition() % colors.length];
-            subcolumnValue.setColor(Color.parseColor(colorString));
+            int color = ChartUtils.getMemberColor(context, memberId);
+            subcolumnValue.setColor(color);
             subcolumnValues.add(subcolumnValue);
 
             column.setHasLabels(true);
