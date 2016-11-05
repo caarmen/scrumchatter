@@ -106,6 +106,7 @@ public class MeetingCursorAdapter extends ScrumChatterCursorAdapter<MeetingCurso
         if (meetingState == State.FINISHED) {
             meetingMemberItemData.startStopButtonVisibility = View.INVISIBLE;
         }
+        meetingMemberItemData.clickable = meetingState != State.FINISHED;
 
         // If the member is currently talking, show the chronometer.
         // Otherwise, show the duration that they talked (if any).
@@ -131,6 +132,7 @@ public class MeetingCursorAdapter extends ScrumChatterCursorAdapter<MeetingCurso
     }
 
     public static class MeetingMemberItemData {
+        public boolean clickable;
         public @ColorInt int backgroundColor;
         public long memberId;
         public String memberName;
