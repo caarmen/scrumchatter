@@ -116,8 +116,8 @@
     </string-array>
 
     <!-- Default team members -->
-    <string name="default_team_member1">Justin</string>
-    <string name="default_team_member2">Ashley</string>
+    <string name="default_team_member1">太郎</string>
+    <string name="default_team_member2">花子</string>
 
     <!-- Charts -->
     <string name="chart_meeting_duration_title">%s のミーティング時間</string>
