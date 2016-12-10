@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2016 Carmen Alvarez
+ 
+  This file is part of Scrum Chatter.
+ 
+  Scrum Chatter is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+ 
+  Scrum Chatter is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+ 
+  You should have received a copy of the GNU General Public License
+  along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
+-->
+<resources>
+
+    <string name="title_section_meetings">ミーティング</string>
+    <string name="title_section_team">チーム</string>
+    <string name="title_chart">統計情報</string>
+    <string name="action_share">共有</string>
+    <string name="action_share_global">すべてのミーティングを共有</string>
+    <string name="action_share_meeting">選択したミーティングを共有</string>
+    <string name="action_team_rename">チームの名前を変更</string>
+    <string name="action_team_rename_name">%s の名前を変更</string>
+    <string name="action_team_delete">チームを削除</string>
+    <string name="action_team_delete_name">%s を削除</string>
+    <string name="action_import">データベースのインポート</string>
+    <string name="action_charts">統計情報</string>
+    <string name="action_charts_global">すべてのミーティングの統計情報</string>
+    <string name="action_charts_meeting">選択したミーティングの統計情報</string>
+    <string name="action_new_member">チームメンバーを追加</string>
+    <string name="action_rename_member">チームメンバーの名前を変更</string>
+    <string name="action_new_meeting">新しいミーティング</string>
+    <string name="action_new_team">新しいチーム</string>
+    <string name="hint_new_member">チームメンバーの名前。</string>
+    <string name="error_member_exists">%s さんはすでにチームメンバーです。</string>
+    <string name="error_team_exists">すでに %s チームがあります。</string>
+    <string name="error_sharing_meeting">申し訳ありません! このミーティングは共有できませんでした。</string>
+    <string name="action_delete_member">メンバーを削除</string>
+    <string name="action_delete_meeting">ミーティングを削除</string>
+    <string name="dialog_message_delete_member_confirm">%s を削除しますか?</string>
+    <string name="dialog_message_delete_meeting_confirm">%s からミーティングを削除しますか?</string>
+    <string name="dialog_message_delete_team_confirm">%s を削除しますか?</string>
+    <string name="drawer_switch_team">チームの切り替え:</string>
+    <string name="hint_team_name">チーム名</string>
+    <string name="dialog_error_one_team_required">申し訳ありません。少なくとも 1 チーム必要です!</string>
+    <string name="dialog_error_title_one_member_required">ミーティングを開始できません</string>
+    <string name="dialog_error_message_one_member_required">申し訳ありません。ミーティングをするには、チームメンバーが必要です。</string>
+    <string name="drawer_new_team">新しいチーム&#8230;</string>
+    <string name="member_list_header_name">名前</string>
+    <string name="member_list_header_avg_duration">平均時間</string>
+    <string name="member_list_header_sum_duration">合計時間</string>
+    <string name="meeting_list_header_date">日付</string>
+    <string name="meeting_list_header_duration">時間</string>
+    <string name="action_stop_meeting">ミーテイン終了</string>
+    <string name="action_start">開始</string>
+    <string name="chatter_face_label">チャッターフェース</string>
+    <string name="meeting_header_total_duration">ミーティング時間:</string>
+    <string name="meeting_state_not_started">開始していません</string>
+    <string name="meeting_state_in_progress">進行中</string>
+    <string name="meeting_state_finished">終了</string>
+    <string name="export_choice_title">共有する形式を選択</string>
+    <string name="export_format_excel">Excel</string>
+    <string name="export_format_db">データベース</string>
+    <string name="export_meeting_date">Scrum Chatter ミーティング日時 %s</string>
+    <string name="export_meeting_duration">合計ミーティング時間: %s</string>
+    <string name="export_header_meeting_date">日付</string>
+    <string name="export_header_meeting_duration">合計時間</string>
+    <string name="export_message_subject">Scrum Chatter レポート</string>
+    <string name="export_message_body">Scrum Chatter レポートを添付しました。</string>
+    <string name="export_error">Scrum Chatter レポートを作成できませんでした。 お使いの携帯電話の SD カードが使用できるか確認してください。</string>
+    <string name="loading">ロード中&#8230;</string>
+    <string name="empty_list_meetings">ミーティングを作成していません。</string>
+    <string name="empty_list_members">チームメンバーはいません。</string>
+    <string name="progress_dialog_message">しばらくお待ちください&#8230;</string>
+    <string name="dialog_confirm">よろしいですか?</string>
+    <string name="import_permission_rationale">Scrum Chatter は、データベースをインポートするために、外部ストレージにアクセスする必要があります。</string>
+    <string name="import_confirm_title">データベースのインポート</string>
+    <string name="import_confirm_message">現在のデータベースを削除して %s で置き換えますか?</string>
+    <string name="import_result_success">インポートが成功しました</string>
+    <string name="import_result_failed">インポートに失敗しました</string>
+    <string name="import_result_no_file">インポートするファイルが選択されていません</string>
+    <string name="about">アプリについて</string>
+    <string name="about_author">By Carmen Alvarez</string>
+    <string name="about_version">v</string>
+    <string name="about_source_text">GitHub のソースコード:</string>
+    <string name="about_source_link">https://github.com/caarmen/scrumchatter</string>
+    <string name="about_credit_title">スペシャルサンクス:</string>
+    <string name="about_credit_content_provider_generator_text">BoD, コンテンツ プロバイダー ジェネレーター。</string>
+    <string name="about_credit_app_icon_text">qubodup, openclipart 上の speech bubble アイコン。</string>
+    <string name="about_credit_japanese_translation_text">Naofumi Fukue, for the Japanese translation.</string>
+    <string name="about_credit_jxl_lib_text">Andy Khan, Java Excel API ライブラリー。</string>
+    <string name="about_credit_permissions_lib_text">Shintaro Katafuchi, PermissionsDispatcher ライブラリー。</string>
+    <string name="about_credit_chart_lib_text">Leszek Wach, HelloCharts for Android ライブラリー。</string>
+    <string name="about_credit_flowlayout_lib_text">Artem Votincev, FlowLayout ライブラリー。</string>
+
+    <string name="drawer_open">サイドメニューを開く</string>
+    <string name="drawer_close">サイドメニューを閉じる</string>
+    <string name="allow">許可</string>
+    <string name="deny">拒否</string>
+
+    <!-- Strings related to Settings -->
+    <string name="title_activity_settings">設定</string>
+    <string name="pref_theme_title">テーマ</string>
+    <string name="pref_theme_value_light">ライト</string>
+    <string name="pref_theme_value_dark">ダーク</string>
+    <string name="pref_theme_value_auto">自動</string>
+    <string-array name="pref_theme_titles">
+        <item>@string/pref_theme_value_light</item>
+        <item>@string/pref_theme_value_dark</item>
+        <item>@string/pref_theme_value_auto</item>
+    </string-array>
+
+    <!-- Default team members -->
+    <string name="default_team_member1">太郎</string>
+    <string name="default_team_member2">花子</string>
+
+    <!-- Charts -->
+    <string name="chart_meeting_duration_title">%s のミーティング時間</string>
+    <string name="chart_speaker_time_title">%s のスピーカー時間</string>
+    <string name="chart_member_average_speaking_time_title">%s メンバーの平均スピーキング時間</string>
+    <string name="chart_member_total_speaking_time_title">%s メンバーの合計スピーキング時間</string>
+    <string name="chart_member_speaking_time_title">%s ミーティングのスピーキング時間</string>
+    <string name="chart_total_duration">合計時間: %s</string>
+    <string name="chart_duration">ミーティング時間 (分)</string>
+    <string name="chart_speaking_time">話した時間 (分)</string>
+    <string name="chart_date">ミーティング日</string>
+    <string name="chart_exporting_snackbar">チャートのエクスポート中…</string>
+</resources>
