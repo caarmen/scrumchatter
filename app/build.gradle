@@ -38,8 +38,8 @@ android {
     }
     defaultConfig {
         applicationId "ca.rmen.android.scrumchatter"
-        versionCode 10600
-        versionName "1.6.0"
+        versionCode 10601
+        versionName "1.6.1"
         minSdkVersion 9
         targetSdkVersion 25
         return true; // Avoid "Not all execution paths return a value"

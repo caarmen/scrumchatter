@@ -93,7 +93,7 @@
     <string name="about_credit_title">スペシャルサンクス:</string>
     <string name="about_credit_content_provider_generator_text">BoD, コンテンツ プロバイダー ジェネレーター。</string>
     <string name="about_credit_app_icon_text">qubodup, openclipart 上の speech bubble アイコン。</string>
-    <string name="about_credit_japanese_translation_text">Naofumi Fukue, for the Japanese translation.</string>
+    <string name="about_credit_japanese_translation_text">日本語訳 福江尚史</string>
     <string name="about_credit_jxl_lib_text">Andy Khan, Java Excel API ライブラリー。</string>
     <string name="about_credit_permissions_lib_text">Shintaro Katafuchi, PermissionsDispatcher ライブラリー。</string>
     <string name="about_credit_chart_lib_text">Leszek Wach, HelloCharts for Android ライブラリー。</string>
