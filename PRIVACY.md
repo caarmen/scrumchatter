@@ -30,6 +30,7 @@ Permissions
 -----------
 
 `READ_EXTERNAL_STORAGE`
+
 Scrum Chatter allows you to import a database file which you previously exported.  The `READ_EXTERNAL_STORAGE`
 permission is required to be able to read the database file and import its data into the Scrum Chatter
 local database.  If the file is anything other than a valid Scrum Chatter database, the import will fail,
@@ -37,6 +38,7 @@ and Scrum Chatter will do nothing with the data.  On Marshmallow (6.x) and later
 you must first grant this permission to Scrum Chatter before you can select and import a database file.
 
 `WRITE_EXTERNAL_STORAGE`
+
 Well, this is embarrassing.  The developer cannot remember why Scrum Chatter declares the
 `WRITE_EXTERNAL_STORAGE` permission. Sharing the application data as a database or Excel file, and
 sharing chart images, require saving files to the device's external storage, but the files are saved
