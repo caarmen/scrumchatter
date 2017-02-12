@@ -39,11 +39,10 @@ you must first grant this permission to Scrum Chatter before you can select and 
 
 `WRITE_EXTERNAL_STORAGE`
 
-Well, this is embarrassing.  The developer cannot remember why Scrum Chatter declares the
-`WRITE_EXTERNAL_STORAGE` permission. Sharing the application data as a database or Excel file, and
-sharing chart images, require saving files to the device's external storage, but the files are saved
-to the folder dedicated to the app, which requires no special permission: `<sdcard>/Android/data/ca.rmen.android.scrumchatter/files`.
-An investigation is required to remove or explain the need for this permission: https://github.com/caarmen/scrumchatter/issues/55
+Sharing the application data as a database or Excel file, and sharing chart images, require saving files to the device's external storage.
+The files are saved to the folder dedicated to the app: `<sdcard>/Android/data/ca.rmen.android.scrumchatter/files`.
+For Android versions prior to KitKat (4.4), this permission was required to write to this folder.  
+For KitKat and later versions, this permission is no longer required.
 
 
 More questions?
