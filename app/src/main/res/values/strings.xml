@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2016 Carmen Alvarez
+  Copyright 2016-2017 Carmen Alvarez
  
   This file is part of Scrum Chatter.
  
@@ -80,7 +80,6 @@
     <string name="empty_list_members">You have no team members.</string>
     <string name="progress_dialog_message">Please wait&#8230;</string>
     <string name="dialog_confirm">Are you sure?</string>
-    <string name="import_permission_rationale">Scrum Chatter needs access to your device\'s external storage to import a database.</string>
     <string name="import_confirm_title">Import database</string>
     <string name="import_confirm_message">Delete the current database and replace with %s?</string>
     <string name="import_result_success">Import successful</string>
@@ -100,8 +99,6 @@
     <string translatable="false" name="about_credit_japanese_translation_link">https://github.com/naofum</string>
     <string name="about_credit_jxl_lib_text">Andy Khan, for his Java Excel API library.</string>
     <string translatable="false" name="about_credit_jxl_lib_link">http://sourceforge.net/projects/jexcelapi</string>
-    <string name="about_credit_permissions_lib_text">Shintaro Katafuchi, for his PermissionsDispatcher library.</string>
-    <string translatable="false" name="about_credit_permissions_lib_link">https://github.com/hotchemi/PermissionsDispatcher</string>
     <string name="about_credit_chart_lib_text">Leszek Wach, for his HelloCharts for Android library.</string>
     <string translatable="false" name="about_credit_chart_lib_link">https://github.com/lecho/hellocharts-android</string>
     <string name="about_credit_flowlayout_lib_text">Artem Votincev, for his FlowLayout library.</string>
@@ -109,8 +106,6 @@
 
     <string name="drawer_open">Open side menu</string>
     <string name="drawer_close">Close side menu</string>
-    <string name="allow">Allow</string>
-    <string name="deny">Deny</string>
 
     <!-- Strings related to Settings -->
     <string name="title_activity_settings">Settings</string>

@@ -22,29 +22,6 @@ Data you can explicitly choose to share, using an external app:
   - pie charts: average and total speaking time for team members
 * From the main screen, the "Share" icon allows you to share all team, member and meeting data in Excel or database format.
 
-In order to be able to share data as files or images, Scrum Chatter must save this data to a file on your device's memory, accessible to other applications.
-If you want to delete these files after sharing them, you must use a file browser app installed on your device.
-The files are saved to `<sdcard>/Android/data/ca.rmen.android.scrumchatter/files`.
-
-Permissions
------------
-
-`READ_EXTERNAL_STORAGE`
-
-Scrum Chatter allows you to import a database file which you previously exported.  The `READ_EXTERNAL_STORAGE`
-permission is required to be able to read the database file and import its data into the Scrum Chatter
-local database.  If the file is anything other than a valid Scrum Chatter database, the import will fail,
-and Scrum Chatter will do nothing with the data.  On Marshmallow (6.x) and later versions of Android,
-you must first grant this permission to Scrum Chatter before you can select and import a database file.
-
-`WRITE_EXTERNAL_STORAGE`
-
-Sharing the application data as a database or Excel file, and sharing chart images, require saving files to the device's external storage.
-The files are saved to the folder dedicated to the app: `<sdcard>/Android/data/ca.rmen.android.scrumchatter/files`.
-For Android versions prior to KitKat (4.4), this permission was required to write to this folder.  
-For KitKat and later versions, this permission is no longer required.
-
-
 More questions?
 ---------------
 If you're interested in how Scrum Chatter works, feel free to

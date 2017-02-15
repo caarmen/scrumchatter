@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2016 Carmen Alvarez
+  Copyright 2016-2017 Carmen Alvarez
  
   This file is part of Scrum Chatter.
  
@@ -79,7 +79,6 @@
     <string name="empty_list_members">Ningún miembro de equipo.</string>
     <string name="progress_dialog_message">Por favor espera&#8230;</string>
     <string name="dialog_confirm">¿Estás seguro?</string>
-    <string name="import_permission_rationale">Scrum Chatter se requiere acceso al almacenamiento para poder importar una base de datos.</string>
     <string name="import_confirm_title">Importar una base de datos</string>
     <string name="import_confirm_message">¿Borrar todos los datos y reemplazarlos con %s?</string>
     <string name="import_result_success">Importación realizada correctamente</string>
@@ -95,14 +94,11 @@
     <string name="about_credit_app_icon_text">qubodup por el icono de bocadillo, en openclipart.</string>
     <string name="about_credit_japanese_translation_text">Naofumi Fukue por la traducción al japonés.</string>
     <string name="about_credit_jxl_lib_text">Andy Khan, para su biblioteca Java Excel API.</string>
-    <string name="about_credit_permissions_lib_text">Shintaro Katafuchi, para su biblioteca PermissionsDispatcher.</string>
     <string name="about_credit_chart_lib_text">Leszek Wach, para su blblioteca HelloCharts for Android.</string>
     <string name="about_credit_flowlayout_lib_text">Artem Votincev, para su biblioteca FlowLayout.</string>
 
     <string name="drawer_open">Abrir el menú lateral</string>
     <string name="drawer_close">Cerrar el menú lateral</string>
-    <string name="allow">Acceptar</string>
-    <string name="deny">Rechazar</string>
     <string name="title_activity_settings">Ajustes</string>
     <string name="pref_theme_title">Tema</string>
     <string name="pref_theme_value_dark">Oscuro</string>

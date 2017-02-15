@@ -21,7 +21,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="ca.rmen.android.scrumchatter">
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-sdk tools:overrideLibrary="org.apmem.tools.layouts"/>
 
     <application
