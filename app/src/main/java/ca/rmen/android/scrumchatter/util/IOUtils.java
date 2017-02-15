@@ -1,5 +1,5 @@
 /**
- * Copyright 2013 Carmen Alvarez
+ * Copyright 2013-2017 Carmen Alvarez
  *
  * This file is part of Scrum Chatter.
  *
@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import ca.rmen.android.scrumchatter.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
 
 public class IOUtils {
@@ -58,4 +57,5 @@ public class IOUtils {
             return false;
         }
     }
+
 }

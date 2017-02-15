@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2016 Carmen Alvarez
+  Copyright 2016-2017 Carmen Alvarez
  
   This file is part of Scrum Chatter.
  
@@ -35,7 +35,6 @@
     <string name="action_charts_meeting">選択したミーティングの統計情報</string>
     <string name="action_new_member">チームメンバーを追加</string>
     <string name="action_rename_member">チームメンバーの名前を変更</string>
-    <string name="action_new_meeting">新しいミーティング</string>
     <string name="action_new_team">新しいチーム</string>
     <string name="hint_new_member">チームメンバーの名前。</string>
     <string name="error_member_exists">%s さんはすでにチームメンバーです。</string>
@@ -79,7 +78,6 @@
     <string name="empty_list_members">チームメンバーはいません。</string>
     <string name="progress_dialog_message">しばらくお待ちください&#8230;</string>
     <string name="dialog_confirm">よろしいですか?</string>
-    <string name="import_permission_rationale">Scrum Chatter は、データベースをインポートするために、外部ストレージにアクセスする必要があります。</string>
     <string name="import_confirm_title">データベースのインポート</string>
     <string name="import_confirm_message">現在のデータベースを削除して %s で置き換えますか?</string>
     <string name="import_result_success">インポートが成功しました</string>
@@ -95,14 +93,11 @@
     <string name="about_credit_app_icon_text">qubodup, openclipart 上の speech bubble アイコン。</string>
     <string name="about_credit_japanese_translation_text">日本語訳 福江尚史</string>
     <string name="about_credit_jxl_lib_text">Andy Khan, Java Excel API ライブラリー。</string>
-    <string name="about_credit_permissions_lib_text">Shintaro Katafuchi, PermissionsDispatcher ライブラリー。</string>
     <string name="about_credit_chart_lib_text">Leszek Wach, HelloCharts for Android ライブラリー。</string>
     <string name="about_credit_flowlayout_lib_text">Artem Votincev, FlowLayout ライブラリー。</string>
 
     <string name="drawer_open">サイドメニューを開く</string>
     <string name="drawer_close">サイドメニューを閉じる</string>
-    <string name="allow">許可</string>
-    <string name="deny">拒否</string>
 
     <!-- Strings related to Settings -->
     <string name="title_activity_settings">設定</string>

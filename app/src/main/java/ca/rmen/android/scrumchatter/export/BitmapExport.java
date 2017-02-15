@@ -1,5 +1,5 @@
 /**
- * Copyright 2016 Carmen Alvarez
+ * Copyright 2016-2017 Carmen Alvarez
  * <p/>
  * This file is part of Scrum Chatter.
  * <p/>
@@ -19,9 +19,7 @@
 package ca.rmen.android.scrumchatter.export;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
-import android.net.Uri;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -29,7 +27,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import ca.rmen.android.scrumchatter.Constants;
-import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.util.Log;
 
 /**
@@ -56,7 +53,8 @@ public class BitmapExport {
     private File createFile() {
         Log.v(TAG, "export");
 
-        File file = new File(mContext.getExternalFilesDir(null), FILE);
+        File file = Export.getExportFile(mContext, FILE);
+        if (file == null) return null;
         // Draw everything to a bitmap.
         FileOutputStream os = null;
         try {
@@ -84,18 +82,7 @@ public class BitmapExport {
         Log.v(TAG, "export");
         File file = createFile();
         Log.v(TAG, "export: created file " + file);
-        if (file != null && file.exists()) showChooser(file);
-    }
-
-    /**
-     * Bring up the chooser to send the file.
-     */
-    private void showChooser(File file) {
-        Intent sendIntent = new Intent();
-        sendIntent.setAction(Intent.ACTION_SEND);
-        sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + file.getAbsolutePath()));
-        sendIntent.setType(MIME_TYPE);
-        mContext.startActivity(Intent.createChooser(sendIntent, mContext.getResources().getText(R.string.action_share)));
+        if (file != null && file.exists()) Export.share(mContext, file, MIME_TYPE);
     }
 
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2013 Carmen Alvarez
+ * Copyright 2013-2017 Carmen Alvarez
  *
  * This file is part of Scrum Chatter.
  *
@@ -88,7 +88,7 @@ public class MeetingsExport extends FileExport {
     protected File createFile() {
         Log.v(TAG, "export");
 
-        File file = new File(mContext.getExternalFilesDir(null), EXCEL_FILE);
+        File file = Export.getExportFile(mContext, EXCEL_FILE);
 
         try {
             mWorkbook = Workbook.createWorkbook(file);
