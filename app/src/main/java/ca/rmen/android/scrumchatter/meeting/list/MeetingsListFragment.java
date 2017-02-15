@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2016 Carmen Alvarez
+ * Copyright 2013-2017 Carmen Alvarez
  * <p/>
  * This file is part of Scrum Chatter.
  * <p/>
@@ -33,9 +33,6 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 

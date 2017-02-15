@@ -36,7 +36,6 @@
     <string name="action_charts_meeting">Stats for selected meeting</string>
     <string name="action_new_member">Add team member</string>
     <string name="action_rename_member">Rename team member</string>
-    <string name="action_new_meeting">New meeting</string>
     <string name="action_new_team">New team</string>
     <string name="hint_new_member">Team member\'s name.</string>
     <string name="error_member_exists">%s is already a team member.</string>

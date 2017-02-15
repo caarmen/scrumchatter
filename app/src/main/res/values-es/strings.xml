@@ -35,7 +35,6 @@
     <string name="action_charts_meeting">Reunión seleccionada</string>
     <string name="action_new_member">Añadir un miembro</string>
     <string name="action_rename_member">Renombrar un miembro</string>
-    <string name="action_new_meeting">Nueva reunión</string>
     <string name="action_new_team">Nuevo equipo</string>
     <string name="hint_new_member">Nombre del miembro.</string>
     <string name="error_member_exists">%s ya es un miembro de este equipo.</string>

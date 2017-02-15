@@ -35,7 +35,6 @@
     <string name="action_charts_meeting">選択したミーティングの統計情報</string>
     <string name="action_new_member">チームメンバーを追加</string>
     <string name="action_rename_member">チームメンバーの名前を変更</string>
-    <string name="action_new_meeting">新しいミーティング</string>
     <string name="action_new_team">新しいチーム</string>
     <string name="hint_new_member">チームメンバーの名前。</string>
     <string name="error_member_exists">%s さんはすでにチームメンバーです。</string>
