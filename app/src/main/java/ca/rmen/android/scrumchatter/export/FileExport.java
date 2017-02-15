@@ -1,5 +1,5 @@
 /**
- * Copyright 2013 Carmen Alvarez
+ * Copyright 2013-2017 Carmen Alvarez
  *
  * This file is part of Scrum Chatter.
  *
@@ -21,11 +21,9 @@ package ca.rmen.android.scrumchatter.export;
 import java.io.File;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
+
 import ca.rmen.android.scrumchatter.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
-import ca.rmen.android.scrumchatter.R;
 
 /**
  * Base class for sharing a file using an intent chooser. The base classes must provide a mime-type (used to determine which apps can share the file) and must
@@ -60,20 +58,8 @@ public abstract class FileExport {
         File file = createFile();
         Log.v(TAG, "export: created file " + file);
         if (file == null || !file.exists()) return false;
-        showChooser(file);
+        Export.share(mContext, file, mMimeType);
         return true;
     }
 
-    /**
-     * Bring up the chooser to send the file.
-     */
-    private void showChooser(File file) {
-        Intent sendIntent = new Intent();
-        sendIntent.setAction(Intent.ACTION_SEND);
-        sendIntent.putExtra(Intent.EXTRA_SUBJECT, mContext.getString(R.string.export_message_subject));
-        sendIntent.putExtra(Intent.EXTRA_TEXT, mContext.getString(R.string.export_message_body));
-        sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + file.getAbsolutePath()));
-        sendIntent.setType(mMimeType);
-        mContext.startActivity(Intent.createChooser(sendIntent, mContext.getResources().getText(R.string.action_share)));
-    }
 }

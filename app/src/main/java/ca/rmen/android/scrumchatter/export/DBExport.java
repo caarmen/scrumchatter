@@ -1,5 +1,5 @@
 /**
- * Copyright 2013 Carmen Alvarez
+ * Copyright 2013-2017 Carmen Alvarez
  *
  * This file is part of Scrum Chatter.
  *
@@ -42,7 +42,7 @@ public class DBExport extends FileExport {
     @Override
     protected File createFile() {
         File internalDBFile = mContext.getDatabasePath(ScrumChatterDatabase.DATABASE_NAME);
-        File externalDBFile = new File(mContext.getExternalFilesDir(null), ScrumChatterDatabase.DATABASE_NAME);
+        File externalDBFile = Export.getExportFile(mContext, ScrumChatterDatabase.DATABASE_NAME);
         if (IOUtils.copy(internalDBFile, externalDBFile)) return externalDBFile;
         else
             return null;
