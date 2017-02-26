@@ -31,7 +31,6 @@ public abstract class ScrumChatterCursorAdapter<T extends RecyclerView.ViewHolde
     }
     public void changeCursor(Cursor cursor) {
         if (mCursor == cursor) return;
-        if (mCursor != null) mCursor.close();
         mCursor = cursor;
         notifyDataSetChanged();
     }
