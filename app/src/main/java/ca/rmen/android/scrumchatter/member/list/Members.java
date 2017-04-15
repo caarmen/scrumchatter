@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016   Carmen Alvarez
+ * Copyright 2013-2017 Carmen Alvarez
  *
  * This file is part of Scrum Chatter.
  *
@@ -22,7 +22,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
@@ -33,6 +32,7 @@ import ca.rmen.android.scrumchatter.dialog.DialogFragmentFactory;
 import ca.rmen.android.scrumchatter.dialog.InputDialogFragment.InputValidator;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.team.Teams;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Provides both UI and DB logic regarding the management of members: creating, and deleting members for now.
@@ -76,22 +76,17 @@ public class Members {
      */
     public void createMember(final long teamId, final String memberName) {
         Log.v(TAG, "createMember, teamId=" + teamId + ", memberName=" + memberName);
+
         // Ignore an empty name.
         if (!TextUtils.isEmpty(memberName)) {
             // Create the new member in a background thread.
-            AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-
-                @Override
-                protected Void doInBackground(Void... params) {
-                    ContentValues values = new ContentValues(2);
-                    values.put(MemberColumns.NAME, memberName);
-                    values.put(MemberColumns.TEAM_ID, teamId);
-                    values.put(MemberColumns.DELETED, 0);
-                    mActivity.getContentResolver().insert(MemberColumns.CONTENT_URI, values);
-                    return null;
-                }
-            };
-            task.execute();
+            Schedulers.io().scheduleDirect(() -> {
+                ContentValues values = new ContentValues(2);
+                values.put(MemberColumns.NAME, memberName);
+                values.put(MemberColumns.TEAM_ID, teamId);
+                values.put(MemberColumns.DELETED, 0);
+                mActivity.getContentResolver().insert(MemberColumns.CONTENT_URI, values);
+            });
         }
     }
 
@@ -118,19 +113,13 @@ public class Members {
     public void renameMember(final long memberId, final String memberName) {
         Log.v(TAG, "rename member " + memberId + " to " + memberName);
 
-        // Delete the member in a background thread
-        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-
-            @Override
-            protected Void doInBackground(Void... params) {
-                Uri uri = Uri.withAppendedPath(MemberColumns.CONTENT_URI, String.valueOf(memberId));
-                ContentValues values = new ContentValues(1);
-                values.put(MemberColumns.NAME, memberName);
-                mActivity.getContentResolver().update(uri, values, null, null);
-                return null;
-            }
-        };
-        task.execute();
+        // Rename the member in a background thread
+        Schedulers.io().scheduleDirect(() -> {
+            Uri uri = Uri.withAppendedPath(MemberColumns.CONTENT_URI, String.valueOf(memberId));
+            ContentValues values = new ContentValues(1);
+            values.put(MemberColumns.NAME, memberName);
+            mActivity.getContentResolver().update(uri, values, null, null);
+        });
     }
 
     /**
@@ -152,18 +141,12 @@ public class Members {
         Log.v(TAG, "delete member " + memberId);
 
         // Delete the member in a background thread
-        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-
-            @Override
-            protected Void doInBackground(Void... params) {
-                Uri uri = Uri.withAppendedPath(MemberColumns.CONTENT_URI, String.valueOf(memberId));
-                ContentValues values = new ContentValues(1);
-                values.put(MemberColumns.DELETED, 1);
-                mActivity.getContentResolver().update(uri, values, null, null);
-                return null;
-            }
-        };
-        task.execute();
+        Schedulers.io().scheduleDirect(() -> {
+            Uri uri = Uri.withAppendedPath(MemberColumns.CONTENT_URI, String.valueOf(memberId));
+            ContentValues values = new ContentValues(1);
+            values.put(MemberColumns.DELETED, 1);
+            mActivity.getContentResolver().update(uri, values, null, null);
+        });
     }
 
 

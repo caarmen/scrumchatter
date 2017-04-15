@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 Carmen Alvarez
+ * Copyright 2013-2017 Carmen Alvarez
  *
  * This file is part of Scrum Chatter.
  *
@@ -18,15 +18,16 @@
  */
 package ca.rmen.android.scrumchatter.meeting.detail;
 
+import android.app.Activity;
 import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.support.annotation.MainThread;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -34,7 +35,6 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.format.DateUtils;
 
@@ -55,6 +55,10 @@ import ca.rmen.android.scrumchatter.provider.MeetingColumns;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
+import io.reactivex.Completable;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Displays info about a meeting (the duration) as well as the list of members participating in a particular meeting.
@@ -186,8 +190,8 @@ public class MeetingFragment extends Fragment {
      */
     private void loadMeeting() {
         Log.v(TAG, "loadMeeting: current meeting = " + mMeeting);
-        Context context = getActivity();
-        if (context == null) {
+        Activity activity = getActivity();
+        if (activity == null) {
             Log.w(TAG, "loadMeeting called when we are no longer attached to the activity. A monkey might be involved");
             return;
         }
@@ -195,78 +199,49 @@ public class MeetingFragment extends Fragment {
         Bundle bundle = new Bundle(1);
         bundle.putSerializable(Meetings.EXTRA_MEETING_STATE, meetingState);
         if (mAdapter == null) {
-            mAdapter = new MeetingCursorAdapter(context, mMemberStartStopListener);
+            mAdapter = new MeetingCursorAdapter(activity, mMemberStartStopListener);
             mBinding.recyclerViewContent.recyclerView.setAdapter(mAdapter);
             getLoaderManager().initLoader((int) mMeetingId, bundle, mLoaderCallbacks);
         } else {
             getLoaderManager().restartLoader((int) mMeetingId, bundle, mLoaderCallbacks);
         }
 
-        AsyncTask<Long, Void, Meeting> task = new AsyncTask<Long, Void, Meeting>() {
+        Single.fromCallable(() -> Meeting.read(activity, mMeetingId))
+                .subscribeOn(Schedulers.io())
+                .doOnSuccess(meeting -> mMeeting = meeting)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::displayMeeting,
+                        throwable -> activity.getContentResolver().unregisterContentObserver(mMeetingObserver));
+    }
 
-            @Override
-            protected Meeting doInBackground(Long... params) {
-                long meetingId = params[0];
-                Log.v(TAG, "doInBackground: meetingId = " + meetingId);
+    @MainThread
+    private void displayMeeting(Meeting meeting) {
+        FragmentActivity activity = getActivity();
+        if (activity == null) return;
+        setHasOptionsMenu(true);
+        activity.supportInvalidateOptionsMenu();
+        // Update the UI views
+        Log.v(TAG, "meetingState = " + meeting.getState());
+        // Show the "stop meeting" button if the meeting is not finished.
+        mBinding.btnStopMeeting.setVisibility(meeting.getState() == State.NOT_STARTED || meeting.getState() == State.IN_PROGRESS ? View.VISIBLE
+                : View.INVISIBLE);
+        // Only enable the "stop meeting" button if the meeting is in progress.
+        mBinding.btnStopMeeting.setEnabled(meeting.getState() == State.IN_PROGRESS);
 
-                FragmentActivity activity = getActivity();
-                if (activity == null) {
-                    Log.w(TAG, "No longer attached to activity: can't load meeting");
-                    cancel(false);
-                    return null;
-                }
-                return Meeting.read(activity, meetingId);
-            }
+        // Show the horizontal progress bar for in progress meetings
+        mBinding.headerProgressBar.setVisibility(meeting.getState() == State.IN_PROGRESS ? View.VISIBLE : View.INVISIBLE);
 
-            @Override
-            protected void onPostExecute(Meeting meeting) {
-                Log.v(TAG, "onPostExecute: meeting = " + meeting);
-                // Don't do anything if the activity has been closed in the meantime
-                AppCompatActivity activity = (AppCompatActivity) getActivity();
-                if (activity == null) {
-                    Log.w(TAG, "No longer attached to the activity: can't load meeting members");
-                    return;
-                }
-                // Load the meeting member list
-                if (meeting == null) {
-                    Log.w(TAG, "Meeting was deleted, cannot load meeting");
-                    activity.getContentResolver().unregisterContentObserver(mMeetingObserver);
-                    return;
-                }
-
-                // We just finished loading the meeting for the first time.
-                boolean firstLoad = mMeeting == null;
-                mMeeting = meeting;
-                if (getUserVisibleHint()) {
-                    if (firstLoad) setHasOptionsMenu(true);
-                    else
-                        activity.supportInvalidateOptionsMenu();
-                }
-                // Update the UI views
-                Log.v(TAG, "meetingState = " + meeting.getState());
-                // Show the "stop meeting" button if the meeting is not finished.
-                mBinding.btnStopMeeting.setVisibility(meeting.getState() == State.NOT_STARTED || meeting.getState() == State.IN_PROGRESS ? View.VISIBLE
-                        : View.INVISIBLE);
-                // Only enable the "stop meeting" button if the meeting is in progress.
-                mBinding.btnStopMeeting.setEnabled(meeting.getState() == State.IN_PROGRESS);
-
-                // Show the horizontal progress bar for in progress meetings
-                mBinding.headerProgressBar.setVisibility(meeting.getState() == State.IN_PROGRESS ? View.VISIBLE : View.INVISIBLE);
-
-                // Update the chronometer
-                if (meeting.getState() == State.IN_PROGRESS) {
-                    // If the meeting is in progress, show the Chronometer.
-                    long timeSinceMeetingStartedMillis = System.currentTimeMillis() - meeting.getStartDate();
-                    mBinding.tvMeetingDuration.setBase(SystemClock.elapsedRealtime() - timeSinceMeetingStartedMillis);
-                    mBinding.tvMeetingDuration.start();
-                } else if (meeting.getState() == State.FINISHED) {
-                    // For finished meetings, show the duration we retrieved from the db.
-                    mBinding.tvMeetingDuration.stop();
-                    mBinding.tvMeetingDuration.setText(DateUtils.formatElapsedTime(meeting.getDuration()));
-                }
-            }
-        };
-        task.execute(mMeetingId);
+        // Update the chronometer
+        if (meeting.getState() == State.IN_PROGRESS) {
+            // If the meeting is in progress, show the Chronometer.
+            long timeSinceMeetingStartedMillis = System.currentTimeMillis() - meeting.getStartDate();
+            mBinding.tvMeetingDuration.setBase(SystemClock.elapsedRealtime() - timeSinceMeetingStartedMillis);
+            mBinding.tvMeetingDuration.start();
+        } else if (meeting.getState() == State.FINISHED) {
+            // For finished meetings, show the duration we retrieved from the db.
+            mBinding.tvMeetingDuration.stop();
+            mBinding.tvMeetingDuration.setText(DateUtils.formatElapsedTime(meeting.getDuration()));
+        }
     }
 
     public long getMeetingId() {
@@ -282,43 +257,23 @@ public class MeetingFragment extends Fragment {
      * chronometers for all team members who are still talking.
      */
     public void stopMeeting() {
-        AsyncTask<Meeting, Void, Void> task = new AsyncTask<Meeting, Void, Void>() {
-
-            @Override
-            protected Void doInBackground(Meeting... meeting) {
-                meeting[0].stop();
-                return null;
-            }
-        };
-        task.execute(mMeeting);
+        Schedulers.io().scheduleDirect(() -> mMeeting.stop());
     }
 
     /**
      * Delete the current meeting, and close the activity, to return to the list of meetings.
      */
     void deleteMeeting() {
-        AsyncTask<Meeting, Void, Void> task = new AsyncTask<Meeting, Void, Void>() {
-
-            @Override
-            protected void onPreExecute() {
-                mBinding.btnStopMeeting.setVisibility(View.INVISIBLE);
-                getActivity().getContentResolver().unregisterContentObserver(mMeetingObserver);
-            }
-
-            @Override
-            protected Void doInBackground(Meeting... meeting) {
-                meeting[0].delete();
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void params) {
-                // TODO might be better for the activity to finish itself instead.
-                FragmentActivity activity = getActivity();
-                if (activity != null) activity.finish();
-            }
-        };
-        task.execute(mMeeting);
+        mBinding.btnStopMeeting.setVisibility(View.INVISIBLE);
+        getActivity().getContentResolver().unregisterContentObserver(mMeetingObserver);
+        Completable.fromRunnable(() -> mMeeting.delete())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(() -> {
+                    // TODO might be better for the activity to finish itself instead.
+                    FragmentActivity activity = getActivity();
+                    if (activity != null) activity.finish();
+                });
     }
 
     /**
@@ -403,16 +358,10 @@ public class MeetingFragment extends Fragment {
          */
         public void toggleTalkingMember(final long memberId) {
             Log.v(TAG, "toggleTalkingMember " + memberId);
-            AsyncTask<Meeting, Void, Void> task = new AsyncTask<Meeting, Void, Void>() {
-
-                @Override
-                protected Void doInBackground(Meeting... meeting) {
-                    if (meeting[0].getState() != State.IN_PROGRESS) meeting[0].start();
-                    meeting[0].toggleTalkingMember(memberId);
-                    return null;
-                }
-            };
-            task.execute(mMeeting);
+            Schedulers.io().scheduleDirect(() -> {
+                if (mMeeting.getState() != State.IN_PROGRESS) mMeeting.start();
+                mMeeting.toggleTalkingMember(memberId);
+            });
         }
     };
 

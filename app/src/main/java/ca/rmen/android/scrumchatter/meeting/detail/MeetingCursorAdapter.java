@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 Carmen Alvarez
+ * Copyright 2013-2017 Carmen Alvarez
  *
  * This file is part of Scrum Chatter.
  *

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Carmen Alvarez
+ * Copyright 2016-2017 Carmen Alvarez
  * <p/>
  * This file is part of Scrum Chatter.
  * <p/>
@@ -18,22 +18,20 @@
  */
 package ca.rmen.android.scrumchatter.main;
 
-import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 
-import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
-import ca.rmen.android.scrumchatter.team.TeamsObserver;
 import ca.rmen.android.scrumchatter.team.Teams;
-import ca.rmen.android.scrumchatter.util.Log;
+import ca.rmen.android.scrumchatter.team.TeamsObserver;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 
 class TeamNavigationMenu {
-
-    private static final String TAG = Constants.TAG + "/" + TeamNavigationMenu.class.getSimpleName();
 
     private final Teams mTeams;
     private final Menu mNavigationMenu;
@@ -51,33 +49,21 @@ class TeamNavigationMenu {
     }
 
     void load() {
+        Single.fromCallable(mTeams::getAllTeams)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(teamsData -> {
+                            // Update the navigation view.
+                            SubMenu teamsMenu = mNavigationMenu.findItem(R.id.teams_list).getSubMenu();
+                            teamsMenu.clear();
+                            for (Teams.Team team : teamsData.teams) {
+                                MenuItem teamMenuItem = teamsMenu.add(R.id.teams_list_items, Menu.NONE, Menu.NONE, team.teamName);
+                                if (team.teamName.equals(teamsData.currentTeam.teamName)) {
+                                    teamMenuItem.setChecked(true);
+                                }
+                            }
 
-        new AsyncTask<Void, Void, Teams.TeamsData>() {
-
-            /**
-             * Query the teams table, and return a list of all teams, and the current team.
-             */
-            @Override
-            protected Teams.TeamsData doInBackground(Void... params) {
-                Log.v(TAG, "doInBackground");
-                return mTeams.getAllTeams();
-            }
-
-            /**
-             * Update the navigation view.
-             */
-            @Override
-            protected void onPostExecute(Teams.TeamsData teamsData) {
-                SubMenu teamsMenu = mNavigationMenu.findItem(R.id.teams_list).getSubMenu();
-                teamsMenu.clear();
-                for (Teams.Team team : teamsData.teams) {
-                    MenuItem teamMenuItem = teamsMenu.add(R.id.teams_list_items, Menu.NONE, Menu.NONE, team.teamName);
-                    if (team.teamName.equals(teamsData.currentTeam.teamName)) {
-                        teamMenuItem.setChecked(true);
-                    }
-                }
-            }
-        }.execute();
+                        }
+                );
     }
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Carmen Alvarez
+ * Copyright 2013, 2017 Carmen Alvarez
  *
  * This file is part of Scrum Chatter.
  *
@@ -19,8 +19,8 @@
 package ca.rmen.android.scrumchatter.meeting;
 
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.WorkerThread;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import ca.rmen.android.scrumchatter.util.Log;
@@ -31,6 +31,9 @@ import ca.rmen.android.scrumchatter.export.MeetingExport;
 import ca.rmen.android.scrumchatter.meeting.detail.Meeting;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.util.TextUtils;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Provides UI and DB logic regarding the management of meetings: creating and deleting meetings.
@@ -54,33 +57,27 @@ public class Meetings {
      */
     public void createMeeting(final int teamId, final MeetingCreationCallback callback) {
         Log.v(TAG, "createMeeting in team " + teamId);
-        AsyncTask<Void, Void, Meeting> task = new AsyncTask<Void, Void, Meeting>() {
+        Single.fromCallable(() -> createMeeting(teamId))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(callback::onMeetingCreated,
+                        throwable -> callback.onMeetingCreated(null));
+    }
 
-            @Override
-            protected Meeting doInBackground(Void... params) {
-                Cursor c = mActivity.getContentResolver().query(MemberColumns.CONTENT_URI, new String[] { "count(*)" },
-                        MemberColumns.TEAM_ID + "=? AND " + MemberColumns.DELETED + "= 0", new String[] { String.valueOf(teamId) }, null);
-                if (c != null) {
-                    try {
-                        c.moveToFirst();
-                        int memberCount = c.getInt(0);
-                        if (memberCount > 0) return Meeting.createNewMeeting(mActivity);
-                    } finally {
-                        c.close();
-                    }
-                }
-                return null;
+    @WorkerThread
+    private Meeting createMeeting(int teamId) {
+        Cursor c = mActivity.getContentResolver().query(MemberColumns.CONTENT_URI, new String[] { "count(*)" },
+                MemberColumns.TEAM_ID + "=? AND " + MemberColumns.DELETED + "= 0", new String[] { String.valueOf(teamId) }, null);
+        if (c != null) {
+            try {
+                c.moveToFirst();
+                int memberCount = c.getInt(0);
+                if (memberCount > 0) return Meeting.createNewMeeting(mActivity);
+            } finally {
+                c.close();
             }
-
-            @Override
-            protected void onPostExecute(Meeting result) {
-                callback.onMeetingCreated(result);
-            }
-
-        };
-        task.execute();
-
-
+        }
+        throw new IllegalArgumentException("Can't create meeting for team " + teamId + " because it doesn't exist or has no members");
     }
 
     /**
@@ -102,21 +99,11 @@ public class Meetings {
     public void delete(final long meetingId) {
         Log.v(TAG, "delete meeting " + meetingId);
         // Delete the meeting in a background thread.
-        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-
-            @Override
-            protected Void doInBackground(Void... params) {
-                Meeting meeting = Meeting.read(mActivity, meetingId);
-                if (meeting == null) {
-                    Log.v(TAG, "Tried to delete non-existing meeting " + meetingId);
-                    return null;
-                }
-                meeting.delete();
-                return null;
-            }
-        };
-        task.execute();
-
+        Single.fromCallable(() -> Meeting.read(mActivity, meetingId))
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe(Meeting::delete,
+                        throwable -> Log.v(TAG, "couldn't delete meeting " + meetingId, throwable));
     }
 
     /**
@@ -125,21 +112,11 @@ public class Meetings {
     public void export(long meetingId) {
         Log.v(TAG, "export meeting " + meetingId);
         // Export the meeting in a background thread.
-        AsyncTask<Long, Void, Boolean> asyncTask = new AsyncTask<Long, Void, Boolean>() {
-
-            @Override
-            protected Boolean doInBackground(Long... meetingId) {
-                MeetingExport export = new MeetingExport(mActivity);
-                return export.exportMeeting(meetingId[0]);
-            }
-
-            @Override
-            protected void onPostExecute(Boolean result) {
-                if (!result) Snackbar.make(mActivity.getWindow().getDecorView().getRootView(), R.string.error_sharing_meeting, Snackbar.LENGTH_LONG).show();
-            }
-
-        };
-        asyncTask.execute(meetingId);
+        Single.fromCallable(() -> new MeetingExport(mActivity).exportMeeting(meetingId))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(success -> {
+                    if (!success) Snackbar.make(mActivity.getWindow().getDecorView().getRootView(), R.string.error_sharing_meeting, Snackbar.LENGTH_LONG).show();
+                });
     }
-
 }

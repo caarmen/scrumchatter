@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Carmen Alvarez
+ * Copyright 2013, 2017 Carmen Alvarez
  *
  * This file is part of Scrum Chatter.
  *
@@ -20,13 +20,12 @@ package ca.rmen.android.scrumchatter.dialog;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
-import android.content.DialogInterface.OnShowListener;
 import android.databinding.DataBindingUtil;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.WorkerThread;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
@@ -39,13 +38,15 @@ import ca.rmen.android.scrumchatter.databinding.InputDialogEditTextBinding;
 import ca.rmen.android.scrumchatter.util.Log;
 
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
+import io.reactivex.Maybe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * A dialog fragment with an EditText for user text input.
@@ -61,6 +62,8 @@ public class InputDialogFragment extends DialogFragment { // NO_UCD (use default
          * @param input the text entered by the user.
          * @return an error string if the input has a problem, null if the input is valid.
          */
+        @WorkerThread
+        @Nullable
         String getError(Context context, CharSequence input, Bundle extras);
     }
 
@@ -175,26 +178,15 @@ public class InputDialogFragment extends DialogFragment { // NO_UCD (use default
         okButton.setEnabled(!TextUtils.isEmpty(editText.getText()));
 
         // Search for an error in background thread, update the dialog in the UI thread.
-        AsyncTask<String, Void, String> task = new AsyncTask<String, Void, String>() {
-
-            /**
-             * @return an error String if the input is invalid.
-             */
-            @Override
-            protected String doInBackground(String... text) {
-                return validator.getError(context, text[0], extras);
-            }
-
-            @Override
-            protected void onPostExecute(String error) {
-                // If the input is invalid, highlight the error
-                // and disable the OK button.
-                if (!TextUtils.isEmpty(error)) {
+        Maybe.fromCallable(
+                () -> validator.getError(context, editText.getText().toString().trim(), extras))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(error -> {
+                    // If the input is invalid, highlight the error
+                    // and disable the OK button.
                     editText.setError(error);
                     okButton.setEnabled(false);
-                }
-            }
-        };
-        task.execute(editText.getText().toString().trim());
+                });
     }
 }
