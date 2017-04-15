@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 Carmen Alvarez
  * <p/>
  * This file is part of Scrum Chatter.

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2013 Carmen Alvarez
  *
  * This file is part of Scrum Chatter.
@@ -136,7 +136,7 @@ public class Meeting {
      * Updates the start time to now, sets the state to in_progress, and persists the changes.
      */
     void start() {
-        /**
+        /*
          * Change the date of the meeting to now. We do this when the
          * meeting goes from not-started to in-progress. This way it is
          * easier to track the duration of the meeting.

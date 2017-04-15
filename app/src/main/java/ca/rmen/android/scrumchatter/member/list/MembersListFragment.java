@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2013-2017 Carmen Alvarez
  * <p/>
  * This file is part of Scrum Chatter.
@@ -17,10 +17,6 @@
  * along with Scrum Chatter. If not, see <http://www.gnu.org/licenses/>.
  */
 package ca.rmen.android.scrumchatter.member.list;
-
-/**
- * Displays the list of team members.
- */
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -48,6 +44,9 @@ import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberStatsColumns;
 import ca.rmen.android.scrumchatter.util.Log;
 
+/**
+ * Displays the list of team members.
+ */
 public class MembersListFragment extends Fragment {
 
     private static final String TAG = Constants.TAG + "/" + MembersListFragment.class.getSimpleName();
