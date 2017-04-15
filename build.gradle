@@ -4,13 +4,16 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.3'
+        classpath 'com.android.tools.build:gradle:2.3.1'
     }
 }
 
 allprojects {
     repositories {
         jcenter()
+    }
+    configurations.all {
+        resolutionStrategy.force "com.android.support:appcompat-v7:${supportLibVersion}", "com.android.support:cardview-v7:${supportLibVersion}", "com.android.support:design:${supportLibVersion}", "com.android.support:preference-v7:${supportLibVersion}"
     }
 }
 
@@ -20,3 +23,4 @@ idea {
         excludeDirs = [file("etc"), file("signing.properties"), file("signing.properties.template")]
     }
 }
+ext.supportLibVersion="25.3.1"
