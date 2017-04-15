@@ -200,7 +200,7 @@ public class MembersListFragment extends Fragment {
         }
     }
     public interface FabListener {
-        void onNewMember(View view);
+        void onNewMember(@SuppressWarnings("UnusedParameters") View view);
     }
 
     private final FabListener mFabListener = new FabListener() {

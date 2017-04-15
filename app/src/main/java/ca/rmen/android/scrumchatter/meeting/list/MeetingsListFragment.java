@@ -201,7 +201,7 @@ public class MeetingsListFragment extends Fragment {
     };
 
     public interface FabListener {
-        void onNewMeeting(View view);
+        void onNewMeeting(@SuppressWarnings("UnusedParameters") View view);
     }
 
     private final FabListener mFabListener = new FabListener() {
