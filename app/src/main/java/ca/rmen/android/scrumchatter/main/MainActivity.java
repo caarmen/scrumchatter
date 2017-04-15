@@ -372,38 +372,35 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
      * Called when the current team was changed. Update our cache of the current team and update the ui (menu items, action bar title).
      */
     private final TeamsObserver.OnTeamsChangedListener mOnTeamsChangedListener
-            = new TeamsObserver.OnTeamsChangedListener() {
-        @Override
-        public void onTeamsChanged() {
+            = () -> {
 
-            AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+                AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
 
-                @Override
-                protected Void doInBackground(Void... arg0) {
-                    mTeam = mTeams.getCurrentTeam();
-                    mTeamCount = mTeams.getTeamCount();
-                    return null;
-                }
-
-                @Override
-                protected void onPostExecute(Void result) {
-                    ActionBar supportActionBar = getSupportActionBar();
-                    if (supportActionBar != null) {
-                        // If the user has renamed the default team or added other teams, show the current team name in the title
-                        if (mTeamCount > 1 || (mTeam != null && !mTeam.teamName.equals(Constants.DEFAULT_TEAM_NAME))) {
-                            supportActionBar.setTitle(mTeam.teamName);
-                        }
-                        // otherwise the user doesn't care about team management: just show the app title.
-                        else {
-                            supportActionBar.setTitle(R.string.app_name);
-                        }
+                    @Override
+                    protected Void doInBackground(Void... arg0) {
+                        mTeam = mTeams.getCurrentTeam();
+                        mTeamCount = mTeams.getTeamCount();
+                        return null;
                     }
-                    supportInvalidateOptionsMenu();
-                }
+
+                    @Override
+                    protected void onPostExecute(Void result) {
+                        ActionBar supportActionBar = getSupportActionBar();
+                        if (supportActionBar != null) {
+                            // If the user has renamed the default team or added other teams, show the current team name in the title
+                            if (mTeamCount > 1 || (mTeam != null && !mTeam.teamName.equals(Constants.DEFAULT_TEAM_NAME))) {
+                                supportActionBar.setTitle(mTeam.teamName);
+                            }
+                            // otherwise the user doesn't care about team management: just show the app title.
+                            else {
+                                supportActionBar.setTitle(R.string.app_name);
+                            }
+                        }
+                        supportInvalidateOptionsMenu();
+                    }
+                };
+                task.execute();
             };
-            task.execute();
-        }
-    };
 
     /**
      * The user tapped on the OK button of a confirmation dialog. Execute the action requested by the user.

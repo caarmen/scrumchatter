@@ -163,13 +163,7 @@ public class MeetingActivity extends AppCompatActivity implements DialogButtonLi
     @Override
     public void supportInvalidateOptionsMenu() {
         Log.v(TAG, "supportInvalidateOptionsMenu");
-        mBinding.pager.post(new Runnable() {
-
-            @Override
-            public void run() {
-                MeetingActivity.super.supportInvalidateOptionsMenu();
-            }
-        });
+        mBinding.pager.post(MeetingActivity.super::supportInvalidateOptionsMenu);
     }
 
     /**

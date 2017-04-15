@@ -153,12 +153,7 @@ public class MeetingsListFragment extends Fragment {
                     positionToSelect = -1;
                 }
                 if (positionToSelect >= 0) {
-                    new Handler().post(new Runnable() {
-                        @Override
-                        public void run() {
-                            adapter.selectItem(positionToSelect);
-                        }
-                    });
+                    new Handler().post(() -> adapter.selectItem(positionToSelect));
                 }
             }
         }
@@ -207,17 +202,14 @@ public class MeetingsListFragment extends Fragment {
     private final FabListener mFabListener = new FabListener() {
         @Override
         public void onNewMeeting(View view) {
-            mMeetings.createMeeting(mTeamId, new Meetings.MeetingCreationCallback() {
-                @Override
-                public void onMeetingCreated(Meeting meeting) {
-                    if (meeting != null) {
-                        mMeetingListener.onMeetingOpen(meeting);
-                    } else {
-                        DialogFragmentFactory.showInfoDialog(getActivity(), R.string.dialog_error_title_one_member_required,
-                                R.string.dialog_error_message_one_member_required);
-                    }
-
+            mMeetings.createMeeting(mTeamId, meeting -> {
+                if (meeting != null) {
+                    mMeetingListener.onMeetingOpen(meeting);
+                } else {
+                    DialogFragmentFactory.showInfoDialog(getActivity(), R.string.dialog_error_title_one_member_required,
+                            R.string.dialog_error_message_one_member_required);
                 }
+
             });
 
         }

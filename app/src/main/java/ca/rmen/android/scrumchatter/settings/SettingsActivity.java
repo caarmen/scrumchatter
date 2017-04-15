@@ -50,19 +50,15 @@ public class SettingsActivity extends AppCompatActivity {
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(mListener);
     }
 
-    private final SharedPreferences.OnSharedPreferenceChangeListener mListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-
-        @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            Context context = getApplicationContext();
-            if (Theme.PREF_THEME.equals(key)) {
-                // When the theme changes, restart the app
-                Intent intent = new Intent(context, SettingsActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
-                stackBuilder.addNextIntentWithParentStack(intent);
-                stackBuilder.startActivities();
-            }
+    private final SharedPreferences.OnSharedPreferenceChangeListener mListener = (sharedPreferences, key) -> {
+        Context context = getApplicationContext();
+        if (Theme.PREF_THEME.equals(key)) {
+            // When the theme changes, restart the app
+            Intent intent = new Intent(context, SettingsActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+            stackBuilder.addNextIntentWithParentStack(intent);
+            stackBuilder.startActivities();
         }
     };
 

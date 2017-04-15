@@ -116,19 +116,11 @@ public class MeetingsCursorAdapter extends ScrumChatterCursorAdapter<MeetingsCur
                 && Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB) {
             binding.getRoot().setActivated(mSelectedPosition == position);
         }
-        binding.btnDeleteMeeting.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mMeetingListener.onMeetingDelete(meeting);
-            }
-        });
-        binding.getRoot().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mSelectedPosition = holder.getAdapterPosition();
-                mMeetingListener.onMeetingOpen(meeting);
-                notifyDataSetChanged();
-            }
+        binding.btnDeleteMeeting.setOnClickListener(v -> mMeetingListener.onMeetingDelete(meeting));
+        binding.getRoot().setOnClickListener(v -> {
+            mSelectedPosition = holder.getAdapterPosition();
+            mMeetingListener.onMeetingOpen(meeting);
+            notifyDataSetChanged();
         });
     }
 

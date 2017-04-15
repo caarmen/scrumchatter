@@ -54,16 +54,13 @@ public class ProgressDialogFragment extends DialogFragment {
         Bundle arguments = getArguments();
         dialog.setMessage(arguments.getString(DialogFragmentFactory.EXTRA_MESSAGE));
         dialog.setIndeterminate(true);
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface shownDialog) {
-                ProgressBar progressBar = (ProgressBar) ((ProgressDialog)shownDialog).findViewById(android.R.id.progress);
-                if (progressBar != null) {
-                    Drawable drawable = progressBar.getIndeterminateDrawable();
-                    if (drawable != null) {
-                        drawable.setColorFilter(ContextCompat.getColor(getActivity(), R.color.scrum_chatter_accent_color),
-                                android.graphics.PorterDuff.Mode.SRC_IN);
-                    }
+        dialog.setOnShowListener(shownDialog -> {
+            ProgressBar progressBar = (ProgressBar) ((ProgressDialog)shownDialog).findViewById(android.R.id.progress);
+            if (progressBar != null) {
+                Drawable drawable = progressBar.getIndeterminateDrawable();
+                if (drawable != null) {
+                    drawable.setColorFilter(ContextCompat.getColor(getActivity(), R.color.scrum_chatter_accent_color),
+                            android.graphics.PorterDuff.Mode.SRC_IN);
                 }
             }
         });

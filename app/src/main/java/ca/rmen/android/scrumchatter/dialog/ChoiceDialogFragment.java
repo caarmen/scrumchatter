@@ -62,15 +62,12 @@ public class ChoiceDialogFragment extends DialogFragment { // NO_UCD (use defaul
         final CharSequence[] choices = arguments.getCharSequenceArray(DialogFragmentFactory.EXTRA_CHOICES);
         OnClickListener listener = null;
         if (getActivity() instanceof DialogItemListener) {
-            listener = new OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                    FragmentActivity activity = getActivity();
-                    if (activity == null) Log.w(TAG, "User clicked on dialog after it was detached from activity. Monkey?");
-                    else
-                        ((DialogItemListener) activity).onItemSelected(actionId, choices, which);
-                }
+            listener = (dialog, which) -> {
+                dialog.dismiss();
+                FragmentActivity activity = getActivity();
+                if (activity == null) Log.w(TAG, "User clicked on dialog after it was detached from activity. Monkey?");
+                else
+                    ((DialogItemListener) activity).onItemSelected(actionId, choices, which);
             };
         }
         // If one item is to be pre-selected, use the single choice items layout.

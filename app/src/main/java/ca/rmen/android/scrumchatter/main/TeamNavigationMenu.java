@@ -42,12 +42,7 @@ class TeamNavigationMenu {
     TeamNavigationMenu(FragmentActivity activity, Menu navigationMenu) {
         mTeams = new Teams(activity);
         mNavigationMenu = navigationMenu;
-        mTeamsObserver = new TeamsObserver(activity, new TeamsObserver.OnTeamsChangedListener() {
-            @Override
-            public void onTeamsChanged() {
-                load();
-            }
-        });
+        mTeamsObserver = new TeamsObserver(activity, this::load);
         mTeamsObserver.register();
     }
 

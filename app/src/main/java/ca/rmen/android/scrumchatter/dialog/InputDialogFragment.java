@@ -105,15 +105,11 @@ public class InputDialogFragment extends DialogFragment { // NO_UCD (use default
         // Notify the activity of the click on the OK button.
         OnClickListener listener = null;
         if ((getActivity() instanceof DialogInputListener)) {
-            listener = new OnClickListener() {
-
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    FragmentActivity activity = getActivity();
-                    if (activity == null) Log.w(TAG, "User clicked on dialog after it was detached from activity. Monkey?");
-                    else
-                        ((DialogInputListener) activity).onInputEntered(actionId, binding.edit.getText().toString(), extras);
-                }
+            listener = (dialog, which) -> {
+                FragmentActivity activity = getActivity();
+                if (activity == null) Log.w(TAG, "User clicked on dialog after it was detached from activity. Monkey?");
+                else
+                    ((DialogInputListener) activity).onInputEntered(actionId, binding.edit.getText().toString(), extras);
             };
         }
         builder.setNegativeButton(android.R.string.cancel, null);
@@ -121,13 +117,11 @@ public class InputDialogFragment extends DialogFragment { // NO_UCD (use default
 
         final AlertDialog dialog = builder.create();
         // Show the keyboard when the EditText gains focus.
-        binding.edit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    Window window = dialog.getWindow();
-                    if (window != null) {
-                        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-                    }
+        binding.edit.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                Window window = dialog.getWindow();
+                if (window != null) {
+                    window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                 }
             }
         });
@@ -151,13 +145,9 @@ public class InputDialogFragment extends DialogFragment { // NO_UCD (use default
                     if (validator != null) validateText(context, dialog, binding.edit, validator, actionId, extras);
                 }
             });
-            dialog.setOnShowListener(new OnShowListener() {
-
-                @Override
-                public void onShow(DialogInterface dialogInterface) {
-                    Log.v(TAG, "onShow");
-                    validateText(context, dialog, binding.edit, validator, actionId, extras);
-                }
+            dialog.setOnShowListener(dialogInterface -> {
+                Log.v(TAG, "onShow");
+                validateText(context, dialog, binding.edit, validator, actionId, extras);
             });
         } catch (Exception e) {
             Log.e(TAG, "Could not instantiate validator " + inputValidatorClass + ": " + e.getMessage(), e);

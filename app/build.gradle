@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'me.tatarka.retrolambda'
 
 buildscript {
     repositories {
@@ -6,6 +7,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.14.0'
+        classpath 'me.tatarka:gradle-retrolambda:3.6.0'
     }
 }
 
@@ -30,6 +32,10 @@ android {
         android.buildTypes.release.signingConfig = null
     }
     compileSdkVersion 25
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
     buildToolsVersion "25.0.2"
     dataBinding {
         enabled = true
