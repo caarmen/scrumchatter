@@ -61,7 +61,7 @@
                     android:layout_weight="1"
                     android:clickable="true"
                     android:gravity="start"
-                    android:onClick="@{columnHeaderListener.onColumnHeaderClicked}"
+                    android:onClick="@{columnHeaderListener::onColumnHeaderClicked}"
                     android:text="@string/member_list_header_name"
                     android:textAlignment="viewStart"
                     android:textColor="@color/selected_header"
@@ -74,7 +74,7 @@
                     android:layout_height="wrap_content"
                     android:clickable="true"
                     android:gravity="start"
-                    android:onClick="@{columnHeaderListener.onColumnHeaderClicked}"
+                    android:onClick="@{columnHeaderListener::onColumnHeaderClicked}"
                     android:text="@string/member_list_header_avg_duration"
                     android:textAlignment="viewStart"
                     tools:targetApi="jelly_bean_mr1" />
@@ -86,7 +86,7 @@
                     android:layout_height="wrap_content"
                     android:clickable="true"
                     android:gravity="start"
-                    android:onClick="@{columnHeaderListener.onColumnHeaderClicked}"
+                    android:onClick="@{columnHeaderListener::onColumnHeaderClicked}"
                     android:text="@string/member_list_header_sum_duration"
                     android:textAlignment="viewStart"
                     tools:targetApi="jelly_bean_mr1" />
@@ -129,7 +129,7 @@
             android:layout_marginEnd="@dimen/fab_margin"
             android:layout_marginRight="@dimen/fab_margin"
             android:clickable="true"
-            android:onClick="@{fabListener.onNewMember}"
+            android:onClick="@{fabListener::onNewMember}"
             android:src="@drawable/ic_action_new_member" />
     </FrameLayout>
 </layout>

@@ -73,7 +73,7 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:contentDescription="@string/action_stop_meeting"
-            android:onClick="@{meetingStopListener.onMeetingStopped}"
+            android:onClick="@{meetingStopListener::onMeetingStopped}"
             android:src="@drawable/ic_action_stop"
             android:visibility="invisible" />
     </LinearLayout>

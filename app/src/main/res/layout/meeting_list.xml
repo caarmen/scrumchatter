@@ -100,7 +100,7 @@
             android:layout_marginStart="@dimen/fab_margin"
             android:layout_marginLeft="@dimen/fab_margin"
             android:clickable="true"
-            android:onClick="@{fabListener.onNewMeeting}"
+            android:onClick="@{fabListener::onNewMeeting}"
             android:src="@drawable/ic_action_new_meeting" />
     </FrameLayout>
 
