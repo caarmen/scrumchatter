@@ -95,6 +95,8 @@
     <string name="about_credit_jxl_lib_text">Andy Khan, Java Excel API ライブラリー。</string>
     <string name="about_credit_chart_lib_text">Leszek Wach, HelloCharts for Android ライブラリー。</string>
     <string name="about_credit_flowlayout_lib_text">Artem Votincev, FlowLayout ライブラリー。</string>
+    <string name="about_credit_retrolambda_lib_text">Evan Tatarka, Gradle Retrolambda.</string>
+    <string name="about_credit_rx_java_lib_text">RxJava Contributors, RxJava.</string>
 
     <string name="drawer_open">サイドメニューを開く</string>
     <string name="drawer_close">サイドメニューを閉じる</string>
