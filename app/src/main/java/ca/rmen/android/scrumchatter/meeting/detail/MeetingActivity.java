@@ -36,10 +36,6 @@ import ca.rmen.android.scrumchatter.dialog.DialogFragmentFactory;
 import ca.rmen.android.scrumchatter.meeting.Meetings;
 import ca.rmen.android.scrumchatter.util.Log;
 import ca.rmen.android.scrumchatter.util.TextUtils;
-import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
-
 
 /**
  * Contains a ViewPager of {@link MeetingFragment}.
@@ -78,10 +74,8 @@ public class MeetingActivity extends AppCompatActivity implements DialogButtonLi
         // Create the pager adapter. The pager adapter constructor reads from the DB, so
         // we need to create it in a background thread.  When it's ready, we'll use it 
         // with the ViewPager, and open the ViewPager to the correct meeting.
-        Single.fromCallable(() -> new MeetingPagerAdapter(this))
-                .subscribeOn(Schedulers.io())
+        MeetingPagerAdapter.create(this)
                 .doOnSuccess(meetingPagerAdapter -> mMeetingPagerAdapter = meetingPagerAdapter)
-                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(meetingPagerAdapter -> onPagerAdapterCreated(meetingId, meetingPagerAdapter));
     }
 

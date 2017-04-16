@@ -56,7 +56,6 @@ import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import io.reactivex.Completable;
-import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
@@ -206,10 +205,8 @@ public class MeetingFragment extends Fragment {
             getLoaderManager().restartLoader((int) mMeetingId, bundle, mLoaderCallbacks);
         }
 
-        Single.fromCallable(() -> Meeting.read(activity, mMeetingId))
-                .subscribeOn(Schedulers.io())
+        mMeetings.readMeeting(mMeetingId)
                 .doOnSuccess(meeting -> mMeeting = meeting)
-                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::displayMeeting,
                         throwable -> activity.getContentResolver().unregisterContentObserver(mMeetingObserver));
     }

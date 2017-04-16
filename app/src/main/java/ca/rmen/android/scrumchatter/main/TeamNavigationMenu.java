@@ -26,10 +26,6 @@ import android.view.SubMenu;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.team.Teams;
 import ca.rmen.android.scrumchatter.team.TeamsObserver;
-import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
-
 
 class TeamNavigationMenu {
 
@@ -49,9 +45,7 @@ class TeamNavigationMenu {
     }
 
     void load() {
-        Single.fromCallable(mTeams::getAllTeams)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+        mTeams.getAllTeams()
                 .subscribe(teamsData -> {
                             // Update the navigation view.
                             SubMenu teamsMenu = mNavigationMenu.findItem(R.id.teams_list).getSubMenu();
@@ -62,7 +56,6 @@ class TeamNavigationMenu {
                                     teamMenuItem.setChecked(true);
                                 }
                             }
-
                         }
                 );
     }

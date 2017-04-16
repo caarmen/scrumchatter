@@ -47,8 +47,6 @@ import ca.rmen.android.scrumchatter.team.Teams;
 import ca.rmen.android.scrumchatter.util.Log;
 import ca.rmen.android.scrumchatter.util.TextUtils;
 import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
 
 /**
  * Displays charts for one meeting
@@ -153,12 +151,10 @@ public class MeetingChartFragment extends Fragment {
     }
 
     private void loadMeeting(long meetingId) {
-        Single.zip(Single.fromCallable(() -> new Teams(getActivity()).getCurrentTeam()),
-                Single.fromCallable(() -> Meeting.read(getContext(), meetingId)),
+        Single.zip(new Teams(getActivity()).readCurrentTeam(),
+                new Meetings(getActivity()).readMeeting(meetingId),
                 this::createMeetingDisplayInfo)
 
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::displayMeetingInfo,
                         throwable -> Log.v(TAG, "Couldn't load meeting " + meetingId, throwable));
     }

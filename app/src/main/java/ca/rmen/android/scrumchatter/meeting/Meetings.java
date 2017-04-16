@@ -20,16 +20,16 @@ package ca.rmen.android.scrumchatter.meeting;
 
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.annotation.WorkerThread;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
-import ca.rmen.android.scrumchatter.util.Log;
+
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.dialog.DialogFragmentFactory;
 import ca.rmen.android.scrumchatter.export.MeetingExport;
 import ca.rmen.android.scrumchatter.meeting.detail.Meeting;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
+import ca.rmen.android.scrumchatter.util.Log;
 import ca.rmen.android.scrumchatter.util.TextUtils;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -48,36 +48,34 @@ public class Meetings {
         mActivity = activity;
     }
 
-    public interface MeetingCreationCallback {
-        void onMeetingCreated(Meeting meeting);
-    }
     /**
      * Checks if there are any team members in the given team id. If not, an error dialog is shown. If the team does have members, then we start
      * the MeetingActivity class for a new meeting.
      */
-    public void createMeeting(final int teamId, final MeetingCreationCallback callback) {
+    public Single<Meeting> createMeeting(final int teamId) {
         Log.v(TAG, "createMeeting in team " + teamId);
-        Single.fromCallable(() -> createMeeting(teamId))
+        return Single.fromCallable(() -> {
+            Cursor c = mActivity.getContentResolver().query(MemberColumns.CONTENT_URI, new String[]{"count(*)"},
+                    MemberColumns.TEAM_ID + "=? AND " + MemberColumns.DELETED + "= 0", new String[]{String.valueOf(teamId)}, null);
+            if (c != null) {
+                try {
+                    c.moveToFirst();
+                    int memberCount = c.getInt(0);
+                    if (memberCount > 0) return Meeting.createNewMeeting(mActivity);
+                } finally {
+                    c.close();
+                }
+            }
+            throw new IllegalArgumentException("Can't create meeting for team " + teamId + " because it doesn't exist or has no members");
+        })
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(callback::onMeetingCreated,
-                        throwable -> callback.onMeetingCreated(null));
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
-    @WorkerThread
-    private Meeting createMeeting(int teamId) {
-        Cursor c = mActivity.getContentResolver().query(MemberColumns.CONTENT_URI, new String[] { "count(*)" },
-                MemberColumns.TEAM_ID + "=? AND " + MemberColumns.DELETED + "= 0", new String[] { String.valueOf(teamId) }, null);
-        if (c != null) {
-            try {
-                c.moveToFirst();
-                int memberCount = c.getInt(0);
-                if (memberCount > 0) return Meeting.createNewMeeting(mActivity);
-            } finally {
-                c.close();
-            }
-        }
-        throw new IllegalArgumentException("Can't create meeting for team " + teamId + " because it doesn't exist or has no members");
+    public Single<Meeting> readMeeting(long meetingId) {
+        return Single.fromCallable(() -> Meeting.read(mActivity, meetingId))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     /**

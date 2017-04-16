@@ -73,7 +73,6 @@ import ca.rmen.android.scrumchatter.team.Teams.Team;
 import ca.rmen.android.scrumchatter.team.TeamsObserver;
 import ca.rmen.android.scrumchatter.util.Log;
 import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
 
@@ -365,17 +364,13 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
      * Called when the current team was changed. Update our cache of the current team and update the ui (menu items, action bar title).
      */
     private final TeamsObserver.OnTeamsChangedListener mOnTeamsChangedListener = () ->
-            Single.zip(Single.fromCallable(mTeams::getCurrentTeam),
-                    Single.fromCallable(mTeams::getTeamCount),
+            Single.zip(mTeams.readCurrentTeam(),
+                    mTeams.getTeamCount(),
                     TeamInfo::new)
-
                     .doOnSuccess(teamInfo -> {
                         mTeam = teamInfo.team;
                         mTeamCount = teamInfo.teamCount;
                     })
-
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(this::updateActionBar);
 
     private static class TeamInfo {

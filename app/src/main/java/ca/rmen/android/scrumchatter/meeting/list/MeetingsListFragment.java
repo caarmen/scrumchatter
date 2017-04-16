@@ -202,15 +202,9 @@ public class MeetingsListFragment extends Fragment {
     private final FabListener mFabListener = new FabListener() {
         @Override
         public void onNewMeeting(View view) {
-            mMeetings.createMeeting(mTeamId, meeting -> {
-                if (meeting != null) {
-                    mMeetingListener.onMeetingOpen(meeting);
-                } else {
-                    DialogFragmentFactory.showInfoDialog(getActivity(), R.string.dialog_error_title_one_member_required,
-                            R.string.dialog_error_message_one_member_required);
-                }
-
-            });
+            mMeetings.createMeeting(mTeamId)
+                    .subscribe(mMeetingListener::onMeetingOpen,
+                            throwable -> DialogFragmentFactory.showInfoDialog(getActivity(), R.string.dialog_error_title_one_member_required, R.string.dialog_error_message_one_member_required));
 
         }
     };

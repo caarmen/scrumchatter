@@ -24,18 +24,20 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.MainThread;
+import android.support.annotation.WorkerThread;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import ca.rmen.android.scrumchatter.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.dialog.DialogFragmentFactory;
 import ca.rmen.android.scrumchatter.dialog.InputDialogFragment.InputValidator;
 import ca.rmen.android.scrumchatter.provider.TeamColumns;
+import ca.rmen.android.scrumchatter.util.Log;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -164,12 +166,11 @@ public class Teams {
     /**
      * Shows a confirmation dialog to the user to delete a team.
      */
+    @MainThread
     public void confirmDeleteTeam(final Team team) {
         Log.v(TAG, "confirmDeleteTeam, team = " + team);
 
-        Single.fromCallable(this::getTeamCount)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+        getTeamCount()
                 .subscribe(teamCount -> {
                     // We need at least one team in the app.
                     if (teamCount <= 1) {
@@ -222,7 +223,8 @@ public class Teams {
     /**
      * @return the Team currently selected by the user.
      */
-    public Team getCurrentTeam() {
+    @WorkerThread
+    private Team getCurrentTeam() {
         // Retrieve the current team name and construct a uri for the team based on the current team id.
         int teamId = PreferenceManager.getDefaultSharedPreferences(mActivity).getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
         Uri teamUri = Uri.withAppendedPath(TeamColumns.CONTENT_URI, String.valueOf(teamId));
@@ -244,43 +246,58 @@ public class Teams {
     /**
      * Query the teams table, and return a list of all teams, and the current team.
      */
-    public TeamsData getAllTeams() {
-        List<Team> teams = new ArrayList<>();
-        Cursor c = mActivity.getContentResolver().query(
-                TeamColumns.CONTENT_URI,
-                new String[]{TeamColumns._ID, TeamColumns.TEAM_NAME},
-                null, null,
-                TeamColumns.TEAM_NAME + " COLLATE NOCASE");
+    public Single<TeamsData> getAllTeams() {
+        return Single.fromCallable(() -> {
+            List<Team> teams = new ArrayList<>();
+            Cursor c = mActivity.getContentResolver().query(
+                    TeamColumns.CONTENT_URI,
+                    new String[]{TeamColumns._ID, TeamColumns.TEAM_NAME},
+                    null, null,
+                    TeamColumns.TEAM_NAME + " COLLATE NOCASE");
 
-        if (c != null) {
-            try {
-                // Add the names of all the teams
-                while (c.moveToNext()) {
-                    int teamId = c.getInt(0);
-                    String teamName = c.getString(1);
-                    Uri teamUri = Uri.withAppendedPath(TeamColumns.CONTENT_URI, String.valueOf(teamId));
-                    teams.add(new Team(teamUri, teamName));
+            if (c != null) {
+                try {
+                    // Add the names of all the teams
+                    while (c.moveToNext()) {
+                        int teamId = c.getInt(0);
+                        String teamName = c.getString(1);
+                        Uri teamUri = Uri.withAppendedPath(TeamColumns.CONTENT_URI, String.valueOf(teamId));
+                        teams.add(new Team(teamUri, teamName));
+                    }
+                } finally {
+                    c.close();
                 }
-            } finally {
-                c.close();
             }
-        }
-        return new TeamsData(getCurrentTeam(), teams);
+            return new TeamsData(getCurrentTeam(), teams);
+
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     /**
      * @return the total number of teams
      */
-    public int getTeamCount() {
-        Cursor c = mActivity.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { "count(*)" }, null, null, null);
-        if (c != null) {
-            try {
-                if (c.moveToFirst()) return c.getInt(0);
-            } finally {
-                c.close();
+    public Single<Integer> getTeamCount() {
+        return Single.fromCallable(() -> {
+
+            Cursor c = mActivity.getContentResolver().query(TeamColumns.CONTENT_URI, new String[]{"count(*)"}, null, null, null);
+            if (c != null) {
+                try {
+                    if (c.moveToFirst()) return c.getInt(0);
+                } finally {
+                    c.close();
+                }
             }
-        }
-        return 0;
+            return 0;
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    public Single<Team> readCurrentTeam() {
+        return Single.fromCallable(this::getCurrentTeam)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     /**

@@ -51,22 +51,29 @@ class MeetingPagerAdapter extends FragmentStatePagerAdapter {
     private final MeetingObserver mMeetingObserver;
     private final int mTeamId;
 
-    @WorkerThread
-    MeetingPagerAdapter(FragmentActivity activity) {
+    private MeetingPagerAdapter(FragmentActivity activity, int teamId, MeetingCursorWrapper cursor) {
         super(activity.getSupportFragmentManager());
         Log.v(TAG, "Constructor");
         mContext = activity;
-        mTeamId = PreferenceManager.getDefaultSharedPreferences(activity).getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
-        // Closing the cursor wrapper also closes the cursor
-        @SuppressLint("Recycle")
-        Cursor cursor = activity.getContentResolver().query(MeetingColumns.CONTENT_URI, null, MeetingColumns.TEAM_ID + "=?",
-                new String[] { String.valueOf(mTeamId) }, MeetingColumns.MEETING_DATE + " DESC");
-        mCursor = new MeetingCursorWrapper(cursor);
-        mCursor.getCount();
+        mTeamId = teamId;
         mMeetingObserver = new MeetingObserver(new Handler(Looper.getMainLooper()));
+        mCursor = cursor;
         mCursor.registerContentObserver(mMeetingObserver);
     }
 
+    static Single<MeetingPagerAdapter> create(FragmentActivity activity) {
+        return Single.fromCallable(() -> {
+            int teamId = PreferenceManager.getDefaultSharedPreferences(activity).getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
+            // Closing the cursor wrapper also closes the cursor
+            @SuppressLint("Recycle")
+            Cursor cursor = activity.getContentResolver().query(MeetingColumns.CONTENT_URI, null, MeetingColumns.TEAM_ID + "=?",
+                    new String[] { String.valueOf(teamId) }, MeetingColumns.MEETING_DATE + " DESC");
+            MeetingCursorWrapper meetingCursorWrapper = new MeetingCursorWrapper(cursor);
+            meetingCursorWrapper.getCount();
+            return new MeetingPagerAdapter(activity, teamId, meetingCursorWrapper);
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
 
     @Override
     public Fragment getItem(int position) {

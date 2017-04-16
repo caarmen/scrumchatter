@@ -40,9 +40,6 @@ import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberStatsColumns;
 import ca.rmen.android.scrumchatter.team.Teams;
 import ca.rmen.android.scrumchatter.util.Log;
-import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
 
 /**
  * Displays charts for members.
@@ -122,12 +119,9 @@ public class MembersChartsFragment extends Fragment {
     };
 
     private void loadTeam() {
-        Single.fromCallable(() -> new Teams(getActivity()).getCurrentTeam().teamName)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(teamName -> {
-                    mBinding.pieChartCardAvg.pieChartContent.tvTitleMemberSpeakingTimeChart.setText(getString(R.string.chart_member_average_speaking_time_title, teamName));
-                    mBinding.pieChartCardTotal.pieChartContent.tvTitleMemberSpeakingTimeChart.setText(getString(R.string.chart_member_total_speaking_time_title, teamName));
-                });
+        new Teams(getActivity()).readCurrentTeam().subscribe(team -> {
+            mBinding.pieChartCardAvg.pieChartContent.tvTitleMemberSpeakingTimeChart.setText(getString(R.string.chart_member_average_speaking_time_title, team.teamName));
+            mBinding.pieChartCardTotal.pieChartContent.tvTitleMemberSpeakingTimeChart.setText(getString(R.string.chart_member_total_speaking_time_title, team.teamName));
+        });
     }
 }

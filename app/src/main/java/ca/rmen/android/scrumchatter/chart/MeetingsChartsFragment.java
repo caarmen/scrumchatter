@@ -40,9 +40,6 @@ import ca.rmen.android.scrumchatter.provider.MeetingMemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.team.Teams;
 import ca.rmen.android.scrumchatter.util.Log;
-import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
 
 
 /**
@@ -123,14 +120,10 @@ public class MeetingsChartsFragment extends Fragment {
     };
 
     private void loadTeam() {
-        Single.fromCallable(() -> new Teams(getActivity()).getCurrentTeam().teamName)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(teamName -> {
-                            mBinding.tvTitleMeetingDurationChart.setText(getString(R.string.chart_meeting_duration_title, teamName));
-                            mBinding.tvTitleSpeakerTimeChart.setText(getString(R.string.chart_speaker_time_title, teamName));
-                        }
-                );
+        new Teams(getActivity()).readCurrentTeam().subscribe(team -> {
+            mBinding.tvTitleMeetingDurationChart.setText(getString(R.string.chart_meeting_duration_title, team.teamName));
+            mBinding.tvTitleSpeakerTimeChart.setText(getString(R.string.chart_speaker_time_title, team.teamName));
+        });
     }
 
 }
