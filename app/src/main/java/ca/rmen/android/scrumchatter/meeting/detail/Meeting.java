@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Carmen Alvarez
+ * Copyright 2013, 2017 Carmen Alvarez
  *
  * This file is part of Scrum Chatter.
  *
@@ -28,6 +28,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+
 import ca.rmen.android.scrumchatter.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
@@ -61,6 +63,7 @@ public class Meeting {
     /**
      * Read an existing meeting from the DB.
      */
+    @NonNull
     public static Meeting read(Context context, long id) {
         Log.v(TAG, "read meeting with id " + id);
         // Read the meeting attributes from the DB 
@@ -78,7 +81,7 @@ public class Meeting {
                 return new Meeting(context, id, startDate, state, duration);
             } else {
                 Log.v(TAG, "No meeting for id " + id);
-                return null;
+                throw new IllegalArgumentException("No meeting for id " + id);
             }
         } finally {
             cursorWrapper.close();
@@ -111,8 +114,7 @@ public class Meeting {
             long meetingId = Long.parseLong(newMeetingUri.getLastPathSegment());
             return new Meeting(context, meetingId, startDate, State.NOT_STARTED, 0);
         } else {
-            Log.w(TAG, "Couldn't create a meeting for values " + values);
-            return null;
+            throw new IllegalStateException("Couldn't create a meeting for values " + values);
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Carmen Alvarez
+ * Copyright 2013, 2017 Carmen Alvarez
  *
  * This file is part of Scrum Chatter.
  *
@@ -21,23 +21,21 @@ package ca.rmen.android.scrumchatter.meeting.detail;
 import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+import android.support.annotation.MainThread;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-
-import ca.rmen.android.scrumchatter.databinding.MeetingActivityBinding;
-import ca.rmen.android.scrumchatter.util.Log;
 import android.view.View;
+
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
+import ca.rmen.android.scrumchatter.databinding.MeetingActivityBinding;
 import ca.rmen.android.scrumchatter.dialog.ConfirmDialogFragment.DialogButtonListener;
 import ca.rmen.android.scrumchatter.dialog.DialogFragmentFactory;
 import ca.rmen.android.scrumchatter.meeting.Meetings;
+import ca.rmen.android.scrumchatter.util.Log;
 import ca.rmen.android.scrumchatter.util.TextUtils;
-
 
 /**
  * Contains a ViewPager of {@link MeetingFragment}.
@@ -68,47 +66,26 @@ public class MeetingActivity extends AppCompatActivity implements DialogButtonLi
         if (supportActionBar != null) supportActionBar.setDisplayHomeAsUpEnabled(true);
 
         // If this is the first time we open the activity, we will use the meeting id provided in the intent.
-        // If we are recreating the activity (because of a device rotation, for example), we will display the meeting that the user 
+        // If we are recreating the activity (because of a device rotation, for example), we will display the meeting that the user
         // had previously swiped to, using the ViewPager.
-        long originalMeetingId = getIntent().getLongExtra(Meetings.EXTRA_MEETING_ID, -1);
-        final long meetingId;
-        if (savedInstanceState != null) meetingId = savedInstanceState.getLong(Meetings.EXTRA_MEETING_ID);
-        else
-            meetingId = originalMeetingId;
-        Log.v(TAG, "original meeting id " + originalMeetingId + ", saved meeting id " + meetingId);
+        long meetingId = savedInstanceState == null ? getIntent().getLongExtra(Meetings.EXTRA_MEETING_ID, -1) : savedInstanceState.getLong(Meetings.EXTRA_MEETING_ID);
 
         // Perform initialization which must be done on a background thread:
-        // Create a new meeting if necessary.
         // Create the pager adapter. The pager adapter constructor reads from the DB, so
         // we need to create it in a background thread.  When it's ready, we'll use it 
         // with the ViewPager, and open the ViewPager to the correct meeting.
-        new AsyncTask<Void, Void, MeetingPagerAdapter>() {
-            private long mMeetingId;
+        MeetingPagerAdapter.create(this)
+                .doOnSuccess(meetingPagerAdapter -> mMeetingPagerAdapter = meetingPagerAdapter)
+                .subscribe(meetingPagerAdapter -> onPagerAdapterCreated(meetingId, meetingPagerAdapter));
+    }
 
-            @Override
-            protected MeetingPagerAdapter doInBackground(Void... param) {
-                if (meetingId < 0) {
-                    Meeting newMeeting = Meeting.createNewMeeting(MeetingActivity.this);
-                    if (newMeeting != null) mMeetingId = newMeeting.getId();
-                } else {
-                    mMeetingId = meetingId;
-                }
-                int teamId = PreferenceManager.getDefaultSharedPreferences(MeetingActivity.this).getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
-                return new MeetingPagerAdapter(MeetingActivity.this, teamId, getSupportFragmentManager());
-            }
-
-            @Override
-            protected void onPostExecute(MeetingPagerAdapter result) {
-                mMeetingPagerAdapter = result;
-                mBinding.activityLoading.setVisibility(View.GONE);
-                mBinding.pager.setAdapter(mMeetingPagerAdapter);
-                if (mMeetingId >= 0) {
-                    int position = mMeetingPagerAdapter.getPositionForMeetingId(mMeetingId);
-                    Log.v(TAG, "meeting " + mMeetingId + " is on page " + position);
-                    mBinding.pager.setCurrentItem(position);
-                }
-            }
-        }.execute();
+    @MainThread
+    private void onPagerAdapterCreated(long meetingId, MeetingPagerAdapter meetingPagerAdapter) {
+        mBinding.activityLoading.setVisibility(View.GONE);
+        mBinding.pager.setAdapter(meetingPagerAdapter);
+        int position = meetingPagerAdapter.getPositionForMeetingId(meetingId);
+        Log.v(TAG, "meeting " + meetingId + " is on page " + position);
+        mBinding.pager.setCurrentItem(position);
     }
 
     @Override
@@ -163,13 +140,7 @@ public class MeetingActivity extends AppCompatActivity implements DialogButtonLi
     @Override
     public void supportInvalidateOptionsMenu() {
         Log.v(TAG, "supportInvalidateOptionsMenu");
-        mBinding.pager.post(new Runnable() {
-
-            @Override
-            public void run() {
-                MeetingActivity.super.supportInvalidateOptionsMenu();
-            }
-        });
+        mBinding.pager.post(MeetingActivity.super::supportInvalidateOptionsMenu);
     }
 
     /**

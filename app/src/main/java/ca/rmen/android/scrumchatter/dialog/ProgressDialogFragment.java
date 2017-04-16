@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Carmen Alvarez
+ * Copyright 2013, 2017 Carmen Alvarez
  *
  * This file is part of Scrum Chatter.
  *
@@ -20,7 +20,6 @@ package ca.rmen.android.scrumchatter.dialog;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -54,16 +53,13 @@ public class ProgressDialogFragment extends DialogFragment {
         Bundle arguments = getArguments();
         dialog.setMessage(arguments.getString(DialogFragmentFactory.EXTRA_MESSAGE));
         dialog.setIndeterminate(true);
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface shownDialog) {
-                ProgressBar progressBar = (ProgressBar) ((ProgressDialog)shownDialog).findViewById(android.R.id.progress);
-                if (progressBar != null) {
-                    Drawable drawable = progressBar.getIndeterminateDrawable();
-                    if (drawable != null) {
-                        drawable.setColorFilter(ContextCompat.getColor(getActivity(), R.color.scrum_chatter_accent_color),
-                                android.graphics.PorterDuff.Mode.SRC_IN);
-                    }
+        dialog.setOnShowListener(shownDialog -> {
+            ProgressBar progressBar = (ProgressBar) ((ProgressDialog)shownDialog).findViewById(android.R.id.progress);
+            if (progressBar != null) {
+                Drawable drawable = progressBar.getIndeterminateDrawable();
+                if (drawable != null) {
+                    drawable.setColorFilter(ContextCompat.getColor(getActivity(), R.color.scrum_chatter_accent_color),
+                            android.graphics.PorterDuff.Mode.SRC_IN);
                 }
             }
         });

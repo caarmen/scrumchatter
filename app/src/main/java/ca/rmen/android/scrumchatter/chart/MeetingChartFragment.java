@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Carmen Alvarez
+ * Copyright 2016-2017 Carmen Alvarez
  * <p/>
  * This file is part of Scrum Chatter.
  * <p/>
@@ -21,8 +21,8 @@ package ca.rmen.android.scrumchatter.chart;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.MainThread;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -46,6 +46,7 @@ import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.team.Teams;
 import ca.rmen.android.scrumchatter.util.Log;
 import ca.rmen.android.scrumchatter.util.TextUtils;
+import io.reactivex.Single;
 
 /**
  * Displays charts for one meeting
@@ -69,7 +70,7 @@ public class MeetingChartFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         getLoaderManager().initLoader(LOADER_MEMBER_SPEAKING_TIME, null, mLoaderCallbacks);
         setHasOptionsMenu(true);
-        mMeetingLoader.execute(getActivity().getIntent().getLongExtra(Meetings.EXTRA_MEETING_ID, -1));
+        loadMeeting(getActivity().getIntent().getLongExtra(Meetings.EXTRA_MEETING_ID, -1));
     }
 
     @Override
@@ -81,7 +82,7 @@ public class MeetingChartFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_share) {
-            new ChartExportTask(getContext(), mBinding.memberSpeakingTimeChartContent).execute();
+            ChartExportTask.export(getContext(), mBinding.memberSpeakingTimeChartContent);
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -123,25 +124,38 @@ public class MeetingChartFragment extends Fragment {
         }
     };
 
-    private final AsyncTask<Long, Void, Void> mMeetingLoader = new AsyncTask<Long, Void, Void>() {
-        private Meeting mMeeting;
-        private Teams.Team mTeam;
+    private static class MeetingDisplayInfo {
+        final String teamName;
+        final String meetingDuration;
+        final String meetingStartDate;
 
-        @Override
-        protected Void doInBackground(Long... meetingId) {
-            mTeam = new Teams(getActivity()).getCurrentTeam();
-            mMeeting = Meeting.read(getContext(), meetingId[0]);
-            return null;
+        MeetingDisplayInfo(String teamName, String meetingDuration, String meetingStartDate) {
+            this.teamName = teamName;
+            this.meetingDuration = meetingDuration;
+            this.meetingStartDate = meetingStartDate;
         }
+    }
 
-        @Override
-        protected void onPostExecute(Void result) {
-            mBinding.tvTitleMemberSpeakingTimeChart.setText(
-                    getString(R.string.chart_member_speaking_time_title, mTeam.teamName));
-            String meetingDate = TextUtils.formatDateTime(getContext(), mMeeting.getStartDate());
-            String meetingDuration = DateUtils.formatElapsedTime(mMeeting.getDuration());
-            mBinding.tvSubtitleDateMemberSpeakingTimeChart.setText(meetingDate);
-            mBinding.tvSubtitleDurationMemberSpeakingTimeChart.setText(getString(R.string.chart_total_duration, meetingDuration));
-        }
-    };
+    private MeetingDisplayInfo createMeetingDisplayInfo(Teams.Team team, Meeting meeting) {
+        return new MeetingDisplayInfo(
+                getString(R.string.chart_member_speaking_time_title, team.teamName),
+                getString(R.string.chart_total_duration, DateUtils.formatElapsedTime(meeting.getDuration())),
+                TextUtils.formatDateTime(getContext(), meeting.getStartDate()));
+    }
+
+    @MainThread
+    private void displayMeetingInfo(MeetingDisplayInfo meetingDisplayInfo) {
+        mBinding.tvTitleMemberSpeakingTimeChart.setText(meetingDisplayInfo.teamName);
+        mBinding.tvSubtitleDateMemberSpeakingTimeChart.setText(meetingDisplayInfo.meetingStartDate);
+        mBinding.tvSubtitleDurationMemberSpeakingTimeChart.setText(meetingDisplayInfo.meetingDuration);
+    }
+
+    private void loadMeeting(long meetingId) {
+        Single.zip(new Teams(getActivity()).readCurrentTeam(),
+                new Meetings(getActivity()).readMeeting(meetingId),
+                this::createMeetingDisplayInfo)
+
+                .subscribe(this::displayMeetingInfo,
+                        throwable -> Log.v(TAG, "Couldn't load meeting " + meetingId, throwable));
+    }
 }

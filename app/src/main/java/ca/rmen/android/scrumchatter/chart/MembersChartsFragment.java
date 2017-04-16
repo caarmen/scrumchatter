@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Carmen Alvarez
+ * Copyright 2016-2017 Carmen Alvarez
  * <p/>
  * This file is part of Scrum Chatter.
  * <p/>
@@ -21,7 +21,6 @@ package ca.rmen.android.scrumchatter.chart;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -71,9 +70,8 @@ public class MembersChartsFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         getLoaderManager().initLoader(LOADER_MEMBER_SPEAKING_TIME, null, mLoaderCallbacks);
         getLoaderManager().initLoader(LOADER_MEETING_DATES, null, mLoaderCallbacks);
-        mTeamLoader.execute();
+        loadTeam();
     }
-
 
     private final LoaderManager.LoaderCallbacks<Cursor> mLoaderCallbacks = new LoaderManager.LoaderCallbacks<Cursor>() {
 
@@ -120,17 +118,10 @@ public class MembersChartsFragment extends Fragment {
         }
     };
 
-    private final AsyncTask<Void, Void, Teams.Team> mTeamLoader = new AsyncTask<Void, Void, Teams.Team>() {
-        @Override
-        protected Teams.Team doInBackground(Void... params) {
-            return new Teams(getActivity()).getCurrentTeam();
-        }
-
-        @Override
-        protected void onPostExecute(Teams.Team team) {
+    private void loadTeam() {
+        new Teams(getActivity()).readCurrentTeam().subscribe(team -> {
             mBinding.pieChartCardAvg.pieChartContent.tvTitleMemberSpeakingTimeChart.setText(getString(R.string.chart_member_average_speaking_time_title, team.teamName));
             mBinding.pieChartCardTotal.pieChartContent.tvTitleMemberSpeakingTimeChart.setText(getString(R.string.chart_member_total_speaking_time_title, team.teamName));
-        }
-    };
-
+        });
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Carmen Alvarez
+ * Copyright 2013, 2017 Carmen Alvarez
  *
  * This file is part of Scrum Chatter.
  *
@@ -42,6 +42,7 @@ import java.util.Set;
 
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.util.Log;
+import io.reactivex.Observable;
 
 /**
  * Provider for the Scrum Chatter app. This provider provides access to the
@@ -249,18 +250,17 @@ public class ScrumChatterProvider extends ContentProvider {
     @Override
     @NonNull public ContentProviderResult[] applyBatch(@NonNull ArrayList<ContentProviderOperation> operations) throws OperationApplicationException {
         Log.v(TAG, "applyBatch: " + operations);
-        Set<Uri> urisToNotify = new HashSet<>();
-        for (ContentProviderOperation operation : operations)
-            urisToNotify.add(operation.getUri());
-        urisToNotify.add(MemberStatsColumns.CONTENT_URI);
-        Log.v(TAG, "applyBatch: will notify these uris after persisting: " + urisToNotify);
         SQLiteDatabase db = mScrumChatterDatabase.getWritableDatabase();
         db.beginTransaction();
         try {
             ContentProviderResult[] result = super.applyBatch(operations);
             db.setTransactionSuccessful();
-            for (Uri uri : urisToNotify)
-                notifyChange(uri);
+            Observable.fromIterable(operations)
+                    .map(ContentProviderOperation::getUri)
+                    .concatWith(Observable.just(MemberStatsColumns.CONTENT_URI))
+                    .distinct()
+                    .doOnNext(uri -> Log.v(TAG, "applyBatch: Notify uri " + uri))
+                    .subscribe(this::notifyChange);
             return result;
         } finally {
             db.endTransaction();

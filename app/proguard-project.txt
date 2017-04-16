@@ -26,3 +26,7 @@
 
 -keepattributes *Annotation*
 -dontobfuscate
+
+#retrolambda:
+-dontwarn java.lang.invoke.*
+-dontwarn **$$Lambda$*

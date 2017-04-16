@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Carmen Alvarez
+ * Copyright 2016-2017 Carmen Alvarez
  * <p/>
  * This file is part of Scrum Chatter.
  * <p/>
@@ -22,38 +22,31 @@ package ca.rmen.android.scrumchatter.chart;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.os.AsyncTask;
+import android.support.annotation.MainThread;
 import android.support.design.widget.Snackbar;
 import android.view.View;
 
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.export.BitmapExport;
+import io.reactivex.schedulers.Schedulers;
 
-class ChartExportTask extends AsyncTask<Void, Void, Void> {
+class ChartExportTask {
 
-    private final Context mContext;
-    private final View mView;
-    private Bitmap mBitmap;
-
-    ChartExportTask(Context context, View view) {
-        super();
-        mContext = context;
-        mView = view;
+    private ChartExportTask() {
+        // prevent instantiation
     }
 
-    @Override
-    protected void onPreExecute() {
-        Snackbar.make(mView, mContext.getString(R.string.chart_exporting_snackbar), Snackbar.LENGTH_LONG).show();
-        mBitmap = Bitmap.createBitmap(mView.getWidth(), mView.getHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(mBitmap);
-        mView.draw(canvas);
-    }
+    @MainThread
+    static void export(Context context, View view) {
+        Snackbar.make(view, context.getString(R.string.chart_exporting_snackbar), Snackbar.LENGTH_LONG).show();
+        Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        view.draw(canvas);
+        Schedulers.io().scheduleDirect(() -> {
+            BitmapExport export = new BitmapExport(context, bitmap);
+            export.export();
+        });
 
-    @Override
-    protected Void doInBackground(Void... params) {
-        BitmapExport export = new BitmapExport(mContext, mBitmap);
-        export.export();
-        return null;
     }
 
 }

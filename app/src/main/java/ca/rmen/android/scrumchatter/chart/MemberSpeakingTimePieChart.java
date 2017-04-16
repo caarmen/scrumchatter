@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Carmen Alvarez
+ * Copyright 2016-2017 Carmen Alvarez
  * <p/>
  * This file is part of Scrum Chatter.
  * <p/>
@@ -142,11 +142,6 @@ final class MemberSpeakingTimePieChart {
         //pieChartView.setCircleFillRatio(0.4f);
     }
 
-    private static final Comparator<PieChartSlice> PIE_CHART_SLICE_COMPARATOR = new Comparator<PieChartSlice>() {
-        @Override
-        public int compare(PieChartSlice lhs, PieChartSlice rhs) {
-            return (int) (rhs.sliceValue.getValue() - lhs.sliceValue.getValue());
-        }
-    };
+    private static final Comparator<PieChartSlice> PIE_CHART_SLICE_COMPARATOR = (lhs, rhs) -> (int) (rhs.sliceValue.getValue() - lhs.sliceValue.getValue());
 
 }

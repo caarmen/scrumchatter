@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Carmen Alvarez
+ * Copyright 2013, 2017 Carmen Alvarez
  *
  * This file is part of Scrum Chatter.
  *
@@ -19,7 +19,6 @@
 package ca.rmen.android.scrumchatter.dialog;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -62,14 +61,11 @@ public class ConfirmDialogFragment extends DialogFragment { // NO_UCD (use defau
         final Bundle extras = arguments.getBundle(DialogFragmentFactory.EXTRA_EXTRAS);
         OnClickListener positiveListener = null;
         if (getActivity() instanceof DialogButtonListener) {
-            positiveListener = new OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    FragmentActivity activity = getActivity();
-                    if (activity == null) Log.w(TAG, "User clicked on dialog after it was detached from activity. Monkey?");
-                    else
-                        ((DialogButtonListener) activity).onOkClicked(actionId, extras);
-                }
+            positiveListener = (dialog, which) -> {
+                FragmentActivity activity = getActivity();
+                if (activity == null) Log.w(TAG, "User clicked on dialog after it was detached from activity. Monkey?");
+                else
+                    ((DialogButtonListener) activity).onOkClicked(actionId, extras);
             };
         }
         builder.setNegativeButton(android.R.string.cancel, null);

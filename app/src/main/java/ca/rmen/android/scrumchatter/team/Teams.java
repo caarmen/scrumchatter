@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 Carmen Alvarez
+ * Copyright 2013-2017 Carmen Alvarez
  *
  * This file is part of Scrum Chatter.
  *
@@ -22,21 +22,25 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.MainThread;
+import android.support.annotation.WorkerThread;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import ca.rmen.android.scrumchatter.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.dialog.DialogFragmentFactory;
 import ca.rmen.android.scrumchatter.dialog.InputDialogFragment.InputValidator;
 import ca.rmen.android.scrumchatter.provider.TeamColumns;
+import ca.rmen.android.scrumchatter.util.Log;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Provides both UI and DB logic regarding the management of teams: renaming, choosing, creating, and deleting teams.
@@ -83,30 +87,24 @@ public class Teams {
      */
     public void switchTeam(final CharSequence teamName) {
         Log.v(TAG, "switchTeam " + teamName);
-        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-
-            @Override
-            protected Void doInBackground(Void... params) {
-                Cursor c = mActivity.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { TeamColumns._ID }, TeamColumns.TEAM_NAME + " = ?",
-                        new String[] { String.valueOf(teamName) }, null);
-                if (c != null) {
-                    try {
-                        c.moveToFirst();
-                        if (c.getCount() == 1) {
-                            int teamId = c.getInt(0);
-                            PreferenceManager.getDefaultSharedPreferences(mActivity).edit().putInt(Constants.PREF_TEAM_ID, teamId).apply();
-                        } else {
-                            Log.wtf(TAG, "Found " + c.getCount() + " teams for " + teamName);
-                        }
-
-                    } finally {
-                        c.close();
+        Schedulers.io().scheduleDirect(() -> {
+            Cursor c = mActivity.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { TeamColumns._ID }, TeamColumns.TEAM_NAME + " = ?",
+                    new String[] { String.valueOf(teamName) }, null);
+            if (c != null) {
+                try {
+                    c.moveToFirst();
+                    if (c.getCount() == 1) {
+                        int teamId = c.getInt(0);
+                        PreferenceManager.getDefaultSharedPreferences(mActivity).edit().putInt(Constants.PREF_TEAM_ID, teamId).apply();
+                    } else {
+                        Log.wtf(TAG, "Found " + c.getCount() + " teams for " + teamName);
                     }
+
+                } finally {
+                    c.close();
                 }
-                return null;
             }
-        };
-        task.execute();
+        });
     }
 
     /**
@@ -123,23 +121,16 @@ public class Teams {
         // Ignore an empty name.
         if (!TextUtils.isEmpty(teamName)) {
             // Create the new team in a background thread.
-            AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-
-                @Override
-                protected Void doInBackground(Void... params) {
-                    ContentValues values = new ContentValues(1);
-                    values.put(TeamColumns.TEAM_NAME, teamName);
-                    Uri newTeamUri = mActivity.getContentResolver().insert(TeamColumns.CONTENT_URI, values);
-                    if (newTeamUri != null) {
-                        int newTeamId = Integer.valueOf(newTeamUri.getLastPathSegment());
-                        PreferenceManager.getDefaultSharedPreferences(mActivity).edit().putInt(Constants.PREF_TEAM_ID, newTeamId).apply();
-                    }
-                    return null;
+            Schedulers.io().scheduleDirect(() -> {
+                ContentValues values = new ContentValues(1);
+                values.put(TeamColumns.TEAM_NAME, teamName);
+                Uri newTeamUri = mActivity.getContentResolver().insert(TeamColumns.CONTENT_URI, values);
+                if (newTeamUri != null) {
+                    int newTeamId = Integer.valueOf(newTeamUri.getLastPathSegment());
+                    PreferenceManager.getDefaultSharedPreferences(mActivity).edit().putInt(Constants.PREF_TEAM_ID, newTeamId).apply();
                 }
-            };
-            task.execute();
+            });
         }
-
     }
 
     /**
@@ -164,49 +155,35 @@ public class Teams {
         // Ignore an empty name.
         if (!TextUtils.isEmpty(teamName)) {
             // Rename the team in a background thread.
-            AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-
-                @Override
-                protected Void doInBackground(Void... params) {
-                    ContentValues values = new ContentValues(1);
-                    values.put(TeamColumns.TEAM_NAME, teamName);
-                    mActivity.getContentResolver().update(teamUri, values, null, null);
-                    return null;
-                }
-            };
-            task.execute();
+            Schedulers.io().scheduleDirect(() -> {
+                ContentValues values = new ContentValues(1);
+                values.put(TeamColumns.TEAM_NAME, teamName);
+                mActivity.getContentResolver().update(teamUri, values, null, null);
+            });
         }
     }
 
     /**
      * Shows a confirmation dialog to the user to delete a team.
      */
+    @MainThread
     public void confirmDeleteTeam(final Team team) {
         Log.v(TAG, "confirmDeleteTeam, team = " + team);
 
-        AsyncTask<Void, Void, Integer> task = new AsyncTask<Void, Void, Integer>() {
-
-            @Override
-            protected Integer doInBackground(Void... params) {
-                return getTeamCount();
-            }
-
-            @Override
-            protected void onPostExecute(Integer teamCount) {
-                // We need at least one team in the app.
-                if (teamCount <= 1) {
-                    DialogFragmentFactory.showInfoDialog(mActivity, R.string.action_team_delete, R.string.dialog_error_one_team_required);
-                }
-                // Delete this team
-                else if (team != null) {
-                    Bundle extras = new Bundle(1);
-                    extras.putParcelable(EXTRA_TEAM_URI, team.teamUri);
-                    DialogFragmentFactory.showConfirmDialog(mActivity, mActivity.getString(R.string.action_team_delete),
-                            mActivity.getString(R.string.dialog_message_delete_team_confirm, team.teamName), R.id.action_team_delete, extras);
-                }
-            }
-        };
-        task.execute();
+        getTeamCount()
+                .subscribe(teamCount -> {
+                    // We need at least one team in the app.
+                    if (teamCount <= 1) {
+                        DialogFragmentFactory.showInfoDialog(mActivity, R.string.action_team_delete, R.string.dialog_error_one_team_required);
+                    }
+                    // Delete this team
+                    else if (team != null) {
+                        Bundle extras = new Bundle(1);
+                        extras.putParcelable(EXTRA_TEAM_URI, team.teamUri);
+                        DialogFragmentFactory.showConfirmDialog(mActivity, mActivity.getString(R.string.action_team_delete),
+                                mActivity.getString(R.string.dialog_message_delete_team_confirm, team.teamName), R.id.action_team_delete, extras);
+                    }
+                });
     }
 
     /**
@@ -214,41 +191,40 @@ public class Teams {
      */
     public void deleteTeam(final Uri teamUri) {
         Log.v(TAG, "deleteTeam, uri = " + teamUri);
-        AsyncTask<Void, Void, Void> deleteTask = new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... params) {
-                // delete this team
-                mActivity.getContentResolver().delete(teamUri, null, null);
-                // pick another current team
-                selectFirstTeam();
-                return null;
-            }
-
-        };
-        deleteTask.execute();
+        Schedulers.io().scheduleDirect(() -> {
+            // delete this team
+            mActivity.getContentResolver().delete(teamUri, null, null);
+            // pick another current team
+            selectFirstTeam();
+        });
     }
 
     /**
      * Select the first team in our DB.
      */
-    private void selectFirstTeam() {
-        Cursor c = mActivity.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { TeamColumns._ID }, null, null, null);
+    private Team selectFirstTeam() {
+        Cursor c = mActivity.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { TeamColumns._ID, TeamColumns.TEAM_NAME }, null, null, null);
         if (c != null) {
             try {
                 if (c.moveToFirst()) {
                     int teamId = c.getInt(0);
+                    String teamName = c.getString(1);
                     PreferenceManager.getDefaultSharedPreferences(mActivity).edit().putInt(Constants.PREF_TEAM_ID, teamId).apply();
+                    Uri teamUri = Uri.withAppendedPath(TeamColumns.CONTENT_URI, String.valueOf(teamId));
+                    return new Team(teamUri, teamName);
                 }
             } finally {
                 c.close();
             }
         }
+        return null;
     }
 
     /**
      * @return the Team currently selected by the user.
      */
-    public Team getCurrentTeam() {
+    @WorkerThread
+    private Team getCurrentTeam() {
         // Retrieve the current team name and construct a uri for the team based on the current team id.
         int teamId = PreferenceManager.getDefaultSharedPreferences(mActivity).getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
         Uri teamUri = Uri.withAppendedPath(TeamColumns.CONTENT_URI, String.valueOf(teamId));
@@ -264,48 +240,64 @@ public class Teams {
             }
         }
         Log.wtf(TAG, "Could not get the current team", new Throwable());
-        selectFirstTeam();
-        return null;
+        return selectFirstTeam();
     }
 
+    /**
+     * Query the teams table, and return a list of all teams, and the current team.
+     */
+    public Single<TeamsData> getAllTeams() {
+        return Single.fromCallable(() -> {
+            List<Team> teams = new ArrayList<>();
+            Cursor c = mActivity.getContentResolver().query(
+                    TeamColumns.CONTENT_URI,
+                    new String[]{TeamColumns._ID, TeamColumns.TEAM_NAME},
+                    null, null,
+                    TeamColumns.TEAM_NAME + " COLLATE NOCASE");
 
-    public TeamsData getAllTeams() {
-        List<Team> teams = new ArrayList<>();
-        Cursor c = mActivity.getContentResolver().query(
-                TeamColumns.CONTENT_URI,
-                new String[]{TeamColumns._ID, TeamColumns.TEAM_NAME},
-                null, null,
-                TeamColumns.TEAM_NAME + " COLLATE NOCASE");
-
-        if (c != null) {
-            try {
-                // Add the names of all the teams
-                while (c.moveToNext()) {
-                    int teamId = c.getInt(0);
-                    String teamName = c.getString(1);
-                    Uri teamUri = Uri.withAppendedPath(TeamColumns.CONTENT_URI, String.valueOf(teamId));
-                    teams.add(new Team(teamUri, teamName));
+            if (c != null) {
+                try {
+                    // Add the names of all the teams
+                    while (c.moveToNext()) {
+                        int teamId = c.getInt(0);
+                        String teamName = c.getString(1);
+                        Uri teamUri = Uri.withAppendedPath(TeamColumns.CONTENT_URI, String.valueOf(teamId));
+                        teams.add(new Team(teamUri, teamName));
+                    }
+                } finally {
+                    c.close();
                 }
-            } finally {
-                c.close();
             }
-        }
-        return new TeamsData(getCurrentTeam(), teams);
+            return new TeamsData(getCurrentTeam(), teams);
+
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     /**
      * @return the total number of teams
      */
-    public int getTeamCount() {
-        Cursor c = mActivity.getContentResolver().query(TeamColumns.CONTENT_URI, new String[] { "count(*)" }, null, null, null);
-        if (c != null) {
-            try {
-                if (c.moveToFirst()) return c.getInt(0);
-            } finally {
-                c.close();
+    public Single<Integer> getTeamCount() {
+        return Single.fromCallable(() -> {
+
+            Cursor c = mActivity.getContentResolver().query(TeamColumns.CONTENT_URI, new String[]{"count(*)"}, null, null, null);
+            if (c != null) {
+                try {
+                    if (c.moveToFirst()) return c.getInt(0);
+                } finally {
+                    c.close();
+                }
             }
-        }
-        return 0;
+            return 0;
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    public Single<Team> readCurrentTeam() {
+        return Single.fromCallable(this::getCurrentTeam)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     /**

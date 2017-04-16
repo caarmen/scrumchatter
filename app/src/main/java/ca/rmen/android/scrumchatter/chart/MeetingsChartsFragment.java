@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Carmen Alvarez
+ * Copyright 2016-2017 Carmen Alvarez
  * <p/>
  * This file is part of Scrum Chatter.
  * <p/>
@@ -21,7 +21,6 @@ package ca.rmen.android.scrumchatter.chart;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -61,7 +60,7 @@ public class MeetingsChartsFragment extends Fragment {
         mBinding.fabShareMeetingDuration.setTag(mBinding.meetingDurationChartContent);
         mBinding.fabShareSpeakerTime.setTag(mBinding.speakerTimeChartContent);
         mBinding.setFabListener(new FabListener(getContext()));
-        mTeamLoader.execute();
+        loadTeam();
         return mBinding.getRoot();
     }
 
@@ -120,17 +119,11 @@ public class MeetingsChartsFragment extends Fragment {
         }
     };
 
-    private final AsyncTask<Void, Void, Teams.Team> mTeamLoader = new AsyncTask<Void, Void, Teams.Team>() {
-        @Override
-        protected Teams.Team doInBackground(Void... params) {
-            return new Teams(getActivity()).getCurrentTeam();
-        }
-
-        @Override
-        protected void onPostExecute(Teams.Team team) {
+    private void loadTeam() {
+        new Teams(getActivity()).readCurrentTeam().subscribe(team -> {
             mBinding.tvTitleMeetingDurationChart.setText(getString(R.string.chart_meeting_duration_title, team.teamName));
             mBinding.tvTitleSpeakerTimeChart.setText(getString(R.string.chart_speaker_time_title, team.teamName));
-        }
-    };
+        });
+    }
 
 }

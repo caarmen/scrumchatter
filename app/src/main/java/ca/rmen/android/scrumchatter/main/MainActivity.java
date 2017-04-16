@@ -27,11 +27,11 @@ import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
+import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -72,6 +72,8 @@ import ca.rmen.android.scrumchatter.team.Teams;
 import ca.rmen.android.scrumchatter.team.Teams.Team;
 import ca.rmen.android.scrumchatter.team.TeamsObserver;
 import ca.rmen.android.scrumchatter.util.Log;
+import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
 
 
 /**
@@ -347,63 +349,56 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
      * @param fileExport The object responsible for creating the file to share.
      */
     private void shareFile(final FileExport fileExport) {
-        AsyncTask<Void, Void, Void> asyncTask = new AsyncTask<Void, Void, Void>() {
-
-            @Override
-            protected void onPreExecute() {
-                DialogFragmentFactory.showProgressDialog(MainActivity.this, getString(R.string.progress_dialog_message), PROGRESS_DIALOG_FRAGMENT_TAG);
-            }
-
-            @Override
-            protected Void doInBackground(Void... params) {
-                boolean result = fileExport.export();
-                Intent intent = new Intent(ACTION_EXPORT_COMPLETE);
-                intent.putExtra(EXTRA_EXPORT_RESULT, result);
-                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-                Log.v(TAG, "broadcast " + intent);
-                return null;
-            }
-
-        };
-        asyncTask.execute();
+        DialogFragmentFactory.showProgressDialog(MainActivity.this, getString(R.string.progress_dialog_message), PROGRESS_DIALOG_FRAGMENT_TAG);
+        Schedulers.io().scheduleDirect(() -> {
+                    boolean result = fileExport.export();
+                    Intent intent = new Intent(ACTION_EXPORT_COMPLETE);
+                    intent.putExtra(EXTRA_EXPORT_RESULT, result);
+                    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+                    Log.v(TAG, "broadcast " + intent);
+                }
+        );
     }
 
     /**
      * Called when the current team was changed. Update our cache of the current team and update the ui (menu items, action bar title).
      */
-    private final TeamsObserver.OnTeamsChangedListener mOnTeamsChangedListener
-            = new TeamsObserver.OnTeamsChangedListener() {
-        @Override
-        public void onTeamsChanged() {
+    private final TeamsObserver.OnTeamsChangedListener mOnTeamsChangedListener = () ->
+            Single.zip(mTeams.readCurrentTeam(),
+                    mTeams.getTeamCount(),
+                    TeamInfo::new)
+                    .doOnSuccess(teamInfo -> {
+                        mTeam = teamInfo.team;
+                        mTeamCount = teamInfo.teamCount;
+                    })
+                    .subscribe(this::updateActionBar);
 
-            AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+    private static class TeamInfo {
+        final Team team;
+        final int teamCount;
 
-                @Override
-                protected Void doInBackground(Void... arg0) {
-                    mTeam = mTeams.getCurrentTeam();
-                    mTeamCount = mTeams.getTeamCount();
-                    return null;
-                }
-
-                @Override
-                protected void onPostExecute(Void result) {
-                    ActionBar supportActionBar = getSupportActionBar();
-                    if (supportActionBar != null) {
-                        // If the user has renamed the default team or added other teams, show the current team name in the title
-                        if (mTeamCount > 1 || (mTeam != null && !mTeam.teamName.equals(Constants.DEFAULT_TEAM_NAME))) {
-                            supportActionBar.setTitle(mTeam.teamName);
-                        }
-                        // otherwise the user doesn't care about team management: just show the app title.
-                        else {
-                            supportActionBar.setTitle(R.string.app_name);
-                        }
-                    }
-                    supportInvalidateOptionsMenu();
-                }
-            };
-            task.execute();
+        TeamInfo(Team team, int teamCount) {
+            this.team = team;
+            this.teamCount = teamCount;
         }
-    };
+    }
+
+    @MainThread
+    private void updateActionBar(TeamInfo teamInfo) {
+        ActionBar supportActionBar = getSupportActionBar();
+        if (supportActionBar != null) {
+            // If the user has renamed the default team or added other teams, show the current team name in the title
+            if (teamInfo.teamCount > 1 || (teamInfo.team != null && !teamInfo.team.teamName.equals(Constants.DEFAULT_TEAM_NAME))) {
+                supportActionBar.setTitle(teamInfo.team.teamName);
+            }
+            // otherwise the user doesn't care about team management: just show the app title.
+            else {
+                supportActionBar.setTitle(R.string.app_name);
+            }
+        }
+        supportInvalidateOptionsMenu();
+    }
+
 
     /**
      * The user tapped on the OK button of a confirmation dialog. Execute the action requested by the user.
@@ -429,32 +424,22 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
             mTeams.deleteTeam(teamUri);
         } else if (actionId == R.id.action_import) {
             final Uri uri = extras.getParcelable(EXTRA_IMPORT_URI);
-            AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-
-                @Override
-                protected void onPreExecute() {
-                    DialogFragmentFactory.showProgressDialog(MainActivity.this, getString(R.string.progress_dialog_message), PROGRESS_DIALOG_FRAGMENT_TAG);
+            DialogFragmentFactory.showProgressDialog(MainActivity.this, getString(R.string.progress_dialog_message), PROGRESS_DIALOG_FRAGMENT_TAG);
+            Schedulers.io().scheduleDirect(() -> {
+                boolean result = false;
+                try {
+                    Log.v(TAG, "Importing db from " + uri);
+                    DBImport.importDB(MainActivity.this, uri);
+                    result = true;
+                } catch (Exception e) {
+                    Log.e(TAG, "Error importing db: " + e.getMessage(), e);
                 }
-
-                @Override
-                protected Void doInBackground(Void... params) {
-                    boolean result = false;
-                    try {
-                        Log.v(TAG, "Importing db from " + uri);
-                        DBImport.importDB(MainActivity.this, uri);
-                        result = true;
-                    } catch (Exception e) {
-                        Log.e(TAG, "Error importing db: " + e.getMessage(), e);
-                    }
-                    // Notify ourselves with a broadcast.  If the user rotated the device, this activity
-                    // won't be visible any more. The new activity will receive the broadcast and update
-                    // the UI.
-                    Intent intent = new Intent(ACTION_IMPORT_COMPLETE).putExtra(EXTRA_IMPORT_RESULT, result);
-                    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-                    return null;
-                }
-            };
-            task.execute();
+                // Notify ourselves with a broadcast.  If the user rotated the device, this activity
+                // won't be visible any more. The new activity will receive the broadcast and update
+                // the UI.
+                Intent intent = new Intent(ACTION_IMPORT_COMPLETE).putExtra(EXTRA_IMPORT_RESULT, result);
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+            });
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Carmen Alvarez
+ * Copyright 2013, 2017 Carmen Alvarez
  *
  * This file is part of Scrum Chatter.
  *
@@ -22,18 +22,23 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.WorkerThread;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v7.preference.PreferenceManager;
+
 import ca.rmen.android.scrumchatter.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.meeting.Meetings;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
 import ca.rmen.android.scrumchatter.provider.MeetingCursorWrapper;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Adapter for the list of meetings
@@ -46,21 +51,29 @@ class MeetingPagerAdapter extends FragmentStatePagerAdapter {
     private final MeetingObserver mMeetingObserver;
     private final int mTeamId;
 
-    public MeetingPagerAdapter(Context context, int teamId, FragmentManager fm) {
-        super(fm);
-        Log.v(TAG, "Constructor: teamId = " + teamId);
-        mContext = context;
+    private MeetingPagerAdapter(FragmentActivity activity, int teamId, MeetingCursorWrapper cursor) {
+        super(activity.getSupportFragmentManager());
+        Log.v(TAG, "Constructor");
+        mContext = activity;
         mTeamId = teamId;
-        // Closing the cursor wrapper also closes the cursor
-        @SuppressLint("Recycle")
-        Cursor cursor = context.getContentResolver().query(MeetingColumns.CONTENT_URI, null, MeetingColumns.TEAM_ID + "=?",
-                new String[] { String.valueOf(mTeamId) }, MeetingColumns.MEETING_DATE + " DESC");
-        mCursor = new MeetingCursorWrapper(cursor);
-        mCursor.getCount();
         mMeetingObserver = new MeetingObserver(new Handler(Looper.getMainLooper()));
+        mCursor = cursor;
         mCursor.registerContentObserver(mMeetingObserver);
     }
 
+    static Single<MeetingPagerAdapter> create(FragmentActivity activity) {
+        return Single.fromCallable(() -> {
+            int teamId = PreferenceManager.getDefaultSharedPreferences(activity).getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
+            // Closing the cursor wrapper also closes the cursor
+            @SuppressLint("Recycle")
+            Cursor cursor = activity.getContentResolver().query(MeetingColumns.CONTENT_URI, null, MeetingColumns.TEAM_ID + "=?",
+                    new String[] { String.valueOf(teamId) }, MeetingColumns.MEETING_DATE + " DESC");
+            MeetingCursorWrapper meetingCursorWrapper = new MeetingCursorWrapper(cursor);
+            meetingCursorWrapper.getCount();
+            return new MeetingPagerAdapter(activity, teamId, meetingCursorWrapper);
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
 
     @Override
     public Fragment getItem(int position) {
@@ -105,7 +118,7 @@ class MeetingPagerAdapter extends FragmentStatePagerAdapter {
 
         private final String TAG = MeetingPagerAdapter.TAG + "/" + MeetingObserver.class.getSimpleName();
 
-        public MeetingObserver(Handler handler) {
+        MeetingObserver(Handler handler) {
             super(handler);
             Log.v(TAG, "Constructor");
         }
@@ -117,29 +130,27 @@ class MeetingPagerAdapter extends FragmentStatePagerAdapter {
         public void onChange(boolean selfChange) {
             Log.v(TAG, "MeetingObserver onChange, selfChange: " + selfChange);
             super.onChange(selfChange);
-            new AsyncTask<Void, Void, MeetingCursorWrapper>() {
+            Single.fromCallable(() -> read(mTeamId))
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(meetingCursorWrapper -> {
+                        mCursor.unregisterContentObserver(mMeetingObserver);
+                        mCursor.close();
+                        mCursor = meetingCursorWrapper;
+                        notifyDataSetChanged();
+                        mCursor.registerContentObserver(mMeetingObserver);
+                    });
+        }
 
-                @Override
-                protected MeetingCursorWrapper doInBackground(Void... params) {
-                    // Closing the cursorWrapper also closes the cursor
-                    @SuppressLint("Recycle")
-                    Cursor cursor = mContext.getContentResolver().query(MeetingColumns.CONTENT_URI, null, MeetingColumns.TEAM_ID + "=?",
-                            new String[] { String.valueOf(mTeamId) }, MeetingColumns.MEETING_DATE + " DESC");
-                    MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(cursor);
-                    cursorWrapper.getCount();
-                    return cursorWrapper;
-                }
-
-                @Override
-                protected void onPostExecute(MeetingCursorWrapper result) {
-                    mCursor.unregisterContentObserver(mMeetingObserver);
-                    mCursor.close();
-                    mCursor = result;
-                    notifyDataSetChanged();
-                    mCursor.registerContentObserver(mMeetingObserver);
-                }
-
-            }.execute();
+        @WorkerThread
+        private MeetingCursorWrapper read(int teamId) {
+            // Closing the cursorWrapper also closes the cursor
+            @SuppressLint("Recycle")
+            Cursor cursor = mContext.getContentResolver().query(MeetingColumns.CONTENT_URI, null, MeetingColumns.TEAM_ID + "=?",
+                    new String[] { String.valueOf(teamId) }, MeetingColumns.MEETING_DATE + " DESC");
+            MeetingCursorWrapper cursorWrapper = new MeetingCursorWrapper(cursor);
+            cursorWrapper.getCount();
+            return cursorWrapper;
         }
     }
 

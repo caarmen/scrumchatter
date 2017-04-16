@@ -95,6 +95,8 @@
     <string name="about_credit_jxl_lib_text">Andy Khan, para su biblioteca Java Excel API.</string>
     <string name="about_credit_chart_lib_text">Leszek Wach, para su blblioteca HelloCharts for Android.</string>
     <string name="about_credit_flowlayout_lib_text">Artem Votincev, para su biblioteca FlowLayout.</string>
+    <string name="about_credit_retrolambda_lib_text">Evan Tatarka, para su plugin Gradle Retrolambda.</string>
+    <string name="about_credit_rx_java_lib_text">RxJava Contributors, para RxJava.</string>
 
     <string name="drawer_open">Abrir el menú lateral</string>
     <string name="drawer_close">Cerrar el menú lateral</string>

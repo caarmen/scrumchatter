@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 Carmen Alvarez
+ * Copyright 2013-2017 Carmen Alvarez
  *
  * This file is part of Scrum Chatter.
  *
@@ -157,13 +157,9 @@ public class MeetingCursorAdapter extends ScrumChatterCursorAdapter<MeetingCurso
                 @Override
                 public void onGlobalLayout() {
                     if (!animationDrawable.isRunning()) {
-                        imageView.post(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                animationDrawable.setVisible(true, false);
-                                animationDrawable.start();
-                            }
+                        imageView.post(() -> {
+                            animationDrawable.setVisible(true, false);
+                            animationDrawable.start();
                         });
                     }
                     imageView.getViewTreeObserver().removeGlobalOnLayoutListener(this);

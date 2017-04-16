@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 Carmen Alvarez
+ * Copyright 2013-2017 Carmen Alvarez
  *
  * This file is part of Scrum Chatter.
  *
@@ -25,7 +25,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -116,19 +115,11 @@ public class MeetingsCursorAdapter extends ScrumChatterCursorAdapter<MeetingsCur
                 && Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB) {
             binding.getRoot().setActivated(mSelectedPosition == position);
         }
-        binding.btnDeleteMeeting.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mMeetingListener.onMeetingDelete(meeting);
-            }
-        });
-        binding.getRoot().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mSelectedPosition = holder.getAdapterPosition();
-                mMeetingListener.onMeetingOpen(meeting);
-                notifyDataSetChanged();
-            }
+        binding.btnDeleteMeeting.setOnClickListener(v -> mMeetingListener.onMeetingDelete(meeting));
+        binding.getRoot().setOnClickListener(v -> {
+            mSelectedPosition = holder.getAdapterPosition();
+            mMeetingListener.onMeetingOpen(meeting);
+            notifyDataSetChanged();
         });
     }
 

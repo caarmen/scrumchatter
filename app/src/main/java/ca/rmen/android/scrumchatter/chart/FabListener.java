@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Carmen Alvarez
+ * Copyright 2016-2017 Carmen Alvarez
  * <p/>
  * This file is part of Scrum Chatter.
  * <p/>
@@ -31,6 +31,6 @@ public class FabListener {
     }
 
     public void onShare(View view) {
-        new ChartExportTask(mContext, (View) view.getTag()).execute();
+        ChartExportTask.export(mContext, (View) view.getTag());
     }
 }
