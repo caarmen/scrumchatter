@@ -29,8 +29,8 @@ import android.support.annotation.WorkerThread;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v7.preference.PreferenceManager;
 
+import ca.rmen.android.scrumchatter.settings.Prefs;
 import ca.rmen.android.scrumchatter.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.meeting.Meetings;
@@ -63,7 +63,7 @@ class MeetingPagerAdapter extends FragmentStatePagerAdapter {
 
     static Single<MeetingPagerAdapter> create(FragmentActivity activity) {
         return Single.fromCallable(() -> {
-            int teamId = PreferenceManager.getDefaultSharedPreferences(activity).getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
+            int teamId = Prefs.getInstance(activity).getTeamId();
             // Closing the cursor wrapper also closes the cursor
             @SuppressLint("Recycle")
             Cursor cursor = activity.getContentResolver().query(MeetingColumns.CONTENT_URI, null, MeetingColumns.TEAM_ID + "=?",

@@ -29,8 +29,6 @@ import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.StrictMode;
-import android.os.StrictMode.ThreadPolicy;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -72,6 +70,7 @@ import ca.rmen.android.scrumchatter.team.Teams;
 import ca.rmen.android.scrumchatter.team.Teams.Team;
 import ca.rmen.android.scrumchatter.team.TeamsObserver;
 import ca.rmen.android.scrumchatter.util.Log;
+import ca.rmen.android.scrumchatter.util.StrictModeUtil;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 
@@ -114,11 +113,7 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
         Theme.checkTheme(this);
 
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-        // Use strict mode for monkey tests.  We can't enable strict mode for normal use
-        // because, when sharing (exporting), the mail app may read the attachment in
-        // the main thread.
-        if (ActivityManager.isUserAMonkey())
-            StrictMode.setThreadPolicy(new ThreadPolicy.Builder().detectDiskReads().detectDiskWrites().penaltyLog().penaltyDeath().build());
+        StrictModeUtil.enable();
 
         // Set up the action bar.
         setSupportActionBar(mBinding.toolbarTabs.toolbar);

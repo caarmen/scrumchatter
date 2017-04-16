@@ -23,17 +23,21 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 
+import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.team.Teams;
 import ca.rmen.android.scrumchatter.team.TeamsObserver;
+import ca.rmen.android.scrumchatter.util.Log;
 
 class TeamNavigationMenu {
 
+    private static final String TAG = Constants.TAG + "/" + TeamNavigationMenu.class.getName();
     private final Teams mTeams;
     private final Menu mNavigationMenu;
     private final TeamsObserver mTeamsObserver;
 
     TeamNavigationMenu(FragmentActivity activity, Menu navigationMenu) {
+        Log.v(TAG, "Constructor");
         mTeams = new Teams(activity);
         mNavigationMenu = navigationMenu;
         mTeamsObserver = new TeamsObserver(activity, this::load);
@@ -45,6 +49,7 @@ class TeamNavigationMenu {
     }
 
     void load() {
+        Log.v(TAG, "load");
         mTeams.getAllTeams()
                 .subscribe(teamsData -> {
                             // Update the navigation view.

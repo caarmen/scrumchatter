@@ -32,7 +32,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.RemoteException;
-import android.preference.PreferenceManager;
+
+import ca.rmen.android.scrumchatter.settings.Prefs;
 import ca.rmen.android.scrumchatter.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.util.IOUtils;
@@ -75,7 +76,7 @@ public class DBImport {
         if (c != null) {
             if (c.moveToFirst()) {
                 int teamId = c.getInt(0);
-                PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(Constants.PREF_TEAM_ID, teamId).apply();
+                Prefs.getInstance(context).setTeamId(teamId);
             }
             c.close();
         }

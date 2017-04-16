@@ -25,7 +25,6 @@ import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -45,6 +44,7 @@ import ca.rmen.android.scrumchatter.meeting.detail.Meeting;
 import ca.rmen.android.scrumchatter.meeting.detail.MeetingActivity;
 import ca.rmen.android.scrumchatter.meeting.detail.MeetingFragment;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
+import ca.rmen.android.scrumchatter.settings.Prefs;
 import ca.rmen.android.scrumchatter.util.Log;
 
 /**
@@ -55,7 +55,7 @@ public class MeetingsListFragment extends Fragment {
     private static final int URL_LOADER = 0;
 
     private MeetingsCursorAdapter mAdapter;
-    private SharedPreferences mPrefs;
+    private Prefs mPrefs;
     private Meetings mMeetings;
     private int mTeamId;
     private MeetingsBinding mBinding;
@@ -78,15 +78,15 @@ public class MeetingsListFragment extends Fragment {
         super.onAttach(context);
         // No way around this cast to FragmentActivity
         mMeetings = new Meetings((FragmentActivity) context);
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-        mPrefs.registerOnSharedPreferenceChangeListener(mPrefsListener);
-        mTeamId = mPrefs.getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
+        mPrefs = Prefs.getInstance(context);
+        mPrefs.register(mPrefsListener);
+        mTeamId = mPrefs.getTeamId();
         getLoaderManager().initLoader(URL_LOADER, null, mLoaderCallbacks);
     }
 
     @Override
     public void onDetach() {
-        mPrefs.unregisterOnSharedPreferenceChangeListener(mPrefsListener);
+        mPrefs.unregister(mPrefsListener);
         super.onDetach();
     }
 

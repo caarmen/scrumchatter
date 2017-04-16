@@ -25,7 +25,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -47,12 +46,18 @@ public class SettingsActivity extends AppCompatActivity {
                 beginTransaction().
                 replace(android.R.id.content, fragment).
                 commit();
-        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(mListener);
+        Prefs.getInstance(this).register(mListener);
+    }
+
+    @Override
+    protected void onDestroy() {
+        Prefs.getInstance(this).unregister(mListener);
+        super.onDestroy();
     }
 
     private final SharedPreferences.OnSharedPreferenceChangeListener mListener = (sharedPreferences, key) -> {
         Context context = getApplicationContext();
-        if (Theme.PREF_THEME.equals(key)) {
+        if (Prefs.PREF_THEME.equals(key)) {
             // When the theme changes, restart the app
             Intent intent = new Intent(context, SettingsActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

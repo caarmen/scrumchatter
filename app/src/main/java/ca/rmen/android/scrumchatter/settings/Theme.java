@@ -22,19 +22,16 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.os.Build;
 import android.support.v7.app.AppCompatDelegate;
-import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 
 import ca.rmen.android.scrumchatter.Constants;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class Theme {
     private static final String TAG = Constants.TAG + Theme.class.getSimpleName();
-
-    static final String PREF_THEME = "PREF_THEME";
-    private static final String THEME_DARK = "Dark";
-    private static final String THEME_LIGHT = "Light";
-    private static final String THEME_AUTO = "Auto";
 
     /**
      * If the app isn't using the theme in the shared preferences, this
@@ -46,26 +43,29 @@ public class Theme {
             return;
         }
 
-        String theme = PreferenceManager.getDefaultSharedPreferences(activity).getString(PREF_THEME, THEME_LIGHT);
-        if (THEME_DARK.equals(theme)) {
-            if (AppCompatDelegate.getDefaultNightMode() != AppCompatDelegate.MODE_NIGHT_YES) {
-                Log.v(TAG, "Restarting in dark mode");
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                activity.recreate();
-            }
-        } else if (THEME_LIGHT.equals(theme)){
-            if (AppCompatDelegate.getDefaultNightMode() != AppCompatDelegate.MODE_NIGHT_NO) {
-                Log.v(TAG, "Restarting in light mode");
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                activity.recreate();
-            }
-        } else if (THEME_AUTO.equals(theme)) {
-            if (AppCompatDelegate.getDefaultNightMode() != AppCompatDelegate.MODE_NIGHT_AUTO) {
-                Log.v(TAG, "Restarting in auto mode");
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO);
-                activity.recreate();
-            }
-
-        }
+        Single.fromCallable(() -> Prefs.getInstance(activity).getTheme())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(theme -> {
+                    if (theme == Prefs.Theme.Dark) {
+                        if (AppCompatDelegate.getDefaultNightMode() != AppCompatDelegate.MODE_NIGHT_YES) {
+                            Log.v(TAG, "Restarting in dark mode");
+                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                            activity.recreate();
+                        }
+                    } else if (theme == Prefs.Theme.Light){
+                        if (AppCompatDelegate.getDefaultNightMode() != AppCompatDelegate.MODE_NIGHT_NO) {
+                            Log.v(TAG, "Restarting in light mode");
+                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                            activity.recreate();
+                        }
+                    } else if (theme == Prefs.Theme.Auto) {
+                        if (AppCompatDelegate.getDefaultNightMode() != AppCompatDelegate.MODE_NIGHT_AUTO) {
+                            Log.v(TAG, "Restarting in auto mode");
+                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO);
+                            activity.recreate();
+                        }
+                    }
+                });
     }
 }

@@ -23,7 +23,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.MainThread;
 import android.support.annotation.WorkerThread;
 import android.support.v4.app.FragmentActivity;
@@ -37,6 +36,7 @@ import ca.rmen.android.scrumchatter.R;
 import ca.rmen.android.scrumchatter.dialog.DialogFragmentFactory;
 import ca.rmen.android.scrumchatter.dialog.InputDialogFragment.InputValidator;
 import ca.rmen.android.scrumchatter.provider.TeamColumns;
+import ca.rmen.android.scrumchatter.settings.Prefs;
 import ca.rmen.android.scrumchatter.util.Log;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -95,7 +95,7 @@ public class Teams {
                     c.moveToFirst();
                     if (c.getCount() == 1) {
                         int teamId = c.getInt(0);
-                        PreferenceManager.getDefaultSharedPreferences(mActivity).edit().putInt(Constants.PREF_TEAM_ID, teamId).apply();
+                        Prefs.getInstance(mActivity).setTeamId(teamId);
                     } else {
                         Log.wtf(TAG, "Found " + c.getCount() + " teams for " + teamName);
                     }
@@ -127,7 +127,7 @@ public class Teams {
                 Uri newTeamUri = mActivity.getContentResolver().insert(TeamColumns.CONTENT_URI, values);
                 if (newTeamUri != null) {
                     int newTeamId = Integer.valueOf(newTeamUri.getLastPathSegment());
-                    PreferenceManager.getDefaultSharedPreferences(mActivity).edit().putInt(Constants.PREF_TEAM_ID, newTeamId).apply();
+                    Prefs.getInstance(mActivity).setTeamId(newTeamId);
                 }
             });
         }
@@ -209,7 +209,7 @@ public class Teams {
                 if (c.moveToFirst()) {
                     int teamId = c.getInt(0);
                     String teamName = c.getString(1);
-                    PreferenceManager.getDefaultSharedPreferences(mActivity).edit().putInt(Constants.PREF_TEAM_ID, teamId).apply();
+                    Prefs.getInstance(mActivity).setTeamId(teamId);
                     Uri teamUri = Uri.withAppendedPath(TeamColumns.CONTENT_URI, String.valueOf(teamId));
                     return new Team(teamUri, teamName);
                 }
@@ -226,7 +226,7 @@ public class Teams {
     @WorkerThread
     private Team getCurrentTeam() {
         // Retrieve the current team name and construct a uri for the team based on the current team id.
-        int teamId = PreferenceManager.getDefaultSharedPreferences(mActivity).getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
+        int teamId = Prefs.getInstance(mActivity).getTeamId();
         Uri teamUri = Uri.withAppendedPath(TeamColumns.CONTENT_URI, String.valueOf(teamId));
         Cursor c = mActivity.getContentResolver().query(teamUri, new String[] { TeamColumns.TEAM_NAME }, null, null, null);
         if (c != null) {
@@ -247,7 +247,9 @@ public class Teams {
      * Query the teams table, and return a list of all teams, and the current team.
      */
     public Single<TeamsData> getAllTeams() {
+        Log.v(TAG, "getAllTeams");
         return Single.fromCallable(() -> {
+            Log.v(TAG, "getAllTeams work");
             List<Team> teams = new ArrayList<>();
             Cursor c = mActivity.getContentResolver().query(
                     TeamColumns.CONTENT_URI,

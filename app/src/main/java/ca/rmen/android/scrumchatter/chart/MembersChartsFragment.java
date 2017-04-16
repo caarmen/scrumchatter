@@ -18,11 +18,9 @@
  */
 package ca.rmen.android.scrumchatter.chart;
 
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -38,6 +36,7 @@ import ca.rmen.android.scrumchatter.databinding.MembersChartsFragmentBinding;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
 import ca.rmen.android.scrumchatter.provider.MemberColumns;
 import ca.rmen.android.scrumchatter.provider.MemberStatsColumns;
+import ca.rmen.android.scrumchatter.settings.Prefs;
 import ca.rmen.android.scrumchatter.team.Teams;
 import ca.rmen.android.scrumchatter.util.Log;
 
@@ -77,8 +76,7 @@ public class MembersChartsFragment extends Fragment {
 
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-            long teamId = sharedPreferences.getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
+            long teamId = Prefs.getInstance(getContext()).getTeamId();
             String[] selectionArgs = new String[]{String.valueOf(teamId)};
 
             if (id == LOADER_MEMBER_SPEAKING_TIME) {

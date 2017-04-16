@@ -21,16 +21,18 @@ package ca.rmen.android.scrumchatter.team;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.ContentObserver;
-import android.support.v7.preference.PreferenceManager;
 
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.provider.TeamColumns;
+import ca.rmen.android.scrumchatter.settings.Prefs;
+import ca.rmen.android.scrumchatter.util.Log;
 
 
 /**
  * Notifies listeners of changes to teams: teams added, removed, renamed, or the current team selection changed.
  */
 public class TeamsObserver {
+    private static final String TAG = Constants.TAG + "/" + TeamsObserver.class.getSimpleName();
 
     public interface OnTeamsChangedListener {
         void onTeamsChanged();
@@ -45,13 +47,13 @@ public class TeamsObserver {
     }
 
     public void register() {
-        PreferenceManager.getDefaultSharedPreferences(mContext).registerOnSharedPreferenceChangeListener(mSharedPrefsListener);
+        Prefs.getInstance(mContext).register(mSharedPrefsListener);
         mContext.getContentResolver().registerContentObserver(TeamColumns.CONTENT_URI, true, mContentObserver);
 
     }
 
     public void destroy() {
-        PreferenceManager.getDefaultSharedPreferences(mContext).unregisterOnSharedPreferenceChangeListener(mSharedPrefsListener);
+        Prefs.getInstance(mContext).unregister(mSharedPrefsListener);
         mContext.getContentResolver().unregisterContentObserver(mContentObserver);
 
     }
@@ -61,6 +63,7 @@ public class TeamsObserver {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
             if (Constants.PREF_TEAM_ID.equals(key)) {
+                Log.v(TAG, "Team changed");
                 mListener.onTeamsChanged();
             }
         }

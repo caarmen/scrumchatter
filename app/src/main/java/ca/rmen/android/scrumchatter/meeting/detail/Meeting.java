@@ -27,9 +27,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.WorkerThread;
 
+import ca.rmen.android.scrumchatter.settings.Prefs;
 import ca.rmen.android.scrumchatter.util.Log;
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns;
@@ -102,9 +103,10 @@ public class Meeting {
     /**
      * Create a new Meeting. This persists the new meeting to the DB.
      */
+    @WorkerThread
     public static Meeting createNewMeeting(Context context) {
         Log.v(TAG, "create new meeting");
-        int teamId = PreferenceManager.getDefaultSharedPreferences(context).getInt(Constants.PREF_TEAM_ID, Constants.DEFAULT_TEAM_ID);
+        int teamId = Prefs.getInstance(context).getTeamId();
         ContentValues values = new ContentValues();
         long startDate = System.currentTimeMillis();
         values.put(MeetingColumns.MEETING_DATE, System.currentTimeMillis());
