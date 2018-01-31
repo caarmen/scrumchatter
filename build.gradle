@@ -1,15 +1,17 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     repositories {
+        google()
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.1'
+        classpath 'com.android.tools.build:gradle:3.0.1'
     }
 }
 
 allprojects {
     repositories {
+        google()
         jcenter()
     }
     configurations.all {
@@ -23,4 +25,4 @@ idea {
         excludeDirs = [file("etc"), file("signing.properties"), file("signing.properties.template")]
     }
 }
-ext.supportLibVersion="25.3.1"
+ext.supportLibVersion="27.0.2"
