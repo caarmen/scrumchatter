@@ -95,7 +95,9 @@
     <string name="about_credit_app_icon_text">qubodup for the speech bubble icon on openclipart.</string>
     <string translatable="false" name="about_credit_app_icon_link">http://openclipart.org/detail/14322/16x16px-capable-black-and-white-icons-by-qubodup-14322</string>
     <string name="about_credit_japanese_translation_text">Naofumi Fukue for the Japanese translation.</string>
+    <string name="about_credit_bug_corrections_text">Amaël Sikel for bug corrections.</string>
     <string translatable="false" name="about_credit_japanese_translation_link">https://github.com/naofum</string>
+    <string translatable="false" name="about_credit_bug_corrections_link">https://github.com/r4dixx</string>
     <string name="about_credit_jxl_lib_text">Andy Khan, for his Java Excel API library.</string>
     <string translatable="false" name="about_credit_jxl_lib_link">http://sourceforge.net/projects/jexcelapi</string>
     <string name="about_credit_chart_lib_text">Leszek Wach, for his HelloCharts for Android library.</string>
