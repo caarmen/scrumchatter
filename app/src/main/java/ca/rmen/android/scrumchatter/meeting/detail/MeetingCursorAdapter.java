@@ -21,24 +21,25 @@ package ca.rmen.android.scrumchatter.meeting.detail;
 import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.graphics.drawable.AnimationDrawable;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
-
-import ca.rmen.android.scrumchatter.databinding.MeetingMemberListItemBinding;
-import ca.rmen.android.scrumchatter.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.ImageView;
+
 import ca.rmen.android.scrumchatter.Constants;
 import ca.rmen.android.scrumchatter.R;
+import ca.rmen.android.scrumchatter.databinding.MeetingMemberListItemBinding;
 import ca.rmen.android.scrumchatter.provider.MeetingColumns.State;
 import ca.rmen.android.scrumchatter.provider.MeetingMemberCursorWrapper;
+import ca.rmen.android.scrumchatter.util.Log;
 import ca.rmen.android.scrumchatter.widget.ScrumChatterCursorAdapter;
 
 /**
@@ -113,7 +114,9 @@ public class MeetingCursorAdapter extends ScrumChatterCursorAdapter<MeetingCurso
         if (meetingMemberItemData.isTalking) {
             long hasBeenTalkingFor = duration * 1000 + (System.currentTimeMillis() - talkStartTime);
             binding.tvDuration.setBase(SystemClock.elapsedRealtime() - hasBeenTalkingFor);
-            binding.tvDuration.start();
+            // Issue #63: for some reason, if we start the chronometer directly, on some devices it
+            // may not appear to update.
+            new Handler().post(binding.tvDuration::start);
             meetingMemberItemData.durationColor = mColorChronoActive;
             startAnimation(binding.ivChatterFace);
         } else {
