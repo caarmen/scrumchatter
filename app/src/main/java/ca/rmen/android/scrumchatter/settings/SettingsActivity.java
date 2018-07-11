@@ -41,11 +41,13 @@ public class SettingsActivity extends AppCompatActivity {
         Theme.checkTheme(this);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) actionBar.setDisplayHomeAsUpEnabled(true);
-        GeneralPreferenceFragment fragment = new GeneralPreferenceFragment();
-        getSupportFragmentManager().
-                beginTransaction().
-                replace(android.R.id.content, fragment).
-                commit();
+        if (savedInstanceState == null) {
+            GeneralPreferenceFragment fragment = new GeneralPreferenceFragment();
+            getSupportFragmentManager().
+                    beginTransaction().
+                    replace(android.R.id.content, fragment).
+                    commit();
+        }
         Prefs.getInstance(this).register(mListener);
     }
 
