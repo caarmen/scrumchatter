@@ -1,10 +1,6 @@
 Scrum Chatter
 =============
 
-<a href="https://f-droid.org/repository/browse/?fdid=ca.rmen.android.scrumchatter" target="_blank">
-<img src="https://f-droid.org/badge/get-it-on.png" height="80"/></a>
-<a href="https://play.google.com/store/apps/details?id=ca.rmen.android.scrumchatter" target="_blank">
-<img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" height="80"/></a>
 
 Android app to track how long people talk during meetings.
 
