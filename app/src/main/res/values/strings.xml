@@ -119,15 +119,18 @@
     <string name="pref_theme_value_light">Light</string>
     <string name="pref_theme_value_dark">Dark</string>
     <string name="pref_theme_value_auto">Automatic</string>
+    <string name="pref_theme_value_system">System</string>
     <string-array name="pref_theme_titles">
         <item>@string/pref_theme_value_light</item>
         <item>@string/pref_theme_value_dark</item>
         <item>@string/pref_theme_value_auto</item>
+        <item>@string/pref_theme_value_system</item>
     </string-array>
     <string-array translatable="false" name="pref_theme_values">
         <item>Light</item>
         <item>Dark</item>
         <item>Auto</item>
+        <item>System</item>
     </string-array>
 
     <!-- Default team members -->

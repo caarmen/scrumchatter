@@ -65,6 +65,12 @@ public class Theme {
                             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO);
                             activity.recreate();
                         }
+                    } else if (theme == Prefs.Theme.System) {
+                        if (AppCompatDelegate.getDefaultNightMode() != AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
+                            Log.v(TAG, "Restarting in follow-system mode");
+                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                            activity.recreate();
+                        }
                     }
                 });
     }

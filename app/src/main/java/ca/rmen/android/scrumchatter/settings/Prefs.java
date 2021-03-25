@@ -34,7 +34,8 @@ public final class Prefs {
     enum Theme {
         Dark,
         Light,
-        Auto
+        Auto,
+        System
     }
 
     static final String PREF_THEME = "PREF_THEME";

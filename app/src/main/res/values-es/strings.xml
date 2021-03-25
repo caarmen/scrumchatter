@@ -122,5 +122,6 @@
     <string name="chart_speaking_time">Tiempo de palabra (minutos)</string>
     <string name="chart_date">Fecha de la reunión</string>
     <string name="chart_exporting_snackbar">Exportación de la gráfica…</string>
+    <string name="pref_theme_value_system">Sistema</string>
 
 </resources>
