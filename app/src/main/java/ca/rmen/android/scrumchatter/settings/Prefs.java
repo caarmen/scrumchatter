@@ -78,10 +78,10 @@ public final class Prefs {
 
     @NonNull
     public Theme getTheme() {
-        String themeName = mPrefs.getString(PREF_THEME, Theme.Light.name());
+        String themeName = mPrefs.getString(PREF_THEME, Theme.System.name());
         for (Theme theme : Theme.values()) {
             if (theme.name().equals(themeName)) return theme;
         }
-        return Theme.Light;
+        return Theme.System;
     }
 }
