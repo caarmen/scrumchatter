@@ -405,37 +405,75 @@ public class MainActivity extends AppCompatActivity implements DialogButtonListe
     @Override
     public void onOkClicked(int actionId, Bundle extras) {
         Log.v(TAG, "onClicked: actionId = " + actionId + ", extras = " + extras);
-        if (actionId == R.id.action_delete_meeting) {
-            long meetingId = extras.getLong(Meetings.EXTRA_MEETING_ID);
-            mMeetings.delete(meetingId);
-        } else if (actionId == R.id.btn_stop_meeting) {
-            MeetingFragment meetingFragment = MeetingFragment.lookupMeetingFragment(getSupportFragmentManager());
-            if (meetingFragment != null) meetingFragment.stopMeeting();
-        } else if (actionId == R.id.action_delete_member) {
-            long memberId = extras.getLong(Members.EXTRA_MEMBER_ID);
-            mMembers.deleteMember(memberId);
-        } else if (actionId == R.id.action_team_delete) {
-            Uri teamUri = extras.getParcelable(Teams.EXTRA_TEAM_URI);
-            mTeams.deleteTeam(teamUri);
-        } else if (actionId == R.id.action_import) {
-            final Uri uri = extras.getParcelable(EXTRA_IMPORT_URI);
-            DialogFragmentFactory.showProgressDialog(MainActivity.this, getString(R.string.progress_dialog_message), PROGRESS_DIALOG_FRAGMENT_TAG);
-            Schedulers.io().scheduleDirect(() -> {
-                boolean result = false;
-                try {
-                    Log.v(TAG, "Importing db from " + uri);
-                    DBImport.importDB(MainActivity.this, uri);
-                    result = true;
-                } catch (Exception e) {
-                    Log.e(TAG, "Error importing db: " + e.getMessage(), e);
-                }
-                // Notify ourselves with a broadcast.  If the user rotated the device, this activity
-                // won't be visible any more. The new activity will receive the broadcast and update
-                // the UI.
-                Intent intent = new Intent(ACTION_IMPORT_COMPLETE).putExtra(EXTRA_IMPORT_RESULT, result);
-                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-            });
+        switch(actionId)
+        {
+            case R.id.action_delete_meeting:
+                long meetingId = extras.getLong(Meetings.EXTRA_MEETING_ID);
+                mMeetings.delete(meetingId);
+                break;
+            case R.id.btn_stop_meeting:
+                MeetingFragment meetingFragment = MeetingFragment.lookupMeetingFragment(getSupportFragmentManager());
+                if (meetingFragment != null) meetingFragment.stopMeeting();
+                break;
+            case R.id.action_delete_member:
+                long memberId = extras.getLong(Members.EXTRA_MEMBER_ID);
+                mMembers.deleteMember(memberId);
+                break;
+            case R.id.action_team_delete:
+                Uri teamUri = extras.getParcelable(Teams.EXTRA_TEAM_URI);
+                mTeams.deleteTeam(teamUri);
+                break;
+            case R.id.action_import:
+                final Uri uri = extras.getParcelable(EXTRA_IMPORT_URI);
+                DialogFragmentFactory.showProgressDialog(MainActivity.this, getString(R.string.progress_dialog_message), PROGRESS_DIALOG_FRAGMENT_TAG);
+                Schedulers.io().scheduleDirect(() -> {
+                    boolean result = false;
+                    try {
+                        Log.v(TAG, "Importing db from " + uri);
+                        DBImport.importDB(MainActivity.this, uri);
+                        result = true;
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error importing db: " + e.getMessage(), e);
+                    }
+                    // Notify ourselves with a broadcast.  If the user rotated the device, this activity
+                    // won't be visible any more. The new activity will receive the broadcast and update
+                    // the UI.
+                    Intent intent = new Intent(ACTION_IMPORT_COMPLETE).putExtra(EXTRA_IMPORT_RESULT, result);
+                    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+                });
+                break;
         }
+//         if (actionId == R.id.action_delete_meeting) {
+//             long meetingId = extras.getLong(Meetings.EXTRA_MEETING_ID);
+//             mMeetings.delete(meetingId);
+//         } else if (actionId == R.id.btn_stop_meeting) {
+//             MeetingFragment meetingFragment = MeetingFragment.lookupMeetingFragment(getSupportFragmentManager());
+//             if (meetingFragment != null) meetingFragment.stopMeeting();
+//         } else if (actionId == R.id.action_delete_member) {
+//             long memberId = extras.getLong(Members.EXTRA_MEMBER_ID);
+//             mMembers.deleteMember(memberId);
+//         } else if (actionId == R.id.action_team_delete) {
+//             Uri teamUri = extras.getParcelable(Teams.EXTRA_TEAM_URI);
+//             mTeams.deleteTeam(teamUri);
+//         } else if (actionId == R.id.action_import) {
+//             final Uri uri = extras.getParcelable(EXTRA_IMPORT_URI);
+//             DialogFragmentFactory.showProgressDialog(MainActivity.this, getString(R.string.progress_dialog_message), PROGRESS_DIALOG_FRAGMENT_TAG);
+//             Schedulers.io().scheduleDirect(() -> {
+//                 boolean result = false;
+//                 try {
+//                     Log.v(TAG, "Importing db from " + uri);
+//                     DBImport.importDB(MainActivity.this, uri);
+//                     result = true;
+//                 } catch (Exception e) {
+//                     Log.e(TAG, "Error importing db: " + e.getMessage(), e);
+//                 }
+//                 // Notify ourselves with a broadcast.  If the user rotated the device, this activity
+//                 // won't be visible any more. The new activity will receive the broadcast and update
+//                 // the UI.
+//                 Intent intent = new Intent(ACTION_IMPORT_COMPLETE).putExtra(EXTRA_IMPORT_RESULT, result);
+//                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+//             });
+//         }
     }
 
     /**
